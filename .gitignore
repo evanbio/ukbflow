@@ -1,6 +1,13 @@
+# Claude
+CLAUDE.md
+
+# Dev tools
+dev/
+
 # R
 .Rhistory
 .RData
 .Rproj.user/
 *.Rproj
 .Renviron
+.Rproj.user
