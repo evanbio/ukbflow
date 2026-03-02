@@ -135,6 +135,68 @@ fetch_url <- function(path, duration = "1d") {
 }
 
 
+#' Download a remote RAP file or folder to local disk
+#'
+#' Downloads one file or all files within a folder from the DNAnexus Research
+#' Analysis Platform. Single files are downloaded sequentially; folders are
+#' downloaded in parallel using \code{curl::multi_download()}.
+#'
+#' @param path (character) Remote file or folder path.
+#' @param local_dir (character) Local destination directory. Created
+#'   automatically if it does not exist. Default: \code{"."}.
+#' @param overwrite (logical) Overwrite existing local files. Default:
+#'   \code{FALSE}.
+#' @param resume (logical) Resume an interrupted download. Useful for large
+#'   files (e.g. \code{.bed}, \code{.bgen}). Default: \code{FALSE}.
+#'
+#' @return Invisibly returns the local file path(s) as a character vector.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Download a single file
+#' fetch_file("Showcase metadata/field.tsv", local_dir = "data/")
+#'
+#' # Resume a large interrupted download
+#' fetch_file("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/ukb23158_c1_b0_v1.bed",
+#'            local_dir = "data/", resume = TRUE)
+#'
+#' # Download an entire folder
+#' fetch_file("Showcase metadata/", local_dir = "data/metadata/")
+#' }
+fetch_file <- function(path, local_dir = ".", overwrite = FALSE,
+                       resume = FALSE, verbose = TRUE) {
+  if (!dir.exists(local_dir)) {
+    dir.create(local_dir, recursive = TRUE)
+  }
+
+  is_folder <- endsWith(trimws(path), "/")
+
+  if (!is_folder) {
+    # Single file
+    url      <- .dx_make_url(path)
+    destfile <- file.path(local_dir, basename(.dx_normalize_path(path)))
+    .dx_download_file(url, destfile, overwrite = overwrite, resume = resume, verbose = verbose)
+
+  } else {
+    # Folder: list files, batch generate URLs, parallel download
+    files <- fetch_ls(path, type = "file")
+    if (nrow(files) == 0) {
+      message("No files found in '", path, "'.")
+      return(invisible(character(0)))
+    }
+
+    norm      <- .dx_normalize_path(path)
+    urls      <- vapply(file.path(norm, files$name),
+                        function(f) .dx_make_url(f), character(1))
+    destfiles <- file.path(local_dir, files$name)
+
+    .dx_download_batch(urls, destfiles, overwrite = overwrite,
+                       resume = resume, verbose = verbose)
+  }
+}
+
+
 fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
   norm  <- .dx_normalize_path(path)
   lines <- character(0)

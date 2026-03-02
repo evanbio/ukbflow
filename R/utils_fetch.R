@@ -59,6 +59,81 @@
 }
 
 
+#' Download a single file via pre-authenticated URL
+#'
+#' @param url (character) Pre-authenticated HTTPS URL.
+#' @param destfile (character) Full local file path to save to.
+#' @param overwrite (logical) Overwrite if file exists. Default: FALSE.
+#' @param resume (logical) Resume interrupted download. Default: FALSE.
+#'
+#' @keywords internal
+#' @noRd
+.dx_download_file <- function(url, destfile, overwrite = FALSE, resume = FALSE, verbose = TRUE) {
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    stop("Package 'curl' is required. Install with: install.packages('curl')", call. = FALSE)
+  }
+
+  if (file.exists(destfile) && !overwrite && !resume) {
+    message("Skipping (already exists): ", basename(destfile))
+    return(invisible(destfile))
+  }
+
+  h <- curl::new_handle()
+  curl::handle_setopt(h, followlocation = TRUE, noprogress = !verbose)
+
+  # Reason: resume appends from the current file size if signatures match
+  if (resume && file.exists(destfile)) {
+    curl::handle_setopt(h, resume_from = file.info(destfile)$size)
+  }
+
+  curl::curl_download(url, destfile = destfile, handle = h, quiet = FALSE)
+  invisible(destfile)
+}
+
+
+#' Download multiple files in parallel via pre-authenticated URLs
+#'
+#' @param urls (character) Named character vector of URLs (names = filenames).
+#' @param destfiles (character) Character vector of full local file paths.
+#' @param overwrite (logical) Overwrite existing files. Default: FALSE.
+#' @param resume (logical) Resume interrupted downloads. Default: FALSE.
+#' @param workers (integer) Number of parallel connections. Default: 4.
+#'
+#' @keywords internal
+#' @noRd
+.dx_download_batch <- function(urls, destfiles, overwrite = FALSE,
+                                resume = FALSE, verbose = TRUE) {
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    stop("Package 'curl' is required. Install with: install.packages('curl')", call. = FALSE)
+  }
+
+  # Reason: skip files that already exist when overwrite = FALSE and resume = FALSE
+  if (!overwrite && !resume) {
+    skip    <- file.exists(destfiles)
+    if (any(skip)) {
+      message("Skipping ", sum(skip), " already existing file(s).")
+      urls      <- urls[!skip]
+      destfiles <- destfiles[!skip]
+    }
+  }
+
+  if (length(urls) == 0) {
+    message("All files already exist, nothing to download.")
+    return(invisible(destfiles))
+  }
+
+  curl::multi_download(
+    urls     = urls,
+    destfile = destfiles,
+    resume   = resume,
+    progress = verbose,
+    multiplex = TRUE
+  )
+
+  invisible(destfiles)
+}
+
+
 #' Parse dx ls -l stdout into a data.frame
 #'
 #' @param stdout (character) Raw stdout from dx ls -l.
