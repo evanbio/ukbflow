@@ -1,5 +1,5 @@
 # =============================================================================
-# fetch.R — Remote RAP file system exploration
+# fetch.R — Remote RAP file system exploration and data retrieval
 # =============================================================================
 
 
@@ -84,6 +84,57 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 #' fetch_tree("Bulk/", max_depth = 3)
 #' fetch_tree(verbose = FALSE)
 #' }
+#' Get pre-authenticated download URL(s) for a remote RAP file or folder
+#'
+#' Generates temporary HTTPS URLs for files on the DNAnexus Research Analysis
+#' Platform. For a single file, returns one URL. For a folder, lists all files
+#' inside and returns a named character vector of URLs.
+#'
+#' @param path (character) Remote file path or folder path, e.g.
+#'   \code{"Showcase metadata/field.tsv"} or \code{"Showcase metadata/"}.
+#' @param duration (character) How long the URLs remain valid. Accepts
+#'   suffixes: \code{s}, \code{m}, \code{h}, \code{d}, \code{w}, \code{M},
+#'   \code{y}. Default: \code{"1d"} (one day).
+#'
+#' @return A named character vector of pre-authenticated HTTPS URLs.
+#'   Names are the file names.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Single file
+#' fetch_url("Showcase metadata/field.tsv")
+#'
+#' # Entire folder
+#' fetch_url("Showcase metadata/", duration = "7d")
+#' }
+fetch_url <- function(path, duration = "1d") {
+  norm <- .dx_normalize_path(path)
+
+  # Reason: detect folder by trailing slash or by checking if ls returns folders
+  is_folder <- endsWith(trimws(path), "/")
+
+  if (!is_folder) {
+    url <- .dx_make_url(norm, duration = duration)
+    return(stats::setNames(url, basename(norm)))
+  }
+
+  # Folder: list all files then loop
+  files <- fetch_ls(path, type = "file")
+  if (nrow(files) == 0) {
+    message("No files found in '", path, "'.")
+    return(invisible(character(0)))
+  }
+
+  urls <- vapply(
+    file.path(norm, files$name),
+    function(f) .dx_make_url(f, duration = duration),
+    character(1)
+  )
+  stats::setNames(urls, files$name)
+}
+
+
 fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
   norm  <- .dx_normalize_path(path)
   lines <- character(0)

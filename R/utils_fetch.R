@@ -41,6 +41,24 @@
 }
 
 
+#' Generate a pre-authenticated download URL for a remote RAP file
+#'
+#' @param path (character) Remote file path.
+#' @param duration (character) URL validity duration. Default: \code{"1d"}.
+#' @return Character string — the pre-authenticated HTTPS URL.
+#'
+#' @keywords internal
+#' @noRd
+.dx_make_url <- function(path, duration = "1d") {
+  norm <- .dx_normalize_path(path)
+  result <- .dx_run(c("make_download_url", "--duration", duration, norm), timeout = 30)
+  if (!result$success) {
+    stop("Failed to generate URL for '", path, "': ", result$stderr, call. = FALSE)
+  }
+  trimws(result$stdout)
+}
+
+
 #' Parse dx ls -l stdout into a data.frame
 #'
 #' @param stdout (character) Raw stdout from dx ls -l.
@@ -96,7 +114,7 @@
         paste0(
           "^(\\S+)",                                      # state
           "\\s+(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})",  # modified
-          "\\s+(?:([\\d.]+ [KMGT]?B)\\s+)?",             # optional size
+          "\\s+(?:([\\d.]+ (?:[KMGT]?B|bytes))\\s+)?",    # optional size (KB/MB/GB/bytes)
           "(.+?)\\s*$"                                    # name
         ),
         core, perl = TRUE
