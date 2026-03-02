@@ -1,7 +1,8 @@
-# test-integration-auth.R
-# Integration tests for auth_ series (requires real dx-toolkit, token, network)
+# =============================================================================
+# test-integration-auth.R — Integration tests for auth_ series
+# Requires real dx-toolkit, token, and network connection
 # Run manually before release: devtools::test(filter = "integration-auth")
-# -------------------------------------------------------------------------
+# =============================================================================
 
 skip_on_ci()
 skip_on_cran()

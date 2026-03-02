@@ -1,3 +1,8 @@
+# =============================================================================
+# auth.R — Authentication & connection to DNAnexus RAP
+# =============================================================================
+
+
 #' Login to DNAnexus with a token
 #'
 #' Authenticates with the DNAnexus Research Analysis Platform using an API
