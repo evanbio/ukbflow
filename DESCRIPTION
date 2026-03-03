@@ -12,6 +12,7 @@ Imports:
     cli,
     curl,
     data.table,
+    jsonlite,
     processx
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
