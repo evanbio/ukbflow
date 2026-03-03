@@ -9,6 +9,7 @@ Description: A streamlined workflow for UK Biobank data extraction, clinical
     and downstream high-quality plot generation.
 License: MIT + file LICENSE
 Imports:
+    curl,
     processx
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

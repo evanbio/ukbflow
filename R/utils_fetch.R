@@ -69,10 +69,6 @@
 #' @keywords internal
 #' @noRd
 .dx_download_file <- function(url, destfile, overwrite = FALSE, resume = FALSE, verbose = TRUE) {
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    stop("Package 'curl' is required. Install with: install.packages('curl')", call. = FALSE)
-  }
-
   if (file.exists(destfile) && !overwrite && !resume) {
     message("Skipping (already exists): ", basename(destfile))
     return(invisible(destfile))
@@ -103,10 +99,6 @@
 #' @noRd
 .dx_download_batch <- function(urls, destfiles, overwrite = FALSE,
                                 resume = FALSE, verbose = TRUE) {
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    stop("Package 'curl' is required. Install with: install.packages('curl')", call. = FALSE)
-  }
-
   # Reason: skip files that already exist when overwrite = FALSE and resume = FALSE
   if (!overwrite && !resume) {
     skip    <- file.exists(destfiles)
