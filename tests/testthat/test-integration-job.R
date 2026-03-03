@@ -1,0 +1,113 @@
+# =============================================================================
+# test-integration-job.R — Integration tests for job_ series
+# Requires real dx-toolkit, token, and network connection
+# Run manually before release: devtools::test(filter = "integration-job")
+# =============================================================================
+
+skip_on_ci()
+skip_on_cran()
+
+token <- Sys.getenv("DX_API_TOKEN")
+if (!nzchar(token)) {
+  skip("DX_API_TOKEN not set. Set it to run integration tests.")
+}
+
+# Known job IDs from this project (used as stable test fixtures)
+# State is immutable once terminal — safe to hardcode
+JOB_DONE   <- "job-J6YBJ7QJ0QQ82Kz0J52x2jGp"   # done, ukb_pheno_20260303_171503
+JOB_FAILED <- "job-J6YB4jjJ0QQ3fVJ0yPqG3b1K"   # failed, CRLF error
+
+# ===========================================================================
+# job_ls()
+# ===========================================================================
+
+test_that("job_ls() returns a data.frame with correct columns", {
+  result <- job_ls(n = 5)
+  expect_s3_class(result, "data.frame")
+  expect_named(result, c("job_id", "name", "state", "created", "runtime"))
+})
+
+test_that("job_ls() returns at least one job", {
+  result <- job_ls(n = 5)
+  expect_gt(nrow(result), 0)
+})
+
+test_that("job_ls() job_id values follow job-XXXX format", {
+  result <- job_ls(n = 5)
+  expect_true(all(grepl("^job-", result$job_id)))
+})
+
+test_that("job_ls() state column contains only valid states", {
+  valid_states <- c("idle", "runnable", "running", "done", "failed", "terminated")
+  result <- job_ls(n = 20)
+  expect_true(all(result$state %in% valid_states))
+})
+
+test_that("job_ls() created column is POSIXct", {
+  result <- job_ls(n = 5)
+  expect_s3_class(result$created, "POSIXct")
+})
+
+test_that("job_ls() state filter returns only matching rows", {
+  result <- job_ls(n = 20, state = "done")
+  if (nrow(result) > 0) {
+    expect_true(all(result$state == "done"))
+  } else {
+    skip("No done jobs found to test filter.")
+  }
+})
+
+# ===========================================================================
+# job_status()
+# ===========================================================================
+
+test_that("job_status() returns 'done' for known done job", {
+  result <- job_status(JOB_DONE)
+  expect_equal(result[[1]], "done")
+})
+
+test_that("job_status() returns named character with job_id as name", {
+  result <- job_status(JOB_DONE)
+  expect_type(result, "character")
+  expect_equal(names(result), JOB_DONE)
+})
+
+test_that("job_status() returns 'failed' for known failed job", {
+  result <- job_status(JOB_FAILED)
+  expect_equal(result[[1]], "failed")
+})
+
+test_that("job_status() attaches failure_message for failed job", {
+  result <- job_status(JOB_FAILED)
+  expect_false(is.null(attr(result, "failure_message")))
+  expect_true(nzchar(attr(result, "failure_message")))
+})
+
+# ===========================================================================
+# job_wait()
+# ===========================================================================
+
+test_that("job_wait() returns 'done' immediately for already-done job", {
+  result <- suppressMessages(job_wait(JOB_DONE, verbose = FALSE))
+  expect_equal(result, "done")
+})
+
+test_that("job_wait() stops with error message for known failed job", {
+  expect_error(
+    suppressMessages(job_wait(JOB_FAILED, verbose = FALSE)),
+    "failed"
+  )
+})
+
+# ===========================================================================
+# job_result()
+# ===========================================================================
+
+# Note: job_result() downloads cloud output files. The specific output files
+# for JOB_DONE were deleted after testing. Use an active job for full
+# job_result() integration testing:
+#
+#   job_id <- extract_batch(c(31, 21022), file = "integration_test")
+#   job_wait(job_id)
+#   df <- job_result(job_id, dest = tempfile(fileext = ".csv"))
+#   dx rm <output_file_id>   # clean up afterwards
