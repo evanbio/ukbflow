@@ -142,7 +142,7 @@ fetch_url <- function(path, duration = "1d") {
 #' downloaded in parallel using \code{curl::multi_download()}.
 #'
 #' @param path (character) Remote file or folder path.
-#' @param local_dir (character) Local destination directory. Created
+#' @param dest_dir (character) Local destination directory. Created
 #'   automatically if it does not exist. Default: \code{"."}.
 #' @param overwrite (logical) Overwrite existing local files. Default:
 #'   \code{FALSE}.
@@ -155,19 +155,19 @@ fetch_url <- function(path, duration = "1d") {
 #' @examples
 #' \dontrun{
 #' # Download a single file
-#' fetch_file("Showcase metadata/field.tsv", local_dir = "data/")
+#' fetch_file("Showcase metadata/field.tsv", dest_dir = "data/")
 #'
 #' # Resume a large interrupted download
 #' fetch_file("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/ukb23158_c1_b0_v1.bed",
-#'            local_dir = "data/", resume = TRUE)
+#'            dest_dir = "data/", resume = TRUE)
 #'
 #' # Download an entire folder
-#' fetch_file("Showcase metadata/", local_dir = "data/metadata/")
+#' fetch_file("Showcase metadata/", dest_dir = "data/metadata/")
 #' }
-fetch_file <- function(path, local_dir = ".", overwrite = FALSE,
+fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
                        resume = FALSE, verbose = TRUE) {
-  if (!dir.exists(local_dir)) {
-    dir.create(local_dir, recursive = TRUE)
+  if (!dir.exists(dest_dir)) {
+    dir.create(dest_dir, recursive = TRUE)
   }
 
   is_folder <- endsWith(trimws(path), "/")
@@ -175,7 +175,7 @@ fetch_file <- function(path, local_dir = ".", overwrite = FALSE,
   if (!is_folder) {
     # Single file
     url      <- .dx_make_url(path)
-    destfile <- file.path(local_dir, basename(.dx_normalize_path(path)))
+    destfile <- file.path(dest_dir, basename(.dx_normalize_path(path)))
     .dx_download_file(url, destfile, overwrite = overwrite, resume = resume, verbose = verbose)
 
   } else {
@@ -189,11 +189,68 @@ fetch_file <- function(path, local_dir = ".", overwrite = FALSE,
     norm      <- .dx_normalize_path(path)
     urls      <- vapply(file.path(norm, files$name),
                         function(f) .dx_make_url(f), character(1))
-    destfiles <- file.path(local_dir, files$name)
+    destfiles <- file.path(dest_dir, files$name)
 
     .dx_download_batch(urls, destfiles, overwrite = overwrite,
                        resume = resume, verbose = verbose)
   }
+}
+
+
+#' Download all UKB Showcase metadata files
+#'
+#' Downloads the entire \code{Showcase metadata/} folder from the DNAnexus
+#' Research Analysis Platform to a local directory. This includes
+#' \code{field.tsv}, \code{encoding.tsv}, and all associated encoding tables.
+#'
+#' @param dest_dir (character) Local destination directory. Created
+#'   automatically if it does not exist. Default: \code{"data/metadata/"}.
+#' @param overwrite (logical) Overwrite existing local files. Default:
+#'   \code{FALSE}.
+#' @param resume (logical) Resume interrupted downloads. Default: \code{FALSE}.
+#' @param verbose (logical) Show download progress. Default: \code{TRUE}.
+#'
+#' @return Invisibly returns the local file paths as a character vector.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' fetch_metadata()
+#' fetch_metadata(dest_dir = "metadata/", overwrite = TRUE)
+#' }
+fetch_metadata <- function(dest_dir = "data/metadata/", overwrite = FALSE,
+                           resume = FALSE, verbose = TRUE) {
+  fetch_file("Showcase metadata/", dest_dir = dest_dir,
+             overwrite = overwrite, resume = resume, verbose = verbose)
+}
+
+
+#' Download the UKB field dictionary file
+#'
+#' Downloads \code{field.tsv} from the \code{Showcase metadata/} folder on the
+#' DNAnexus Research Analysis Platform. This file contains the complete UKB
+#' data dictionary: field IDs, titles, value types, and encoding references.
+#'
+#' @param dest_dir (character) Local destination directory. Created
+#'   automatically if it does not exist. Default: \code{"data/metadata/"}.
+#' @param overwrite (logical) Overwrite existing local file. Default:
+#'   \code{FALSE}.
+#' @param resume (logical) Resume an interrupted download. Default:
+#'   \code{FALSE}.
+#' @param verbose (logical) Show download progress. Default: \code{TRUE}.
+#'
+#' @return Invisibly returns the local file path as a character string.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' fetch_field()
+#' fetch_field(dest_dir = "metadata/", overwrite = TRUE)
+#' }
+fetch_field <- function(dest_dir = "data/metadata/", overwrite = FALSE,
+                        resume = FALSE, verbose = TRUE) {
+  fetch_file("Showcase metadata/field.tsv", dest_dir = dest_dir,
+             overwrite = overwrite, resume = resume, verbose = verbose)
 }
 
 
