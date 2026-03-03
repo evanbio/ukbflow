@@ -5,7 +5,7 @@
 
 #' @keywords internal
 #' @noRd
-.dx_run <- function(args, timeout = 30) {
+.dx_run <- function(args, timeout = 30, env = NULL) {
   # Check dx is available
   dx_path <- Sys.which("dx")
   if (dx_path == "") {
@@ -15,11 +15,16 @@
     )
   }
 
+  # Reason: merge extra env vars into current environment so PATH and other
+  # required vars are preserved (processx replaces env entirely if set)
+  run_env <- if (!is.null(env)) c(Sys.getenv(), env) else NULL
+
   result <- processx::run(
     command = dx_path,
     args = args,
     error_on_status = FALSE,
-    timeout = timeout
+    timeout = timeout,
+    env = run_env
   )
 
   list(
