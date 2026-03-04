@@ -324,9 +324,10 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
 
   # Auto instance type based on column count (three tiers)
   instance_type <- if (!is.null(instance_type)) instance_type else
-    if (n_cols_total > 100) "mem1_ssd1_v2_x32" else
-    if (n_cols_total > 20)  "mem1_ssd1_v2_x16" else
-                            "mem1_ssd1_v2_x8"
+    if (n_cols_total > 500) "mem1_ssd1_v2_x36" else
+    if (n_cols_total > 100) "mem1_ssd1_v2_x16" else
+    if (n_cols_total > 20)  "mem1_ssd1_v2_x8"  else
+                            "mem1_ssd1_v2_x4"
 
   # Submit job
   cli::cli_inform("Submitting table-exporter job...")

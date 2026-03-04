@@ -325,8 +325,8 @@ test_that("extract_batch() auto-selects x8 for small extractions", {
                   "job-XXXX"
                 })
 
-  suppressMessages(extract_batch(c(31, 22189)))   # 2 cols → x8
-  expect_equal(received_instance, "mem1_ssd1_v2_x8")
+  suppressMessages(extract_batch(c(31, 22189)))   # 2 cols → x4
+  expect_equal(received_instance, "mem1_ssd1_v2_x4")
 })
 
 test_that("extract_batch() passes priority to table-exporter", {
@@ -402,8 +402,8 @@ test_that("extract_batch() warns on unmatched field_ids", {
   )
 })
 
-test_that("extract_batch() auto-selects x16 for 21-100 cols", {
-  # p53 with 25 instances → 25 cols, which falls in the x16 tier (21-100)
+test_that("extract_batch() auto-selects x8 for 21-100 cols", {
+  # p53 with 25 instances → 25 cols, which falls in the x8 tier (21-100)
   big_df <- data.frame(
     field_name = paste0("participant.p53_i", 0:24),
     title      = paste0("Field 53 | Instance ", 0:24),
@@ -422,11 +422,11 @@ test_that("extract_batch() auto-selects x16 for 21-100 cols", {
                 })
 
   suppressMessages(extract_batch(53))
-  expect_equal(received_instance, "mem1_ssd1_v2_x16")
+  expect_equal(received_instance, "mem1_ssd1_v2_x8")
 })
 
-test_that("extract_batch() auto-selects x32 for >100 cols", {
-  # p53 with 110 instances → 110 cols, which falls in the x32 tier (>100)
+test_that("extract_batch() auto-selects x16 for 101-500 cols", {
+  # p53 with 110 instances → 110 cols, which falls in the x16 tier (101-500)
   huge_df <- data.frame(
     field_name = paste0("participant.p53_i", 0:109),
     title      = paste0("Field 53 | Instance ", 0:109),
@@ -445,7 +445,30 @@ test_that("extract_batch() auto-selects x32 for >100 cols", {
                 })
 
   suppressMessages(extract_batch(53))
-  expect_equal(received_instance, "mem1_ssd1_v2_x32")
+  expect_equal(received_instance, "mem1_ssd1_v2_x16")
+})
+
+test_that("extract_batch() auto-selects x36 for >500 cols", {
+  # p53 with 510 instances → 510 cols, which falls in the x36 tier (>500)
+  giant_df <- data.frame(
+    field_name = paste0("participant.p53_i", 0:509),
+    title      = paste0("Field 53 | Instance ", 0:509),
+    stringsAsFactors = FALSE
+  )
+  .ukbflow_cache$fields <- giant_df
+  on.exit(.clear_cache())
+
+  received_instance <- NULL
+  mockery::stub(extract_batch, ".dx_find_dataset", function() "app12345.dataset")
+  mockery::stub(extract_batch, ".dx_upload_file", function(...) "file-XXXX")
+  mockery::stub(extract_batch, ".dx_run_table_exporter",
+                function(dataset, file_id, output, instance_type, priority) {
+                  received_instance <<- instance_type
+                  "job-XXXX"
+                })
+
+  suppressMessages(extract_batch(53))
+  expect_equal(received_instance, "mem1_ssd1_v2_x36")
 })
 
 test_that("extract_batch() respects custom instance_type", {
