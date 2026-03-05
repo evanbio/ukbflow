@@ -12,16 +12,23 @@ Imports:
     cli,
     curl,
     data.table,
+    dplyr,
+    forestploter,
+    gt,
+    gtsummary,
     jsonlite,
     processx,
     rlang,
     survival,
-    tidyselect
+    tidyselect,
+    tools
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
+    pagedown,
     testthat (>= 3.0.0),
     mockery,
+    webshot2,
     withr
 Config/testthat/edition: 3
