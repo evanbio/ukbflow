@@ -15,6 +15,7 @@ Imports:
     jsonlite,
     processx,
     rlang,
+    survival,
     tidyselect
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
