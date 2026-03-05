@@ -461,6 +461,139 @@
 }
 
 
+# Fit one Fine-Gray competing risks model (finegray + weighted coxph) for a
+# single exposure and return a tidy data.table.
+#
+# The analysis dataset `dt` must already contain `.fg_status` (factor with
+# levels "censor", "event", "compete") and `time_col`. Only the columns
+# listed in `need_cols` are passed to finegray(), so the formula `~ .`
+# carries exactly the right predictors into the weighted coxph step.
+#
+# SHR and CI are extracted from `summary()$conf.int` (columns 1, 3, 4):
+#   1 = exp(coef)  →  SHR
+#   3 = lower .xx  →  CI_lower
+#   4 = upper .xx  →  CI_upper
+# p-value from `summary()$coefficients[, "Pr(>|z|)"]` (robust z-based).
+#
+# n_compete is counted from the complete-case subset *before* finegray()
+# expansion, i.e. the number of participants with a competing event who
+# contributed to the analysis.
+#
+# Args:
+#   dt           (data.table) Dataset with `.fg_status` pre-built.
+#   time_col     (character)  Follow-up time column name.
+#   exposure     (character)  Single exposure variable name.
+#   covariates   (character or NULL) Covariate column names.
+#   model_label  (character)  Human-readable model name for the output.
+#   conf_level   (numeric)    Confidence level for CI.
+#
+# Returns:
+#   data.table or NULL on failure.
+.run_one_fg_model <- function(dt, time_col, exposure, covariates,
+                               model_label, conf_level) {
+
+  is_factor <- is.factor(dt[[exposure]])
+
+  # Keep only columns needed; drop NA rows (complete-case analysis)
+  need_cols <- unique(c(time_col, ".fg_status", exposure, covariates))
+  need_cols <- intersect(need_cols, names(dt))
+  sub <- stats::na.omit(dt[, need_cols, with = FALSE])
+
+  if (nrow(sub) == 0L) {
+    cli::cli_alert_warning(
+      "  [{model_label} | {.field {exposure}}] no complete cases \u2014 skipped."
+    )
+    return(NULL)
+  }
+
+  n_compete <- sum(sub$.fg_status == "compete", na.rm = TRUE)
+
+  # Bind Surv locally so finegray() can resolve it when evaluating the formula.
+  # finegray() evaluates formulas in the caller's environment, which inside a
+  # package function does not automatically include survival:: exports.
+  Surv <- survival::Surv  # nolint: object_usage_linter
+
+  # Expand data with Fine-Gray inverse probability of censoring weights
+  fg_fml  <- stats::as.formula(sprintf("Surv(%s, .fg_status) ~ .", time_col))
+  fg_data <- tryCatch(
+    survival::finegray(fg_fml, data = sub, etype = "event"),
+    error = function(e) {
+      cli::cli_alert_warning(
+        "  [{model_label} | {.field {exposure}}] finegray() failed: {conditionMessage(e)}"
+      )
+      NULL
+    }
+  )
+  if (is.null(fg_data)) return(NULL)
+
+  # Weighted Cox on the expanded Fine-Gray dataset
+  rhs     <- paste(c(exposure, covariates), collapse = " + ")
+  cox_fml <- stats::as.formula(
+    sprintf("Surv(fgstart, fgstop, fgstatus) ~ %s", rhs)
+  )
+  model <- tryCatch(
+    survival::coxph(cox_fml, data = fg_data, weight = fgwt),
+    error = function(e) {
+      cli::cli_alert_warning(
+        "  [{model_label} | {.field {exposure}}] weighted coxph failed: {conditionMessage(e)}"
+      )
+      NULL
+    }
+  )
+  if (is.null(model)) return(NULL)
+
+  s        <- summary(model)
+  coef_mat <- s$coefficients  # coef | exp(coef) | se(coef) | robust se | z | Pr(>|z|)
+  ci_mat   <- s$conf.int      # exp(coef) | exp(-coef) | lower .xx | upper .xx
+
+  # Ensure matrix (single-term model returns named vector)
+  if (!is.matrix(coef_mat)) {
+    coef_mat <- matrix(coef_mat, nrow = 1L,
+                       dimnames = list(exposure, names(coef_mat)))
+    ci_mat   <- matrix(ci_mat,   nrow = 1L,
+                       dimnames = list(exposure, names(ci_mat)))
+  }
+
+  all_terms <- rownames(coef_mat)
+  idx <- if (is_factor) {
+    which(startsWith(all_terms, exposure))
+  } else {
+    which(all_terms == exposure)
+  }
+
+  if (length(idx) == 0L) {
+    cli::cli_alert_warning(
+      "  No terms found for exposure {.field {exposure}} \u2014 skipped."
+    )
+    return(NULL)
+  }
+
+  terms_dt <- data.table::data.table(
+    term     = all_terms[idx],
+    SHR      = ci_mat[idx, 1L],   # exp(coef)
+    CI_lower = ci_mat[idx, 3L],   # lower .xx
+    CI_upper = ci_mat[idx, 4L],   # upper .xx
+    p_value  = coef_mat[idx, "Pr(>|z|)"]
+  )
+
+  terms_dt[, `:=`(
+    exposure  = exposure,
+    model     = model_label,
+    n         = model$n,
+    n_events  = model$nevent,
+    n_compete = n_compete,
+    SHR_label = sprintf("%.2f (%.2f\u2013%.2f)", SHR, CI_lower, CI_upper)
+  )]
+
+  data.table::setcolorder(
+    terms_dt,
+    c("exposure", "term", "model", "n", "n_events", "n_compete",
+      "SHR", "CI_lower", "CI_upper", "p_value", "SHR_label")
+  )
+  terms_dt
+}
+
+
 # Compute an LRT p-value for the exposure × by interaction on the full dataset.
 # Fits a reduced model (exposure + by + covariates) and a full model
 # (exposure * by + covariates) and extracts the LRT p-value via anova().

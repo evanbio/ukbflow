@@ -1733,3 +1733,485 @@ assoc_trend <- function(data,
 #' @rdname assoc_trend
 #' @export
 assoc_tr <- assoc_trend
+
+
+# =============================================================================
+# assoc_competing / assoc_fg — Fine-Gray competing risks analysis
+# =============================================================================
+
+
+#' Fine-Gray competing risks association analysis
+#'
+#' Fits a Fine-Gray subdistribution hazard model (via
+#' \code{survival::finegray()} + weighted \code{coxph()}) for each exposure
+#' variable and returns a tidy result table with subdistribution hazard ratios
+#' (SHR).
+#'
+#' Two input modes are supported depending on how the outcome is coded in your
+#' dataset:
+#'
+#' \describe{
+#'   \item{\strong{Mode A — single multi-value column}}{
+#'     \code{compete_col = NULL} (default). \code{outcome_col} contains all
+#'     event codes in one column (e.g. \code{0}/\code{1}/\code{2}/\code{3}).
+#'     Use \code{event_val} and \code{compete_val} to identify the event of
+#'     interest and the competing event; all other values are treated as
+#'     censored. Example: UKB \code{censoring_type} where 1 = event, 2 = death
+#'     (competing), 0/3 = censored.
+#'   }
+#'   \item{\strong{Mode B — dual binary columns}}{
+#'     \code{compete_col} is the name of a separate 0/1 column for the
+#'     competing event. \code{outcome_col} is a 0/1 column for the primary
+#'     event. When both are 1 for the same participant, the primary event takes
+#'     priority. Example: \code{outcome_col = "cscc_status"},
+#'     \code{compete_col = "death_status"}.
+#'   }
+#' }
+#'
+#' Internally both modes are converted to a three-level factor
+#' \code{c("censor", "event", "compete")} before being passed to
+#' \code{finegray()}.
+#'
+#' Three adjustment models are produced (where data allow):
+#' \itemize{
+#'   \item \strong{Unadjusted} — always included.
+#'   \item \strong{Age and sex adjusted} — when \code{base = TRUE} and
+#'     age/sex columns are detected.
+#'   \item \strong{Fully adjusted} — when \code{covariates} is non-NULL.
+#' }
+#'
+#' @param data (data.frame or data.table) Analysis dataset.
+#' @param outcome_col (character) Primary event column. In Mode A: a
+#'   multi-value column (any integer or character codes). In Mode B: a 0/1
+#'   binary column.
+#' @param time_col (character) Follow-up time column (numeric, e.g. years).
+#' @param exposure_col (character) One or more exposure variable names.
+#' @param compete_col (character or NULL) Mode B only: name of the 0/1
+#'   competing event column. When \code{NULL} (default), Mode A is used.
+#' @param event_val Scalar value in \code{outcome_col} indicating the primary
+#'   event (Mode A only). Default: \code{1L}.
+#' @param compete_val Scalar value in \code{outcome_col} indicating the
+#'   competing event (Mode A only). Default: \code{2L}.
+#' @param covariates (character or NULL) Covariate names for the Fully
+#'   adjusted model. When \code{NULL}, only Unadjusted (and Age/sex adjusted
+#'   if \code{base = TRUE}) are run.
+#' @param base (logical) Whether to auto-detect age and sex columns and include
+#'   an Age and sex adjusted model. Default: \code{TRUE}.
+#' @param conf_level (numeric) Confidence level for SHR intervals.
+#'   Default: \code{0.95}.
+#'
+#' @return A \code{data.table} with one row per exposure \eqn{\times} term
+#'   \eqn{\times} model combination:
+#'   \describe{
+#'     \item{\code{exposure}}{Exposure variable name.}
+#'     \item{\code{term}}{Coefficient name as returned by \code{coxph}.}
+#'     \item{\code{model}}{Ordered factor: \code{Unadjusted} <
+#'       \code{Age and sex adjusted} < \code{Fully adjusted}.}
+#'     \item{\code{n}}{Participants in the model (after NA removal).}
+#'     \item{\code{n_events}}{Primary events in the analysis set.}
+#'     \item{\code{n_compete}}{Competing events in the analysis set.}
+#'     \item{\code{SHR}}{Subdistribution hazard ratio.}
+#'     \item{\code{CI_lower}}{Lower CI bound.}
+#'     \item{\code{CI_upper}}{Upper CI bound.}
+#'     \item{\code{p_value}}{Robust z-test p-value from weighted Cox.}
+#'     \item{\code{SHR_label}}{Formatted string, e.g. \code{"1.23 (1.05--1.44)"}.}
+#'   }
+#'
+#' @importFrom survival finegray coxph Surv
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Mode A: single censoring_type column (0/1/2/3)
+#' assoc_competing(
+#'   data        = ukb_df,
+#'   outcome_col = "censoring_type",
+#'   time_col    = "time_to_event",
+#'   exposure_col = "ad_tf",
+#'   event_val   = 1L,
+#'   compete_val = 2L,
+#'   covariates  = c("tdi", "smoking")
+#' )
+#'
+#' # Mode B: separate 0/1 columns for primary and competing events
+#' assoc_competing(
+#'   data        = ukb_df,
+#'   outcome_col = "cscc_status",
+#'   time_col    = "time_to_cscc",
+#'   exposure_col = c("ad_tf", "ad_severity"),
+#'   compete_col = "death_status",
+#'   covariates  = c("tdi", "smoking")
+#' )
+#' }
+assoc_competing <- function(data,
+                             outcome_col,
+                             time_col,
+                             exposure_col,
+                             compete_col = NULL,
+                             event_val   = 1L,
+                             compete_val = 2L,
+                             covariates  = NULL,
+                             base        = TRUE,
+                             conf_level  = 0.95) {
+
+  # ---------------------------------------------------------------------------
+  # 1. Input validation
+  # ---------------------------------------------------------------------------
+  dt <- data.table::as.data.table(data)
+
+  req_cols <- c(outcome_col, time_col, exposure_col, compete_col, covariates)
+  missing_cols <- setdiff(req_cols, names(dt))
+  if (length(missing_cols) > 0L) {
+    cli::cli_abort("Column{?s} not found in data: {.field {missing_cols}}")
+  }
+
+  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+  }
+
+  # Normalise logical exposures → integer (avoids "ad_tfTRUE" term names)
+  dt <- data.table::copy(dt)
+  .normalise_logical_exposures(dt, exposure_col)
+
+  # ---------------------------------------------------------------------------
+  # 2. Build .fg_status: factor(censor / event / compete)
+  # ---------------------------------------------------------------------------
+  if (is.null(compete_col)) {
+    # Mode A: single multi-value column
+    raw <- dt[[outcome_col]]
+    fg_vec <- data.table::fcase(
+      raw == event_val,   "event",
+      raw == compete_val, "compete",
+      default = "censor"
+    )
+    cli::cli_alert_info(
+      "Mode A: {.field {outcome_col}} \u2192 event={event_val}, \\
+       compete={compete_val}, rest=censor"
+    )
+  } else {
+    # Mode B: dual binary columns; primary event takes priority
+    ev  <- suppressWarnings(as.integer(dt[[outcome_col]]))
+    cmp <- suppressWarnings(as.integer(dt[[compete_col]]))
+    fg_vec <- data.table::fcase(
+      ev  == 1L, "event",
+      cmp == 1L, "compete",
+      default = "censor"
+    )
+    cli::cli_alert_info(
+      "Mode B: {.field {outcome_col}} (event) + {.field {compete_col}} (compete)"
+    )
+  }
+
+  dt[, .fg_status := factor(fg_vec, levels = c("censor", "event", "compete"))]
+
+  n_event_total   <- sum(dt$.fg_status == "event",   na.rm = TRUE)
+  n_compete_total <- sum(dt$.fg_status == "compete",  na.rm = TRUE)
+  cli::cli_alert_info(
+    "Events: {n_event_total}, Competing: {n_compete_total}, \\
+     Censored: {sum(dt$.fg_status == 'censor', na.rm=TRUE)}"
+  )
+
+  # ---------------------------------------------------------------------------
+  # 3. Build model list (Unadjusted / Age and sex adjusted / Fully adjusted)
+  # ---------------------------------------------------------------------------
+  base_covs <- NULL
+  if (isTRUE(base)) {
+    age_col <- .detect_age_col(dt)
+    sex_col <- .detect_sex_col(dt)
+    if (is.null(age_col)) {
+      cli::cli_alert_warning(
+        "Age column not detected \u2014 Age and sex adjusted model may be incomplete."
+      )
+    }
+    if (is.null(sex_col)) {
+      cli::cli_alert_warning(
+        "Sex column not detected \u2014 Age and sex adjusted model may be incomplete."
+      )
+    }
+    base_covs <- c(age_col, sex_col)
+    base_covs <- base_covs[!is.null(base_covs)]
+  }
+
+  models <- list(list(label = "Unadjusted", covs = NULL))
+  if (length(base_covs) > 0L) {
+    models <- c(models, list(list(label = "Age and sex adjusted", covs = base_covs)))
+  }
+  if (!is.null(covariates)) {
+    full_covs <- unique(c(base_covs, covariates))
+    models    <- c(models, list(list(label = "Fully adjusted", covs = full_covs)))
+  }
+
+  # ---------------------------------------------------------------------------
+  # 4. Loop over exposures × models
+  # ---------------------------------------------------------------------------
+  all_results <- list()
+
+  for (exp in exposure_col) {
+    cli::cli_alert_info("Exposure: {.field {exp}}")
+
+    for (m in models) {
+      cli::cli_alert_info("  Model: {m$label}")
+      res <- .run_one_fg_model(
+        dt          = dt,
+        time_col    = time_col,
+        exposure    = exp,
+        covariates  = m$covs,
+        model_label = m$label,
+        conf_level  = conf_level
+      )
+      all_results <- c(all_results, list(res))
+    }
+  }
+
+  # ---------------------------------------------------------------------------
+  # 5. Combine and return
+  # ---------------------------------------------------------------------------
+  out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
+
+  if (nrow(out) == 0L) {
+    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    return(out)
+  }
+
+  model_levels   <- c("Unadjusted", "Age and sex adjusted", "Fully adjusted")
+  present_levels <- intersect(model_levels, as.character(unique(out$model)))
+  out[, model := factor(model, levels = present_levels, ordered = TRUE)]
+
+  cli::cli_alert_success(
+    "Done: {nrow(out)} result row{?s} across \\
+     {data.table::uniqueN(out$exposure)} exposure{?s} and \\
+     {data.table::uniqueN(out$model)} model{?s}."
+  )
+
+  out[]
+}
+
+
+#' @rdname assoc_competing
+#' @export
+assoc_fg <- assoc_competing
+
+
+# =============================================================================
+# assoc_lag — Cox lag (landmark) sensitivity analysis
+# =============================================================================
+
+
+#' Cox regression lag sensitivity analysis
+#'
+#' Runs Cox proportional hazards models at one or more lag periods to assess
+#' whether associations are robust to the exclusion of early events. For each
+#' lag, participants whose follow-up time is less than \code{lag_years} are
+#' removed from the analysis dataset; follow-up time is kept on its original
+#' scale (not shifted). This mirrors the approach used in UK Biobank sensitivity
+#' analyses to address reverse causation and detection bias.
+#'
+#' Setting \code{lag_years = 0} (or including \code{0} in the vector) runs the
+#' model on the full unfiltered cohort, providing a reference against which
+#' lagged results can be compared.
+#'
+#' The same three adjustment models produced by \code{\link{assoc_coxph}} are
+#' available here (\strong{Unadjusted}, \strong{Age and sex adjusted},
+#' \strong{Fully adjusted}).
+#'
+#' @param data (data.frame or data.table) Analysis dataset.
+#' @param outcome_col (character) Event indicator column (0/1 or logical).
+#' @param time_col (character) Follow-up time column (numeric, e.g. years).
+#' @param exposure_col (character) One or more exposure variable names.
+#' @param lag_years (numeric) One or more lag periods in the same units as
+#'   \code{time_col}. Default: \code{c(1, 2)}. Use \code{0} to include the
+#'   unfiltered full-cohort result as a reference.
+#' @param covariates (character or NULL) Covariates for the Fully adjusted
+#'   model. When \code{NULL}, only Unadjusted (and Age and sex adjusted if
+#'   \code{base = TRUE}) are run.
+#' @param base (logical) Auto-detect age and sex and include an Age and sex
+#'   adjusted model. Default: \code{TRUE}.
+#' @param strata (character or NULL) Optional stratification variable passed to
+#'   \code{survival::strata()}.
+#' @param conf_level (numeric) Confidence level for HR intervals.
+#'   Default: \code{0.95}.
+#'
+#' @return A \code{data.table} with one row per lag \eqn{\times} exposure
+#'   \eqn{\times} term \eqn{\times} model combination, containing all columns
+#'   produced by \code{\link{assoc_coxph}} plus:
+#'   \describe{
+#'     \item{\code{lag_years}}{The lag period applied (numeric).}
+#'     \item{\code{n_excluded}}{Number of participants excluded because their
+#'       follow-up time was less than \code{lag_years}.}
+#'   }
+#'   \code{lag_years} and \code{n_excluded} are placed immediately after
+#'   \code{model} in the column order.
+#'
+#' @importFrom survival coxph Surv
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' assoc_lag(
+#'   data         = ukb_df,
+#'   outcome_col  = "cscc_status",
+#'   time_col     = "followup_years",
+#'   exposure_col = "ad_tf",
+#'   lag_years    = c(0, 1, 2),
+#'   covariates   = c("tdi", "smoking")
+#' )
+#' }
+assoc_lag <- function(data,
+                       outcome_col,
+                       time_col,
+                       exposure_col,
+                       lag_years  = c(1, 2),
+                       covariates = NULL,
+                       base       = TRUE,
+                       strata     = NULL,
+                       conf_level = 0.95) {
+
+  # ---------------------------------------------------------------------------
+  # 1. Input validation
+  # ---------------------------------------------------------------------------
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+  }
+
+  missing_cols <- setdiff(
+    c(outcome_col, time_col, exposure_col, covariates, strata),
+    names(data)
+  )
+  if (length(missing_cols) > 0L) {
+    cli::cli_abort(
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+    )
+  }
+
+  if (!is.numeric(lag_years) || any(lag_years < 0)) {
+    cli::cli_abort("{.arg lag_years} must be a non-negative numeric vector.")
+  }
+
+  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+  }
+
+  lag_years <- sort(unique(lag_years))
+
+  # ---------------------------------------------------------------------------
+  # 2. Prepare full working copy
+  # ---------------------------------------------------------------------------
+  dt <- data.table::copy(data.table::as.data.table(data))
+  dt[, .ukb_event := .normalise_event(dt[[outcome_col]], outcome_col)]
+  .normalise_logical_exposures(dt, exposure_col)
+
+  n_full <- nrow(dt)
+
+  # ---------------------------------------------------------------------------
+  # 3. Build model list (same logic as assoc_coxph)
+  # ---------------------------------------------------------------------------
+  model_list <- list()
+
+  if (base) {
+    model_list["Unadjusted"] <- list(NULL)
+
+    age_col <- .detect_age_col(dt)
+    sex_col <- .detect_sex_col(dt)
+
+    if (is.null(age_col) || is.null(sex_col)) {
+      cli::cli_alert_warning(
+        paste0(
+          "Age and sex adjusted model skipped: ",
+          if (is.null(age_col)) "age column not found" else "",
+          if (is.null(age_col) && is.null(sex_col)) " and " else "",
+          if (is.null(sex_col)) "sex column not found" else "",
+          "."
+        )
+      )
+    } else {
+      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
+    }
+  }
+
+  if (!is.null(covariates) && length(covariates) > 0L) {
+    model_list[["Fully adjusted"]] <- covariates
+  }
+
+  # ---------------------------------------------------------------------------
+  # 4. Loop: lag × exposure × model
+  # ---------------------------------------------------------------------------
+  cli::cli_h1("assoc_lag")
+  cli::cli_alert_info(
+    "{length(lag_years)} lag period{?s} \u00d7 {length(exposure_col)} \\
+     exposure{?s} \u00d7 {length(model_list)} model{?s}"
+  )
+
+  all_results <- list()
+
+  for (lag in lag_years) {
+
+    cli::cli_h2("Lag: {lag} year{?s}")
+
+    # Filter: exclude participants with follow-up < lag
+    sub <- if (lag == 0) {
+      dt
+    } else {
+      dt[dt[[time_col]] >= lag, ]
+    }
+
+    n_excluded <- n_full - nrow(sub)
+    n_events   <- sum(sub$.ukb_event, na.rm = TRUE)
+
+    cli::cli_alert_info(
+      "Excluded (time < {lag} yr): {n_excluded} \u2014 \\
+       remaining: {nrow(sub)}, events: {n_events}"
+    )
+
+    for (exp in exposure_col) {
+      cli::cli_h2("{.field {exp}}")
+
+      for (model_label in names(model_list)) {
+
+        res <- .run_one_cox_model(
+          dt          = sub,
+          time_col    = time_col,
+          exposure    = exp,
+          covariates  = model_list[[model_label]],
+          strata      = strata,
+          model_label = model_label,
+          conf_level  = conf_level
+        )
+
+        if (!is.null(res)) {
+          res[, `:=`(lag_years = lag, n_excluded = n_excluded)]
+        }
+
+        all_results <- c(all_results, list(res))
+      }
+    }
+  }
+
+  # ---------------------------------------------------------------------------
+  # 5. Combine and return
+  # ---------------------------------------------------------------------------
+  out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
+
+  if (nrow(out) == 0L) {
+    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    return(out)
+  }
+
+  # Ordered factor for model
+  model_levels   <- c("Unadjusted", "Age and sex adjusted", "Fully adjusted")
+  present_levels <- intersect(model_levels, as.character(unique(out$model)))
+  out[, model := factor(model, levels = present_levels, ordered = TRUE)]
+
+  # Column order: identifiers first, lag_years + n_excluded after model
+  front_cols <- c("exposure", "term", "model", "lag_years", "n_excluded")
+  mid_cols   <- setdiff(names(out), front_cols)
+  data.table::setcolorder(out, c(front_cols, mid_cols))
+
+  cli::cli_alert_success(
+    "Done: {nrow(out)} result row{?s} across \\
+     {data.table::uniqueN(out$lag_years)} lag period{?s}, \\
+     {data.table::uniqueN(out$exposure)} exposure{?s}, and \\
+     {data.table::uniqueN(out$model)} model{?s}."
+  )
+
+  out[]
+}
