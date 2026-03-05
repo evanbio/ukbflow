@@ -459,3 +459,84 @@
   )
   terms_dt
 }
+
+
+# Compute an LRT p-value for the exposure × by interaction on the full dataset.
+# Fits a reduced model (exposure + by + covariates) and a full model
+# (exposure * by + covariates) and extracts the LRT p-value via anova().
+# Returns NA_real_ (with a warning) when either model fails or the p-value
+# column cannot be located.
+#
+# For coxph: anova(mod_r, mod_f) uses the log-likelihood ratio.
+# For glm:   anova(mod_r, mod_f, test = "Chisq") uses the deviance LRT.
+# For lm:    anova(mod_r, mod_f) uses an F-test (equivalent to LRT for normal
+#            linear models).
+#
+# The p-value column is identified by grepping for column names starting with
+# "P" or "Pr", which covers all three anova output formats:
+#   coxph   → "P(>|Chi|)"
+#   glm     → "Pr(>Chi)"
+#   lm      → "Pr(>F)"
+#
+# Args:
+#   dt           (data.table) Full dataset; .ukb_event pre-added for coxph/logistic.
+#   method       (character) "coxph", "logistic", or "linear".
+#   outcome_col  (character) Outcome column name (continuous for linear).
+#   time_col     (character or NULL) Follow-up time column (coxph only).
+#   exposure     (character) Exposure variable name.
+#   by           (character) Subgroup stratification variable name.
+#   covariates   (character or NULL) Additional covariates.
+#   model_label  (character) Label for warning messages.
+#
+# Returns:
+#   numeric scalar p-value, or NA_real_ on failure.
+.run_one_interaction_lrt <- function(dt, method, outcome_col, time_col,
+                                      exposure, by, covariates, model_label) {
+
+  rhs_base <- paste(c(exposure, by, covariates), collapse = " + ")
+  rhs_full <- paste(c(paste0(exposure, " * ", by), covariates), collapse = " + ")
+
+  lrt_p <- tryCatch({
+    if (method == "coxph") {
+      fml_r <- stats::as.formula(
+        sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs_base))
+      fml_f <- stats::as.formula(
+        sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs_full))
+      mod_r <- survival::coxph(fml_r, data = dt)
+      mod_f <- survival::coxph(fml_f, data = dt)
+      aov   <- anova(mod_r, mod_f)
+    } else if (method == "logistic") {
+      fml_r <- stats::as.formula(sprintf(".ukb_event ~ %s", rhs_base))
+      fml_f <- stats::as.formula(sprintf(".ukb_event ~ %s", rhs_full))
+      mod_r <- stats::glm(fml_r, data = dt, family = stats::binomial(link = "logit"))
+      mod_f <- stats::glm(fml_f, data = dt, family = stats::binomial(link = "logit"))
+      aov   <- stats::anova(mod_r, mod_f, test = "Chisq")
+    } else {  # linear
+      fml_r <- stats::as.formula(sprintf("%s ~ %s", outcome_col, rhs_base))
+      fml_f <- stats::as.formula(sprintf("%s ~ %s", outcome_col, rhs_full))
+      mod_r <- stats::lm(fml_r, data = dt)
+      mod_f <- stats::lm(fml_f, data = dt)
+      aov   <- stats::anova(mod_r, mod_f)
+    }
+
+    # Locate the p-value column (covers all three anova output formats)
+    p_col <- grep("^(P|Pr)", colnames(aov), value = TRUE)[1L]
+    if (is.na(p_col)) {
+      cli::cli_alert_warning(
+        "  [{model_label} | {.field {exposure}}] \\
+         interaction LRT: p-value column not found in anova output."
+      )
+      return(NA_real_)
+    }
+    as.numeric(utils::tail(aov, 1L)[[p_col]])
+
+  }, error = function(e) {
+    cli::cli_alert_warning(
+      "  [{model_label} | {.field {exposure}}] \\
+       interaction LRT failed: {conditionMessage(e)}"
+    )
+    NA_real_
+  })
+
+  lrt_p
+}
