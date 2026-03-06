@@ -1,0 +1,103 @@
+---
+title: "Get Started with ukbflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get Started with ukbflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## Welcome to `ukbflow`
+
+**`ukbflow`** is an R package for UK Biobank analysis on the
+[Research Analysis Platform (RAP)](https://ukbiobank.dnanexus.com).
+It covers the full midstream-to-downstream pipeline — from phenotype derivation
+and association analysis to publication-ready figures and genetic risk scoring —
+entirely within the RAP cloud environment.
+
+## Installation
+
+```{r install}
+pak::pkg_install("evanbio/ukbflow")
+```
+
+## A Quick Taste
+
+### Authenticate and extract data
+
+```{r auth}
+library(ukbflow)
+
+auth_login()
+auth_select_project("project-XXXXXXXXXXXX")
+
+df <- extract_pheno(c(31, 21022, 53, 20116)) |>
+  decode_values() |>
+  decode_names()
+```
+
+### Derive a disease phenotype
+
+```{r derive}
+df <- df |>
+  derive_missing() |>
+  derive_icd10(name = "outcome", icd10 = "E11",
+               source = c("hes", "first_occurrence")) |>
+  derive_followup(name = "outcome", event_col = "outcome_date",
+                  baseline_col = "date_baseline",
+                  censor_date  = as.Date("2022-06-01"))
+```
+
+### Run an association model
+
+```{r assoc}
+res <- assoc_coxph(
+  data         = df,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure_status",
+  covariates   = c("age_at_recruitment", "sex", "smoking_status_i0")
+)
+```
+
+### Plot the results
+
+```{r plot}
+plot_forest(res)
+plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
+              strata = "outcome_status", save = TRUE, dest = "results/table1")
+```
+
+## Full Function Overview
+
+| Module | Key functions | Vignette |
+|---|---|---|
+| Auth | `auth_login()`, `auth_select_project()` | `vignette("auth")` |
+| Fetch | `fetch_ls()`, `fetch_file()`, `fetch_tree()` | `vignette("fetch")` |
+| Decode | `decode_values()`, `decode_names()` | `vignette("decode")` |
+| Derive | `derive_missing()`, `derive_icd10()`, `derive_case()` | `vignette("derive")` |
+| Survival | `derive_timing()`, `derive_age()`, `derive_followup()` | `vignette("derive-survival")` |
+| Assoc | `assoc_coxph()`, `assoc_logistic()`, `assoc_subgroup()` | `vignette("assoc")` |
+| Plot | `plot_forest()`, `plot_tableone()` | `vignette("plot")` |
+| GRS | `grs_check()`, `grs_score()`, `grs_validate()` | `vignette("grs")` |
+
+## Additional Resources
+
+- [Documentation site](https://evanbio.github.io/ukbflow/)
+- [GitHub](https://github.com/evanbio/ukbflow)
+- View all functions: `?ukbflow` or `help(package = "ukbflow")`
+
+## A note from the author
+
+> UK Biobank holds data on half a million people. `ukbflow` exists to make
+> that data accessible — cleanly, reproducibly, and without leaving the cloud.
+
+—— Evan Zhou
