@@ -99,7 +99,7 @@
 #' @examples
 #' \dontrun{
 #' df <- data.frame(
-#'   item      = c("AD vs. control", "Crude", "Fully adjusted"),
+#'   item      = c("Exposure vs. control", "Unadjusted", "Fully adjusted"),
 #'   `Cases/N` = c("", "89/4521", "89/4521"),
 #'   p_value   = c(NA_real_, 0.001, 0.006),
 #'   check.names = FALSE
