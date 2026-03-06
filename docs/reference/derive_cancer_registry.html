@@ -4,12 +4,12 @@ from national cancer registries.  Each diagnosis is stored as a separate
 instance with four parallel fields: ICD-10 code (p40006), histology
 code (p40011), behaviour code (p40012), and diagnosis date
 (p40005).  Unlike HES or self-report data, each instance holds
-exactly one record 2014 there is no array (a*) dimension."><meta property="og:description" content="The UK Biobank cancer registry links each participant's cancer diagnoses
+exactly one record - there is no array (a*) dimension."><meta property="og:description" content="The UK Biobank cancer registry links each participant's cancer diagnoses
 from national cancer registries.  Each diagnosis is stored as a separate
 instance with four parallel fields: ICD-10 code (p40006), histology
 code (p40011), behaviour code (p40012), and diagnosis date
 (p40005).  Unlike HES or self-report data, each instance holds
-exactly one record 2014 there is no array (a*) dimension."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+exactly one record - there is no array (a*) dimension."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -121,7 +121,7 @@ from national cancer registries.  Each diagnosis is stored as a separate
 instance with four parallel fields: ICD-10 code (<code>p40006</code>), histology
 code (<code>p40011</code>), behaviour code (<code>p40012</code>), and diagnosis date
 (<code>p40005</code>).  Unlike HES or self-report data, each instance holds
-exactly one record 2014 there is no array (<code>a*</code>) dimension.</p>
+exactly one record - there is no array (<code>a*</code>) dimension.</p>
     </div>
 
     <div class="section level2">
@@ -220,7 +220,7 @@ registry record satisfies all supplied filters.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># ICD-10 only 2014 no histology/behaviour filter</span></span></span>
+<span class="r-in"><span><span class="co"># ICD-10 only - no histology/behaviour filter</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_cancer_registry</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"cancer_outcome"</span>, icd10 <span class="op">=</span> <span class="st">"^C50"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With histology and behaviour filters (malignant)</span></span></span>

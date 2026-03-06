@@ -236,19 +236,19 @@ for numeric/binary exposures).</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
-<ul><li><p><strong>Unadjusted</strong> 2014 no covariates (crude).</p></li>
-<li><p><strong>Age and sex adjusted</strong> 2014 age + sex auto-detected from the
+<ul><li><p><strong>Unadjusted</strong> - no covariates (crude).</p></li>
+<li><p><strong>Age and sex adjusted</strong> - age + sex auto-detected from the
 data via UKB field IDs (21022 and 31). Skipped with a warning if either
 column cannot be found.</p></li>
-<li><p><strong>Fully adjusted</strong> 2014 the covariates supplied via the
+<li><p><strong>Fully adjusted</strong> - the covariates supplied via the
 <code>covariates</code> argument. Only run when <code>covariates</code> is non-NULL.</p></li>
 </ul><p><strong>Outcome coding</strong>: <code>outcome_col</code> may be <code>logical</code>
 (<code>TRUE</code>/<code>FALSE</code>) or integer/numeric (<code>0</code>/<code>1</code>).
 Logical values are converted to integer internally.</p>
-<p><strong>Exposure types supported</strong>:</p><ul><li><p><em>Binary</em> 2014 <code>0</code>/<code>1</code> or <code>TRUE</code>/<code>FALSE</code>;
+<p><strong>Exposure types supported</strong>:</p><ul><li><p><em>Binary</em> - <code>0</code>/<code>1</code> or <code>TRUE</code>/<code>FALSE</code>;
 produces one <code>term</code> row per model.</p></li>
-<li><p><em>Factor</em> 2014 produces one <code>term</code> row per non-reference level.</p></li>
-<li><p><em>Numeric</em> (continuous) 2014 produces one <code>term</code> row per model.</p></li>
+<li><p><em>Factor</em> - produces one <code>term</code> row per non-reference level.</p></li>
+<li><p><em>Numeric</em> (continuous) - produces one <code>term</code> row per model.</p></li>
 </ul></div>
 
     <div class="section level2">

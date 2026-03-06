@@ -60,7 +60,7 @@ from national cancer registries.  Each diagnosis is stored as a separate
 instance with four parallel fields: ICD-10 code (\code{p40006}), histology
 code (\code{p40011}), behaviour code (\code{p40012}), and diagnosis date
 (\code{p40005}).  Unlike HES or self-report data, each instance holds
-exactly one record 2014 there is no array (\code{a*}) dimension.
+exactly one record - there is no array (\code{a*}) dimension.
 }
 \details{
 All three filter arguments (\code{icd10}, \code{histology},
@@ -78,7 +78,7 @@ registry record satisfies all supplied filters.}
 }
 \examples{
 \dontrun{
-# ICD-10 only 2014 no histology/behaviour filter
+# ICD-10 only - no histology/behaviour filter
 df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
 
 # With histology and behaviour filters (malignant)

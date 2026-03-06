@@ -47,10 +47,10 @@ The input \code{data} with two new columns added in-place:
 \description{
 Adds two columns to \code{data}:
 \itemize{
-\item \code{{name}_followup_end} (IDate) 2014 the earliest of the outcome
+\item \code{{name}_followup_end} (IDate) - the earliest of the outcome
 event date, death date, lost-to-follow-up date, and the administrative
 censoring date.
-\item \code{{name}_followup_years} (numeric) 2014 time in years from
+\item \code{{name}_followup_years} (numeric) - time in years from
 \code{baseline_col} to \code{{name}_followup_end}.
 }
 }

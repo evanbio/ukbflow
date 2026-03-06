@@ -172,8 +172,8 @@ per entry in <code>name</code>, added in-place.</p>
     <p>The value is <code>NA</code> for participants who did not experience the event
 (status is <code>FALSE</code> / <code>0</code>) or who lack an event date.</p>
 <p><strong>Auto-detection per name</strong> (when <code>date_cols</code> / <code>status_cols</code>
-are <code>NULL</code>):</p><ul><li><p><code>date_col</code>   2014 looked up as <code>{name}_date</code>.</p></li>
-<li><p><code>status_col</code> 2014 looked up first as <code>{name}_status</code>, then
+are <code>NULL</code>):</p><ul><li><p><code>date_col</code>   - looked up as <code>{name}_date</code>.</p></li>
+<li><p><code>status_col</code> - looked up first as <code>{name}_status</code>, then
 as <code>{name}</code> (logical column); if neither exists all rows with a
 non-<code>NA</code> date are treated as cases.</p></li>
 </ul><p><strong>data.table pass-by-reference</strong>: new columns are added in-place.</p>
@@ -182,7 +182,7 @@ non-<code>NA</code> date are treated as cases.</p></li>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Process multiple events in one call 2014 auto-detects {name}_date and</span></span></span>
+<span class="r-in"><span><span class="co"># Process multiple events in one call - auto-detects {name}_date and</span></span></span>
 <span class="r-in"><span><span class="co"># {name}_status for each</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_age</span><span class="op">(</span><span class="va">df</span>,</span></span>
 <span class="r-in"><span>  name         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"exposure_icd10"</span>, <span class="st">"outcome"</span><span class="op">)</span>,</span></span>

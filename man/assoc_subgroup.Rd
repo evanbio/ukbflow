@@ -88,8 +88,8 @@ models are available:
 }
 \details{
 \itemize{
-\item \strong{Unadjusted} 2014 always run (no covariates).
-\item \strong{Fully adjusted} 2014 run when \code{covariates} is non-NULL.
+\item \strong{Unadjusted} - always run (no covariates).
+\item \strong{Fully adjusted} - run when \code{covariates} is non-NULL.
 Users are responsible for excluding the \code{by} variable from
 \code{covariates} (a warning is issued if it is included).
 }

@@ -49,8 +49,8 @@ The value is \code{NA} for participants who did not experience the event
 \strong{Auto-detection per name} (when \code{date_cols} / \code{status_cols}
 are \code{NULL}):
 \itemize{
-\item \code{date_col}   2014 looked up as \code{{name}_date}.
-\item \code{status_col} 2014 looked up first as \code{{name}_status}, then
+\item \code{date_col}   - looked up as \code{{name}_date}.
+\item \code{status_col} - looked up first as \code{{name}_status}, then
 as \code{{name}} (logical column); if neither exists all rows with a
 non-\code{NA} date are treated as cases.
 }
@@ -59,7 +59,7 @@ non-\code{NA} date are treated as cases.
 }
 \examples{
 \dontrun{
-# Process multiple events in one call 2014 auto-detects {name}_date and
+# Process multiple events in one call - auto-detects {name}_date and
 # {name}_status for each
 df <- derive_age(df,
   name         = c("exposure", "exposure_icd10", "outcome"),

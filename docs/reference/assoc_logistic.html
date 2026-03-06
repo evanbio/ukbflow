@@ -213,17 +213,17 @@ or <code>"profile"</code>.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
-<ul><li><p><strong>Unadjusted</strong> 2014 no covariates (crude).</p></li>
-<li><p><strong>Age and sex adjusted</strong> 2014 age + sex auto-detected from the
+<ul><li><p><strong>Unadjusted</strong> - no covariates (crude).</p></li>
+<li><p><strong>Age and sex adjusted</strong> - age + sex auto-detected from the
 data via UKB field IDs (21022 and 31). Skipped with a warning if either
 column cannot be found.</p></li>
-<li><p><strong>Fully adjusted</strong> 2014 the covariates supplied via the
+<li><p><strong>Fully adjusted</strong> - the covariates supplied via the
 <code>covariates</code> argument. Only run when <code>covariates</code> is non-NULL.</p></li>
 </ul><p><strong>Outcome coding</strong>: <code>outcome_col</code> may be <code>logical</code>
 (<code>TRUE</code>/<code>FALSE</code>) or integer/numeric (<code>0</code>/<code>1</code>).
 Logical values are converted to integer internally.</p>
-<p><strong>CI methods</strong>:</p><ul><li><p><code>"wald"</code> (default) 2014 fast, appropriate for large UKB samples.</p></li>
-<li><p><code>"profile"</code> 2014 profile likelihood CI via <code>confint.glm()</code>;
+<p><strong>CI methods</strong>:</p><ul><li><p><code>"wald"</code> (default) - fast, appropriate for large UKB samples.</p></li>
+<li><p><code>"profile"</code> - profile likelihood CI via <code>confint.glm()</code>;
 slower but more accurate for small or sparse data.</p></li>
 </ul></div>
 

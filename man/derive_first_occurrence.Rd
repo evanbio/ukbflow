@@ -37,7 +37,7 @@ Values that cannot be coerced to a valid date (e.g. UKB error codes)
 are silently set to \code{NA}.}
 \item{\code{{name}_fo}}{Logical flag derived from
 \code{{name}_fo_date}: \code{TRUE} if and only if a valid date exists.
-This guarantees that every positive case has a usable date 2014 essential
+This guarantees that every positive case has a usable date - essential
 for time-to-event and prevalent/incident classification.}
 }
 

@@ -27,8 +27,8 @@ Continuous, text, date, and already-decoded columns are left unchanged.
 This function requires two metadata files downloaded from the UKB Research
 Analysis Platform:
 \itemize{
-\item \code{field.tsv} 2014 maps field IDs to encoding IDs and value types.
-\item \code{esimpint.tsv} 2014 maps encoding ID + integer code to label.
+\item \code{field.tsv} - maps field IDs to encoding IDs and value types.
+\item \code{esimpint.tsv} - maps encoding ID + integer code to label.
 }
 Download them once with:
 \preformatted{

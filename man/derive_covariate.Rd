@@ -41,8 +41,8 @@ The input \code{data} with converted columns. Always returns a
 \description{
 Converts decoded UKB columns to analysis-ready types: character-encoded
 numeric fields to \code{numeric}, and categorical fields to \code{factor}.
-Prints a concise summary for each converted column 2014 mean / median / SD /
-missing rate for numeric columns, and level counts for factor columns 2014 so
+Prints a concise summary for each converted column - mean / median / SD /
+missing rate for numeric columns, and level counts for factor columns - so
 you can verify distributions without leaving the pipeline.
 }
 \details{

@@ -244,9 +244,9 @@ model.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
-<ol><li><p><strong>Categorical model</strong> 2014 exposure treated as a factor; produces
+<ol><li><p><strong>Categorical model</strong> - exposure treated as a factor; produces
 one row per non-reference level (HR / OR / \(\beta\) vs reference).</p></li>
-<li><p><strong>Trend model</strong> 2014 exposure recoded as numeric scores (default:
+<li><p><strong>Trend model</strong> - exposure recoded as numeric scores (default:
 0, 1, 2, ...); produces the per-score-unit effect estimate
 (<code>*_per_score</code>) and <code>p_trend</code>.</p></li>
 </ol><p>Both results are merged: the output contains a reference row (effect = 1 /
@@ -255,10 +255,10 @@ one row per non-reference level (HR / OR / \(\beta\) vs reference).</p></li>
 exposure \(\times\) model combination).</p>
 <p><strong>Scores</strong>: By default levels are scored 0, 1, 2, ... so the
 reference group = 0 and each step = 1 unit. Supply <code>scores</code> to use
-meaningful units (e.g. median years per category) 2014 only <code>p_trend</code> and
+meaningful units (e.g. median years per category) - only <code>p_trend</code> and
 the per-score estimate change; per-category HRs are unaffected.</p>
 <p><strong>Adjustment models</strong>: follows the same logic as
-<code><a href="assoc_coxph.html">assoc_coxph</a></code> 2014 Unadjusted and Age-and-sex-adjusted models are
+<code><a href="assoc_coxph.html">assoc_coxph</a></code> - Unadjusted and Age-and-sex-adjusted models are
 included by default (<code>base = TRUE</code>); a Fully adjusted model is added
 when <code>covariates</code> is non-NULL.</p>
     </div>

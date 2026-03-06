@@ -8,8 +8,17 @@
 \description{
 An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Provides tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/evanbio/ukbflow}
+  \item \url{https://evanbio.github.io/ukbflow/}
+  \item Report bugs at \url{https://github.com/evanbio/ukbflow/issues}
+}
+
+}
 \author{
-\strong{Maintainer}: Evan Zhou \email{evanzhou.bio@gmail.com}
+\strong{Maintainer}: Evan Zhou \email{evanzhou.bio@gmail.com} (\href{https://orcid.org/0009-0009-4600-8175}{ORCID})
 
 }
 \keyword{internal}

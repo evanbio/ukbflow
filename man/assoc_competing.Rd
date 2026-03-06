@@ -90,7 +90,7 @@ Two input modes are supported depending on how the outcome is coded in your
 dataset:
 
 \describe{
-\item{\strong{Mode A 2014 single multi-value column}}{
+\item{\strong{Mode A - single multi-value column}}{
 \code{compete_col = NULL} (default). \code{outcome_col} contains all
 event codes in one column (e.g. \code{0}/\code{1}/\code{2}/\code{3}).
 Use \code{event_val} and \code{compete_val} to identify the event of
@@ -98,7 +98,7 @@ interest and the competing event; all other values are treated as
 censored. Example: UKB \code{censoring_type} where 1 = event, 2 = death
 (competing), 0/3 = censored.
 }
-\item{\strong{Mode B 2014 dual binary columns}}{
+\item{\strong{Mode B - dual binary columns}}{
 \code{compete_col} is the name of a separate 0/1 column for the
 competing event. \code{outcome_col} is a 0/1 column for the primary
 event. When both are 1 for the same participant, the primary event takes
@@ -113,10 +113,10 @@ Internally both modes are converted to a three-level factor
 
 Three adjustment models are produced (where data allow):
 \itemize{
-\item \strong{Unadjusted} 2014 always included.
-\item \strong{Age and sex adjusted} 2014 when \code{base = TRUE} and
+\item \strong{Unadjusted} - always included.
+\item \strong{Age and sex adjusted} - when \code{base = TRUE} and
 age/sex columns are detected.
-\item \strong{Fully adjusted} 2014 when \code{covariates} is non-NULL.
+\item \strong{Fully adjusted} - when \code{covariates} is non-NULL.
 }
 }
 \examples{

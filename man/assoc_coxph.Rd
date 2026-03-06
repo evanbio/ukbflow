@@ -87,11 +87,11 @@ adjustment models are always included alongside any user-specified model:
 }
 \details{
 \itemize{
-\item \strong{Unadjusted} 2014 no covariates (crude).
-\item \strong{Age and sex adjusted} 2014 age + sex auto-detected from the
+\item \strong{Unadjusted} - no covariates (crude).
+\item \strong{Age and sex adjusted} - age + sex auto-detected from the
 data via UKB field IDs (21022 and 31). Skipped with a warning if either
 column cannot be found.
-\item \strong{Fully adjusted} 2014 the covariates supplied via the
+\item \strong{Fully adjusted} - the covariates supplied via the
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
 
@@ -101,10 +101,10 @@ Logical values are converted to integer internally.
 
 \strong{Exposure types supported}:
 \itemize{
-\item \emph{Binary} 2014 \code{0}/\code{1} or \code{TRUE}/\code{FALSE};
+\item \emph{Binary} - \code{0}/\code{1} or \code{TRUE}/\code{FALSE};
 produces one \code{term} row per model.
-\item \emph{Factor} 2014 produces one \code{term} row per non-reference level.
-\item \emph{Numeric} (continuous) 2014 produces one \code{term} row per model.
+\item \emph{Factor} - produces one \code{term} row per non-reference level.
+\item \emph{Numeric} (continuous) - produces one \code{term} row per model.
 }
 }
 \examples{

@@ -243,7 +243,7 @@ Default: <code>0.95</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Two input modes are supported depending on how the outcome is coded in your
 dataset:</p>
-<dl><dt><strong>Mode A 2014 single multi-value column</strong></dt>
+<dl><dt><strong>Mode A - single multi-value column</strong></dt>
 <dd><p><code>compete_col = NULL</code> (default). <code>outcome_col</code> contains all
 event codes in one column (e.g. <code>0</code>/<code>1</code>/<code>2</code>/<code>3</code>).
 Use <code>event_val</code> and <code>compete_val</code> to identify the event of
@@ -251,7 +251,7 @@ interest and the competing event; all other values are treated as
 censored. Example: UKB <code>censoring_type</code> where 1 = event, 2 = death
 (competing), 0/3 = censored.</p></dd>
 
-<dt><strong>Mode B 2014 dual binary columns</strong></dt>
+<dt><strong>Mode B - dual binary columns</strong></dt>
 <dd><p><code>compete_col</code> is the name of a separate 0/1 column for the
 competing event. <code>outcome_col</code> is a 0/1 column for the primary
 event. When both are 1 for the same participant, the primary event takes
@@ -262,10 +262,10 @@ priority. Example: <code>outcome_col = "cscc_status"</code>,
 </dl><p>Internally both modes are converted to a three-level factor
 <code>c("censor", "event", "compete")</code> before being passed to
 <code>finegray()</code>.</p>
-<p>Three adjustment models are produced (where data allow):</p><ul><li><p><strong>Unadjusted</strong> 2014 always included.</p></li>
-<li><p><strong>Age and sex adjusted</strong> 2014 when <code>base = TRUE</code> and
+<p>Three adjustment models are produced (where data allow):</p><ul><li><p><strong>Unadjusted</strong> - always included.</p></li>
+<li><p><strong>Age and sex adjusted</strong> - when <code>base = TRUE</code> and
 age/sex columns are detected.</p></li>
-<li><p><strong>Fully adjusted</strong> 2014 when <code>covariates</code> is non-NULL.</p></li>
+<li><p><strong>Fully adjusted</strong> - when <code>covariates</code> is non-NULL.</p></li>
 </ul></div>
 
     <div class="section level2">

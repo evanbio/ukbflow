@@ -35,8 +35,8 @@ disease date falls before or after the baseline visit date:
 \details{
 \describe{
 \item{\code{0}}{No disease (\code{status_col} is \code{FALSE}).}
-\item{\code{1}}{Prevalent 2014 disease date on or before baseline.}
-\item{\code{2}}{Incident 2014 disease date strictly after baseline.}
+\item{\code{1}}{Prevalent - disease date on or before baseline.}
+\item{\code{2}}{Incident - disease date strictly after baseline.}
 \item{\code{NA}}{Case with missing date; timing cannot be determined.}
 }
 
