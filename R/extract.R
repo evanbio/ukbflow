@@ -102,38 +102,35 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 #'   \code{c(31, 53, 22189)}. \code{eid} is always included automatically.
 #' @param dataset (character) Dataset file name. Default: \code{NULL}
 #'   (auto-detect from project root).
-#' @param dest (character) Local path to save the extracted CSV, e.g.
-#'   \code{"data/pheno.csv"}. The file persists after extraction so data can
-#'   be reloaded without re-running. Default: \code{NULL} (auto-generate path
-#'   under \code{"data/"}).
 #' @param timeout (integer) Extraction timeout in seconds. Default: \code{300}.
 #'
 #' @return A \code{data.table} with one row per participant. Column names
-#'   follow the \code{participant.p<id>_i<n>_a<m>} convention. The CSV is
-#'   always saved to \code{dest}. Fields not found are skipped with a warning.
+#'   follow the \code{participant.p<id>_i<n>_a<m>} convention.
+#'   Fields not found are skipped with a warning.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Extract and load into R
-#' df <- extract_pheno(c(31, 53, 21022), dest = "data/pheno.csv")
-#'
-#' # Extract to disk only (large file, load later)
-#' extract_pheno(c(31, 53, 20002), dest = "data/pheno.csv")
-#' df <- data.table::fread("data/pheno.csv")
+#' df <- extract_pheno(c(31, 53, 21022))
+#' df <- extract_pheno(c(31, 53, 20002), dataset = "app12345_20260101.dataset")
 #' }
-extract_pheno <- function(field_id, dataset = NULL, dest = NULL, timeout = 300) {
+extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
+
+  if (!.is_on_rap()) {
+    stop(
+      "extract_pheno() must be run inside the RAP environment.\n",
+      "For large-scale extraction, use extract_batch() instead.",
+      call. = FALSE
+    )
+  }
 
   if (!is.numeric(field_id) || length(field_id) == 0) {
     stop("field_id must be a non-empty numeric vector.", call. = FALSE)
   }
   field_id <- as.integer(unique(field_id))
 
-  # Auto-generate output path if not provided
-  if (is.null(dest)) {
-    if (!dir.exists("data")) dir.create("data", recursive = TRUE)
-    dest <- file.path("data", paste0("ukb_pheno_", format(Sys.Date(), "%Y%m%d"), ".csv"))
-  }
+  dest <- tempfile(fileext = ".csv")
+  on.exit(unlink(dest), add = TRUE)
 
   # Auto-detect dataset
   if (is.null(dataset)) {

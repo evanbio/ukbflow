@@ -4,7 +4,7 @@
 \alias{extract_pheno}
 \title{Extract phenotype data from a UKB dataset}
 \usage{
-extract_pheno(field_id, dataset = NULL, dest = NULL, timeout = 300)
+extract_pheno(field_id, dataset = NULL, timeout = 300)
 }
 \arguments{
 \item{field_id}{(integer) Vector of UKB Field IDs to extract, e.g.
@@ -13,17 +13,12 @@ extract_pheno(field_id, dataset = NULL, dest = NULL, timeout = 300)
 \item{dataset}{(character) Dataset file name. Default: \code{NULL}
 (auto-detect from project root).}
 
-\item{dest}{(character) Local path to save the extracted CSV, e.g.
-\code{"data/pheno.csv"}. The file persists after extraction so data can
-be reloaded without re-running. Default: \code{NULL} (auto-generate path
-under \code{"data/"}).}
-
 \item{timeout}{(integer) Extraction timeout in seconds. Default: \code{300}.}
 }
 \value{
 A \code{data.table} with one row per participant. Column names
-follow the \code{participant.p<id>_i<n>_a<m>} convention. The CSV is
-always saved to \code{dest}. Fields not found are skipped with a warning.
+follow the \code{participant.p<id>_i<n>_a<m>} convention.
+Fields not found are skipped with a warning.
 }
 \description{
 Extracts phenotypic fields from the UKB Research Analysis Platform dataset
@@ -33,11 +28,7 @@ each requested field. Column names are kept as-is (e.g.
 }
 \examples{
 \dontrun{
-# Extract and load into R
-df <- extract_pheno(c(31, 53, 21022), dest = "data/pheno.csv")
-
-# Extract to disk only (large file, load later)
-extract_pheno(c(31, 53, 20002), dest = "data/pheno.csv")
-df <- data.table::fread("data/pheno.csv")
+df <- extract_pheno(c(31, 53, 21022))
+df <- extract_pheno(c(31, 53, 20002), dataset = "app12345_20260101.dataset")
 }
 }

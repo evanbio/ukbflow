@@ -9,6 +9,18 @@
 .ukbflow_cache <- new.env(parent = emptyenv())
 
 
+#' Detect whether the current session is running inside the RAP environment
+#'
+#' @keywords internal
+#' @noRd
+.is_on_rap <- function() {
+  on_cloud   <- nzchar(Sys.getenv("DX_PROJECT_CONTEXT_ID")) ||
+                nzchar(Sys.getenv("DX_JOB_ID"))
+  mount_exists <- dir.exists("/mnt/project")
+  on_cloud || mount_exists
+}
+
+
 #' Find the most recent .dataset file in the project root
 #'
 #' @return Character string — the dataset file name.
