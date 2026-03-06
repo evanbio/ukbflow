@@ -1,0 +1,151 @@
+---
+title: "Exploring and Fetching RAP Files"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exploring and Fetching RAP Files}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## Overview
+
+The `fetch_*` functions provide a convenient R interface for exploring and downloading files from your UK Biobank RAP project. Rather than switching to the terminal and using `dx` commands directly, you can browse your remote project structure and retrieve files entirely within your R session.
+
+> **UK Biobank Data Policy (2024+)**: Only summary-level outputs and metadata files may be downloaded locally. Individual-level phenotype and genotype data must remain within the RAP environment.
+
+---
+
+## Prerequisites
+
+Ensure you are authenticated before using any `fetch_*` functions:
+
+```{r auth}
+library(ukbflow)
+
+auth_login()
+auth_select_project("project-XXXXXXXXXXXX")
+```
+
+See `vignette("authentication")` for details.
+
+---
+
+## Exploring Remote Files
+
+### List files and folders
+
+`fetch_ls()` lists the contents of a remote RAP directory, returning a structured data frame:
+
+```{r fetch-ls}
+# List project root
+fetch_ls()
+
+# List a specific folder
+fetch_ls("Showcase metadata/")
+
+# Filter by type
+fetch_ls("results/", type = "file")
+
+# Filter by name pattern
+fetch_ls("results/", pattern = "\\.csv$")
+```
+
+The returned data frame has four columns:
+
+| Column | Description |
+|---|---|
+| `name` | File or folder name |
+| `type` | `"file"` or `"folder"` |
+| `size` | File size (e.g. `"1.2 MB"`), `NA` for folders |
+| `modified` | Last modified time (`POSIXct`), `NA` for folders |
+
+### Browse the directory tree
+
+`fetch_tree()` prints a tree-like view of the remote project structure:
+
+```{r fetch-tree}
+# Top-level overview
+fetch_tree()
+
+# Drill into a subfolder
+fetch_tree("results/", max_depth = 3)
+```
+
+> **Note**: Each level of recursion triggers one API call per folder. Keep `max_depth` at 2–3 for interactive use to avoid long waits on large projects.
+
+---
+
+## Generating Download URLs
+
+`fetch_url()` generates temporary pre-authenticated HTTPS URLs for remote files. Useful for sharing or passing to other download tools.
+
+```{r fetch-url}
+# Single file
+fetch_url("Showcase metadata/field.tsv")
+
+# Entire folder (returns a named character vector)
+fetch_url("Showcase metadata/", duration = "7d")
+```
+
+URLs are valid for the specified `duration` (default: `"1d"`).
+
+---
+
+## Downloading Files
+
+### Single file or folder
+
+`fetch_file()` downloads a file or an entire folder to a local directory:
+
+```{r fetch-file}
+# Download a single file
+fetch_file("Showcase metadata/field.tsv", dest_dir = "data/")
+
+# Download an entire folder
+fetch_file("Showcase metadata/", dest_dir = "data/metadata/")
+
+# Resume an interrupted download
+fetch_file("results/summary_stats.csv", dest_dir = "data/", resume = TRUE)
+```
+
+Folders are downloaded in parallel using `curl::multi_download()` for efficiency.
+
+### Metadata shortcuts
+
+Two convenience wrappers are provided for commonly used UKB files:
+
+```{r fetch-meta}
+# Download all Showcase metadata files (field.tsv, encoding.tsv, etc.)
+fetch_metadata(dest_dir = "data/metadata/")
+
+# Download the field dictionary only
+fetch_field(dest_dir = "data/metadata/")
+```
+
+---
+
+## Common Options
+
+All `fetch_file()`, `fetch_metadata()`, and `fetch_field()` functions share these arguments:
+
+| Argument | Default | Description |
+|---|---|---|
+| `dest_dir` | `"."` | Local destination directory (created if needed) |
+| `overwrite` | `FALSE` | Overwrite existing local files |
+| `resume` | `FALSE` | Resume an interrupted download |
+| `verbose` | `TRUE` | Show download progress |
+
+---
+
+## Getting Help
+
+- `?fetch_ls`, `?fetch_tree`, `?fetch_url`, `?fetch_file`, `?fetch_metadata`, `?fetch_field`
+- [GitHub Issues](https://github.com/evanbio/ukbflow/issues)
