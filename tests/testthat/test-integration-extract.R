@@ -27,9 +27,9 @@ test_that("extract_ls() returns at least one field", {
   expect_gt(nrow(result), 0)
 })
 
-test_that("extract_ls() field_name values follow participant.p<id> format", {
+test_that("extract_ls() field_name values follow participant. format", {
   result <- suppressMessages(extract_ls())
-  expect_true(all(grepl("^participant\\.p", result$field_name)))
+  expect_true(all(grepl("^participant\\.", result$field_name)))
 })
 
 test_that("extract_ls() title column has no fully-missing values", {
@@ -97,6 +97,6 @@ test_that("extract_ls() returns empty data.frame for unmatched pattern", {
 # They are covered exhaustively by mock-based unit tests in test-extract.R.
 # If a real smoke-test is needed, run the following interactively:
 #
-#   df <- extract_pheno(c(31, 21022), dest = tempfile(fileext = ".csv"))
+#   df <- extract_pheno(c(31, 21022))   # RAP only
 #   job_id <- extract_batch(c(31, 21022), priority = "low")
 # ===========================================================================

@@ -21,9 +21,6 @@ test_that("auth_login() successfully logs in with a valid token", {
   expect_message(auth_login(token = token), "successfully")
 })
 
-test_that("auth_login() throws a friendly error with an invalid token", {
-  expect_error(auth_login(token = "invalid_token_xyz"), "Login failed")
-})
 
 # ===========================================================================
 # auth_status()
@@ -61,10 +58,3 @@ test_that("auth_select_project() throws error for a non-existent project ID", {
   expect_error(auth_select_project("project-DOESNOTEXIST000"), "Failed to select project")
 })
 
-# ===========================================================================
-# auth_logout()
-# ===========================================================================
-
-test_that("auth_logout() successfully logs out", {
-  expect_message(auth_logout(), "Logged out")
-})

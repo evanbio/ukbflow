@@ -100,14 +100,29 @@ test_that("job_wait() stops with error message for known failed job", {
 })
 
 # ===========================================================================
+# job_path()
+# ===========================================================================
+
+test_that("job_path() returns a /mnt/project/ path for known done job", {
+  skip_if_not(.is_on_rap(), "job_path() requires RAP environment")
+  result <- job_path(JOB_DONE)
+  expect_type(result, "character")
+  expect_true(startsWith(result, "/mnt/project/"))
+  expect_true(endsWith(result, ".csv"))
+})
+
+test_that("job_path() stops for known failed job", {
+  expect_error(suppressMessages(job_path(JOB_FAILED)), "not 'done'")
+})
+
+# ===========================================================================
 # job_result()
 # ===========================================================================
 
-# Note: job_result() downloads cloud output files. The specific output files
-# for JOB_DONE were deleted after testing. Use an active job for full
-# job_result() integration testing:
+# Note: job_result() requires RAP environment and a job whose output file
+# still exists on the project. Use an active job for full integration testing:
 #
 #   job_id <- extract_batch(c(31, 21022), file = "integration_test")
 #   job_wait(job_id)
-#   df <- job_result(job_id, dest = tempfile(fileext = ".csv"))
-#   dx rm <output_file_id>   # clean up afterwards
+#   df <- job_result(job_id)
+#   # clean up: dx rm <output_file_id>

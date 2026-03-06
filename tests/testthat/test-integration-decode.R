@@ -13,10 +13,7 @@ if (!nzchar(token)) {
   skip("DX_API_TOKEN not set. Set it to run integration tests.")
 }
 
-# Metadata directory for decode_values() tests
-# Populated by: fetch_file("Showcase metadata/field.tsv", dest_dir = META_DIR)
-#               fetch_file("Showcase metadata/esimpint.tsv", dest_dir = META_DIR)
-META_DIR <- "dev/temp/downloads/metadata"
+META_DIR <- withr::local_tempdir()
 
 # ===========================================================================
 # decode_names() — requires live extract_ls() to populate cache
@@ -80,14 +77,10 @@ test_that("decode_names() warms session cache as side effect", {
 # decode_values() — requires local metadata files (no network after download)
 # ===========================================================================
 
-if (!file.exists(file.path(META_DIR, "field.tsv")) ||
-    !file.exists(file.path(META_DIR, "esimpint.tsv"))) {
-  skip(paste0(
-    "Metadata files not found in '", META_DIR, "'. ",
-    "Run fetch_file(\"Showcase metadata/field.tsv\", dest_dir = \"", META_DIR, "\") ",
-    "and fetch_file(\"Showcase metadata/esimpint.tsv\", dest_dir = \"", META_DIR, "\") first."
-  ))
-}
+suppressMessages({
+  fetch_file("Showcase metadata/field.tsv",    dest_dir = META_DIR, overwrite = TRUE)
+  fetch_file("Showcase metadata/esimpint.tsv", dest_dir = META_DIR, overwrite = TRUE)
+})
 
 # Clear metadata cache before each test to ensure fresh reads
 .clear_meta_cache <- function() {

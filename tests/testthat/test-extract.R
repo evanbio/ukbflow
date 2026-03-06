@@ -206,11 +206,18 @@ test_that("extract_ls() throws error when .dx_list_fields_raw fails", {
 # extract_pheno()
 # ===========================================================================
 
+test_that("extract_pheno() stops when not on RAP", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() FALSE)
+  expect_error(extract_pheno(31), "RAP environment")
+})
+
 test_that("extract_pheno() throws error on empty field_id", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   expect_error(extract_pheno(integer(0)), "non-empty numeric")
 })
 
 test_that("extract_pheno() throws error on non-numeric field_id", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   expect_error(extract_pheno("p31"), "non-empty numeric")
 })
 
@@ -218,6 +225,7 @@ test_that("extract_pheno() throws error when no fields match", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   expect_error(
     suppressMessages(extract_pheno(999999)),
@@ -229,6 +237,7 @@ test_that("extract_pheno() warns on unmatched field_id", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_pheno, ".dx_extract_run", function(dataset, fields, dest, ...) {
     write.csv(data.frame(`participant.eid` = 1L, `participant.p31` = 1L,
@@ -237,7 +246,7 @@ test_that("extract_pheno() warns on unmatched field_id", {
   })
 
   expect_warning(
-    suppressMessages(extract_pheno(c(31, 189), dest = tempfile(fileext = ".csv"))),
+    suppressMessages(extract_pheno(c(31, 189))),
     "not found"
   )
 })
@@ -247,6 +256,7 @@ test_that("extract_pheno() always includes eid as first field", {
   on.exit(.clear_cache())
 
   received_fields <- NULL
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_pheno, ".dx_extract_run",
                 function(dataset, fields, dest, ...) {
@@ -256,9 +266,7 @@ test_that("extract_pheno() always includes eid as first field", {
                   .fake_dx()
                 })
 
-  suppressMessages(suppressWarnings(
-    extract_pheno(31, dest = tempfile(fileext = ".csv"))
-  ))
+  suppressMessages(suppressWarnings(extract_pheno(31)))
   expect_equal(received_fields[1], "participant.eid")
 })
 
@@ -266,6 +274,7 @@ test_that("extract_pheno() returns a data.table", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_pheno, ".dx_extract_run", function(dataset, fields, dest, ...) {
     write.csv(data.frame(`participant.eid` = c(1L, 2L), `participant.p31` = c(1L, 0L),
@@ -273,9 +282,7 @@ test_that("extract_pheno() returns a data.table", {
     .fake_dx()
   })
 
-  result <- suppressMessages(
-    extract_pheno(31, dest = tempfile(fileext = ".csv"))
-  )
+  result <- suppressMessages(extract_pheno(31))
   expect_true(data.table::is.data.table(result))
 })
 
@@ -496,12 +503,13 @@ test_that("extract_pheno() stops when extraction command fails", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_pheno, ".dx_extract_run",
                 function(...) .fake_dx(stderr = "connection timeout", status = 1))
 
   expect_error(
-    suppressMessages(extract_pheno(31, dest = tempfile(fileext = ".csv"))),
+    suppressMessages(extract_pheno(31)),
     "Extraction failed"
   )
 })
@@ -511,6 +519,7 @@ test_that("extract_pheno() deduplicates repeated field_ids", {
   on.exit(.clear_cache())
 
   received_fields <- NULL
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   mockery::stub(extract_pheno, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_pheno, ".dx_extract_run",
                 function(dataset, fields, dest, ...) {
@@ -520,7 +529,7 @@ test_that("extract_pheno() deduplicates repeated field_ids", {
                   .fake_dx()
                 })
 
-  suppressMessages(extract_pheno(c(31, 31, 31), dest = tempfile(fileext = ".csv")))
+  suppressMessages(extract_pheno(c(31, 31, 31)))
   # participant.eid + participant.p31 — p31 must appear exactly once
   expect_equal(sum(received_fields == "participant.p31"), 1L)
 })

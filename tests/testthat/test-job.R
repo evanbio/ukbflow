@@ -217,90 +217,63 @@ test_that("job_wait() prints fail symbol when verbose = TRUE and job failed", {
 })
 
 # ===========================================================================
+# job_path()
+# ===========================================================================
+
+test_that("job_path() stops on invalid job_id format", {
+  expect_error(job_path("notajob"), "job-XXXX")
+})
+
+test_that("job_path() stops when job is not done", {
+  mockery::stub(job_path, ".dx_job_describe", function(...) .fake_desc_running())
+  expect_error(suppressMessages(job_path("job-XXXX")), "not 'done'")
+})
+
+test_that("job_path() stops when job failed", {
+  mockery::stub(job_path, ".dx_job_describe", function(...) .fake_desc_failed())
+  expect_error(suppressMessages(job_path("job-XXXX")), "not 'done'")
+})
+
+test_that("job_path() returns /mnt/project/ path for done job", {
+  mockery::stub(job_path, ".dx_job_describe", function(...) .fake_desc_done())
+  mockery::stub(job_path, ".dx_file_path",
+                function(...) "/mnt/project/ad_pheno.csv")
+  result <- job_path("job-XXXX")
+  expect_equal(result, "/mnt/project/ad_pheno.csv")
+})
+
+# ===========================================================================
 # job_result()
 # ===========================================================================
 
+test_that("job_result() stops when not on RAP", {
+  mockery::stub(job_result, ".is_on_rap", function() FALSE)
+  expect_error(job_result("job-XXXX"), "RAP environment")
+})
+
 test_that("job_result() stops on invalid job_id format", {
+  mockery::stub(job_result, ".is_on_rap", function() TRUE)
   expect_error(job_result("notajob"), "job-XXXX")
 })
 
 test_that("job_result() stops when job is not done", {
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_running())
-  expect_error(
-    suppressMessages(job_result("job-XXXX")),
-    "not 'done'"
-  )
+  mockery::stub(job_result, ".is_on_rap", function() TRUE)
+  mockery::stub(job_result, "job_path", function(...) {
+    stop("Job job-XXXX is 'running', not 'done'.")
+  })
+  expect_error(suppressMessages(job_result("job-XXXX")), "not 'done'")
 })
 
-test_that("job_result() stops when job failed", {
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_failed())
-  expect_error(
-    suppressMessages(job_result("job-XXXX")),
-    "not 'done'"
-  )
-})
+test_that("job_result() returns a data.table when on RAP", {
+  tmp <- tempfile(fileext = ".csv")
+  write.csv(data.frame(eid = c(1L, 2L), p31 = c(0L, 1L)), tmp, row.names = FALSE)
 
-test_that("job_result() calls .dx_make_url with output file ID", {
-  received_id <- NULL
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_done())
-  mockery::stub(job_result, ".dx_make_url", function(id, ...) {
-    received_id <<- id
-    "https://dl.dnanex.us/fake/ad_pheno.csv"
-  })
-  mockery::stub(job_result, ".dx_download_file", function(url, destfile, ...) {
-    write.csv(data.frame(eid = 1L), destfile, row.names = FALSE)
-    invisible(destfile)
-  })
-  suppressMessages(job_result("job-XXXX", dest = tempfile(fileext = ".csv")))
-  expect_equal(received_id, "file-XXXX")
-})
+  mockery::stub(job_result, ".is_on_rap", function() TRUE)
+  mockery::stub(job_result, "job_path", function(...) tmp)
 
-test_that("job_result() returns a data.table when read = TRUE", {
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_done())
-  mockery::stub(job_result, ".dx_make_url",
-                function(...) "https://dl.dnanex.us/fake/ad_pheno.csv")
-  mockery::stub(job_result, ".dx_download_file", function(url, destfile, ...) {
-    write.csv(data.frame(eid = c(1L, 2L), p31 = c(0L, 1L)), destfile,
-              row.names = FALSE)
-    invisible(destfile)
-  })
-  result <- suppressMessages(
-    job_result("job-XXXX", dest = tempfile(fileext = ".csv"))
-  )
+  result <- suppressMessages(job_result("job-XXXX"))
   expect_true(data.table::is.data.table(result))
   expect_equal(nrow(result), 2L)
-})
-
-test_that("job_result() returns dest path invisibly when read = FALSE", {
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_done())
-  mockery::stub(job_result, ".dx_make_url",
-                function(...) "https://dl.dnanex.us/fake/ad_pheno.csv")
-  mockery::stub(job_result, ".dx_download_file", function(url, destfile, ...) {
-    write.csv(data.frame(eid = 1L), destfile, row.names = FALSE)
-    invisible(destfile)
-  })
-  dest <- tempfile(fileext = ".csv")
-  expect_invisible(suppressMessages(job_result("job-XXXX", dest = dest,
-                                               read = FALSE)))
-  result <- suppressMessages(job_result("job-XXXX", dest = dest, read = FALSE))
-  expect_equal(result, dest)
-})
-
-test_that("job_result() auto-generates dest from runInput output name", {
-  received_dest <- NULL
-  mockery::stub(job_result, ".dx_job_describe", function(...) .fake_desc_done())
-  mockery::stub(job_result, ".dx_make_url",
-                function(...) "https://dl.dnanex.us/fake/ad_pheno.csv")
-  mockery::stub(job_result, ".dx_download_file", function(url, destfile, ...) {
-    received_dest <<- destfile
-    write.csv(data.frame(eid = 1L), destfile, row.names = FALSE)
-    invisible(destfile)
-  })
-  withr::with_tempdir({
-    dir.create("data")
-    suppressMessages(job_result("job-XXXX"))
-    expect_true(grepl("ad_pheno\\.csv$", received_dest))
-  })
 })
 
 # ===========================================================================
