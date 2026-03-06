@@ -1,0 +1,427 @@
+# ==============================================================================
+# pkgdown Configuration for ukbflow
+# ==============================================================================
+
+url: https://evanbio.github.io/ukbflow/
+
+# ==============================================================================
+# Template & Theme Configuration
+# ==============================================================================
+
+template:
+  bootstrap: 5
+
+  bslib:
+    # Color Palette
+    primary: "#0D47A1"
+    secondary: "#E3F2FD"
+    success: "#2E7D32"
+    info: "#0288D1"
+    warning: "#F57C00"
+    danger: "#C62828"
+    light: "#FAFAFA"
+    dark: "#1A237E"
+    bg-light: "#F8F9FA"
+    bg-dark: "#121212"
+
+    # Border Radius
+    border-radius: "0.5rem"
+    btn-border-radius: "0.375rem"
+    card-border-radius: "0.5rem"
+
+    # Typography
+    base_font: {google: "Inter"}
+    heading_font: {google: "Inter"}
+    code_font: {google: "JetBrains Mono"}
+
+    # Navbar Colors
+    navbar-bg: "#FFFFFF"
+    navbar-light-color: "#424242"
+    navbar-light-hover-color: "#0D47A1"
+
+    # Link Colors
+    link-color: "#0D47A1"
+    link-hover-color: "#1976D2"
+
+  params:
+    path: /ukbflow/
+
+  opengraph:
+    image:
+      src: man/figures/logo.png
+      alt: "ukbflow: RAP-native R workflow for UK Biobank analysis"
+    twitter:
+      creator: "@evanbio"
+      card: summary_large_image
+      site: "@evanbio"
+
+  includes:
+    in_header: |
+      <meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics">
+      <meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)">
+      <meta name="author" content="Evan Zhou">
+
+      <!-- Enhanced Favicon -->
+      <link rel="icon" type="image/png" sizes="32x32" href="man/figures/logo.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="man/figures/logo.png">
+      <link rel="apple-touch-icon" sizes="180x180" href="man/figures/logo.png">
+
+      <!-- Enhanced CSS for professional appearance -->
+      <style>
+        /* Navigation styling */
+        .navbar-brand { font-size: 1.5rem; font-weight: 600; }
+        .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .navbar { box-shadow: 0 2px 12px rgba(0,0,0,0.08); backdrop-filter: blur(10px); }
+        .navbar-nav .nav-link { color: #424242 !important; font-weight: 500; font-size: 1.05rem; transition: all 0.3s ease; }
+        .navbar-nav .nav-link:hover { color: #0D47A1 !important; transform: translateY(-1px); }
+        .navbar-nav .dropdown-item { font-size: 1rem; }
+
+        /* Card and content styling */
+        .card {
+          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+          border: none;
+          border-radius: 0.75rem;
+          transition: all 0.3s ease;
+        }
+        .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); transform: translateY(-2px); }
+
+        /* Button enhancements */
+        .btn-primary {
+          background: linear-gradient(135deg, #0D47A1, #1976D2);
+          border: none;
+          box-shadow: 0 2px 8px rgba(13,71,161,0.3);
+          transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #1976D2, #2196F3);
+          box-shadow: 0 4px 16px rgba(13,71,161,0.4);
+          transform: translateY(-1px);
+        }
+
+        /* Typography improvements */
+        h1, h2, h3 { color: #0D47A1; font-weight: 600; }
+        h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 2rem; margin: 2rem 0 1rem 0; }
+        h3 { font-size: 1.5rem; margin: 1.5rem 0 1rem 0; }
+
+        /* Code blocks */
+        pre, code { border-radius: 0.5rem; }
+        pre { box-shadow: inset 0 2px 8px rgba(0,0,0,0.1); }
+
+        /* Reference page styling */
+        .ref-index h2 { border-bottom: 3px solid #E3F2FD; padding-bottom: 0.5rem; }
+        .ref-index .icon { color: #0D47A1; margin-right: 0.5rem; }
+
+        /* Footer */
+        .footer { background: linear-gradient(135deg, #F8F9FA, #E3F2FD); }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+          .navbar-brand { font-size: 1.25rem; }
+          .navbar-brand img { height: 32px; }
+          .navbar-nav .nav-link { font-size: 1rem; }
+          h1 { font-size: 2rem; }
+          .card { margin-bottom: 1rem; }
+        }
+      </style>
+
+# ==============================================================================
+# Home Page Configuration
+# ==============================================================================
+
+home:
+  title: ukbflow
+  subtitle: "RAP-native R Workflow for UK Biobank Analysis"
+  description: >
+    An R package for UK Biobank cloud-based analysis on the Research Analysis
+    Platform (RAP). Covers phenotype extraction, variable derivation, survival
+    and association analysis, genetic risk score computation, and
+    publication-quality visualization.
+  strip_header: false
+
+  sidebar:
+    structure: [links, toc, license, community, citation, authors, dev]
+
+  links:
+  - text: "Get Started with ukbflow"
+    href: articles/get-started.html
+    desc: "End-to-end workflow overview"
+  - text: "Authentication and Project Setup"
+    href: articles/auth.html
+    desc: "Connect to UK Biobank RAP"
+  - text: "Exploring and Fetching RAP Files"
+    href: articles/fetch.html
+    desc: "Browse and download files from RAP project storage"
+  - text: "Extracting Phenotype Data"
+    href: articles/extract.html
+    desc: "Extract UKB fields from the RAP dataset"
+  - text: "Decoding UKB Column Names and Values"
+    href: articles/decode.html
+    desc: "Human-readable field names and value labels"
+  - text: "Deriving Disease Phenotypes from UKB Data"
+    href: articles/derive.html
+    desc: "Case definitions from HES, cancer registry, and self-report"
+  - text: "Survival Analysis Setup for UKB Outcomes"
+    href: articles/derive-survival.html
+    desc: "Follow-up time, event dates, and timing classification"
+  - text: "Monitoring and Retrieving Extraction Jobs"
+    href: articles/job.html
+    desc: "Submit, monitor, and retrieve RAP job results"
+  - text: "Association Analysis for UKB Outcomes"
+    href: articles/assoc.html
+    desc: "Cox, logistic, linear, and competing risks models"
+  - text: "Publication-Ready Visualisation"
+    href: articles/plot.html
+    desc: "Forest plots and Table 1 for manuscripts"
+  - text: "Genetic Risk Score (GRS) Analysis on UKB RAP"
+    href: articles/grs.html
+    desc: "End-to-end GRS pipeline from weights to validation"
+  - text: "Function Reference"
+    href: reference/
+    desc: "Complete documentation for all functions"
+  - text: "GitHub"
+    href: https://github.com/evanbio/ukbflow
+    desc: "Source code and issue tracker"
+
+# ==============================================================================
+# Authors Configuration
+# ==============================================================================
+
+authors:
+  Evan Zhou:
+    href: https://github.com/evanbio
+    html: >
+      <img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Evan Zhou" />
+      Evan Zhou
+    roles: [aut, cre]
+    email: evanzhou.bio@gmail.com
+
+# ==============================================================================
+# Navigation Bar Configuration
+# ==============================================================================
+
+navbar:
+  title:
+    text: "ukbflow"
+    icon: "man/figures/logo.png"
+  type: light
+  bg: light
+
+  structure:
+    left:
+      - home
+      - install
+      - intro
+      - vignettes
+      - reference
+      - news
+    right:
+      - github
+      - cran
+
+  components:
+    version:
+      text: "0.1.0"
+      href: news/index.html
+
+    install:
+      text: "Install"
+      href: articles/install.html
+
+    intro:
+      text: "Get Started"
+      href: articles/get-started.html
+
+    vignettes:
+      text: "Vignettes"
+      menu:
+      - text: "Get Started with ukbflow"
+        href: articles/get-started.html
+      - text: "Authentication and Project Setup"
+        href: articles/auth.html
+      - text: "Exploring and Fetching RAP Files"
+        href: articles/fetch.html
+      - text: "Extracting Phenotype Data"
+        href: articles/extract.html
+      - text: "Decoding UKB Column Names and Values"
+        href: articles/decode.html
+      - text: "Deriving Disease Phenotypes from UKB Data"
+        href: articles/derive.html
+      - text: "Survival Analysis Setup for UKB Outcomes"
+        href: articles/derive-survival.html
+      - text: "Monitoring and Retrieving Extraction Jobs"
+        href: articles/job.html
+      - text: "Association Analysis for UKB Outcomes"
+        href: articles/assoc.html
+      - text: "Publication-Ready Visualisation"
+        href: articles/plot.html
+      - text: "Genetic Risk Score (GRS) Analysis on UKB RAP"
+        href: articles/grs.html
+      - text: "--------"
+      - text: "All Articles"
+        href: articles/
+
+    reference:
+      text: "Reference"
+      href: reference/index.html
+
+    news:
+      text: "News"
+      href: news/index.html
+
+    github:
+      icon: "fab fa-github"
+      href: https://github.com/evanbio/ukbflow
+      aria-label: "GitHub"
+
+# ==============================================================================
+# Function Reference Organization
+# ==============================================================================
+
+reference:
+- title: "Authentication"
+  desc: >
+    Connect to the UK Biobank Research Analysis Platform (RAP) and
+    manage project selection.
+  contents:
+  - starts_with("auth_")
+
+- title: "Fetch — RAP File System"
+  desc: >
+    Explore and retrieve files from RAP project storage.
+  contents:
+  - fetch_ls
+  - fetch_tree
+  - fetch_url
+  - fetch_file
+  - fetch_metadata
+  - fetch_field
+
+- title: "Extract — Phenotype Data"
+  desc: >
+    Extract UKB fields from the RAP dataset into R.
+  contents:
+  - extract_ls
+  - extract_pheno
+  - starts_with("extract_batch")
+
+- title: "Decode — Column Names and Values"
+  desc: >
+    Convert raw UKB column names and coded values to human-readable labels.
+  contents:
+  - decode_names
+  - decode_values
+
+- title: "Derive — Disease Phenotypes"
+  desc: >
+    Build case definitions from HES, cancer registry, self-report,
+    and First Occurrence data sources.
+  contents:
+  - derive_selfreport
+  - derive_hes
+  - derive_cancer_registry
+  - derive_death_registry
+  - derive_first_occurrence
+  - derive_icd10
+  - derive_case
+
+- title: "Derive — Covariates and Timing"
+  desc: >
+    Derive continuous covariates, categorical cuts, follow-up time,
+    and event timing variables.
+  contents:
+  - derive_covariate
+  - derive_cut
+  - derive_missing
+  - derive_age
+  - derive_followup
+  - derive_timing
+
+- title: "Jobs — Monitoring and Retrieval"
+  desc: >
+    Submit, monitor, and retrieve results from RAP extraction jobs.
+  contents:
+  - starts_with("job_")
+
+- title: "Association Analysis"
+  desc: >
+    Fit regression models for UKB outcomes with automatic three-model
+    adjustment framework.
+  contents:
+  - assoc_coxph
+  - assoc_cox
+  - assoc_logistic
+  - assoc_logit
+  - assoc_linear
+  - assoc_lm
+  - assoc_coxph_zph
+  - assoc_zph
+  - assoc_subgroup
+  - assoc_sub
+  - assoc_trend
+  - assoc_tr
+  - assoc_competing
+  - assoc_fg
+  - assoc_lag
+
+- title: "GRS — Genetic Risk Scores"
+  desc: >
+    End-to-end RAP-native pipeline for computing and validating
+    polygenic risk scores with plink2.
+  contents:
+  - grs_check
+  - grs_bgen2pgen
+  - grs_score
+  - grs_standardize
+  - grs_zscore
+  - grs_validate
+
+- title: "Visualisation"
+  desc: >
+    Publication-quality forest plots and Table 1 for manuscripts.
+  contents:
+  - plot_forest
+  - plot_tableone
+
+# ==============================================================================
+# News & Release Configuration
+# ==============================================================================
+
+news:
+  releases:
+  - text: "Version 0.1.0 - Initial Release (March 2026)"
+    href: https://github.com/evanbio/ukbflow/releases/tag/v0.1.0
+  - text: "View All Releases"
+    href: https://github.com/evanbio/ukbflow/releases
+
+# ==============================================================================
+# Footer Configuration
+# ==============================================================================
+
+footer:
+  structure:
+    left: [developed_by, built_with, license]
+    right: [package_info, social_links]
+
+  components:
+    package_info: |
+      <div class="text-muted">
+        <strong>ukbflow v0.1.0</strong><br>
+        <small>Last updated: March 2026</small>
+      </div>
+
+    social_links: |
+      <div class="footer-links">
+        <a href="https://github.com/evanbio/ukbflow" class="text-muted me-3" aria-label="GitHub">
+          <i class="fab fa-github fa-lg"></i>
+        </a>
+        <a href="https://blog.evanzhou.org" class="text-muted" aria-label="Blog">
+          <i class="fas fa-blog fa-lg"></i>
+        </a>
+      </div>
+
+    license: |
+      <div class="text-muted">
+        <i class="fas fa-balance-scale me-1"></i>
+        <a href="https://opensource.org/licenses/MIT" class="text-muted">MIT License</a>
+      </div>
