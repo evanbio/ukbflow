@@ -1,3 +1,13 @@
 ^ukbflow\.Rproj$
 ^\.Rproj\.user$
 ^dev$
+^\.github$
+^CLAUDE\.md$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^index\.md$
+^README_zh\.md$
+^codecov\.yml$
+^CONTRIBUTING\.md$
+^docs$
+^pkgdown$

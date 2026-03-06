@@ -2,12 +2,17 @@ Package: ukbflow
 Title: Streamlined Workflow for UK Biobank Data Extraction, Analysis, and Visualization
 Version: 0.1.0
 Authors@R:
-    person("Evan", "Zhou", , "evanzhou.bio@gmail.com", role = c("aut", "cre"))
-Description: A streamlined workflow for UK Biobank data extraction, clinical
-    analysis, and publication-quality visualization. Covers upstream data
-    cleaning and field ID mapping, midstream clinical and association analysis,
-    and downstream high-quality plot generation.
+    person("Evan", "Zhou", email = "evanzhou.bio@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0009-4600-8175"))
+Description: An R package for UK Biobank cloud-based analysis on the Research
+    Analysis Platform (RAP). Provides tools for phenotype extraction and
+    decoding, variable derivation, survival and association analysis, genetic
+    risk score computation, and publication-quality visualization.
 License: MIT + file LICENSE
+URL: https://github.com/evanbio/ukbflow, https://evanbio.github.io/ukbflow/
+BugReports: https://github.com/evanbio/ukbflow/issues
+Depends:
+    R (>= 4.1)
 Imports:
     cli,
     curl,
@@ -26,9 +31,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
+    knitr,
     pagedown,
+    pROC,
+    rmarkdown,
     testthat (>= 3.0.0),
     mockery,
     webshot2,
     withr
+VignetteBuilder: knitr
 Config/testthat/edition: 3
