@@ -1,0 +1,342 @@
+---
+title: "Association Analysis for UKB Outcomes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Association Analysis for UKB Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## Overview
+
+The `assoc_*` functions fit regression models for each exposure variable and
+return tidy result tables suitable for downstream forest plots and publication
+tables.
+
+| Function | Alias | Model | Effect measure |
+|---|---|---|---|
+| `assoc_coxph()` | `assoc_cox()` | Cox proportional hazards | HR |
+| `assoc_logistic()` | `assoc_logit()` | Logistic regression | OR |
+| `assoc_linear()` | `assoc_lm()` | Linear regression | β |
+| `assoc_coxph_zph()` | `assoc_zph()` | Schoenfeld residual PH test | χ² / p |
+| `assoc_subgroup()` | `assoc_sub()` | Stratified analysis + LRT interaction | HR / OR / β |
+| `assoc_trend()` | `assoc_tr()` | Dose-response trend | HR / OR / β + p_trend |
+| `assoc_competing()` | `assoc_fg()` | Fine-Gray competing risks | SHR |
+
+> **Prerequisite**: the analysis dataset should already contain derived case
+> status, follow-up time, and covariates produced by the `derive_*` functions.
+> See `vignette("derive")` and `vignette("derive-survival")`.
+
+---
+
+## The Three-Model Framework
+
+All main functions automatically produce up to three adjustment levels without
+requiring manual formula construction:
+
+| Model | Covariates | When included |
+|---|---|---|
+| **Unadjusted** | None (crude) | Always (when `base = TRUE`) |
+| **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When both columns are found |
+| **Fully adjusted** | User-supplied `covariates` | When `covariates` is non-NULL |
+
+Age and sex columns are located automatically via the UKB field cache
+(populated by `extract_pheno()`). Set `base = FALSE` to skip the first two
+models and run only the Fully adjusted model.
+
+---
+
+## Step 1: Cox Proportional Hazards
+
+`assoc_coxph()` is the primary function for time-to-event outcomes. It accepts
+logical (`TRUE`/`FALSE`) or integer (`0`/`1`) event indicators and returns one
+row per exposure × term × model combination.
+
+```{r assoc-coxph}
+library(ukbflow)
+
+# Crude + age-sex adjusted (automatic)
+res <- assoc_coxph(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = c("exposure", "bmi_category")
+)
+#> ── assoc_coxph ──────────────────────────────────────────────────────────────
+#> ℹ 2 exposures × 2 models = 4 Cox regressions
+#> ── exposure ─────────────────────────────────────────────────────────────────
+#>   ✔ Unadjusted       | exposure: HR 1.43 (1.28–1.60), p < 0.001
+#>   ✔ Age and sex adj  | exposure: HR 1.38 (1.23–1.55), p < 0.001
+```
+
+```{r assoc-coxph-full}
+# Add a Fully adjusted model
+res <- assoc_coxph(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure",
+  covariates   = c("tdi", "smoking_status_i0", paste0("pc", 1:10))
+)
+```
+
+Output columns:
+
+| Column | Description |
+|---|---|
+| `exposure` | Exposure variable name |
+| `term` | Coefficient name from `coxph` |
+| `model` | Ordered factor: Unadjusted < Age and sex adjusted < Fully adjusted |
+| `n` | Participants in model (after NA removal) |
+| `n_events` | Events in model |
+| `person_years` | Total person-years (rounded) |
+| `HR` | Hazard ratio |
+| `CI_lower`, `CI_upper` | Confidence interval bounds |
+| `p_value` | Wald test p-value |
+| `HR_label` | Formatted string, e.g. `"1.43 (1.28–1.60)"` |
+
+---
+
+## Step 2: Logistic Regression
+
+`assoc_logistic()` is for binary outcomes without a time dimension (e.g.
+case-control or cross-sectional designs).
+
+```{r assoc-logistic}
+res <- assoc_logistic(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = c("exposure", "bmi_category"),
+  covariates   = c("tdi", "smoking_status_i0", paste0("pc", 1:10))
+)
+```
+
+For sparse data or small samples, use profile likelihood confidence intervals:
+
+```{r assoc-logistic-profile}
+res <- assoc_logistic(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = "exposure",
+  ci_method    = "profile"   # slower but more accurate for sparse data
+)
+```
+
+Output is identical in structure to `assoc_coxph()` but with `OR` and
+`OR_label` in place of `HR` / `HR_label`, and `n_cases` instead of
+`n_events` / `person_years`.
+
+---
+
+## Step 3: Linear Regression
+
+`assoc_linear()` is for continuous outcomes (e.g. biomarker levels, BMI).
+The standard error of β is included to support downstream meta-analysis.
+
+```{r assoc-linear}
+res <- assoc_linear(
+  data         = cohort,
+  outcome_col  = "bmi",
+  exposure_col = c("exposure", "smoking_pack_years"),
+  covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
+)
+```
+
+> Passing a binary (0/1) column as `outcome_col` triggers a warning
+> suggesting `assoc_logistic()` instead.
+
+---
+
+## Step 4: Proportional Hazards Assumption Test
+
+`assoc_coxph_zph()` re-fits the same Cox models and tests the PH assumption
+via Schoenfeld residuals (`cox.zph()`). Use it alongside `assoc_coxph()` to
+validate model assumptions.
+
+```{r assoc-zph}
+zph <- assoc_coxph_zph(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  covariates   = c("tdi", "smoking_status_i0")
+)
+#>   ✔ Unadjusted | exposure: χ² = 0.412, p = 0.521 ✓ satisfied
+#>   ✔ Unadjusted | bmi_category: χ² = 1.834, p = 0.176 ✓ satisfied
+
+# Identify any violations
+zph[ph_satisfied == FALSE]
+```
+
+Output columns include `chisq`, `df`, `p_value`, `ph_satisfied` (logical),
+and global test statistics (`global_chisq`, `global_df`, `global_p`).
+
+When the PH assumption is violated, consider adding `strata()` to
+`assoc_coxph()` or modelling time-varying effects.
+
+---
+
+## Step 5: Subgroup Analysis
+
+`assoc_subgroup()` stratifies the dataset by a grouping variable and fits
+the specified model within each subgroup. A likelihood ratio test (LRT) for
+the exposure × subgroup interaction is computed on the full dataset and
+appended as `p_interaction`.
+
+```{r assoc-subgroup}
+res <- assoc_subgroup(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure",
+  by           = "sex",
+  method       = "coxph",
+  covariates   = c("age_at_recruitment", "tdi", "smoking_status_i0")
+)
+#> ── assoc_subgroup ───────────────────────────────────────────────────────────
+#> ℹ 1 exposure × 2 models × 2 subgroups (sex)
+#> ℹ Computing interaction LRT (exposure × sex) on full data ...
+#>   ℹ Unadjusted | exposure: p_interaction = 0.214
+```
+
+Output columns include `subgroup`, `subgroup_level`, and `p_interaction` in
+addition to the standard effect estimate columns.
+
+> **Note**: the `by` variable is automatically excluded from the subgroup
+> models. Do not include it in `covariates` — a collinearity warning is
+> issued if you do.
+
+---
+
+## Step 6: Dose-Response Trend Analysis
+
+`assoc_trend()` fits categorical and trend models simultaneously for each
+ordered-factor exposure, returning per-category estimates alongside a p-value
+for linear trend.
+
+```{r assoc-trend-prep}
+# Create an ordered factor (e.g. from derive_cut())
+cohort[, exposure_cat := factor(exposure_score,
+                                 levels = c(0, 1, 2),
+                                 labels = c("Low", "Medium", "High"),
+                                 ordered = TRUE)]
+```
+
+```{r assoc-trend}
+res <- assoc_trend(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure_cat",
+  method       = "coxph",
+  covariates   = c("age_at_recruitment", "sex", "tdi")
+)
+#>   ℹ Levels: Low → Medium → High | Scores: 0, 1, 2
+#>   ℹ Unadjusted | exposure_catLow: 1.00 (ref)
+#>   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08–1.36), p = 0.001
+#>   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38–1.72), p < 0.001
+#>   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14–1.35), p_trend < 0.001
+```
+
+Supply custom scores when category midpoints carry meaningful units:
+
+```{r assoc-trend-scores}
+res <- assoc_trend(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure_cat",
+  method       = "coxph",
+  scores       = c(0, 5, 14)   # e.g. median years per category
+)
+```
+
+The output contains a reference row (`HR = 1.00 (ref)`) followed by
+non-reference rows, with `HR_per_score`, `HR_per_score_label`, and `p_trend`
+appended as shared columns.
+
+---
+
+## Step 7: Fine-Gray Competing Risks
+
+`assoc_competing()` fits a Fine-Gray subdistribution hazard model via
+`survival::finegray()` + inverse-probability-of-censoring-weighted Cox
+regression. Use this when a competing event (e.g. death) can preclude the
+outcome of interest.
+
+Two input modes are supported:
+
+**Mode A** — a single column encodes all event types:
+
+```{r assoc-competing-a}
+res <- assoc_competing(
+  data         = cohort,
+  outcome_col  = "censoring_type",   # 0 = censored, 1 = event, 2 = competing
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  event_val    = 1L,
+  compete_val  = 2L,
+  covariates   = c("tdi", "smoking_status_i0")
+)
+```
+
+**Mode B** — separate 0/1 columns for primary and competing events:
+
+```{r assoc-competing-b}
+res <- assoc_competing(
+  data         = cohort,
+  outcome_col  = "outcome_status",   # primary event
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  compete_col  = "death_status",     # competing event
+  covariates   = c("tdi", "smoking_status_i0")
+)
+```
+
+Output uses `SHR` (subdistribution hazard ratio) and `SHR_label` in place of
+HR, and adds `n_compete` (number of competing events in the analysis set).
+
+---
+
+## Working with Results
+
+All functions return a `data.table` that feeds directly into `plot_forest()`:
+
+```{r downstream}
+library(ukbflow)
+
+res <- assoc_coxph(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure",
+  covariates   = c("tdi", "smoking_status_i0")
+)
+
+# Pass directly to plot_forest()
+plot_forest(res)
+
+# Filter to a single model
+res[model == "Fully adjusted"]
+
+# Export
+data.table::fwrite(res, "assoc_results.csv")
+```
+
+---
+
+## Getting Help
+
+- `?assoc_coxph`, `?assoc_logistic`, `?assoc_linear`
+- `?assoc_coxph_zph`, `?assoc_subgroup`, `?assoc_trend`, `?assoc_competing`
+- `vignette("derive-survival")` — follow-up time and event derivation
+- `vignette("derive")` — disease phenotype derivation
+- [GitHub Issues](https://github.com/evanbio/ukbflow/issues)
