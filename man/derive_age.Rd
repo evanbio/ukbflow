@@ -2,7 +2,7 @@
 % Please edit documentation in R/derive.R
 \name{derive_age}
 \alias{derive_age}
-\title{Classify disease timing relative to UKB baseline assessment}
+\title{Compute age at event for one or more UKB outcomes}
 \usage{
 derive_age(
   data,
@@ -32,79 +32,39 @@ triggers auto-detection as \code{{name}_date}.}
 
 \item{status_cols}{(character or NULL) Named character vector mapping each
 name to its status column. \code{NULL} (default) triggers auto-detection.}
-
-\item{status_col}{(character or NULL) Name of the logical disease flag.
-\code{NULL} = \code{paste0(name, "_status")}.}
-
-\item{date_col}{(character or NULL) Name of the disease date column
-(\code{IDate} or \code{Date}).
-\code{NULL} = \code{paste0(name, "_date")}.}
 }
 \value{
-The input \code{data} with one new integer column
-\code{{name}_timing} (0/1/2/\code{NA}) added in-place.
-Always returns a \code{data.table}.
-
 The input \code{data} with one new \code{age_at_{name}} column
 per entry in \code{name}, added in-place.
 }
 \description{
-Assigns each participant an integer timing category based on whether their
-disease date falls before or after the baseline visit date:
-}
-\details{
-\describe{
-\item{\code{0}}{No disease (\code{status_col} is \code{FALSE}).}
-\item{\code{1}}{Prevalent — disease date on or before baseline.}
-\item{\code{2}}{Incident — disease date strictly after baseline.}
-\item{\code{NA}}{Case with missing date; timing cannot be determined.}
-}
-
-Call once per timing variable needed (e.g. once for the combined case,
-once per individual source).
-}
-\examples{
-\dontrun{
-# Combined case timing (uses ad_status + ad_date from derive_case)
-df <- derive_timing(df, name = "ad", baseline_col = "date_baseline")
-# → ad_timing
-
-# Individual source timing
-df <- derive_timing(df, name = "ad_icd10",
-                    status_col   = "ad_icd10",
-                    date_col     = "ad_icd10_date",
-                    baseline_col = "date_baseline")
-# → ad_icd10_timing
-}
-Compute age at event for one or more UKB outcomes
-
 For each name in \code{name}, adds one column \code{age_at_{name}} (numeric,
 years) computed as:
 \deqn{age\_at\_event = age\_col + (event\_date - baseline\_date) / 365.25}
-
+}
+\details{
 The value is \code{NA} for participants who did not experience the event
 (status is \code{FALSE} / \code{0}) or who lack an event date.
 
 \strong{Auto-detection per name} (when \code{date_cols} / \code{status_cols}
 are \code{NULL}):
 \itemize{
-  \item \code{date_col}   — looked up as \code{{name}_date}.
-  \item \code{status_col} — looked up first as \code{{name}_status}, then
-    as \code{{name}} (logical column); if neither exists all rows with a
-    non-\code{NA} date are treated as cases.
+\item \code{date_col}   — looked up as \code{{name}_date}.
+\item \code{status_col} — looked up first as \code{{name}_status}, then
+as \code{{name}} (logical column); if neither exists all rows with a
+non-\code{NA} date are treated as cases.
 }
 
 \strong{data.table pass-by-reference}: new columns are added in-place.
-
+}
+\examples{
 \dontrun{
 # Process multiple events in one call — auto-detects {name}_date and
 # {name}_status for each
 df <- derive_age(df,
-  name         = c("ad", "ad_icd10", "ad_selfreport",
-                   "cscc", "cscc_invasive", "cscc_insitu"),
+  name         = c("exposure", "exposure_icd10", "outcome"),
   baseline_col = "date_baseline",
-  age_col      = "age_recruitment")
-# → age_at_ad, age_at_ad_icd10, age_at_ad_selfreport,
-#   age_at_cscc, age_at_cscc_invasive, age_at_cscc_insitu
+  age_col      = "age_at_recruitment")
+# → age_at_exposure, age_at_exposure_icd10, age_at_outcome
 }
 }

@@ -54,13 +54,13 @@ The returned object and the original variable point to the same memory.
 }
 \examples{
 \dontrun{
-# AD — field 131720 corresponds to ICD-10 L20 (atopic dermatitis)
-df <- derive_first_occurrence(df, name = "ad", field = 131720)
-# → df$ad_fo        logical
-# → df$ad_fo_date   IDate
+# Look up the First Occurrence field ID for your disease in the UKB Field Finder
+df <- derive_first_occurrence(df, name = "disease", field = 131000L)
+# → df$disease_fo        logical
+# → df$disease_fo_date   IDate
 
 # Supply col directly when the column name is already known
-df <- derive_first_occurrence(df, name = "ad", field = 131720,
-                              col = "date_l20_first_reported_atopic_dermatitis")
+df <- derive_first_occurrence(df, name = "disease", field = 131000L,
+                              col = "p131000")
 }
 }

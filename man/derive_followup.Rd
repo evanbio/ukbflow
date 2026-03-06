@@ -61,13 +61,13 @@ censoring date.
 \examples{
 \dontrun{
 df <- derive_followup(df,
-  name         = "cscc",
-  event_col    = "cscc_date",
+  name         = "outcome",
+  event_col    = "outcome_date",
   baseline_col = "date_baseline",
   censor_date  = as.Date("2022-06-01"),
   death_col    = "date_death",
   lost_col     = "date_lost_followup")
-# → df$cscc_followup_end    IDate
-# → df$cscc_followup_years  numeric
+# → df$outcome_followup_end    IDate
+# → df$outcome_followup_years  numeric
 }
 }

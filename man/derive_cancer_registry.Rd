@@ -78,24 +78,22 @@ registry record satisfies all supplied filters.}
 }
 \examples{
 \dontrun{
-# Invasive cSCC: C44 + specific histology + behaviour = 3
+# ICD-10 only — no histology/behaviour filter
+df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
+
+# With histology and behaviour filters (malignant)
 df <- derive_cancer_registry(
-  df, name = "cscc_invasive",
+  df, name = "cancer_outcome",
   icd10     = "^C44",
-  histology = c(8070:8078, 8083, 8084, 8051, 8052),
+  histology = c(8070, 8071, 8072),
   behaviour = 3L
 )
 
-# In situ: D04 (call twice for OR logic, combine downstream)
-df <- derive_cancer_registry(df, name = "cscc_insitu_d04", icd10 = "^D04")
+# In situ (behaviour = 2)
 df <- derive_cancer_registry(
-  df, name = "cscc_insitu_c44",
+  df, name = "cancer_insitu",
   icd10     = "^C44",
-  histology = c(8070:8078, 8080, 8081, 8083, 8084),
   behaviour = 2L
 )
-
-# All breast cancers (ICD-10 only, no histology/behaviour filter)
-df <- derive_cancer_registry(df, name = "breast_cancer", icd10 = "^C50")
 }
 }

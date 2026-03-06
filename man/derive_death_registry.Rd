@@ -63,7 +63,7 @@ not onset date.}
 }
 \examples{
 \dontrun{
-df <- derive_death_registry(df, name = "ad", icd10 = "L20")
+df <- derive_death_registry(df, name = "disease", icd10 = "E11")
 df <- derive_death_registry(df, name = "copd",
                             icd10 = c("J440", "J441"), match = "exact")
 }

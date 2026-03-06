@@ -76,11 +76,11 @@ Pass \code{data.table::copy(data)} to preserve the original.
 \examples{
 \dontrun{
 df <- extract_pheno(c(20002, 20008, 53)) |>
-  derive_selfreport(name = "ad", regex = "^eczema/dermatitis$",
+  derive_selfreport(name = "disease", regex = "your disease label",
                     field = "noncancer")
 
-df <- derive_selfreport(df, name = "cscc",
-                        regex = "squamous cell carcinoma",
+df <- derive_selfreport(df, name = "cancer_outcome",
+                        regex = "your cancer label",
                         field = "cancer")
 }
 }

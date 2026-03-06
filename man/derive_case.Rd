@@ -54,12 +54,12 @@ sources (\code{IDate}).}
 }
 \examples{
 \dontrun{
-# Default: looks for ad_icd10, ad_selfreport, ad_icd10_date, ad_selfreport_date
-df <- derive_case(df, name = "ad")
+# Default: looks for disease_icd10, disease_selfreport, and their date columns
+df <- derive_case(df, name = "disease")
 
 # Explicit column names
-df <- derive_case(df, name = "ad",
-                  icd10_col      = "ad_icd10",
-                  selfreport_col = "ad_selfreport_noncancer")
+df <- derive_case(df, name = "disease",
+                  icd10_col      = "disease_icd10",
+                  selfreport_col = "disease_selfreport_noncancer")
 }
 }

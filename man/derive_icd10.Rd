@@ -115,10 +115,10 @@ selected sources (\code{IDate}).}
 }
 \examples{
 \dontrun{
-# AD (atopic dermatitis): HES + death + First Occurrence
-df <- derive_icd10(df, name = "ad", icd10 = "L20",
-                   source    = c("hes", "death", "first_occurrence"),
-                   fo_field  = 131720L)
+# Non-cancer disease: HES + death + First Occurrence
+df <- derive_icd10(df, name = "disease", icd10 = "E11",
+                   source   = c("hes", "death", "first_occurrence"),
+                   fo_field = 131000L)
 
 # COPD: HES + death only, exact 4-digit codes
 df <- derive_icd10(df, name = "copd",
@@ -126,12 +126,10 @@ df <- derive_icd10(df, name = "copd",
                    source = c("hes", "death"),
                    match  = "exact")
 
-# Invasive cSCC: all four sources, cancer registry filtered by histology
-df <- derive_icd10(df, name = "cscc_invasive",
-                   icd10     = "^C44",
-                   match     = "regex",
-                   source    = c("hes", "death", "cancer_registry"),
-                   histology = c(8070:8078, 8083, 8084, 8051, 8052),
-                   behaviour = 3L)
+# Cancer outcome: HES + cancer registry + death
+df <- derive_icd10(df, name = "cancer_outcome",
+                   icd10  = "^C50",
+                   match  = "regex",
+                   source = c("hes", "death", "cancer_registry"))
 }
 }

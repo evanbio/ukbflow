@@ -426,11 +426,11 @@ derive_cut <- function(data,
 #' @examples
 #' \dontrun{
 #' df <- extract_pheno(c(20002, 20008, 53)) |>
-#'   derive_selfreport(name = "ad", regex = "^eczema/dermatitis$",
+#'   derive_selfreport(name = "disease", regex = "your disease label",
 #'                     field = "noncancer")
 #'
-#' df <- derive_selfreport(df, name = "cscc",
-#'                         regex = "squamous cell carcinoma",
+#' df <- derive_selfreport(df, name = "cancer_outcome",
+#'                         regex = "your cancer label",
 #'                         field = "cancer")
 #' }
 derive_selfreport <- function(data,
@@ -646,14 +646,14 @@ derive_selfreport <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # AD — field 131720 corresponds to ICD-10 L20 (atopic dermatitis)
-#' df <- derive_first_occurrence(df, name = "ad", field = 131720)
-#' # → df$ad_fo        logical
-#' # → df$ad_fo_date   IDate
+#' # Look up the First Occurrence field ID for your disease in the UKB Field Finder
+#' df <- derive_first_occurrence(df, name = "disease", field = 131000L)
+#' # → df$disease_fo        logical
+#' # → df$disease_fo_date   IDate
 #'
 #' # Supply col directly when the column name is already known
-#' df <- derive_first_occurrence(df, name = "ad", field = 131720,
-#'                               col = "date_l20_first_reported_atopic_dermatitis")
+#' df <- derive_first_occurrence(df, name = "disease", field = 131000L,
+#'                               col = "p131000")
 #' }
 derive_first_occurrence <- function(data, name, field, col = NULL) {
 
@@ -742,11 +742,11 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' df <- derive_hes(df, name = "ad", icd10 = "L20")
-#' df <- derive_hes(df, name = "asthma",
-#'                  icd10 = c("J450", "J451", "J459"), match = "exact")
-#' df <- derive_hes(df, name = "dermatitis",
-#'                  icd10 = "^(L20|L21|L23)", match = "regex")
+#' df <- derive_hes(df, name = "disease", icd10 = "E11")
+#' df <- derive_hes(df, name = "copd",
+#'                  icd10 = c("J440", "J441"), match = "exact")
+#' df <- derive_hes(df, name = "disease",
+#'                  icd10 = "^(E10|E11)", match = "regex")
 #' }
 derive_hes <- function(data,
                        name,
@@ -956,25 +956,23 @@ derive_hes <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # Invasive cSCC: C44 + specific histology + behaviour = 3
+#' # ICD-10 only — no histology/behaviour filter
+#' df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
+#'
+#' # With histology and behaviour filters (malignant)
 #' df <- derive_cancer_registry(
-#'   df, name = "cscc_invasive",
+#'   df, name = "cancer_outcome",
 #'   icd10     = "^C44",
-#'   histology = c(8070:8078, 8083, 8084, 8051, 8052),
+#'   histology = c(8070, 8071, 8072),
 #'   behaviour = 3L
 #' )
 #'
-#' # In situ: D04 (call twice for OR logic, combine downstream)
-#' df <- derive_cancer_registry(df, name = "cscc_insitu_d04", icd10 = "^D04")
+#' # In situ (behaviour = 2)
 #' df <- derive_cancer_registry(
-#'   df, name = "cscc_insitu_c44",
+#'   df, name = "cancer_insitu",
 #'   icd10     = "^C44",
-#'   histology = c(8070:8078, 8080, 8081, 8083, 8084),
 #'   behaviour = 2L
 #' )
-#'
-#' # All breast cancers (ICD-10 only, no histology/behaviour filter)
-#' df <- derive_cancer_registry(df, name = "breast_cancer", icd10 = "^C50")
 #' }
 derive_cancer_registry <- function(data,
                                    name,
@@ -1148,7 +1146,7 @@ derive_cancer_registry <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' df <- derive_death_registry(df, name = "ad", icd10 = "L20")
+#' df <- derive_death_registry(df, name = "disease", icd10 = "E11")
 #' df <- derive_death_registry(df, name = "copd",
 #'                             icd10 = c("J440", "J441"), match = "exact")
 #' }
@@ -1364,10 +1362,10 @@ derive_death_registry <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # AD (atopic dermatitis): HES + death + First Occurrence
-#' df <- derive_icd10(df, name = "ad", icd10 = "L20",
-#'                    source    = c("hes", "death", "first_occurrence"),
-#'                    fo_field  = 131720L)
+#' # Non-cancer disease: HES + death + First Occurrence
+#' df <- derive_icd10(df, name = "disease", icd10 = "E11",
+#'                    source   = c("hes", "death", "first_occurrence"),
+#'                    fo_field = 131000L)
 #'
 #' # COPD: HES + death only, exact 4-digit codes
 #' df <- derive_icd10(df, name = "copd",
@@ -1375,13 +1373,11 @@ derive_death_registry <- function(data,
 #'                    source = c("hes", "death"),
 #'                    match  = "exact")
 #'
-#' # Invasive cSCC: all four sources, cancer registry filtered by histology
-#' df <- derive_icd10(df, name = "cscc_invasive",
-#'                    icd10     = "^C44",
-#'                    match     = "regex",
-#'                    source    = c("hes", "death", "cancer_registry"),
-#'                    histology = c(8070:8078, 8083, 8084, 8051, 8052),
-#'                    behaviour = 3L)
+#' # Cancer outcome: HES + cancer registry + death
+#' df <- derive_icd10(df, name = "cancer_outcome",
+#'                    icd10  = "^C50",
+#'                    match  = "regex",
+#'                    source = c("hes", "death", "cancer_registry"))
 #' }
 derive_icd10 <- function(data,
                          name,
@@ -1542,13 +1538,13 @@ derive_icd10 <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # Default: looks for ad_icd10, ad_selfreport, ad_icd10_date, ad_selfreport_date
-#' df <- derive_case(df, name = "ad")
+#' # Default: looks for disease_icd10, disease_selfreport, and their date columns
+#' df <- derive_case(df, name = "disease")
 #'
 #' # Explicit column names
-#' df <- derive_case(df, name = "ad",
-#'                   icd10_col      = "ad_icd10",
-#'                   selfreport_col = "ad_selfreport_noncancer")
+#' df <- derive_case(df, name = "disease",
+#'                   icd10_col      = "disease_icd10",
+#'                   selfreport_col = "disease_selfreport_noncancer")
 #' }
 derive_case <- function(data,
                         name,
@@ -1622,53 +1618,6 @@ derive_case <- function(data,
 }
 
 
-#' Classify disease timing relative to UKB baseline assessment
-#'
-#' Assigns each participant an integer timing category based on whether their
-#' disease date falls before or after the baseline visit date:
-#'
-#' \describe{
-#'   \item{\code{0}}{No disease (\code{status_col} is \code{FALSE}).}
-#'   \item{\code{1}}{Prevalent — disease date on or before baseline.}
-#'   \item{\code{2}}{Incident — disease date strictly after baseline.}
-#'   \item{\code{NA}}{Case with missing date; timing cannot be determined.}
-#' }
-#'
-#' Call once per timing variable needed (e.g. once for the combined case,
-#' once per individual source).
-#'
-#' @param data (data.frame or data.table) UKB phenotype data.
-#' @param name (character) Output column prefix.  The new column is named
-#'   \code{{name}_timing}.  Also used to derive default \code{status_col}
-#'   and \code{date_col} when those are \code{NULL}.
-#' @param baseline_col (character) Name of the baseline date column in
-#'   \code{data} (e.g. \code{"date_baseline"} or \code{"p53_i0"}).
-#' @param status_col (character or NULL) Name of the logical disease flag.
-#'   \code{NULL} = \code{paste0(name, "_status")}.
-#' @param date_col (character or NULL) Name of the disease date column
-#'   (\code{IDate} or \code{Date}).
-#'   \code{NULL} = \code{paste0(name, "_date")}.
-#'
-#' @return The input \code{data} with one new integer column
-#'   \code{{name}_timing} (0/1/2/\code{NA}) added in-place.
-#'   Always returns a \code{data.table}.
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Combined case timing (uses ad_status + ad_date from derive_case)
-#' df <- derive_timing(df, name = "ad", baseline_col = "date_baseline")
-#' # → ad_timing
-#'
-#' # Individual source timing
-#' df <- derive_timing(df, name = "ad_icd10",
-#'                     status_col   = "ad_icd10",
-#'                     date_col     = "ad_icd10_date",
-#'                     baseline_col = "date_baseline")
-#' # → ad_icd10_timing
-#' }
-
-
 #' Compute age at event for one or more UKB outcomes
 #'
 #' For each name in \code{name}, adds one column \code{age_at_{name}} (numeric,
@@ -1712,12 +1661,10 @@ derive_case <- function(data,
 #' # Process multiple events in one call — auto-detects {name}_date and
 #' # {name}_status for each
 #' df <- derive_age(df,
-#'   name         = c("ad", "ad_icd10", "ad_selfreport",
-#'                    "cscc", "cscc_invasive", "cscc_insitu"),
+#'   name         = c("exposure", "exposure_icd10", "outcome"),
 #'   baseline_col = "date_baseline",
-#'   age_col      = "age_recruitment")
-#' # → age_at_ad, age_at_ad_icd10, age_at_ad_selfreport,
-#' #   age_at_cscc, age_at_cscc_invasive, age_at_cscc_insitu
+#'   age_col      = "age_at_recruitment")
+#' # → age_at_exposure, age_at_exposure_icd10, age_at_outcome
 #' }
 derive_age <- function(data,
                        name,
@@ -1844,14 +1791,14 @@ derive_age <- function(data,
 #' @examples
 #' \dontrun{
 #' df <- derive_followup(df,
-#'   name         = "cscc",
-#'   event_col    = "cscc_date",
+#'   name         = "outcome",
+#'   event_col    = "outcome_date",
 #'   baseline_col = "date_baseline",
 #'   censor_date  = as.Date("2022-06-01"),
 #'   death_col    = "date_death",
 #'   lost_col     = "date_lost_followup")
-#' # → df$cscc_followup_end    IDate
-#' # → df$cscc_followup_years  numeric
+#' # → df$outcome_followup_end    IDate
+#' # → df$outcome_followup_years  numeric
 #' }
 derive_followup <- function(data,
                             name,
@@ -1920,6 +1867,51 @@ derive_followup <- function(data,
 }
 
 
+#' Classify disease timing relative to UKB baseline assessment
+#'
+#' Assigns each participant an integer timing category based on whether their
+#' disease date falls before or after the baseline visit date:
+#'
+#' \describe{
+#'   \item{\code{0}}{No disease (\code{status_col} is \code{FALSE}).}
+#'   \item{\code{1}}{Prevalent — disease date on or before baseline.}
+#'   \item{\code{2}}{Incident — disease date strictly after baseline.}
+#'   \item{\code{NA}}{Case with missing date; timing cannot be determined.}
+#' }
+#'
+#' Call once per timing variable needed (e.g. once for the combined case,
+#' once per individual source).
+#'
+#' @param data (data.frame or data.table) UKB phenotype data.
+#' @param name (character) Output column prefix.  The new column is named
+#'   \code{{name}_timing}.  Also used to derive default \code{status_col}
+#'   and \code{date_col} when those are \code{NULL}.
+#' @param baseline_col (character) Name of the baseline date column in
+#'   \code{data} (e.g. \code{"date_baseline"} or \code{"p53_i0"}).
+#' @param status_col (character or NULL) Name of the logical disease flag.
+#'   \code{NULL} = \code{paste0(name, "_status")}.
+#' @param date_col (character or NULL) Name of the disease date column
+#'   (\code{IDate} or \code{Date}).
+#'   \code{NULL} = \code{paste0(name, "_date")}.
+#'
+#' @return The input \code{data} with one new integer column
+#'   \code{{name}_timing} (0/1/2/\code{NA}) added in-place.
+#'   Always returns a \code{data.table}.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Combined case timing (uses outcome_status + outcome_date from derive_case)
+#' df <- derive_timing(df, name = "outcome", baseline_col = "date_baseline")
+#' # → outcome_timing
+#'
+#' # Individual source timing
+#' df <- derive_timing(df, name = "outcome_icd10",
+#'                     status_col   = "outcome_icd10",
+#'                     date_col     = "outcome_icd10_date",
+#'                     baseline_col = "date_baseline")
+#' # → outcome_icd10_timing
+#' }
 derive_timing <- function(data,
                           name,
                           baseline_col,

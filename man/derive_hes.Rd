@@ -58,10 +58,10 @@ matching codes (\code{IDate}).  \code{NA} if no date is available.}
 }
 \examples{
 \dontrun{
-df <- derive_hes(df, name = "ad", icd10 = "L20")
-df <- derive_hes(df, name = "asthma",
-                 icd10 = c("J450", "J451", "J459"), match = "exact")
-df <- derive_hes(df, name = "dermatitis",
-                 icd10 = "^(L20|L21|L23)", match = "regex")
+df <- derive_hes(df, name = "disease", icd10 = "E11")
+df <- derive_hes(df, name = "copd",
+                 icd10 = c("J440", "J441"), match = "exact")
+df <- derive_hes(df, name = "disease",
+                 icd10 = "^(E10|E11)", match = "regex")
 }
 }
