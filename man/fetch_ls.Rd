@@ -35,9 +35,7 @@ DNAnexus Research Analysis Platform (RAP) directory. Analogous to
 \examples{
 \dontrun{
 fetch_ls()
-fetch_ls("Bulk/Exome sequences/")
-fetch_ls("Bulk/", type = "folder")
-fetch_ls("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/",
-         pattern = "\\\\.bed$")
+fetch_ls("Showcase metadata/", type = "file")
+fetch_ls("results/", pattern = "\\\\.csv$")
 }
 }

@@ -34,14 +34,13 @@ downloaded in parallel using \code{curl::multi_download()}.
 }
 \examples{
 \dontrun{
-# Download a single file
+# Download a single metadata file
 fetch_file("Showcase metadata/field.tsv", dest_dir = "data/")
-
-# Resume a large interrupted download
-fetch_file("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/ukb23158_c1_b0_v1.bed",
-           dest_dir = "data/", resume = TRUE)
 
 # Download an entire folder
 fetch_file("Showcase metadata/", dest_dir = "data/metadata/")
+
+# Resume an interrupted download
+fetch_file("results/summary_stats.csv", dest_dir = "data/", resume = TRUE)
 }
 }

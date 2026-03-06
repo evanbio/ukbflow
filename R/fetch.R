@@ -30,10 +30,8 @@
 #' @examples
 #' \dontrun{
 #' fetch_ls()
-#' fetch_ls("Bulk/Exome sequences/")
-#' fetch_ls("Bulk/", type = "folder")
-#' fetch_ls("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/",
-#'          pattern = "\\.bed$")
+#' fetch_ls("Showcase metadata/", type = "file")
+#' fetch_ls("results/", pattern = "\\.csv$")
 #' }
 fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
   type <- match.arg(type, c("all", "file", "folder"))
@@ -154,15 +152,14 @@ fetch_url <- function(path, duration = "1d") {
 #'
 #' @examples
 #' \dontrun{
-#' # Download a single file
+#' # Download a single metadata file
 #' fetch_file("Showcase metadata/field.tsv", dest_dir = "data/")
-#'
-#' # Resume a large interrupted download
-#' fetch_file("Bulk/Exome sequences/Population level exome OQFE variants, PLINK format - final release/ukb23158_c1_b0_v1.bed",
-#'            dest_dir = "data/", resume = TRUE)
 #'
 #' # Download an entire folder
 #' fetch_file("Showcase metadata/", dest_dir = "data/metadata/")
+#'
+#' # Resume an interrupted download
+#' fetch_file("results/summary_stats.csv", dest_dir = "data/", resume = TRUE)
 #' }
 fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
                        resume = FALSE, verbose = TRUE) {
