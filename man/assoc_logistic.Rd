@@ -68,11 +68,11 @@ two standard adjustment models are always included:
 }
 \details{
 \itemize{
-\item \strong{Unadjusted} — no covariates (crude).
-\item \strong{Age and sex adjusted} — age + sex auto-detected from the
+\item \strong{Unadjusted} 2014 no covariates (crude).
+\item \strong{Age and sex adjusted} 2014 age + sex auto-detected from the
 data via UKB field IDs (21022 and 31). Skipped with a warning if either
 column cannot be found.
-\item \strong{Fully adjusted} — the covariates supplied via the
+\item \strong{Fully adjusted} 2014 the covariates supplied via the
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
 
@@ -82,8 +82,8 @@ Logical values are converted to integer internally.
 
 \strong{CI methods}:
 \itemize{
-\item \code{"wald"} (default) — fast, appropriate for large UKB samples.
-\item \code{"profile"} — profile likelihood CI via \code{confint.glm()};
+\item \code{"wald"} (default) 2014 fast, appropriate for large UKB samples.
+\item \code{"profile"} 2014 profile likelihood CI via \code{confint.glm()};
 slower but more accurate for small or sparse data.
 }
 }

@@ -23,6 +23,8 @@ automatically if it does not exist. Default: \code{"."}.}
 
 \item{resume}{(logical) Resume an interrupted download. Useful for large
 files (e.g. \code{.bed}, \code{.bgen}). Default: \code{FALSE}.}
+
+\item{verbose}{(logical) Show download progress. Default: \code{TRUE}.}
 }
 \value{
 Invisibly returns the local file path(s) as a character vector.

@@ -24,6 +24,10 @@ Default: \code{"/mnt/project/pgen"}.}
 \item{dest}{Character scalar. RAP destination path for output CSV files.
 Default: \code{"/grs/"}.}
 
+\item{maf}{Numeric scalar. MAF filter threshold used when locating PGEN
+files. Must match the value used in \code{\link{grs_bgen2pgen}}.
+Default: \code{0.01}.}
+
 \item{instance}{Character scalar. Instance type preset: \code{"standard"}
 or \code{"large"}. Default: \code{"standard"}.}
 

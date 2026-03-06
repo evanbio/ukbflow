@@ -95,9 +95,9 @@ adjustment combination:
 }
 \details{
 \enumerate{
-\item \strong{Categorical model} — exposure treated as a factor; produces
+\item \strong{Categorical model} 2014 exposure treated as a factor; produces
 one row per non-reference level (HR / OR / \eqn{\beta} vs reference).
-\item \strong{Trend model} — exposure recoded as numeric scores (default:
+\item \strong{Trend model} 2014 exposure recoded as numeric scores (default:
 0, 1, 2, \ldots); produces the per-score-unit effect estimate
 (\code{*_per_score}) and \code{p_trend}.
 }
@@ -109,11 +109,11 @@ exposure \eqn{\times} model combination).
 
 \strong{Scores}: By default levels are scored 0, 1, 2, \ldots so the
 reference group = 0 and each step = 1 unit. Supply \code{scores} to use
-meaningful units (e.g. median years per category) — only \code{p_trend} and
+meaningful units (e.g. median years per category) 2014 only \code{p_trend} and
 the per-score estimate change; per-category HRs are unaffected.
 
 \strong{Adjustment models}: follows the same logic as
-\code{\link{assoc_coxph}} — Unadjusted and Age-and-sex-adjusted models are
+\code{\link{assoc_coxph}} 2014 Unadjusted and Age-and-sex-adjusted models are
 included by default (\code{base = TRUE}); a Fully adjusted model is added
 when \code{covariates} is non-NULL.
 }

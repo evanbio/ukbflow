@@ -42,11 +42,11 @@ A named \code{list} with four \code{data.table} elements:
 \description{
 For each GRS column, computes four sets of validation metrics:
 \enumerate{
-\item \strong{Per SD} — OR (logistic) or HR (Cox) per 1-SD increase.
-\item \strong{High vs Low} — OR / HR comparing top 20\\% vs bottom 20\\%
+\item \strong{Per SD} 2014 OR (logistic) or HR (Cox) per 1-SD increase.
+\item \strong{High vs Low} 2014 OR / HR comparing top 20\\% vs bottom 20\\%
 (extreme tertile grouping: Low / Mid / High).
-\item \strong{Trend test} — P-trend across quartiles (Q1–Q4).
-\item \strong{Discrimination} — AUC (logistic) or C-index (Cox).
+\item \strong{Trend test} 2014 P-trend across quartiles (Q1–Q4).
+\item \strong{Discrimination} 2014 AUC (logistic) or C-index (Cox).
 }
 }
 \details{

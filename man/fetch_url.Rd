@@ -2,7 +2,7 @@
 % Please edit documentation in R/fetch.R
 \name{fetch_url}
 \alias{fetch_url}
-\title{Print a remote RAP directory tree}
+\title{Get pre-authenticated download URL(s) for a remote RAP file or folder}
 \usage{
 fetch_url(path, duration = "1d")
 }
@@ -13,43 +13,17 @@ fetch_url(path, duration = "1d")
 \item{duration}{(character) How long the URLs remain valid. Accepts
 suffixes: \code{s}, \code{m}, \code{h}, \code{d}, \code{w}, \code{M},
 \code{y}. Default: \code{"1d"} (one day).}
-
-\item{max_depth}{(integer) Maximum recursion depth. Default: \code{2}.}
-
-\item{verbose}{(logical) Whether to print the tree to the console.
-Default: \code{TRUE}.}
 }
 \value{
-Invisibly returns a character vector of tree lines.
-
 A named character vector of pre-authenticated HTTPS URLs.
 Names are the file names.
 }
 \description{
-Displays the remote directory structure in a tree-like format by
-recursively listing sub-folders up to \code{max_depth}. Analogous to
-\code{file_tree()} but for remote project storage.
-}
-\section{Warning}{
-
-Each level of recursion triggers one HTTPS API call per folder. Deep trees
-(e.g. \code{max_depth > 3}) on large UKB projects may issue 100+ network
-requests, causing the console to hang for tens of seconds or time out.
-Keep \code{max_depth} at 2–3 for interactive use.
-}
-
-\examples{
-\dontrun{
-fetch_tree()
-fetch_tree("Bulk/", max_depth = 3)
-fetch_tree(verbose = FALSE)
-}
-Get pre-authenticated download URL(s) for a remote RAP file or folder
-
 Generates temporary HTTPS URLs for files on the DNAnexus Research Analysis
 Platform. For a single file, returns one URL. For a folder, lists all files
 inside and returns a named character vector of URLs.
-
+}
+\examples{
 \dontrun{
 # Single file
 fetch_url("Showcase metadata/field.tsv")

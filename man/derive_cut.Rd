@@ -38,7 +38,7 @@ quantiles of the observed data (equal-frequency binning). When
 \details{
 Before binning, a numeric summary (mean, median, SD, Q1, Q3, missing rate)
 is printed for the source column. After binning, the group distribution is
-printed via \code{\link{.cli_summarise_factor}}.
+printed via an internal summary helper.
 
 Only one column can be processed per call; loop over columns explicitly
 when binning multiple variables.

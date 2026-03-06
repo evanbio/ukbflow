@@ -6,7 +6,7 @@
 \alias{ukbflow-package}
 \title{ukbflow: Streamlined Workflow for UK Biobank Data Extraction, Analysis, and Visualization}
 \description{
-A streamlined workflow for UK Biobank data extraction, clinical analysis, and publication-quality visualization. Covers upstream data cleaning and field ID mapping, midstream clinical and association analysis, and downstream high-quality plot generation.
+An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Provides tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
 }
 \author{
 \strong{Maintainer}: Evan Zhou \email{evanzhou.bio@gmail.com}

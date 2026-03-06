@@ -46,7 +46,7 @@ one job per chromosome. A 500 ms pause between submissions prevents API
 rate-limiting.
 
 \strong{Output path is critical.} The driver script writes plink2 output to
-\code{/home/dnanexus/out/out/} — the fixed path that Swiss Army Knife
+\code{/home/dnanexus/out/out/} 2014 the fixed path that Swiss Army Knife
 auto-uploads to \code{dest} on completion. Output files per chromosome:
 \code{chr\{N\}_maf001.pgen/.pvar/.psam/.log}.
 
@@ -64,10 +64,10 @@ standard storage is insufficient.}
 # Test with chr22 first (smallest chromosome)
 ids <- grs_bgen2pgen(chr = 22, priority = "high")
 
-# Small chromosomes — standard instance
+# Small chromosomes 2014 standard instance
 ids_small <- grs_bgen2pgen(chr = 15:22)
 
-# Large chromosomes — upgrade instance to handle storage
+# Large chromosomes 2014 upgrade instance to handle storage
 ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
 
 # Monitor
