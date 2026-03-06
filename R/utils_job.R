@@ -77,6 +77,27 @@
 }
 
 
+#' Resolve a DNAnexus file ID to its /mnt/project/ path
+#'
+#' @param file_id (character) DNAnexus file ID, e.g. \code{"file-XXXX"}.
+#' @return Character string — absolute path under \code{/mnt/project/}.
+#'
+#' @keywords internal
+#' @noRd
+.dx_file_path <- function(file_id) {
+  result <- .dx_run(c("describe", file_id, "--json"), timeout = 30,
+                    env = c(PYTHONIOENCODING = "utf-8"))
+  if (!result$success) {
+    stop("Failed to describe file '", file_id, "': ", result$stderr, call. = FALSE)
+  }
+  desc   <- jsonlite::parse_json(result$stdout)
+  folder <- sub("^/+", "", if (is.null(desc$folder)) "" else desc$folder)
+  name   <- desc$name
+  if (nzchar(folder)) file.path("/mnt/project", folder, name) else
+                       file.path("/mnt/project", name)
+}
+
+
 #' Parse dx find jobs text output into a data.frame
 #'
 #' @param stdout (character) Raw stdout from \code{dx find jobs}.

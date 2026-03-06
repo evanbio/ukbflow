@@ -32,8 +32,8 @@ Stops with an error if the job fails, is terminated, or times out.
 job_id <- extract_batch(c(31, 53, 21022))
 job_wait(job_id)
 
-# Download immediately after completion
+# Read result immediately after completion (RAP only)
 job_wait(job_id)
-df <- job_result(job_id, dest = "data/pheno.csv")
+df <- job_result(job_id)
 }
 }

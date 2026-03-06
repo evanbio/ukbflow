@@ -2,47 +2,25 @@
 % Please edit documentation in R/job.R
 \name{job_result}
 \alias{job_result}
-\title{Download and load the result CSV of a completed DNAnexus job}
+\title{Load the result of a completed DNAnexus job into R}
 \usage{
-job_result(job_id, dest = NULL, overwrite = FALSE, resume = FALSE, read = TRUE)
+job_result(job_id)
 }
 \arguments{
 \item{job_id}{(character) Job ID returned by \code{extract_batch()}.}
-
-\item{dest}{(character) Local path to save the CSV, e.g.
-\code{"data/pheno.csv"}. Default: \code{NULL} (auto-generate as
-\code{"data/<output_name>.csv"}).}
-
-\item{overwrite}{(logical) Overwrite an existing local file. Default:
-\code{FALSE}.}
-
-\item{resume}{(logical) Resume an interrupted download. Default:
-\code{FALSE}.}
-
-\item{read}{(logical) Read the downloaded CSV into R with
-\code{data.table::fread()} and return a \code{data.table}. Set to
-\code{FALSE} to download only. Default: \code{TRUE}.}
 }
 \value{
-If \code{read = TRUE}, a \code{data.table} with one row per
-participant. If \code{read = FALSE}, invisibly returns \code{dest}.
+A \code{data.table} with one row per participant.
 }
 \description{
-Retrieves the output CSV produced by a \code{extract_batch()} job.
-Reuses the \code{fetch_} download infrastructure: generates a
-pre-authenticated URL via \code{dx make_download_url} and downloads
-with \code{curl}, supporting resume and overwrite.
+Reads the output CSV produced by \code{extract_batch()} directly from RAP
+project storage and returns a \code{data.table}. Must be run inside the
+RAP environment.
 }
 \examples{
 \dontrun{
-# Download and load
+job_id <- extract_batch(c(31, 53, 21022))
+job_wait(job_id)
 df <- job_result(job_id)
-
-# Download to a specific path, load later
-job_result(job_id, dest = "data/ad_pheno.csv", read = FALSE)
-df <- data.table::fread("data/ad_pheno.csv")
-
-# Resume a partially downloaded large file
-job_result(job_id, dest = "data/pheno.csv", resume = TRUE)
 }
 }

@@ -74,9 +74,9 @@ job_status <- function(job_id) {
 #' job_id <- extract_batch(c(31, 53, 21022))
 #' job_wait(job_id)
 #'
-#' # Download immediately after completion
+#' # Read result immediately after completion (RAP only)
 #' job_wait(job_id)
-#' df <- job_result(job_id, dest = "data/pheno.csv")
+#' df <- job_result(job_id)
 #' }
 job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
   if (!grepl("^job-", job_id)) {
@@ -129,43 +129,24 @@ job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
 }
 
 
-#' Download and load the result CSV of a completed DNAnexus job
+#' Get the RAP file path of a completed DNAnexus job output
 #'
-#' Retrieves the output CSV produced by a \code{extract_batch()} job.
-#' Reuses the \code{fetch_} download infrastructure: generates a
-#' pre-authenticated URL via \code{dx make_download_url} and downloads
-#' with \code{curl}, supporting resume and overwrite.
+#' Returns the absolute \code{/mnt/project/} path of the CSV produced by
+#' \code{extract_batch()}. Use this to read the file directly on the RAP
+#' without downloading.
 #'
 #' @param job_id (character) Job ID returned by \code{extract_batch()}.
-#' @param dest (character) Local path to save the CSV, e.g.
-#'   \code{"data/pheno.csv"}. Default: \code{NULL} (auto-generate as
-#'   \code{"data/<output_name>.csv"}).
-#' @param overwrite (logical) Overwrite an existing local file. Default:
-#'   \code{FALSE}.
-#' @param resume (logical) Resume an interrupted download. Default:
-#'   \code{FALSE}.
-#' @param read (logical) Read the downloaded CSV into R with
-#'   \code{data.table::fread()} and return a \code{data.table}. Set to
-#'   \code{FALSE} to download only. Default: \code{TRUE}.
 #'
-#' @return If \code{read = TRUE}, a \code{data.table} with one row per
-#'   participant. If \code{read = FALSE}, invisibly returns \code{dest}.
+#' @return A character string — the absolute path to the output CSV under
+#'   \code{/mnt/project/}.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Download and load
-#' df <- job_result(job_id)
-#'
-#' # Download to a specific path, load later
-#' job_result(job_id, dest = "data/ad_pheno.csv", read = FALSE)
-#' df <- data.table::fread("data/ad_pheno.csv")
-#'
-#' # Resume a partially downloaded large file
-#' job_result(job_id, dest = "data/pheno.csv", resume = TRUE)
+#' path <- job_path(job_id)
+#' df   <- data.table::fread(path)
 #' }
-job_result <- function(job_id, dest = NULL, overwrite = FALSE,
-                       resume = FALSE, read = TRUE) {
+job_path <- function(job_id) {
   if (!grepl("^job-", job_id)) {
     stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
   }
@@ -183,34 +164,47 @@ job_result <- function(job_id, dest = NULL, overwrite = FALSE,
     )
   }
 
-  file_id  <- .dx_job_output_id(desc)
-  out_name <- .dx_job_output_name(desc)
+  file_id <- .dx_job_output_id(desc)
+  .dx_file_path(file_id)
+}
 
-  # Auto-generate dest from job output name
-  if (is.null(dest)) {
-    if (!dir.exists("data")) dir.create("data", recursive = TRUE)
-    dest <- file.path("data", paste0(out_name, ".csv"))
-  } else {
-    dest_dir <- dirname(dest)
-    if (!dir.exists(dest_dir)) dir.create(dest_dir, recursive = TRUE)
+
+#' Load the result of a completed DNAnexus job into R
+#'
+#' Reads the output CSV produced by \code{extract_batch()} directly from RAP
+#' project storage and returns a \code{data.table}. Must be run inside the
+#' RAP environment.
+#'
+#' @param job_id (character) Job ID returned by \code{extract_batch()}.
+#'
+#' @return A \code{data.table} with one row per participant.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' job_id <- extract_batch(c(31, 53, 21022))
+#' job_wait(job_id)
+#' df <- job_result(job_id)
+#' }
+job_result <- function(job_id) {
+  if (!.is_on_rap()) {
+    stop(
+      "job_result() must be run inside the RAP environment.\n",
+      "To get the file path, use job_path() instead.",
+      call. = FALSE
+    )
   }
 
-  cli::cli_inform("Downloading {.val {paste0(out_name, '.csv')}} \u2192 {.file {dest}}")
+  if (!grepl("^job-", job_id)) {
+    stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
+  }
 
-  # Reason: reuse fetch_ download infrastructure — .dx_make_url() accepts
-  # file IDs directly (not just paths), and .dx_download_file() provides
-  # resume/overwrite/progress support via curl
-  url <- .dx_make_url(file_id)
-  .dx_download_file(url, dest, overwrite = overwrite, resume = resume,
-                    verbose = TRUE)
-
-  cli::cli_inform("Saved: {.file {dest}}")
-
-  if (!read) return(invisible(dest))
+  path <- job_path(job_id)
+  cli::cli_inform("Reading {.file {path}}")
 
   # Reason: integer64 = "double" avoids bit64 dependency; UKB eids are
   # 7-digit integers, well within double precision range
-  dt <- data.table::fread(dest, data.table = TRUE, integer64 = "double")
+  dt <- data.table::fread(path, data.table = TRUE, integer64 = "double")
   cli::cli_inform("\u2714 {nrow(dt)} rows \u00d7 {ncol(dt)} cols (incl. eid)")
   dt
 }
