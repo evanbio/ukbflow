@@ -76,9 +76,9 @@ overall PH assumption for the whole model.
 # Check PH assumption for same models as assoc_coxph()
 zph <- assoc_coxph_zph(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = c("ad_icd10", "bmi_category"),
+  exposure_col = c("exposure", "bmi_category"),
   covariates   = c("tdi", "smoking", paste0("pc", 1:10))
 )
 

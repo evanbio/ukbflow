@@ -89,14 +89,14 @@ support downstream meta-analysis and GWAS-style summary statistics.
 res <- assoc_linear(
   data         = cohort,
   outcome_col  = "bmi",
-  exposure_col = c("ad_icd10", "smoking_pack_years")
+  exposure_col = c("exposure", "smoking_pack_years")
 )
 
 # With Fully adjusted model
 res <- assoc_linear(
   data         = cohort,
   outcome_col  = "bmi",
-  exposure_col = "ad_icd10",
+  exposure_col = "exposure",
   covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
 )
 }

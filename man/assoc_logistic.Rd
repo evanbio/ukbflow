@@ -92,15 +92,15 @@ slower but more accurate for small or sparse data.
 # Minimal: crude + age-sex adjusted
 res <- assoc_logistic(
   data         = cohort,
-  outcome_col  = "case_status",
-  exposure_col = c("ad_icd10", "bmi_category")
+  outcome_col  = "outcome_status",
+  exposure_col = c("exposure", "bmi_category")
 )
 
 # With Fully adjusted model + profile likelihood CI
 res <- assoc_logistic(
   data         = cohort,
-  outcome_col  = "case_status",
-  exposure_col = "ad_icd10",
+  outcome_col  = "outcome_status",
+  exposure_col = "exposure",
   covariates   = c("tdi", "smoking", paste0("pc", 1:10)),
   ci_method    = "profile"
 )

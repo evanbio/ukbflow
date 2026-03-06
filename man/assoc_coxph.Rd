@@ -111,18 +111,18 @@ produces one \code{term} row per model.
 \dontrun{
 # Minimal: crude + age-sex adjusted only
 res <- assoc_coxph(
-  data        = cohort,
-  outcome_col = "cscc_status",   # 0/1 or TRUE/FALSE
-  time_col    = "followup_years",
-  exposure_col = c("ad_icd10", "bmi_category")
+  data         = cohort,
+  outcome_col  = "outcome_status",   # 0/1 or TRUE/FALSE
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category")
 )
 
 # Add a Fully adjusted model (Model 3)
 res <- assoc_coxph(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = c("ad_icd10", "ad_status"),
+  exposure_col = "exposure",
   covariates   = c("tdi", "smoking", "alcohol_freq",
                    paste0("pc", 1:10))
 )
@@ -130,9 +130,9 @@ res <- assoc_coxph(
 # Only run the Fully adjusted model (skip Unadjusted + Age-sex)
 res <- assoc_coxph(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = "ad_icd10",
+  exposure_col = "exposure",
   covariates   = c("age_at_recruitment", "sex", "tdi"),
   base         = FALSE
 )

@@ -81,18 +81,18 @@
 #' \dontrun{
 #' # Minimal: crude + age-sex adjusted only
 #' res <- assoc_coxph(
-#'   data        = cohort,
-#'   outcome_col = "cscc_status",   # 0/1 or TRUE/FALSE
-#'   time_col    = "followup_years",
-#'   exposure_col = c("ad_icd10", "bmi_category")
+#'   data         = cohort,
+#'   outcome_col  = "outcome_status",   # 0/1 or TRUE/FALSE
+#'   time_col     = "followup_years",
+#'   exposure_col = c("exposure", "bmi_category")
 #' )
 #'
 #' # Add a Fully adjusted model (Model 3)
 #' res <- assoc_coxph(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = c("ad_icd10", "ad_status"),
+#'   exposure_col = "exposure",
 #'   covariates   = c("tdi", "smoking", "alcohol_freq",
 #'                    paste0("pc", 1:10))
 #' )
@@ -100,9 +100,9 @@
 #' # Only run the Fully adjusted model (skip Unadjusted + Age-sex)
 #' res <- assoc_coxph(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = "ad_icd10",
+#'   exposure_col = "exposure",
 #'   covariates   = c("age_at_recruitment", "sex", "tdi"),
 #'   base         = FALSE
 #' )
@@ -325,15 +325,15 @@ assoc_cox <- assoc_coxph
 #' # Minimal: crude + age-sex adjusted
 #' res <- assoc_logistic(
 #'   data         = cohort,
-#'   outcome_col  = "case_status",
-#'   exposure_col = c("ad_icd10", "bmi_category")
+#'   outcome_col  = "outcome_status",
+#'   exposure_col = c("exposure", "bmi_category")
 #' )
 #'
 #' # With Fully adjusted model + profile likelihood CI
 #' res <- assoc_logistic(
 #'   data         = cohort,
-#'   outcome_col  = "case_status",
-#'   exposure_col = "ad_icd10",
+#'   outcome_col  = "outcome_status",
+#'   exposure_col = "exposure",
 #'   covariates   = c("tdi", "smoking", paste0("pc", 1:10)),
 #'   ci_method    = "profile"
 #' )
@@ -550,14 +550,14 @@ assoc_logit <- assoc_logistic
 #' res <- assoc_linear(
 #'   data         = cohort,
 #'   outcome_col  = "bmi",
-#'   exposure_col = c("ad_icd10", "smoking_pack_years")
+#'   exposure_col = c("exposure", "smoking_pack_years")
 #' )
 #'
 #' # With Fully adjusted model
 #' res <- assoc_linear(
 #'   data         = cohort,
 #'   outcome_col  = "bmi",
-#'   exposure_col = "ad_icd10",
+#'   exposure_col = "exposure",
 #'   covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
 #' )
 #' }
@@ -771,9 +771,9 @@ assoc_lm <- assoc_linear
 #' # Check PH assumption for same models as assoc_coxph()
 #' zph <- assoc_coxph_zph(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = c("ad_icd10", "bmi_category"),
+#'   exposure_col = c("exposure", "bmi_category"),
 #'   covariates   = c("tdi", "smoking", paste0("pc", 1:10))
 #' )
 #'
@@ -1002,9 +1002,9 @@ assoc_zph <- assoc_coxph_zph
 #' # Subgroup by sex, coxph, unadjusted only
 #' res <- assoc_subgroup(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = c("ad_icd10", "bmi_category"),
+#'   exposure_col = c("exposure", "bmi_category"),
 #'   by           = "sex",
 #'   method       = "coxph"
 #' )
@@ -1012,9 +1012,9 @@ assoc_zph <- assoc_coxph_zph
 #' # With Fully adjusted model (exclude 'sex' from covariates)
 #' res <- assoc_subgroup(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = "ad_icd10",
+#'   exposure_col = "exposure",
 #'   by           = "sex",
 #'   method       = "coxph",
 #'   covariates   = c("age_at_recruitment", "tdi", "smoking")
@@ -1355,30 +1355,30 @@ assoc_sub <- assoc_subgroup
 #'
 #' @examples
 #' \dontrun{
-#' # Create ordered exposure from AD diagnostic source (0 = No AD, 1 = self-reported, 2 = ICD-10)
-#' cohort[, ad_source := factor(ad_diagnostic_source,
-#'                               levels = c(0, 1, 2),
-#'                               labels = c("No AD", "Self-reported", "ICD-10"))]
+#' # Create an ordered factor exposure with 3 levels
+#' cohort[, exposure_cat := factor(exposure_source,
+#'                                  levels = c(0, 1, 2),
+#'                                  labels = c("None", "Mild", "Severe"))]
 #'
 #' # Trend analysis: default scores 0, 1, 2
 #' res <- assoc_trend(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = "ad_source",
+#'   exposure_col = "exposure_cat",
 #'   method       = "coxph",
 #'   covariates   = c("age_at_recruitment", "sex", "tdi", "smoking")
 #' )
 #'
-#' # Custom scores (median years per category for AD duration)
+#' # Custom scores (e.g. median value per category)
 #' res <- assoc_trend(
 #'   data         = cohort,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "outcome_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = "ad_duration_cat",
+#'   exposure_col = "exposure_cat",
 #'   method       = "coxph",
 #'   covariates   = c("age_at_recruitment", "sex", "tdi"),
-#'   scores       = c(0, 5, 14)    # No AD=0, <10y median=5, >=10y median=14
+#'   scores       = c(0, 5, 14)
 #' )
 #' }
 assoc_trend <- function(data,
@@ -1822,25 +1822,25 @@ assoc_tr <- assoc_trend
 #'
 #' @examples
 #' \dontrun{
-#' # Mode A: single censoring_type column (0/1/2/3)
+#' # Mode A: single multi-value column (0 = censored, 1 = event, 2 = competing)
 #' assoc_competing(
-#'   data        = ukb_df,
-#'   outcome_col = "censoring_type",
-#'   time_col    = "time_to_event",
-#'   exposure_col = "ad_tf",
-#'   event_val   = 1L,
-#'   compete_val = 2L,
-#'   covariates  = c("tdi", "smoking")
+#'   data         = cohort,
+#'   outcome_col  = "censoring_type",
+#'   time_col     = "followup_years",
+#'   exposure_col = "exposure",
+#'   event_val    = 1L,
+#'   compete_val  = 2L,
+#'   covariates   = c("tdi", "smoking")
 #' )
 #'
 #' # Mode B: separate 0/1 columns for primary and competing events
 #' assoc_competing(
-#'   data        = ukb_df,
-#'   outcome_col = "cscc_status",
-#'   time_col    = "time_to_cscc",
-#'   exposure_col = c("ad_tf", "ad_severity"),
-#'   compete_col = "death_status",
-#'   covariates  = c("tdi", "smoking")
+#'   data         = cohort,
+#'   outcome_col  = "outcome_status",
+#'   time_col     = "followup_years",
+#'   exposure_col = c("exposure", "bmi_category"),
+#'   compete_col  = "death_status",
+#'   covariates   = c("tdi", "smoking")
 #' )
 #' }
 assoc_competing <- function(data,
@@ -1857,6 +1857,10 @@ assoc_competing <- function(data,
   # ---------------------------------------------------------------------------
   # 1. Input validation
   # ---------------------------------------------------------------------------
+  if (!is.data.frame(data)) {
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+  }
+
   dt <- data.table::as.data.table(data)
 
   req_cols <- c(outcome_col, time_col, exposure_col, compete_col, covariates)

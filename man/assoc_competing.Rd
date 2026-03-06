@@ -121,25 +121,25 @@ age/sex columns are detected.
 }
 \examples{
 \dontrun{
-# Mode A: single censoring_type column (0/1/2/3)
+# Mode A: single multi-value column (0 = censored, 1 = event, 2 = competing)
 assoc_competing(
-  data        = ukb_df,
-  outcome_col = "censoring_type",
-  time_col    = "time_to_event",
-  exposure_col = "ad_tf",
-  event_val   = 1L,
-  compete_val = 2L,
-  covariates  = c("tdi", "smoking")
+  data         = cohort,
+  outcome_col  = "censoring_type",
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  event_val    = 1L,
+  compete_val  = 2L,
+  covariates   = c("tdi", "smoking")
 )
 
 # Mode B: separate 0/1 columns for primary and competing events
 assoc_competing(
-  data        = ukb_df,
-  outcome_col = "cscc_status",
-  time_col    = "time_to_cscc",
-  exposure_col = c("ad_tf", "ad_severity"),
-  compete_col = "death_status",
-  covariates  = c("tdi", "smoking")
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  compete_col  = "death_status",
+  covariates   = c("tdi", "smoking")
 )
 }
 }

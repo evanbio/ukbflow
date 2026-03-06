@@ -106,9 +106,9 @@ uniformly without requiring the user to recode the \code{by} variable.
 # Subgroup by sex, coxph, unadjusted only
 res <- assoc_subgroup(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = c("ad_icd10", "bmi_category"),
+  exposure_col = c("exposure", "bmi_category"),
   by           = "sex",
   method       = "coxph"
 )
@@ -116,9 +116,9 @@ res <- assoc_subgroup(
 # With Fully adjusted model (exclude 'sex' from covariates)
 res <- assoc_subgroup(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = "ad_icd10",
+  exposure_col = "exposure",
   by           = "sex",
   method       = "coxph",
   covariates   = c("age_at_recruitment", "tdi", "smoking")

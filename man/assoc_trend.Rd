@@ -119,30 +119,30 @@ when \code{covariates} is non-NULL.
 }
 \examples{
 \dontrun{
-# Create ordered exposure from AD diagnostic source (0 = No AD, 1 = self-reported, 2 = ICD-10)
-cohort[, ad_source := factor(ad_diagnostic_source,
-                              levels = c(0, 1, 2),
-                              labels = c("No AD", "Self-reported", "ICD-10"))]
+# Create an ordered factor exposure with 3 levels
+cohort[, exposure_cat := factor(exposure_source,
+                                 levels = c(0, 1, 2),
+                                 labels = c("None", "Mild", "Severe"))]
 
 # Trend analysis: default scores 0, 1, 2
 res <- assoc_trend(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = "ad_source",
+  exposure_col = "exposure_cat",
   method       = "coxph",
   covariates   = c("age_at_recruitment", "sex", "tdi", "smoking")
 )
 
-# Custom scores (median years per category for AD duration)
+# Custom scores (e.g. median value per category)
 res <- assoc_trend(
   data         = cohort,
-  outcome_col  = "cscc_status",
+  outcome_col  = "outcome_status",
   time_col     = "followup_years",
-  exposure_col = "ad_duration_cat",
+  exposure_col = "exposure_cat",
   method       = "coxph",
   covariates   = c("age_at_recruitment", "sex", "tdi"),
-  scores       = c(0, 5, 14)    # No AD=0, <10y median=5, >=10y median=14
+  scores       = c(0, 5, 14)
 )
 }
 }
