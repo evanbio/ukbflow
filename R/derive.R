@@ -1,5 +1,5 @@
 # =============================================================================
-# derive.R — analysis-ready variable preparation for UKB data
+# derive.R - analysis-ready variable preparation for UKB data
 # =============================================================================
 
 
@@ -87,7 +87,7 @@ derive_missing <- function(data,
                                         is.character, logical(1L))]
 
   if (length(char_cols) == 0L) {
-    cli::cli_alert_info("No character columns found in selection — nothing to do.")
+    cli::cli_alert_info("No character columns found in selection - nothing to do.")
     return(invisible(data))
   }
 
@@ -128,8 +128,8 @@ derive_missing <- function(data,
 #'
 #' Converts decoded UKB columns to analysis-ready types: character-encoded
 #' numeric fields to \code{numeric}, and categorical fields to \code{factor}.
-#' Prints a concise summary for each converted column — mean / median / SD /
-#' missing rate for numeric columns, and level counts for factor columns — so
+#' Prints a concise summary for each converted column - mean / median / SD /
+#' missing rate for numeric columns, and level counts for factor columns - so
 #' you can verify distributions without leaving the pipeline.
 #'
 #' \strong{data.table pass-by-reference}: when the input is a
@@ -233,7 +233,7 @@ derive_covariate <- function(data,
       cli::cli_rule(left = "Factor")
 
       for (col in as_factor) {
-        lvls  <- factor_levels[[col]]   # NULL → default sorted levels
+        lvls  <- factor_levels[[col]]   # NULL -> default sorted levels
         f_val <- if (is.null(lvls)) factor(data[[col]]) else factor(data[[col]], levels = lvls)
         data.table::set(data, j = col, value = f_val)
         .cli_summarise_factor(data[[col]], col, n_rows, max_levels)
@@ -254,7 +254,7 @@ derive_covariate <- function(data,
 #'
 #' Before binning, a numeric summary (mean, median, SD, Q1, Q3, missing rate)
 #' is printed for the source column. After binning, the group distribution is
-#' printed via \code{\link{.cli_summarise_factor}}.
+#' printed via an internal summary helper.
 #'
 #' Only one column can be processed per call; loop over columns explicitly
 #' when binning multiple variables.
@@ -504,7 +504,7 @@ derive_selfreport <- function(data,
 
     # ── Melt disease text columns ────────────────────────────────────────────
     # Reason: two separate simple melts (disease + date) then join by array_idx.
-    # Avoids list-melt entirely — list-melt with mixed-type sparse UKB array
+    # Avoids list-melt entirely - list-melt with mixed-type sparse UKB array
     # columns is unreliable across data.table versions (may strip class or
     # ignore value.name). Simple melt on a single pre-typed column group is
     # always well-behaved.
@@ -585,7 +585,7 @@ derive_selfreport <- function(data,
   # Status: in-place logical flag
   data[, (status_col) := eid %in% unique(combined$eid)]
 
-  # Earliest date per eid — update-on-join (zero-copy, truly in-place)
+  # Earliest date per eid - update-on-join (zero-copy, truly in-place)
   dates <- combined[!is.na(instance_date),
                     .(date = min(instance_date, na.rm = TRUE)),
                     by = eid]
@@ -616,7 +616,7 @@ derive_selfreport <- function(data,
 #'     are silently set to \code{NA}.}
 #'   \item{\code{{name}_fo}}{Logical flag derived from
 #'     \code{{name}_fo_date}: \code{TRUE} if and only if a valid date exists.
-#'     This guarantees that every positive case has a usable date — essential
+#'     This guarantees that every positive case has a usable date - essential
 #'     for time-to-event and prevalent/incident classification.}
 #' }
 #'
@@ -860,7 +860,7 @@ derive_hes <- function(data,
   if (length(date_cols) > 0L) {
     matched_eids <- unique(long_code$eid)
 
-    # Reason: only melt date columns for matched eids — avoids building a
+    # Reason: only melt date columns for matched eids - avoids building a
     # 500k × 259 long table; na.rm = TRUE drops empty cells at C level.
     sub_t <- data.table::copy(
       data[eid %in% matched_eids, c("eid", date_cols), with = FALSE]
@@ -910,7 +910,7 @@ derive_hes <- function(data,
 #' instance with four parallel fields: ICD-10 code (\code{p40006}), histology
 #' code (\code{p40011}), behaviour code (\code{p40012}), and diagnosis date
 #' (\code{p40005}).  Unlike HES or self-report data, each instance holds
-#' exactly one record — there is no array (\code{a*}) dimension.
+#' exactly one record - there is no array (\code{a*}) dimension.
 #'
 #' All three filter arguments (\code{icd10}, \code{histology},
 #' \code{behaviour}) are applied with AND logic: a record must satisfy
@@ -956,7 +956,7 @@ derive_hes <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # ICD-10 only — no histology/behaviour filter
+#' # ICD-10 only - no histology/behaviour filter
 #' df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
 #'
 #' # With histology and behaviour filters (malignant)
@@ -1022,7 +1022,7 @@ derive_cancer_registry <- function(data,
   )
 
   # ── Build long table: one row per (eid, instance) ─────────────────────────
-  # Reason: cancer registry has no array (_a*) dimension — each instance is
+  # Reason: cancer registry has no array (_a*) dimension - each instance is
   # a single record per field. rbindlist + lapply avoids melt entirely and
   # handles sparse / all-NA instances cleanly via fill = TRUE.
   long <- data.table::rbindlist(lapply(instances, function(inst) {
@@ -1035,7 +1035,7 @@ derive_cancer_registry <- function(data,
     d_col <- grep(paste0("_i", inst, "$"), date_cols, value = TRUE)
 
     # Reason: pre-filter to rows with a non-empty ICD code before extracting
-    # other columns — most instances are NA for most participants, so this
+    # other columns - most instances are NA for most participants, so this
     # drops ~95% of rows at the source and keeps the long table small.
     data[
       !is.na(get(c_col)) & nchar(as.character(get(c_col))) > 0L,
@@ -1208,7 +1208,7 @@ derive_death_registry <- function(data,
     p_col <- grep(paste0("_i", inst, "$"), primary_cols, value = TRUE)
     if (length(p_col) == 1L) {
       # Reason: pure data.table [i, j] avoids copying the column to a
-      # separate vector — zero extra allocation.
+      # separate vector - zero extra allocation.
       hits <- data[
         !is.na(get(p_col)) &
         grepl(pattern, as.character(get(p_col)), ignore.case = TRUE, perl = TRUE),
@@ -1242,7 +1242,7 @@ derive_death_registry <- function(data,
     # ── ③ Death date: p40000_iX (instance level) ──────────────────────────
     d_col <- grep(paste0("_i", inst, "$"), date_cols, value = TRUE)
     if (length(d_col) == 1L) {
-      # Reason: filter to matched eids first, then parse dates — avoids
+      # Reason: filter to matched eids first, then parse dates - avoids
       # converting the full 500k-row date column for a handful of matches.
       death_dates <- data[
         eid %in% matched_eids,
@@ -1273,7 +1273,7 @@ derive_death_registry <- function(data,
   # Status: any matching death cause record
   data[, (status_col) := eid %in% unique(combined$eid)]
 
-  # Earliest death date per eid — update-on-join (zero-copy)
+  # Earliest death date per eid - update-on-join (zero-copy)
   dates <- combined[!is.na(death_date),
                     .(date = min(death_date, na.rm = TRUE)),
                     by = eid]
@@ -1434,7 +1434,7 @@ derive_icd10 <- function(data,
     if (is.null(fo_field) && is.null(fo_col)) {
       cli::cli_alert_warning(
         "derive_icd10: 'first_occurrence' selected but fo_field and fo_col \\
-         are both NULL — skipping this source."
+         are both NULL - skipping this source."
       )
     } else {
       data <- derive_first_occurrence(data, name = name,
@@ -1630,8 +1630,8 @@ derive_case <- function(data,
 #' \strong{Auto-detection per name} (when \code{date_cols} / \code{status_cols}
 #' are \code{NULL}):
 #' \itemize{
-#'   \item \code{date_col}   — looked up as \code{{name}_date}.
-#'   \item \code{status_col} — looked up first as \code{{name}_status}, then
+#'   \item \code{date_col}   - looked up as \code{{name}_date}.
+#'   \item \code{status_col} - looked up first as \code{{name}_status}, then
 #'     as \code{{name}} (logical column); if neither exists all rows with a
 #'     non-\code{NA} date are treated as cases.
 #' }
@@ -1658,7 +1658,7 @@ derive_case <- function(data,
 #'
 #' @examples
 #' \dontrun{
-#' # Process multiple events in one call — auto-detects {name}_date and
+#' # Process multiple events in one call - auto-detects {name}_date and
 #' # {name}_status for each
 #' df <- derive_age(df,
 #'   name         = c("exposure", "exposure_icd10", "outcome"),
@@ -1697,7 +1697,7 @@ derive_age <- function(data,
     date_col <- date_col %||% paste0(nm, "_date")
 
     if (!date_col %in% names(data)) {
-      cli::cli_alert_warning("derive_age: date column '{date_col}' not found — skipping {nm}.")
+      cli::cli_alert_warning("derive_age: date column '{date_col}' not found - skipping {nm}.")
       next
     }
 
@@ -1755,10 +1755,10 @@ derive_age <- function(data,
 #'
 #' Adds two columns to \code{data}:
 #' \itemize{
-#'   \item \code{{name}_followup_end} (IDate) — the earliest of the outcome
+#'   \item \code{{name}_followup_end} (IDate) - the earliest of the outcome
 #'     event date, death date, lost-to-follow-up date, and the administrative
 #'     censoring date.
-#'   \item \code{{name}_followup_years} (numeric) — time in years from
+#'   \item \code{{name}_followup_years} (numeric) - time in years from
 #'     \code{baseline_col} to \code{{name}_followup_end}.
 #' }
 #'
@@ -1874,8 +1874,8 @@ derive_followup <- function(data,
 #'
 #' \describe{
 #'   \item{\code{0}}{No disease (\code{status_col} is \code{FALSE}).}
-#'   \item{\code{1}}{Prevalent — disease date on or before baseline.}
-#'   \item{\code{2}}{Incident — disease date strictly after baseline.}
+#'   \item{\code{1}}{Prevalent - disease date on or before baseline.}
+#'   \item{\code{2}}{Incident - disease date strictly after baseline.}
 #'   \item{\code{NA}}{Case with missing date; timing cannot be determined.}
 #' }
 #'

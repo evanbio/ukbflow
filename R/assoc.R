@@ -1,5 +1,5 @@
 # =============================================================================
-# assoc.R — association analysis for UKB survival data
+# assoc.R - association analysis for UKB survival data
 # =============================================================================
 
 
@@ -10,11 +10,11 @@
 #' adjustment models are always included alongside any user-specified model:
 #'
 #' \itemize{
-#'   \item \strong{Unadjusted} — no covariates (crude).
-#'   \item \strong{Age and sex adjusted} — age + sex auto-detected from the
+#'   \item \strong{Unadjusted} - no covariates (crude).
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
 #'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
 #'     column cannot be found.
-#'   \item \strong{Fully adjusted} — the covariates supplied via the
+#'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
 #'
@@ -24,10 +24,10 @@
 #'
 #' \strong{Exposure types supported}:
 #' \itemize{
-#'   \item \emph{Binary} — \code{0}/\code{1} or \code{TRUE}/\code{FALSE};
+#'   \item \emph{Binary} - \code{0}/\code{1} or \code{TRUE}/\code{FALSE};
 #'     produces one \code{term} row per model.
-#'   \item \emph{Factor} — produces one \code{term} row per non-reference level.
-#'   \item \emph{Numeric} (continuous) — produces one \code{term} row per model.
+#'   \item \emph{Factor} - produces one \code{term} row per non-reference level.
+#'   \item \emph{Numeric} (continuous) - produces one \code{term} row per model.
 #' }
 #'
 #' @param data (data.frame or data.table) Analysis dataset. Must contain all
@@ -241,7 +241,7 @@ assoc_coxph <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned — check model warnings above.")
+    cli::cli_alert_warning("No results returned - check model warnings above.")
     return(out)
   }
 
@@ -271,11 +271,11 @@ assoc_cox <- assoc_coxph
 #' two standard adjustment models are always included:
 #'
 #' \itemize{
-#'   \item \strong{Unadjusted} — no covariates (crude).
-#'   \item \strong{Age and sex adjusted} — age + sex auto-detected from the
+#'   \item \strong{Unadjusted} - no covariates (crude).
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
 #'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
 #'     column cannot be found.
-#'   \item \strong{Fully adjusted} — the covariates supplied via the
+#'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
 #'
@@ -285,8 +285,8 @@ assoc_cox <- assoc_coxph
 #'
 #' \strong{CI methods}:
 #' \itemize{
-#'   \item \code{"wald"} (default) — fast, appropriate for large UKB samples.
-#'   \item \code{"profile"} — profile likelihood CI via \code{confint.glm()};
+#'   \item \code{"wald"} (default) - fast, appropriate for large UKB samples.
+#'   \item \code{"profile"} - profile likelihood CI via \code{confint.glm()};
 #'     slower but more accurate for small or sparse data.
 #' }
 #'
@@ -467,7 +467,7 @@ assoc_logistic <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned — check model warnings above.")
+    cli::cli_alert_warning("No results returned - check model warnings above.")
     return(out)
   }
 
@@ -496,11 +496,11 @@ assoc_logit <- assoc_logistic
 #' always included:
 #'
 #' \itemize{
-#'   \item \strong{Unadjusted} — no covariates (crude).
-#'   \item \strong{Age and sex adjusted} — age + sex auto-detected from the
+#'   \item \strong{Unadjusted} - no covariates (crude).
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
 #'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
 #'     column cannot be found.
-#'   \item \strong{Fully adjusted} — the covariates supplied via the
+#'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
 #'
@@ -595,7 +595,7 @@ assoc_linear <- function(data,
     cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
   }
 
-  # Warn if outcome looks binary — logistic regression is more appropriate
+  # Warn if outcome looks binary - logistic regression is more appropriate
   outcome_vec <- data[[outcome_col]]
   if (is.logical(outcome_vec) ||
       (is.numeric(outcome_vec) &&
@@ -703,7 +703,7 @@ assoc_linear <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned — check model warnings above.")
+    cli::cli_alert_warning("No results returned - check model warnings above.")
     return(out)
   }
 
@@ -904,7 +904,7 @@ assoc_coxph_zph <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned — check model warnings above.")
+    cli::cli_alert_warning("No results returned - check model warnings above.")
     return(out)
   }
 
@@ -943,8 +943,8 @@ assoc_zph <- assoc_coxph_zph
 #' models are available:
 #'
 #' \itemize{
-#'   \item \strong{Unadjusted} — always run (no covariates).
-#'   \item \strong{Fully adjusted} — run when \code{covariates} is non-NULL.
+#'   \item \strong{Unadjusted} - always run (no covariates).
+#'   \item \strong{Fully adjusted} - run when \code{covariates} is non-NULL.
 #'     Users are responsible for excluding the \code{by} variable from
 #'     \code{covariates} (a warning is issued if it is included).
 #' }
@@ -1280,9 +1280,9 @@ assoc_sub <- assoc_subgroup
 #' adjustment combination:
 #'
 #' \enumerate{
-#'   \item \strong{Categorical model} — exposure treated as a factor; produces
+#'   \item \strong{Categorical model} - exposure treated as a factor; produces
 #'     one row per non-reference level (HR / OR / \eqn{\beta} vs reference).
-#'   \item \strong{Trend model} — exposure recoded as numeric scores (default:
+#'   \item \strong{Trend model} - exposure recoded as numeric scores (default:
 #'     0, 1, 2, \ldots); produces the per-score-unit effect estimate
 #'     (\code{*_per_score}) and \code{p_trend}.
 #' }
@@ -1294,11 +1294,11 @@ assoc_sub <- assoc_subgroup
 #'
 #' \strong{Scores}: By default levels are scored 0, 1, 2, \ldots so the
 #' reference group = 0 and each step = 1 unit. Supply \code{scores} to use
-#' meaningful units (e.g. median years per category) — only \code{p_trend} and
+#' meaningful units (e.g. median years per category) - only \code{p_trend} and
 #' the per-score estimate change; per-category HRs are unaffected.
 #'
 #' \strong{Adjustment models}: follows the same logic as
-#' \code{\link{assoc_coxph}} — Unadjusted and Age-and-sex-adjusted models are
+#' \code{\link{assoc_coxph}} - Unadjusted and Age-and-sex-adjusted models are
 #' included by default (\code{base = TRUE}); a Fully adjusted model is added
 #' when \code{covariates} is non-NULL.
 #'
@@ -1736,7 +1736,7 @@ assoc_tr <- assoc_trend
 
 
 # =============================================================================
-# assoc_competing / assoc_fg — Fine-Gray competing risks analysis
+# assoc_competing / assoc_fg - Fine-Gray competing risks analysis
 # =============================================================================
 
 
@@ -1751,7 +1751,7 @@ assoc_tr <- assoc_trend
 #' dataset:
 #'
 #' \describe{
-#'   \item{\strong{Mode A — single multi-value column}}{
+#'   \item{\strong{Mode A - single multi-value column}}{
 #'     \code{compete_col = NULL} (default). \code{outcome_col} contains all
 #'     event codes in one column (e.g. \code{0}/\code{1}/\code{2}/\code{3}).
 #'     Use \code{event_val} and \code{compete_val} to identify the event of
@@ -1759,7 +1759,7 @@ assoc_tr <- assoc_trend
 #'     censored. Example: UKB \code{censoring_type} where 1 = event, 2 = death
 #'     (competing), 0/3 = censored.
 #'   }
-#'   \item{\strong{Mode B — dual binary columns}}{
+#'   \item{\strong{Mode B - dual binary columns}}{
 #'     \code{compete_col} is the name of a separate 0/1 column for the
 #'     competing event. \code{outcome_col} is a 0/1 column for the primary
 #'     event. When both are 1 for the same participant, the primary event takes
@@ -1774,10 +1774,10 @@ assoc_tr <- assoc_trend
 #'
 #' Three adjustment models are produced (where data allow):
 #' \itemize{
-#'   \item \strong{Unadjusted} — always included.
-#'   \item \strong{Age and sex adjusted} — when \code{base = TRUE} and
+#'   \item \strong{Unadjusted} - always included.
+#'   \item \strong{Age and sex adjusted} - when \code{base = TRUE} and
 #'     age/sex columns are detected.
-#'   \item \strong{Fully adjusted} — when \code{covariates} is non-NULL.
+#'   \item \strong{Fully adjusted} - when \code{covariates} is non-NULL.
 #' }
 #'
 #' @param data (data.frame or data.table) Analysis dataset.
@@ -1997,7 +1997,7 @@ assoc_fg <- assoc_competing
 
 
 # =============================================================================
-# assoc_lag — Cox lag (landmark) sensitivity analysis
+# assoc_lag - Cox lag (landmark) sensitivity analysis
 # =============================================================================
 
 

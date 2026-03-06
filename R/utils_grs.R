@@ -1,5 +1,5 @@
 # =============================================================================
-# utils_grs.R — Internal helpers for grs_ series
+# utils_grs.R - Internal helpers for grs_ series
 # =============================================================================
 
 
@@ -7,7 +7,7 @@
 # Faithfully mirrors scripts 06 (standard) and 13 (large), differing only
 # in n_threads and plink_memory which are injected at generation time.
 #
-# CRITICAL: output_dir MUST be "/home/dnanexus/out/out/" — Swiss Army Knife
+# CRITICAL: output_dir MUST be "/home/dnanexus/out/out/" - Swiss Army Knife
 # auto-uploads everything in that path to the job --destination on RAP.
 .bgen2pgen_script <- function(n_threads, plink_memory, maf = 0.01) {
   maf_label <- sprintf("%03d", round(maf * 100))
@@ -57,7 +57,7 @@
     'plink_bin <- file.path(Sys.getenv("HOME"), "plink2")',
     'if (!file.exists(plink_bin)) {',
     '  cli_alert_info("Installing plink2 ...")',
-    "  # Pinned version — matches original analysis environment on UKB RAP",
+    "  # Pinned version - matches original analysis environment on UKB RAP",
     '  url      <- "https://s3.amazonaws.com/plink2-assets/alpha5/plink2_linux_x86_64_20240105.zip"',
     '  dest_zip <- file.path(tempdir(), "plink2.zip")',
     '  download.file(url, dest_zip, quiet = FALSE, mode = "wb")',

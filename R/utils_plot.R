@@ -531,7 +531,7 @@
 
   # Inject CSS for background/border preservation in PDF & PNG rendering.
   # Applied to a separate copy so the returned gt object stays clean.
-  gt_print <- gt_tbl %>%
+  gt_print <- gt_tbl |>
     gt::opt_css(css = "
       @media print {
         body, td, th {

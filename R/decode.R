@@ -1,5 +1,5 @@
 # =============================================================================
-# decode.R — UKB column name and value decoding
+# decode.R - UKB column name and value decoding
 # =============================================================================
 
 
@@ -58,7 +58,7 @@ decode_names <- function(data, max_nchar = 60L) {
   fields_df <- .ukbflow_cache$fields
   if (is.null(fields_df)) {
     cli::cli_inform(
-      "Field dictionary not cached — calling {.fn extract_ls} to populate it."
+      "Field dictionary not cached - calling {.fn extract_ls} to populate it."
     )
     fields_df <- extract_ls()
   }
@@ -97,8 +97,8 @@ decode_names <- function(data, max_nchar = 60L) {
 #' This function requires two metadata files downloaded from the UKB Research
 #' Analysis Platform:
 #' \itemize{
-#'   \item \code{field.tsv} — maps field IDs to encoding IDs and value types.
-#'   \item \code{esimpint.tsv} — maps encoding ID + integer code to label.
+#'   \item \code{field.tsv} - maps field IDs to encoding IDs and value types.
+#'   \item \code{esimpint.tsv} - maps encoding ID + integer code to label.
 #' }
 #' Download them once with:
 #' \preformatted{

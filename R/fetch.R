@@ -55,33 +55,6 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 }
 
 
-#' Print a remote RAP directory tree
-#'
-#' Displays the remote directory structure in a tree-like format by
-#' recursively listing sub-folders up to \code{max_depth}. Analogous to
-#' \code{file_tree()} but for remote project storage.
-#'
-#' @param path (character) Remote root path. Default: \code{"."} (project
-#'   root). Both \code{"Bulk/"} and \code{"/Bulk/"} are accepted.
-#' @param max_depth (integer) Maximum recursion depth. Default: \code{2}.
-#' @param verbose (logical) Whether to print the tree to the console.
-#'   Default: \code{TRUE}.
-#'
-#' @section Warning:
-#' Each level of recursion triggers one HTTPS API call per folder. Deep trees
-#' (e.g. \code{max_depth > 3}) on large UKB projects may issue 100+ network
-#' requests, causing the console to hang for tens of seconds or time out.
-#' Keep \code{max_depth} at 2–3 for interactive use.
-#'
-#' @return Invisibly returns a character vector of tree lines.
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' fetch_tree()
-#' fetch_tree("Bulk/", max_depth = 3)
-#' fetch_tree(verbose = FALSE)
-#' }
 #' Get pre-authenticated download URL(s) for a remote RAP file or folder
 #'
 #' Generates temporary HTTPS URLs for files on the DNAnexus Research Analysis
@@ -146,6 +119,7 @@ fetch_url <- function(path, duration = "1d") {
 #'   \code{FALSE}.
 #' @param resume (logical) Resume an interrupted download. Useful for large
 #'   files (e.g. \code{.bed}, \code{.bgen}). Default: \code{FALSE}.
+#' @param verbose (logical) Show download progress. Default: \code{TRUE}.
 #'
 #' @return Invisibly returns the local file path(s) as a character vector.
 #' @export
@@ -251,6 +225,33 @@ fetch_field <- function(dest_dir = "data/metadata/", overwrite = FALSE,
 }
 
 
+#' Print a remote RAP directory tree
+#'
+#' Displays the remote directory structure in a tree-like format by
+#' recursively listing sub-folders up to \code{max_depth}. Analogous to
+#' \code{file_tree()} but for remote project storage.
+#'
+#' @param path (character) Remote root path. Default: \code{"."} (project
+#'   root). Both \code{"Bulk/"} and \code{"/Bulk/"} are accepted.
+#' @param max_depth (integer) Maximum recursion depth. Default: \code{2}.
+#' @param verbose (logical) Whether to print the tree to the console.
+#'   Default: \code{TRUE}.
+#'
+#' @section Warning:
+#' Each level of recursion triggers one HTTPS API call per folder. Deep trees
+#' (e.g. \code{max_depth > 3}) on large UKB projects may issue 100+ network
+#' requests, causing the console to hang for tens of seconds or time out.
+#' Keep \code{max_depth} at 2-3 for interactive use.
+#'
+#' @return Invisibly returns a character vector of tree lines.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' fetch_tree()
+#' fetch_tree("Bulk/", max_depth = 3)
+#' fetch_tree(verbose = FALSE)
+#' }
 fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
   norm  <- .dx_normalize_path(path)
   lines <- character(0)

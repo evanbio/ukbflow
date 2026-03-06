@@ -1,5 +1,5 @@
 # =============================================================================
-# grs.R — Genetic Risk Score utilities for ukbflow
+# grs.R - Genetic Risk Score utilities for ukbflow
 # =============================================================================
 
 
@@ -42,7 +42,7 @@
 #' # Local
 #' w <- grs_check("weights.csv", dest = "weights_clean.txt")
 #'
-#' # On RAP (JupyterLab) — files accessed via /mnt/project/
+#' # On RAP (JupyterLab) - files accessed via /mnt/project/
 #' w <- grs_check(
 #'   file = "/mnt/project/weights/weights.csv",
 #'   dest = "/mnt/project/weights/weights_clean.txt"
@@ -82,7 +82,7 @@ grs_check <- function(file, dest = "weights.txt") {
   # ---------------------------------------------------------------------------
   n_na <- sum(!stats::complete.cases(w))
   if (n_na > 0L)
-    cli::cli_abort("{n_na} row(s) have NA in required columns — remove before proceeding.")
+    cli::cli_abort("{n_na} row(s) have NA in required columns - remove before proceeding.")
   cli::cli_alert_success("No NA values.")
 
   # ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ grs_check <- function(file, dest = "weights.txt") {
   # ---------------------------------------------------------------------------
   n_dup <- sum(duplicated(w$snp))
   if (n_dup > 0L)
-    cli::cli_abort("{n_dup} duplicate SNP ID(s) found — each SNP must appear once.")
+    cli::cli_abort("{n_dup} duplicate SNP ID(s) found - each SNP must appear once.")
   cli::cli_alert_success("No duplicate SNPs.")
 
   # ---------------------------------------------------------------------------
@@ -169,7 +169,7 @@ grs_check <- function(file, dest = "weights.txt") {
 #' rate-limiting.
 #'
 #' \strong{Output path is critical.} The driver script writes plink2 output to
-#' \code{/home/dnanexus/out/out/} — the fixed path that Swiss Army Knife
+#' \code{/home/dnanexus/out/out/} - the fixed path that Swiss Army Knife
 #' auto-uploads to \code{dest} on completion. Output files per chromosome:
 #' \code{chr\{N\}_maf001.pgen/.pvar/.psam/.log}.
 #'
@@ -204,10 +204,10 @@ grs_check <- function(file, dest = "weights.txt") {
 #' # Test with chr22 first (smallest chromosome)
 #' ids <- grs_bgen2pgen(chr = 22, priority = "high")
 #'
-#' # Small chromosomes — standard instance
+#' # Small chromosomes - standard instance
 #' ids_small <- grs_bgen2pgen(chr = 15:22)
 #'
-#' # Large chromosomes — upgrade instance to handle storage
+#' # Large chromosomes - upgrade instance to handle storage
 #' ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
 #'
 #' # Monitor
@@ -375,6 +375,9 @@ grs_bgen2pgen <- function(chr      = 1:22,
 #'   Default: \code{"/mnt/project/pgen"}.
 #' @param dest Character scalar. RAP destination path for output CSV files.
 #'   Default: \code{"/grs/"}.
+#' @param maf Numeric scalar. MAF filter threshold used when locating PGEN
+#'   files. Must match the value used in \code{\link{grs_bgen2pgen}}.
+#'   Default: \code{0.01}.
 #' @param instance Character scalar. Instance type preset: \code{"standard"}
 #'   or \code{"large"}. Default: \code{"standard"}.
 #' @param priority Character scalar. Job priority: \code{"low"} or
@@ -632,7 +635,7 @@ grs_standardize <- function(data, grs_cols = NULL) {
     sigma   <- stats::sd(x, na.rm = TRUE)
 
     if (sigma == 0)
-      cli::cli_abort("{.field {col}} has zero variance — cannot standardise.")
+      cli::cli_abort("{.field {col}} has zero variance - cannot standardise.")
 
     z_col   <- paste0(col, "_z")
     z_vals  <- (x - mu) / sigma
@@ -663,11 +666,11 @@ grs_zscore <- grs_standardize
 #'
 #' For each GRS column, computes four sets of validation metrics:
 #' \enumerate{
-#'   \item \strong{Per SD} — OR (logistic) or HR (Cox) per 1-SD increase.
-#'   \item \strong{High vs Low} — OR / HR comparing top 20\% vs bottom 20\%
+#'   \item \strong{Per SD} - OR (logistic) or HR (Cox) per 1-SD increase.
+#'   \item \strong{High vs Low} - OR / HR comparing top 20\% vs bottom 20\%
 #'     (extreme tertile grouping: Low / Mid / High).
-#'   \item \strong{Trend test} — P-trend across quartiles (Q1–Q4).
-#'   \item \strong{Discrimination} — AUC (logistic) or C-index (Cox).
+#'   \item \strong{Trend test} - P-trend across quartiles (Q1–Q4).
+#'   \item \strong{Discrimination} - AUC (logistic) or C-index (Cox).
 #' }
 #'
 #' GRS grouping columns are created internally via \code{\link{derive_cut}}
