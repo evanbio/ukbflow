@@ -53,17 +53,17 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
         , drop = FALSE
       ])
     }
-    message(nrow(df), " fields available. Assign to a variable or use pattern= to search.")
+    cli::cli_inform("{nrow(df)} fields available. Assign to a variable or use pattern= to search.")
     return(invisible(df))
   }
 
   # Auto-detect dataset if not provided
   if (is.null(dataset)) {
     dataset <- .dx_find_dataset()
-    message("Using dataset: ", dataset)
+    cli::cli_inform("Using dataset: {.val {dataset}}")
   }
 
-  message("Fetching approved fields... (cached after first call)")
+  cli::cli_inform("Fetching approved fields... (cached after first call)")
 
   result <- .dx_list_fields_raw(dataset)
   if (!result$success) {
@@ -86,7 +86,7 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 
   # Reason: returning all 29,000+ rows visibly floods the console;
   # return invisibly and show a summary message instead
-  message(nrow(df), " fields available. Assign to a variable or use pattern= to search.")
+  cli::cli_inform("{nrow(df)} fields available. Assign to a variable or use pattern= to search.")
   invisible(df)
 }
 
@@ -154,8 +154,7 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   # Report matched fields
   n_cols_total <- sum(vapply(matched, `[[`, integer(1), "n_cols"))
   cli::cli_inform(
-    "Matched {length(matched)}/{length(field_id)} field{?s} \\
-    \u2192 {n_cols_total} column{?s}"
+    "Matched {length(matched)}/{length(field_id)} field{?s} ({n_cols_total} column{?s})"
   )
 
   # Reason: cap per-field listing to avoid console flood on large extractions
@@ -168,8 +167,7 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   }
   if (!show_all) {
     cli::cli_inform(
-      "  ... and {length(matched) - preview_n} more fields. \\
-      Use extract_ls() to review all."
+      "  ... and {length(matched) - preview_n} more fields. Use extract_ls() to review all."
     )
   }
 
@@ -202,7 +200,7 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   dt <- data.table::fread(dest, data.table = TRUE, integer64 = "double")
 
   cli::cli_inform(
-    "\u2714 {nrow(dt)} rows \u00d7 {ncol(dt)} cols (incl. eid)"
+    "{nrow(dt)} rows x {ncol(dt)} cols (incl. eid)"
   )
 
   dt
@@ -275,8 +273,7 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   # Report matched fields
   n_cols_total <- sum(vapply(matched, `[[`, integer(1), "n_cols"))
   cli::cli_inform(
-    "Matched {length(matched)}/{length(field_id)} field{?s} \\
-    \u2192 {n_cols_total} column{?s}"
+    "Matched {length(matched)}/{length(field_id)} field{?s} ({n_cols_total} column{?s})"
   )
 
   show_all  <- length(matched) <= 10
@@ -287,8 +284,7 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   }
   if (!show_all) {
     cli::cli_inform(
-      "  ... and {length(matched) - preview_n} more fields. \\
-      Use extract_ls() to review all."
+      "  ... and {length(matched) - preview_n} more fields. Use extract_ls() to review all."
     )
   }
   if (length(unmatched) > 0) {
@@ -319,7 +315,7 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   output <- if (!is.null(file)) file else
     paste0("ukb_pheno_", format(Sys.time(), "%Y%m%d_%H%M%S"))
 
-  # Auto instance type based on column count (three tiers)
+  # Auto instance type based on column count (four tiers)
   instance_type <- if (!is.null(instance_type)) instance_type else
     if (n_cols_total > 500) "mem1_ssd1_v2_x36" else
     if (n_cols_total > 100) "mem1_ssd1_v2_x16" else
@@ -331,7 +327,7 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   job_id <- .dx_run_table_exporter(dataset, file_id, output, instance_type,
                                     priority = priority)
 
-  cli::cli_inform("\u2714 Job submitted: {.val {job_id}}")
+  cli::cli_inform("Job submitted: {.val {job_id}}")
   cli::cli_inform("  Output  : {output}.csv  (cloud)")
   cli::cli_inform("  Instance: {instance_type}")
 

@@ -97,7 +97,8 @@ The job runs asynchronously on the RAP cloud. The output CSV is saved to your RA
 
 ```{r job-monitor}
 job_status(job_id)        # check progress
-job_result(job_id)        # retrieve result path once complete
+job_path(job_id)          # get cloud file path once complete
+job_result(job_id)        # read result as data.table (inside RAP only)
 ```
 
 #### Instance type
