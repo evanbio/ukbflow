@@ -72,62 +72,14 @@ remotes::install_github("evanbio/ukbflow")
 
 ## Core Features
 
-<table>
-<tr>
-<td width="50%">
-
-### Fetch & Extract
-- Browse RAP project files (`fetch_ls`, `fetch_tree`)
-- Download summary outputs (`fetch_file`)
-- Extract UKB phenotype fields (`extract_pheno`)
-
-</td>
-<td width="50%">
-
-### Decode
-- Value decoding: `0/1` → `"Female"/"Male"` (`decode_values`)
-- Name decoding: `p31` → `sex` (`decode_names`)
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### Derive — Disease Phenotypes
-- Self-report, HES, cancer registry, death registry
-- First Occurrence fields
-- Multi-source case merging (`derive_icd10`, `derive_case`)
-
-</td>
-<td width="50%">
-
-### Derive — Survival Variables
-- Prevalent vs. incident classification (`derive_timing`)
-- Age at event (`derive_age`)
-- Follow-up time with competing events (`derive_followup`)
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### Association Analysis
-- Cox, logistic, linear regression
-- Subgroup analysis + interaction LRT
-- Dose-response trend, Fine-Gray competing risks
-- Automatic three-model framework (crude → age-sex → fully adjusted)
-
-</td>
-<td width="50%">
-
-### Visualisation & GRS
-- Forest plots (`plot_forest`)
-- Table 1 (`plot_tableone`)
-- End-to-end GRS pipeline on RAP (`grs_check`, `grs_score`, `grs_validate`)
-
-</td>
-</tr>
-</table>
+| Layer | Key Functions | Description |
+|---|---|---|
+| **Connection** | `auth_login`, `auth_select_project` | Authenticate to RAP via dx-toolkit |
+| **Data Access** | `fetch_metadata`, `extract_batch`, `job_wait` | Retrieve phenotype data from UKB dataset on RAP |
+| **Data Processing** | `decode_names`, `decode_values`, `derive_icd10`, `derive_followup`, `derive_case` | Harmonize multi-source records; derive analysis-ready cohort |
+| **Association Analysis** | `assoc_coxph`, `assoc_logistic`, `assoc_subgroup` | Three-model adjustment; subgroup & trend analysis |
+| **Genomic Scoring** | `grs_bgen2pgen`, `grs_score`, `grs_standardize` | Distributed plink2 scoring on RAP worker nodes |
+| **Visualization** | `plot_forest`, `plot_tableone` | Publication-ready figures & tables |
 
 ---
 

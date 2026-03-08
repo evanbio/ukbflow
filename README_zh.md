@@ -72,62 +72,14 @@ remotes::install_github("evanbio/ukbflow")
 
 ## 核心功能
 
-<table>
-<tr>
-<td width="50%">
-
-### 文件获取与提取
-- 浏览 RAP 项目文件（`fetch_ls`、`fetch_tree`）
-- 下载汇总结果（`fetch_file`）
-- 提取 UKB 表型字段（`extract_pheno`）
-
-</td>
-<td width="50%">
-
-### 解码
-- 值解码：`0/1` → `"Female"/"Male"`（`decode_values`）
-- 列名解码：`p31` → `sex`（`decode_names`）
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 衍生 — 疾病表型
-- 自报告、HES、癌症注册、死亡注册
-- First Occurrence 字段
-- 多源合并（`derive_icd10`、`derive_case`）
-
-</td>
-<td width="50%">
-
-### 衍生 — 生存变量
-- 患病时间分类（`derive_timing`）
-- 事件发生年龄（`derive_age`）
-- 随访时间（含竞争事件，`derive_followup`）
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 关联分析
-- Cox、逻辑回归、线性回归
-- 亚组分析 + 交互项 LRT
-- 剂量-反应趋势、Fine-Gray 竞争风险
-- 自动三模型框架（粗模型 → 年龄性别校正 → 全校正）
-
-</td>
-<td width="50%">
-
-### 可视化与 GRS
-- 森林图（`plot_forest`）
-- 基线特征表（`plot_tableone`）
-- RAP 端到端 GRS 流程（`grs_check`、`grs_score`、`grs_validate`）
-
-</td>
-</tr>
-</table>
+| 层级 | 核心函数 | 说明 |
+|---|---|---|
+| **连接** | `auth_login`、`auth_select_project` | 通过 dx-toolkit 认证并连接 RAP |
+| **数据获取** | `fetch_metadata`、`extract_batch`、`job_wait` | 从 RAP 上的 UKB 数据集提取表型数据 |
+| **数据处理** | `decode_names`、`decode_values`、`derive_icd10`、`derive_followup`、`derive_case` | 多源记录整合；构建分析就绪队列 |
+| **关联分析** | `assoc_coxph`、`assoc_logistic`、`assoc_subgroup` | 三模型框架校正；亚组与趋势分析 |
+| **基因组评分** | `grs_bgen2pgen`、`grs_score`、`grs_standardize` | 在 RAP 工作节点分布式运行 plink2 评分 |
+| **可视化** | `plot_forest`、`plot_tableone` | 发表级图表输出 |
 
 ---
 
