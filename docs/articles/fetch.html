@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Exploring and Fetching RAP Files • ukbflow</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -131,8 +136,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Exploring and Fetching RAP Files</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Exploring and Fetching RAP Files</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/HEAD/vignettes/fetch.Rmd" class="external-link"><code>vignettes/fetch.Rmd</code></a></small>
@@ -166,7 +170,7 @@ functions:</p>
 <span></span>
 <span><span class="fu"><a href="../reference/auth_login.html">auth_login</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/auth_select_project.html">auth_select_project</a></span><span class="op">(</span><span class="st">"project-XXXXXXXXXXXX"</span><span class="op">)</span></span></code></pre></div>
-<p>See <code>vignette("authentication")</code> for details.</p>
+<p>See <code><a href="../articles/auth.html">vignette("auth")</a></code> for details.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -180,9 +184,16 @@ returning a structured data frame:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List project root</span></span>
 <span><span class="fu"><a href="../reference/fetch_ls.html">fetch_ls</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                        name   type      size            modified</span></span>
+<span><span class="co">#&gt; 1           Showcase metadata/ folder      &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2                    results/ folder      &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3              analysis.log   file    4.2 KB 2024-11-01 10:22:03</span></span>
 <span></span>
 <span><span class="co"># List a specific folder</span></span>
 <span><span class="fu"><a href="../reference/fetch_ls.html">fetch_ls</a></span><span class="op">(</span><span class="st">"Showcase metadata/"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          name  type     size            modified</span></span>
+<span><span class="co">#&gt; 1   field.tsv  file  12.3 MB 2024-10-15 08:01:44</span></span>
+<span><span class="co">#&gt; 2 esimpint.tsv  file   3.1 MB 2024-10-15 08:01:50</span></span>
 <span></span>
 <span><span class="co"># Filter by type</span></span>
 <span><span class="fu"><a href="../reference/fetch_ls.html">fetch_ls</a></span><span class="op">(</span><span class="st">"results/"</span>, type <span class="op">=</span> <span class="st">"file"</span><span class="op">)</span></span>
@@ -294,6 +305,11 @@ files:</p>
 <p>All <code><a href="../reference/fetch_file.html">fetch_file()</a></code>, <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and
 <code><a href="../reference/fetch_field.html">fetch_field()</a></code> functions share these arguments:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Argument</th>
 <th>Default</th>
@@ -302,8 +318,12 @@ files:</p>
 <tbody>
 <tr class="odd">
 <td><code>dest_dir</code></td>
-<td><code>"."</code></td>
-<td>Local destination directory (created if needed)</td>
+<td>
+<code>"."</code> / <code>"data/metadata/"</code>
+</td>
+<td>Local destination directory (created if needed). Default is
+<code>"data/metadata/"</code> for <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code> and
+<code><a href="../reference/fetch_field.html">fetch_field()</a></code>.</td>
 </tr>
 <tr class="even">
 <td><code>overwrite</code></td>

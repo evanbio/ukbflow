@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Get Started with ukbflow • ukbflow</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -131,8 +136,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Get Started with ukbflow</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Get Started with ukbflow</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/HEAD/vignettes/get-started.Rmd" class="external-link"><code>vignettes/get-started.Rmd</code></a></small>
@@ -201,9 +205,9 @@ RAP cloud environment.</p>
 <h3 id="plot-the-results">Plot the results<a class="anchor" aria-label="anchor" href="#plot-the-results"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># plot_forest() takes a reshaped data.frame — see vignette("plot") for details</span></span>
 <span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span><span class="va">df</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"bmi"</span><span class="op">)</span>,</span>
-<span>              strata <span class="op">=</span> <span class="st">"outcome_status"</span>, save <span class="op">=</span> <span class="cn">TRUE</span>, dest <span class="op">=</span> <span class="st">"results/table1"</span><span class="op">)</span></span></code></pre></div>
+<span>              strata <span class="op">=</span> <span class="st">"outcome_status"</span>, dest <span class="op">=</span> <span class="st">"results/table1"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

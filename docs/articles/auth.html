@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Authentication and Project Setup • ukbflow</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -131,8 +136,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Authentication and Project Setup</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Authentication and Project Setup</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/HEAD/vignettes/auth.Rmd" class="external-link"><code>vignettes/auth.Rmd</code></a></small>
@@ -234,8 +238,8 @@ handled automatically by the platform. No login step is required:</p>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_status.html">auth_status</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; User:    Chris001127</span></span>
-<span><span class="co">#&gt; Project: project-XXXXXXXXXXXX</span></span></code></pre></div>
+<span><span class="co">#&gt; ✔ User:    user-XXXXXXXXXXXX</span></span>
+<span><span class="co">#&gt; ✔ Project: project-XXXXXXXXXXXX</span></span></code></pre></div>
 <p><code><a href="../reference/auth_status.html">auth_status()</a></code> returns the current user and active
 project. Use this to confirm your session before running any
 analysis.</p>
@@ -245,7 +249,9 @@ analysis.</p>
 <h2 id="listing-available-projects">Listing Available Projects<a class="anchor" aria-label="anchor" href="#listing-available-projects"></a>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_list_projects.html">auth_list_projects</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_list_projects.html">auth_list_projects</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; project-XXXXXXXXXXXX : My UKB Project (CONTRIBUTOR)</span></span>
+<span><span class="co">#&gt; project-YYYYYYYYYYYY : Shared Analysis Project (VIEW)</span></span></code></pre></div>
 <p>This returns all RAP projects accessible to your account, along with
 their project IDs. Project IDs take the form
 <code>project-XXXXXXXXXXXX</code> and are required for
@@ -270,7 +276,7 @@ persists across sessions.</p>
 </h2>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_logout.html">auth_logout</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Logged out from DNAnexus.</span></span></code></pre></div>
+<span><span class="co">#&gt; ✔ Logged out from DNAnexus.</span></span></code></pre></div>
 <p>Logging out clears the local session cache. The next call to any
 <code>auth_*</code> or <code>job_*</code> function will require
 re-authentication.</p>

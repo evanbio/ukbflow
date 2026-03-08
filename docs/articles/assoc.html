@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Association Analysis for UKB Outcomes • ukbflow</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -131,8 +136,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Association Analysis for UKB Outcomes</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Association Analysis for UKB Outcomes</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/HEAD/vignettes/assoc.Rmd" class="external-link"><code>vignettes/assoc.Rmd</code></a></small>
@@ -177,25 +181,25 @@ forest plots and publication tables.</p>
 <td><code><a href="../reference/assoc_linear.html">assoc_linear()</a></code></td>
 <td><code><a href="../reference/assoc_linear.html">assoc_lm()</a></code></td>
 <td>Linear regression</td>
-<td>β</td>
+<td>beta</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/assoc_coxph_zph.html">assoc_coxph_zph()</a></code></td>
 <td><code><a href="../reference/assoc_coxph_zph.html">assoc_zph()</a></code></td>
 <td>Schoenfeld residual PH test</td>
-<td>χ² / p</td>
+<td>chisq / p</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/assoc_subgroup.html">assoc_subgroup()</a></code></td>
 <td><code><a href="../reference/assoc_subgroup.html">assoc_sub()</a></code></td>
 <td>Stratified analysis + LRT interaction</td>
-<td>HR / OR / β</td>
+<td>HR / OR / beta</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/assoc_trend.html">assoc_trend()</a></code></td>
 <td><code><a href="../reference/assoc_trend.html">assoc_tr()</a></code></td>
 <td>Dose-response trend</td>
-<td>HR / OR / β + p_trend</td>
+<td>HR / OR / beta + p_trend</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/assoc_competing.html">assoc_competing()</a></code></td>
@@ -260,7 +264,7 @@ Fully adjusted model.</p>
 <p><code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> is the primary function for time-to-event
 outcomes. It accepts logical (<code>TRUE</code>/<code>FALSE</code>) or
 integer (<code>0</code>/<code>1</code>) event indicators and returns one
-row per exposure × term × model combination.</p>
+row per exposure x term x model combination.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
@@ -272,10 +276,10 @@ row per exposure × term × model combination.</p>
 <span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── assoc_coxph ──────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; ℹ 2 exposures × 2 models = 4 Cox regressions</span></span>
+<span><span class="co">#&gt; ℹ 2 exposures x 2 models = 4 Cox regressions</span></span>
 <span><span class="co">#&gt; ── exposure ─────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted       | exposure: HR 1.43 (1.28–1.60), p &lt; 0.001</span></span>
-<span><span class="co">#&gt;   ✔ Age and sex adj  | exposure: HR 1.38 (1.23–1.55), p &lt; 0.001</span></span></code></pre></div>
+<span><span class="co">#&gt;   ✔ Unadjusted       | exposure: HR 1.43 (1.28-1.60), p &lt; 0.001</span></span>
+<span><span class="co">#&gt;   ✔ Age and sex adj  | exposure: HR 1.38 (1.23-1.55), p &lt; 0.001</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a Fully adjusted model</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
@@ -338,7 +342,7 @@ adjusted</td>
 </tr>
 <tr class="even">
 <td><code>HR_label</code></td>
-<td>Formatted string, e.g. <code>"1.43 (1.28–1.60)"</code>
+<td>Formatted string, e.g. <code>"1.43 (1.28-1.60)"</code>
 </td>
 </tr>
 </tbody>
@@ -376,7 +380,7 @@ instead of <code>n_events</code> / <code>person_years</code>.</p>
 <h2 id="step-3-linear-regression">Step 3: Linear Regression<a class="anchor" aria-label="anchor" href="#step-3-linear-regression"></a>
 </h2>
 <p><code><a href="../reference/assoc_linear.html">assoc_linear()</a></code> is for continuous outcomes
-(e.g. biomarker levels, BMI). The standard error of β is included to
+(e.g. biomarker levels, BMI). The standard error of beta is included to
 support downstream meta-analysis.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_linear.html">assoc_linear</a></span><span class="op">(</span></span>
@@ -406,8 +410,8 @@ assumptions.</p>
 <span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure: χ² = 0.412, p = 0.521 ✓ satisfied</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | bmi_category: χ² = 1.834, p = 0.176 ✓ satisfied</span></span>
+<span><span class="co">#&gt;   ✔ Unadjusted | exposure: chisq = 0.412, p = 0.521 [OK] satisfied</span></span>
+<span><span class="co">#&gt;   ✔ Unadjusted | bmi_category: chisq = 1.834, p = 0.176 [OK] satisfied</span></span>
 <span></span>
 <span><span class="co"># Identify any violations</span></span>
 <span><span class="va">zph</span><span class="op">[</span><span class="va">ph_satisfied</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">]</span></span></code></pre></div>
@@ -425,7 +429,7 @@ time-varying effects.</p>
 </h2>
 <p><code><a href="../reference/assoc_subgroup.html">assoc_subgroup()</a></code> stratifies the dataset by a grouping
 variable and fits the specified model within each subgroup. A likelihood
-ratio test (LRT) for the exposure × subgroup interaction is computed on
+ratio test (LRT) for the exposure x subgroup interaction is computed on
 the full dataset and appended as <code>p_interaction</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_subgroup.html">assoc_subgroup</a></span><span class="op">(</span></span>
@@ -438,8 +442,8 @@ the full dataset and appended as <code>p_interaction</code>.</p>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── assoc_subgroup ───────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; ℹ 1 exposure × 2 models × 2 subgroups (sex)</span></span>
-<span><span class="co">#&gt; ℹ Computing interaction LRT (exposure × sex) on full data ...</span></span>
+<span><span class="co">#&gt; ℹ 1 exposure x 2 models x 2 subgroups (sex)</span></span>
+<span><span class="co">#&gt; ℹ Computing interaction LRT (exposure x sex) on full data ...</span></span>
 <span><span class="co">#&gt;   ℹ Unadjusted | exposure: p_interaction = 0.214</span></span></code></pre></div>
 <p>Output columns include <code>subgroup</code>,
 <code>subgroup_level</code>, and <code>p_interaction</code> in addition
@@ -473,11 +477,11 @@ estimates alongside a p-value for linear trend.</p>
 <span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"tdi"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;   ℹ Levels: Low → Medium → High | Scores: 0, 1, 2</span></span>
+<span><span class="co">#&gt;   ℹ Levels: Low -&gt; Medium -&gt; High | Scores: 0, 1, 2</span></span>
 <span><span class="co">#&gt;   ℹ Unadjusted | exposure_catLow: 1.00 (ref)</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08–1.36), p = 0.001</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38–1.72), p &lt; 0.001</span></span>
-<span><span class="co">#&gt;   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14–1.35), p_trend &lt; 0.001</span></span></code></pre></div>
+<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08-1.36), p = 0.001</span></span>
+<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38-1.72), p &lt; 0.001</span></span>
+<span><span class="co">#&gt;   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14-1.35), p_trend &lt; 0.001</span></span></code></pre></div>
 <p>Supply custom scores when category midpoints carry meaningful
 units:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
