@@ -71,7 +71,7 @@
 #'     \item{\code{CI_upper}}{Upper bound of the confidence interval.}
 #'     \item{\code{p_value}}{Wald test p-value.}
 #'     \item{\code{HR_label}}{Formatted string, e.g.
-#'       \code{"1.23 (1.05\u20131.44)"}.}
+#'       \code{"1.23 (1.05-1.44)"}.}
 #'   }
 #'
 #' @importFrom survival coxph Surv
@@ -186,19 +186,17 @@ assoc_coxph <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure × each model
+  # 3. Run models: each exposure x each model
   # ---------------------------------------------------------------------------
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
   cli::cli_h1("assoc_coxph")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} = \\
-     {n_exposures * n_models} Cox regression{?s}"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} Cox regression{?s}"
   )
   cli::cli_alert_info(
-    "Input cohort: {nrow(dt)} participants \\
-     (n/n_events/person_years reflect each model\u2019s actual analysis set)"
+    "Input cohort: {nrow(dt)} participants (n/n_events/person_years reflect each model's actual analysis set)"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -225,8 +223,7 @@ assoc_coxph <- function(data,
         # Print each term result
         for (i in seq_len(nrow(res))) {
           cli::cli_alert_success(
-            "  {model_label} | {res$term[i]}: \\
-             HR {res$HR_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
+            "  {model_label} | {res$term[i]}: HR {res$HR_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
           )
         }
         results[[idx]] <- res
@@ -250,9 +247,7 @@ assoc_coxph <- function(data,
   out[, model := factor(model, levels = model_levels, ordered = TRUE)]
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {uniqueN(out$exposure)} exposure{?s} and \\
-     {uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {uniqueN(out$exposure)} exposure{?s} and {uniqueN(out$model)} model{?s}."
   )
 
   out[]
@@ -315,7 +310,7 @@ assoc_cox <- assoc_coxph
 #'     \item{\code{CI_lower}}{Lower confidence bound.}
 #'     \item{\code{CI_upper}}{Upper confidence bound.}
 #'     \item{\code{p_value}}{Wald test p-value.}
-#'     \item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05\u20131.44)"}.}
+#'     \item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 #'   }
 #'
 #' @export
@@ -414,19 +409,17 @@ assoc_logistic <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure × each model
+  # 3. Run models: each exposure x each model
   # ---------------------------------------------------------------------------
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
   cli::cli_h1("assoc_logistic")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} = \\
-     {n_exposures * n_models} logistic regression{?s}"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} logistic regression{?s}"
   )
   cli::cli_alert_info(
-    "Input cohort: {nrow(dt)} participants | CI method: {ci_method} \\
-     (n/n_cases reflect each model\u2019s actual analysis set)"
+    "Input cohort: {nrow(dt)} participants | CI method: {ci_method} (n/n_cases reflect each model's actual analysis set)"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -451,8 +444,7 @@ assoc_logistic <- function(data,
       if (!is.null(res)) {
         for (i in seq_len(nrow(res))) {
           cli::cli_alert_success(
-            "  {model_label} | {res$term[i]}: \\
-             OR {res$OR_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
+            "  {model_label} | {res$term[i]}: OR {res$OR_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
           )
         }
         results[[idx]] <- res
@@ -475,9 +467,7 @@ assoc_logistic <- function(data,
   out[, model := factor(model, levels = model_levels, ordered = TRUE)]
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {uniqueN(out$exposure)} exposure{?s} and \\
-     {uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {uniqueN(out$exposure)} exposure{?s} and {uniqueN(out$model)} model{?s}."
   )
 
   out[]
@@ -539,7 +529,7 @@ assoc_logit <- assoc_logistic
 #'     \item{\code{CI_upper}}{Upper confidence bound.}
 #'     \item{\code{p_value}}{t-test p-value.}
 #'     \item{\code{beta_label}}{Formatted string, e.g.
-#'       \code{"0.23 (0.05\u20130.41)"}.}
+#'       \code{"0.23 (0.05-0.41)"}.}
 #'   }
 #'
 #' @export
@@ -601,15 +591,13 @@ assoc_linear <- function(data,
       (is.numeric(outcome_vec) &&
        all(stats::na.omit(unique(outcome_vec)) %in% c(0, 1)))) {
     cli::cli_alert_warning(
-      "outcome_col {.field {outcome_col}} appears binary (0/1 or logical). \\
-       Consider {.fn assoc_logistic} instead."
+      "outcome_col {.field {outcome_col}} appears binary (0/1 or logical). Consider {.fn assoc_logistic} instead."
     )
   }
 
   if (!is.numeric(outcome_vec) && !is.logical(outcome_vec)) {
     cli::cli_abort(
-      "outcome_col {.field {outcome_col}} must be numeric. \\
-       Found: {class(outcome_vec)[1]}."
+      "outcome_col {.field {outcome_col}} must be numeric. Found: {class(outcome_vec)[1]}."
     )
   }
 
@@ -650,19 +638,17 @@ assoc_linear <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure × each model
+  # 3. Run models: each exposure x each model
   # ---------------------------------------------------------------------------
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
   cli::cli_h1("assoc_linear")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} = \\
-     {n_exposures * n_models} linear regression{?s}"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} linear regression{?s}"
   )
   cli::cli_alert_info(
-    "Input cohort: {nrow(dt)} participants \\
-     (n reflects each model\u2019s actual analysis set)"
+    "Input cohort: {nrow(dt)} participants (n reflects each model's actual analysis set)"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -687,8 +673,7 @@ assoc_linear <- function(data,
       if (!is.null(res)) {
         for (i in seq_len(nrow(res))) {
           cli::cli_alert_success(
-            "  {model_label} | {res$term[i]}: \\
-             \u03b2 {res$beta_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
+            "  {model_label} | {res$term[i]}: beta {res$beta_label[i]}, p = {format.pval(res$p_value[i], digits = 3L)}"
           )
         }
         results[[idx]] <- res
@@ -711,9 +696,7 @@ assoc_linear <- function(data,
   out[, model := factor(model, levels = model_levels, ordered = TRUE)]
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {uniqueN(out$exposure)} exposure{?s} and \\
-     {uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {uniqueN(out$exposure)} exposure{?s} and {uniqueN(out$model)} model{?s}."
   )
 
   out[]
@@ -849,15 +832,14 @@ assoc_coxph_zph <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 3. Run zph tests: each exposure × each model
+  # 3. Run zph tests: each exposure x each model
   # ---------------------------------------------------------------------------
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
   cli::cli_h1("assoc_coxph_zph")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} = \\
-     {n_exposures * n_models} PH assumption test{?s}"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} PH assumption test{?s}"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -881,16 +863,13 @@ assoc_coxph_zph <- function(data,
 
       if (!is.null(res)) {
         for (i in seq_len(nrow(res))) {
-          status <- if (res$ph_satisfied[i]) "\u2713 satisfied" else "\u2717 VIOLATED"
+          status <- if (res$ph_satisfied[i]) "[OK] satisfied" else "[!!] VIOLATED"
           cli::cli_alert_success(
-            "  {model_label} | {res$term[i]}: \\
-             \u03c7\u00b2 = {round(res$chisq[i], 3)}, \\
-             p = {format.pval(res$p_value[i], digits = 3L)} {status}"
+            "  {model_label} | {res$term[i]}: chisq = {round(res$chisq[i], 3)}, p = {format.pval(res$p_value[i], digits = 3L)} {status}"
           )
         }
         cli::cli_alert_info(
-          "  Global: \u03c7\u00b2 = {round(res$global_chisq[1], 3)}, \\
-           p = {format.pval(res$global_p[1], digits = 3L)}"
+          "  Global: chisq = {round(res$global_chisq[1], 3)}, p = {format.pval(res$global_p[1], digits = 3L)}"
         )
         results[[idx]] <- res
       }
@@ -918,8 +897,7 @@ assoc_coxph_zph <- function(data,
     )
   } else {
     cli::cli_alert_warning(
-      "Done: {n_violated}/{nrow(out)} term{?s} violate the PH assumption \\
-       (p \u2264 0.05) \u2014 consider {.code strata()} or time-varying effects."
+      "Done: {n_violated}/{nrow(out)} term{?s} violate the PH assumption (p <= 0.05) -- consider {.code strata()} or time-varying effects."
     )
   }
 
@@ -1061,8 +1039,7 @@ assoc_subgroup <- function(data,
   # Warn if by is also listed as a covariate (collinearity within subgroups)
   if (!is.null(covariates) && by %in% covariates) {
     cli::cli_alert_warning(
-      "{.arg by} variable {.field {by}} is also in {.arg covariates} \\
-       \u2014 collinearity risk within each subgroup."
+      "{.arg by} variable {.field {by}} is also in {.arg covariates} -- collinearity risk within each subgroup."
     )
   }
 
@@ -1101,17 +1078,16 @@ assoc_subgroup <- function(data,
 
   cli::cli_h1("assoc_subgroup")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} \u00d7 \\
-     {n_levels} subgroup{?s} ({.field {by}})"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} x {n_levels} subgroup{?s} ({.field {by}})"
   )
 
   # ---------------------------------------------------------------------------
-  # 4. Interaction LRT on full data (one p-value per exposure \u00d7 model)
+  # 4. Interaction LRT on full data (one p-value per exposure x model)
   # ---------------------------------------------------------------------------
   interaction_dt <- NULL
   if (interaction) {
     cli::cli_alert_info(
-      "Computing interaction LRT (exposure \u00d7 {.field {by}}) on full data ..."
+      "Computing interaction LRT (exposure x {.field {by}}) on full data ..."
     )
     inter_rows <- vector("list", n_exposures * n_models)
     k <- 1L
@@ -1145,7 +1121,7 @@ assoc_subgroup <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 5. Subgroup loop: filter \u2192 run models \u2192 collect results
+  # 5. Subgroup loop: filter -> run models -> collect results
   # ---------------------------------------------------------------------------
   all_results <- vector("list", n_levels * n_exposures * n_models)
   idx <- 1L
@@ -1160,8 +1136,7 @@ assoc_subgroup <- function(data,
       n_ev <- sum(sub_dt$.ukb_event, na.rm = TRUE)
       if (n_ev < 10L) {
         cli::cli_alert_warning(
-          "  {.field {by}} = {lv}: only {n_ev} event{?s} \\
-           \u2014 results may be unstable."
+          "  {.field {by}} = {lv}: only {n_ev} event{?s} -- results may be unstable."
         )
       }
     }
@@ -1213,11 +1188,10 @@ assoc_subgroup <- function(data,
             est_label <- switch(method,
               coxph    = sprintf("HR %s",       res$HR_label[i]),
               logistic = sprintf("OR %s",       res$OR_label[i]),
-              linear   = sprintf("\u03b2 %s",   res$beta_label[i])
+              linear   = sprintf("beta %s",   res$beta_label[i])
             )
             cli::cli_alert_success(
-              "  {model_label} | {res$term[i]}: \\
-               {est_label}, p = {format.pval(res$p_value[i], digits = 3L)}"
+              "  {model_label} | {res$term[i]}: {est_label}, p = {format.pval(res$p_value[i], digits = 3L)}"
             )
           }
           all_results[[idx]] <- res
@@ -1233,7 +1207,7 @@ assoc_subgroup <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results))
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    cli::cli_alert_warning("No results returned -- check model warnings above.")
     return(out)
   }
 
@@ -1257,10 +1231,7 @@ assoc_subgroup <- function(data,
   data.table::setcolorder(out, c(front_cols, other_cols))
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {data.table::uniqueN(out$exposure)} exposure{?s}, \\
-     {data.table::uniqueN(out$model)} model{?s}, \\
-     {data.table::uniqueN(out$subgroup_level)} subgroup{?s}."
+    "Done: {nrow(out)} result row{?s} across {data.table::uniqueN(out$exposure)} exposure{?s}, {data.table::uniqueN(out$model)} model{?s}, {data.table::uniqueN(out$subgroup_level)} subgroup{?s}."
   )
 
   out[]
@@ -1425,8 +1396,7 @@ assoc_trend <- function(data,
                                       logical(1L))]
   if (length(non_factor) > 0L) {
     cli::cli_abort(
-      "exposure_col must be a factor. Non-factor column{?s}: {.field {non_factor}}. \\
-       Use {.fn factor} or {.fn derive_cut} first."
+      "exposure_col must be a factor. Non-factor column{?s}: {.field {non_factor}}. Use {.fn factor} or {.fn derive_cut} first."
     )
   }
 
@@ -1436,8 +1406,7 @@ assoc_trend <- function(data,
                                      logical(1L))]
   if (length(unordered) > 0L) {
     cli::cli_alert_warning(
-      "Exposure{?s} {.field {unordered}} {?is/are} not an ordered factor \\
-       \u2014 levels will be scored 0, 1, 2, \u2026 (equal spacing assumed)."
+      "Exposure{?s} {.field {unordered}} {?is/are} not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed)."
     )
   }
 
@@ -1448,9 +1417,7 @@ assoc_trend <- function(data,
     bad <- exposure_col[nlv_all != length(scores)]
     if (length(bad) > 0L) {
       cli::cli_abort(
-        "{.arg scores} has length {length(scores)} but \\
-         exposure{?s} {.field {bad}} ha{?s/ve} {nlv_all[exposure_col %in% bad]} \\
-         level{?s}. Length must equal nlevels."
+        "{.arg scores} has length {length(scores)} but exposure{?s} {.field {bad}} ha{?s/ve} {nlv_all[exposure_col %in% bad]} level{?s}. Length must equal nlevels."
       )
     }
   }
@@ -1514,8 +1481,7 @@ assoc_trend <- function(data,
 
   cli::cli_h1("assoc_trend")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} \u00d7 {n_models} model{?s} \\
-     (categorical + trend model per combination)"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} (categorical + trend model per combination)"
   )
 
   all_results <- vector("list", n_exposures * n_models)
@@ -1532,8 +1498,7 @@ assoc_trend <- function(data,
     exp_scores <- if (!is.null(scores)) scores else seq(0L, n_lv - 1L)
 
     cli::cli_alert_info(
-      "Levels: {paste(lv, collapse = ' \u2192 ')} \\
-       | Scores: {paste(exp_scores, collapse = ', ')}"
+      "Levels: {paste(lv, collapse = ' -> ')} | Scores: {paste(exp_scores, collapse = ', ')}"
     )
 
     # Add numeric trend score column: map factor integer index (1-based) → score
@@ -1584,7 +1549,7 @@ assoc_trend <- function(data,
       if (method == "coxph") {
 
         est_per   <- res_trend$HR[1L]
-        per_label <- sprintf("%.2f (%.2f\u2013%.2f)",
+        per_label <- sprintf("%.2f (%.2f-%.2f)",
                              est_per, res_trend$CI_lower[1L], res_trend$CI_upper[1L])
 
         ref_row <- data.table::data.table(
@@ -1612,7 +1577,7 @@ assoc_trend <- function(data,
       } else if (method == "logistic") {
 
         est_per   <- res_trend$OR[1L]
-        per_label <- sprintf("%.2f (%.2f\u2013%.2f)",
+        per_label <- sprintf("%.2f (%.2f-%.2f)",
                              est_per, res_trend$CI_lower[1L], res_trend$CI_upper[1L])
 
         ref_row <- data.table::data.table(
@@ -1639,7 +1604,7 @@ assoc_trend <- function(data,
       } else {  # linear
 
         est_per   <- res_trend$beta[1L]
-        per_label <- sprintf("%.2f (%.2f\u2013%.2f)",
+        per_label <- sprintf("%.2f (%.2f-%.2f)",
                              est_per, res_trend$CI_lower[1L], res_trend$CI_upper[1L])
 
         ref_row <- data.table::data.table(
@@ -1661,7 +1626,7 @@ assoc_trend <- function(data,
                         beta_per_score_label = per_label,
                         p_trend              = p_trend)]
 
-        per_str <- sprintf("\u03b2_per_score = %s", per_label)
+        per_str <- sprintf("beta_per_score = %s", per_label)
       }
 
       # ---- Combine reference row + non-reference rows ----
@@ -1679,16 +1644,14 @@ assoc_trend <- function(data,
         est_str <- switch(method,
           coxph    = sprintf("HR %s",     combined$HR_label[i]),
           logistic = sprintf("OR %s",     combined$OR_label[i]),
-          linear   = sprintf("\u03b2 %s", combined$beta_label[i])
+          linear   = sprintf("beta %s", combined$beta_label[i])
         )
         cli::cli_alert_success(
-          "  {model_label} | {combined$term[i]}: \\
-           {est_str}, p = {format.pval(combined$p_value[i], digits = 3L)}"
+          "  {model_label} | {combined$term[i]}: {est_str}, p = {format.pval(combined$p_value[i], digits = 3L)}"
         )
       }
       cli::cli_alert_info(
-        "  {model_label} | trend: {per_str}, \\
-         p_trend = {format.pval(p_trend, digits = 3L)}"
+        "  {model_label} | trend: {per_str}, p_trend = {format.pval(p_trend, digits = 3L)}"
       )
 
       all_results[[idx]] <- combined
@@ -1705,7 +1668,7 @@ assoc_trend <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    cli::cli_alert_warning("No results returned -- check model warnings above.")
     return(out)
   }
 
@@ -1721,9 +1684,7 @@ assoc_trend <- function(data,
   data.table::setcolorder(out, c(front_cols, mid_cols, end_cols))
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {data.table::uniqueN(out$exposure)} exposure{?s} and \\
-     {data.table::uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {data.table::uniqueN(out$exposure)} exposure{?s} and {data.table::uniqueN(out$model)} model{?s}."
   )
 
   out[]
@@ -1889,8 +1850,7 @@ assoc_competing <- function(data,
       default = "censor"
     )
     cli::cli_alert_info(
-      "Mode A: {.field {outcome_col}} \u2192 event={event_val}, \\
-       compete={compete_val}, rest=censor"
+      "Mode A: {.field {outcome_col}} -> event={event_val}, compete={compete_val}, rest=censor"
     )
   } else {
     # Mode B: dual binary columns; primary event takes priority
@@ -1911,8 +1871,7 @@ assoc_competing <- function(data,
   n_event_total   <- sum(dt$.fg_status == "event",   na.rm = TRUE)
   n_compete_total <- sum(dt$.fg_status == "compete",  na.rm = TRUE)
   cli::cli_alert_info(
-    "Events: {n_event_total}, Competing: {n_compete_total}, \\
-     Censored: {sum(dt$.fg_status == 'censor', na.rm=TRUE)}"
+    "Events: {n_event_total}, Competing: {n_compete_total}, Censored: {sum(dt$.fg_status == 'censor', na.rm=TRUE)}"
   )
 
   # ---------------------------------------------------------------------------
@@ -1924,16 +1883,15 @@ assoc_competing <- function(data,
     sex_col <- .detect_sex_col(dt)
     if (is.null(age_col)) {
       cli::cli_alert_warning(
-        "Age column not detected \u2014 Age and sex adjusted model may be incomplete."
+        "Age column not detected -- Age and sex adjusted model may be incomplete."
       )
     }
     if (is.null(sex_col)) {
       cli::cli_alert_warning(
-        "Sex column not detected \u2014 Age and sex adjusted model may be incomplete."
+        "Sex column not detected -- Age and sex adjusted model may be incomplete."
       )
     }
-    base_covs <- c(age_col, sex_col)
-    base_covs <- base_covs[!is.null(base_covs)]
+    base_covs <- c(age_col, sex_col)  # c() drops NULLs automatically
   }
 
   models <- list(list(label = "Unadjusted", covs = NULL))
@@ -1941,12 +1899,11 @@ assoc_competing <- function(data,
     models <- c(models, list(list(label = "Age and sex adjusted", covs = base_covs)))
   }
   if (!is.null(covariates)) {
-    full_covs <- unique(c(base_covs, covariates))
-    models    <- c(models, list(list(label = "Fully adjusted", covs = full_covs)))
+    models <- c(models, list(list(label = "Fully adjusted", covs = covariates)))
   }
 
   # ---------------------------------------------------------------------------
-  # 4. Loop over exposures × models
+  # 4. Loop over exposures x models
   # ---------------------------------------------------------------------------
   all_results <- list()
 
@@ -1973,7 +1930,7 @@ assoc_competing <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    cli::cli_alert_warning("No results returned -- check model warnings above.")
     return(out)
   }
 
@@ -1982,9 +1939,7 @@ assoc_competing <- function(data,
   out[, model := factor(model, levels = present_levels, ordered = TRUE)]
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {data.table::uniqueN(out$exposure)} exposure{?s} and \\
-     {data.table::uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {data.table::uniqueN(out$exposure)} exposure{?s} and {data.table::uniqueN(out$model)} model{?s}."
   )
 
   out[]
@@ -2137,12 +2092,11 @@ assoc_lag <- function(data,
   }
 
   # ---------------------------------------------------------------------------
-  # 4. Loop: lag × exposure × model
+  # 4. Loop: lag x exposure x model
   # ---------------------------------------------------------------------------
   cli::cli_h1("assoc_lag")
   cli::cli_alert_info(
-    "{length(lag_years)} lag period{?s} \u00d7 {length(exposure_col)} \\
-     exposure{?s} \u00d7 {length(model_list)} model{?s}"
+    "{length(lag_years)} lag period{?s} x {length(exposure_col)} exposure{?s} x {length(model_list)} model{?s}"
   )
 
   all_results <- list()
@@ -2162,8 +2116,7 @@ assoc_lag <- function(data,
     n_events   <- sum(sub$.ukb_event, na.rm = TRUE)
 
     cli::cli_alert_info(
-      "Excluded (time < {lag} yr): {n_excluded} \u2014 \\
-       remaining: {nrow(sub)}, events: {n_events}"
+      "Excluded (time < {lag} yr): {n_excluded} -- remaining: {nrow(sub)}, events: {n_events}"
     )
 
     for (exp in exposure_col) {
@@ -2196,7 +2149,7 @@ assoc_lag <- function(data,
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {
-    cli::cli_alert_warning("No results returned \u2014 check model warnings above.")
+    cli::cli_alert_warning("No results returned -- check model warnings above.")
     return(out)
   }
 
@@ -2211,10 +2164,7 @@ assoc_lag <- function(data,
   data.table::setcolorder(out, c(front_cols, mid_cols))
 
   cli::cli_alert_success(
-    "Done: {nrow(out)} result row{?s} across \\
-     {data.table::uniqueN(out$lag_years)} lag period{?s}, \\
-     {data.table::uniqueN(out$exposure)} exposure{?s}, and \\
-     {data.table::uniqueN(out$model)} model{?s}."
+    "Done: {nrow(out)} result row{?s} across {data.table::uniqueN(out$lag_years)} lag period{?s}, {data.table::uniqueN(out$exposure)} exposure{?s}, and {data.table::uniqueN(out$model)} model{?s}."
   )
 
   out[]

@@ -25,10 +25,10 @@ tables.
 |---|---|---|---|
 | `assoc_coxph()` | `assoc_cox()` | Cox proportional hazards | HR |
 | `assoc_logistic()` | `assoc_logit()` | Logistic regression | OR |
-| `assoc_linear()` | `assoc_lm()` | Linear regression | β |
-| `assoc_coxph_zph()` | `assoc_zph()` | Schoenfeld residual PH test | χ² / p |
-| `assoc_subgroup()` | `assoc_sub()` | Stratified analysis + LRT interaction | HR / OR / β |
-| `assoc_trend()` | `assoc_tr()` | Dose-response trend | HR / OR / β + p_trend |
+| `assoc_linear()` | `assoc_lm()` | Linear regression | beta |
+| `assoc_coxph_zph()` | `assoc_zph()` | Schoenfeld residual PH test | chisq / p |
+| `assoc_subgroup()` | `assoc_sub()` | Stratified analysis + LRT interaction | HR / OR / beta |
+| `assoc_trend()` | `assoc_tr()` | Dose-response trend | HR / OR / beta + p_trend |
 | `assoc_competing()` | `assoc_fg()` | Fine-Gray competing risks | SHR |
 
 > **Prerequisite**: the analysis dataset should already contain derived case
@@ -58,7 +58,7 @@ models and run only the Fully adjusted model.
 
 `assoc_coxph()` is the primary function for time-to-event outcomes. It accepts
 logical (`TRUE`/`FALSE`) or integer (`0`/`1`) event indicators and returns one
-row per exposure × term × model combination.
+row per exposure x term x model combination.
 
 ```{r assoc-coxph}
 library(ukbflow)
@@ -71,10 +71,10 @@ res <- assoc_coxph(
   exposure_col = c("exposure", "bmi_category")
 )
 #> ── assoc_coxph ──────────────────────────────────────────────────────────────
-#> ℹ 2 exposures × 2 models = 4 Cox regressions
+#> ℹ 2 exposures x 2 models = 4 Cox regressions
 #> ── exposure ─────────────────────────────────────────────────────────────────
-#>   ✔ Unadjusted       | exposure: HR 1.43 (1.28–1.60), p < 0.001
-#>   ✔ Age and sex adj  | exposure: HR 1.38 (1.23–1.55), p < 0.001
+#>   ✔ Unadjusted       | exposure: HR 1.43 (1.28-1.60), p < 0.001
+#>   ✔ Age and sex adj  | exposure: HR 1.38 (1.23-1.55), p < 0.001
 ```
 
 ```{r assoc-coxph-full}
@@ -101,7 +101,7 @@ Output columns:
 | `HR` | Hazard ratio |
 | `CI_lower`, `CI_upper` | Confidence interval bounds |
 | `p_value` | Wald test p-value |
-| `HR_label` | Formatted string, e.g. `"1.43 (1.28–1.60)"` |
+| `HR_label` | Formatted string, e.g. `"1.43 (1.28-1.60)"` |
 
 ---
 
@@ -139,7 +139,7 @@ Output is identical in structure to `assoc_coxph()` but with `OR` and
 ## Step 3: Linear Regression
 
 `assoc_linear()` is for continuous outcomes (e.g. biomarker levels, BMI).
-The standard error of β is included to support downstream meta-analysis.
+The standard error of beta is included to support downstream meta-analysis.
 
 ```{r assoc-linear}
 res <- assoc_linear(
@@ -169,8 +169,8 @@ zph <- assoc_coxph_zph(
   exposure_col = c("exposure", "bmi_category"),
   covariates   = c("tdi", "smoking_status_i0")
 )
-#>   ✔ Unadjusted | exposure: χ² = 0.412, p = 0.521 ✓ satisfied
-#>   ✔ Unadjusted | bmi_category: χ² = 1.834, p = 0.176 ✓ satisfied
+#>   ✔ Unadjusted | exposure: chisq = 0.412, p = 0.521 [OK] satisfied
+#>   ✔ Unadjusted | bmi_category: chisq = 1.834, p = 0.176 [OK] satisfied
 
 # Identify any violations
 zph[ph_satisfied == FALSE]
@@ -188,7 +188,7 @@ When the PH assumption is violated, consider adding `strata()` to
 
 `assoc_subgroup()` stratifies the dataset by a grouping variable and fits
 the specified model within each subgroup. A likelihood ratio test (LRT) for
-the exposure × subgroup interaction is computed on the full dataset and
+the exposure x subgroup interaction is computed on the full dataset and
 appended as `p_interaction`.
 
 ```{r assoc-subgroup}
@@ -202,8 +202,8 @@ res <- assoc_subgroup(
   covariates   = c("age_at_recruitment", "tdi", "smoking_status_i0")
 )
 #> ── assoc_subgroup ───────────────────────────────────────────────────────────
-#> ℹ 1 exposure × 2 models × 2 subgroups (sex)
-#> ℹ Computing interaction LRT (exposure × sex) on full data ...
+#> ℹ 1 exposure x 2 models x 2 subgroups (sex)
+#> ℹ Computing interaction LRT (exposure x sex) on full data ...
 #>   ℹ Unadjusted | exposure: p_interaction = 0.214
 ```
 
@@ -239,11 +239,11 @@ res <- assoc_trend(
   method       = "coxph",
   covariates   = c("age_at_recruitment", "sex", "tdi")
 )
-#>   ℹ Levels: Low → Medium → High | Scores: 0, 1, 2
+#>   ℹ Levels: Low -> Medium -> High | Scores: 0, 1, 2
 #>   ℹ Unadjusted | exposure_catLow: 1.00 (ref)
-#>   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08–1.36), p = 0.001
-#>   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38–1.72), p < 0.001
-#>   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14–1.35), p_trend < 0.001
+#>   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08-1.36), p = 0.001
+#>   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38-1.72), p < 0.001
+#>   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14-1.35), p_trend < 0.001
 ```
 
 Supply custom scores when category midpoints carry meaningful units:

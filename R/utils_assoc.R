@@ -8,7 +8,7 @@
 .normalise_event <- function(x, col) {
   if (is.logical(x)) {
     cli::cli_alert_info(
-      "outcome_col {.field {col}}: logical detected, converting TRUE/FALSE \u2192 1/0"
+      "outcome_col {.field {col}}: logical detected, converting TRUE/FALSE -> 1/0"
     )
     return(as.integer(x))
   }
@@ -30,7 +30,7 @@
   for (col in exposure_cols) {
     if (is.logical(dt[[col]])) {
       cli::cli_alert_info(
-        "exposure_col {.field {col}}: logical detected, converting TRUE/FALSE \u2192 1/0"
+        "exposure_col {.field {col}}: logical detected, converting TRUE/FALSE -> 1/0"
       )
       dt[, (col) := as.integer(get(col))]
     }
@@ -98,7 +98,7 @@
 
   if (length(idx) == 0L) {
     cli::cli_alert_warning(
-      "  No terms found for exposure {.field {exposure}} \u2014 skipped."
+      "  No terms found for exposure {.field {exposure}} -- skipped."
     )
     return(NULL)
   }
@@ -175,7 +175,7 @@
     n            = model$n,
     n_events     = n_events_mod,
     person_years = person_years_mod,
-    HR_label     = sprintf("%.2f (%.2f\u2013%.2f)", HR, CI_lower, CI_upper)
+    HR_label     = sprintf("%.2f (%.2f-%.2f)", HR, CI_lower, CI_upper)
   )]
 
   data.table::setcolorder(
@@ -233,7 +233,7 @@
 
   if (length(idx) == 0L) {
     cli::cli_alert_warning(
-      "  No terms found for exposure {.field {exposure}} \u2014 skipped."
+      "  No terms found for exposure {.field {exposure}} -- skipped."
     )
     return(NULL)
   }
@@ -266,7 +266,7 @@
     model    = model_label,
     n        = stats::nobs(model),
     n_cases  = n_cases_mod,
-    OR_label = sprintf("%.2f (%.2f\u2013%.2f)", OR, CI_lower, CI_upper)
+    OR_label = sprintf("%.2f (%.2f-%.2f)", OR, CI_lower, CI_upper)
   )]
 
   data.table::setcolorder(
@@ -325,7 +325,7 @@
 
   if (length(idx) == 0L) {
     cli::cli_alert_warning(
-      "  No terms found for exposure {.field {exposure}} \u2014 skipped."
+      "  No terms found for exposure {.field {exposure}} -- skipped."
     )
     return(NULL)
   }
@@ -350,7 +350,7 @@
     exposure   = exposure,
     model      = model_label,
     n          = stats::nobs(model),
-    beta_label = sprintf("%.2f (%.2f\u2013%.2f)", beta, CI_lower, CI_upper)
+    beta_label = sprintf("%.2f (%.2f-%.2f)", beta, CI_lower, CI_upper)
   )]
 
   data.table::setcolorder(
@@ -430,7 +430,7 @@
 
   if (length(idx) == 0L) {
     cli::cli_alert_warning(
-      "  No terms found for exposure {.field {exposure}} in zph table \u2014 skipped."
+      "  No terms found for exposure {.field {exposure}} in zph table -- skipped."
     )
     return(NULL)
   }
@@ -501,7 +501,7 @@
 
   if (nrow(sub) == 0L) {
     cli::cli_alert_warning(
-      "  [{model_label} | {.field {exposure}}] no complete cases \u2014 skipped."
+      "  [{model_label} | {.field {exposure}}] no complete cases -- skipped."
     )
     return(NULL)
   }
@@ -563,7 +563,7 @@
 
   if (length(idx) == 0L) {
     cli::cli_alert_warning(
-      "  No terms found for exposure {.field {exposure}} \u2014 skipped."
+      "  No terms found for exposure {.field {exposure}} -- skipped."
     )
     return(NULL)
   }
@@ -582,7 +582,7 @@
     n         = model$n,
     n_events  = model$nevent,
     n_compete = n_compete,
-    SHR_label = sprintf("%.2f (%.2f\u2013%.2f)", SHR, CI_lower, CI_upper)
+    SHR_label = sprintf("%.2f (%.2f-%.2f)", SHR, CI_lower, CI_upper)
   )]
 
   data.table::setcolorder(
@@ -594,7 +594,7 @@
 }
 
 
-# Compute an LRT p-value for the exposure × by interaction on the full dataset.
+# Compute an LRT p-value for the exposure x by interaction on the full dataset.
 # Fits a reduced model (exposure + by + covariates) and a full model
 # (exposure * by + covariates) and extracts the LRT p-value via anova().
 # Returns NA_real_ (with a warning) when either model fails or the p-value
@@ -656,8 +656,7 @@
     p_col <- grep("^(P|Pr)", colnames(aov), value = TRUE)[1L]
     if (is.na(p_col)) {
       cli::cli_alert_warning(
-        "  [{model_label} | {.field {exposure}}] \\
-         interaction LRT: p-value column not found in anova output."
+        "  [{model_label} | {.field {exposure}}] interaction LRT: p-value column not found in anova output."
       )
       return(NA_real_)
     }
@@ -665,8 +664,7 @@
 
   }, error = function(e) {
     cli::cli_alert_warning(
-      "  [{model_label} | {.field {exposure}}] \\
-       interaction LRT failed: {conditionMessage(e)}"
+      "  [{model_label} | {.field {exposure}}] interaction LRT failed: {conditionMessage(e)}"
     )
     NA_real_
   })
