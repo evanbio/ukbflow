@@ -27,19 +27,17 @@ remotes::install_github("evanbio/ukbflow")
 
 ## Key Features
 
-**Fetch** — Browse and download files from RAP project storage (`fetch_ls`, `fetch_tree`, `fetch_file`)
+**Connection** — Authenticate to RAP via dx-toolkit and manage project selection (`auth_login`, `auth_select_project`)
 
-**Decode** — Convert raw UKB field IDs and integer codes to human-readable column names and labels (`decode_values`, `decode_names`)
+**Data Access** — Retrieve phenotype data from UKB dataset on RAP; monitor asynchronous jobs (`fetch_metadata`, `extract_batch`, `job_wait`)
 
-**Derive — Disease Phenotypes** — Build case definitions from HES, cancer registry, self-report, death registry, and First Occurrence fields; merge across sources (`derive_icd10`, `derive_case`)
+**Data Processing** — Harmonize multi-source records and derive analysis-ready cohort: decode field IDs and value codes, build ICD-10 case definitions, compute follow-up time (`decode_names`, `decode_values`, `derive_icd10`, `derive_followup`, `derive_case`)
 
-**Derive — Survival Variables** — Classify prevalent vs. incident disease, compute age at event and follow-up time with competing event support (`derive_timing`, `derive_age`, `derive_followup`)
+**Association Analysis** — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (`assoc_coxph`, `assoc_logistic`, `assoc_subgroup`)
 
-**Association Analysis** — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (`assoc_coxph`, `assoc_subgroup`, `assoc_trend`, `assoc_competing`)
+**Genomic Scoring** — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardisation (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
 
-**Visualisation** — Publication-ready forest plots and Table 1, saved in all major formats at 300 dpi (`plot_forest`, `plot_tableone`)
-
-**GRS Pipeline** — End-to-end genetic risk score computation on RAP using plink2: BGEN → PGEN conversion, multi-chromosome scoring, standardisation, and validation (`grs_bgen2pgen`, `grs_score`, `grs_validate`)
+**Visualization** — Publication-ready forest plots and Table 1, saved in all major formats at 300 dpi (`plot_forest`, `plot_tableone`)
 
 ## Quick Start
 
