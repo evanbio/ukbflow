@@ -70,7 +70,7 @@
 #' @noRd
 .dx_download_file <- function(url, destfile, overwrite = FALSE, resume = FALSE, verbose = TRUE) {
   if (file.exists(destfile) && !overwrite && !resume) {
-    message("Skipping (already exists): ", basename(destfile))
+    cli::cli_inform("Skipping (already exists): {.file {basename(destfile)}}")
     return(invisible(destfile))
   }
 
@@ -82,7 +82,7 @@
     curl::handle_setopt(h, resume_from = file.info(destfile)$size)
   }
 
-  curl::curl_download(url, destfile = destfile, handle = h, quiet = FALSE)
+  curl::curl_download(url, destfile = destfile, handle = h, quiet = !verbose)
   invisible(destfile)
 }
 
@@ -103,14 +103,14 @@
   if (!overwrite && !resume) {
     skip    <- file.exists(destfiles)
     if (any(skip)) {
-      message("Skipping ", sum(skip), " already existing file(s).")
+      cli::cli_inform("Skipping {sum(skip)} already existing file(s).")
       urls      <- urls[!skip]
       destfiles <- destfiles[!skip]
     }
   }
 
   if (length(urls) == 0) {
-    message("All files already exist, nothing to download.")
+    cli::cli_inform("All files already exist, nothing to download.")
     return(invisible(destfiles))
   }
 

@@ -34,7 +34,7 @@ auth_login()
 auth_select_project("project-XXXXXXXXXXXX")
 ```
 
-See `vignette("authentication")` for details.
+See `vignette("auth")` for details.
 
 ---
 
@@ -47,9 +47,16 @@ See `vignette("authentication")` for details.
 ```{r fetch-ls}
 # List project root
 fetch_ls()
+#>                        name   type      size            modified
+#> 1           Showcase metadata/ folder      <NA>                <NA>
+#> 2                    results/ folder      <NA>                <NA>
+#> 3              analysis.log   file    4.2 KB 2024-11-01 10:22:03
 
 # List a specific folder
 fetch_ls("Showcase metadata/")
+#>          name  type     size            modified
+#> 1   field.tsv  file  12.3 MB 2024-10-15 08:01:44
+#> 2 esimpint.tsv  file   3.1 MB 2024-10-15 08:01:50
 
 # Filter by type
 fetch_ls("results/", type = "file")
@@ -138,7 +145,7 @@ All `fetch_file()`, `fetch_metadata()`, and `fetch_field()` functions share thes
 
 | Argument | Default | Description |
 |---|---|---|
-| `dest_dir` | `"."` | Local destination directory (created if needed) |
+| `dest_dir` | `"."` / `"data/metadata/"` | Local destination directory (created if needed). Default is `"data/metadata/"` for `fetch_metadata()` and `fetch_field()`. |
 | `overwrite` | `FALSE` | Overwrite existing local files |
 | `resume` | `FALSE` | Resume an interrupted download |
 | `verbose` | `TRUE` | Show download progress |

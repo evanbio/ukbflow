@@ -82,8 +82,13 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 fetch_url <- function(path, duration = "1d") {
   norm <- .dx_normalize_path(path)
 
-  # Reason: detect folder by trailing slash or by checking if ls returns folders
+  # Reason: detect folder by trailing slash; if no slash, probe via dx ls to
+  # determine whether the path resolves to a folder or a file.
   is_folder <- endsWith(trimws(path), "/")
+  if (!is_folder) {
+    probe <- .dx_ls_raw(path)
+    is_folder <- probe$success && grepl("Folder\\s*:", probe$stdout)
+  }
 
   if (!is_folder) {
     url <- .dx_make_url(norm, duration = duration)
@@ -93,7 +98,7 @@ fetch_url <- function(path, duration = "1d") {
   # Folder: list all files then loop
   files <- fetch_ls(path, type = "file")
   if (nrow(files) == 0) {
-    message("No files found in '", path, "'.")
+    cli::cli_inform("No files found in {.path {path}}.")
     return(invisible(character(0)))
   }
 
@@ -142,6 +147,10 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
   }
 
   is_folder <- endsWith(trimws(path), "/")
+  if (!is_folder) {
+    probe <- .dx_ls_raw(path)
+    is_folder <- probe$success && grepl("Folder\\s*:", probe$stdout)
+  }
 
   if (!is_folder) {
     # Single file
@@ -153,7 +162,7 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
     # Folder: list files, batch generate URLs, parallel download
     files <- fetch_ls(path, type = "file")
     if (nrow(files) == 0) {
-      message("No files found in '", path, "'.")
+      cli::cli_inform("No files found in {.path {path}}.")
       return(invisible(character(0)))
     }
 
@@ -288,8 +297,8 @@ fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
 
   if (verbose) {
     display <- if (nzchar(norm)) norm else "/"
-    message("Remote: ", display)
-    for (line in lines) message(line)
+    cli::cli_inform("Remote: {.path {display}}")
+    for (line in lines) cli::cli_inform(line)
   }
 
   invisible(lines)
