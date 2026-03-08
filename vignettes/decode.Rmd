@@ -103,7 +103,7 @@ Some UKB field titles are verbose. Names exceeding 60 characters are flagged wit
 
 ```{r long-names}
 df <- decode_names(df, max_nchar = 60)
-#> ! 1 column name longer than 60 characters — consider renaming manually:
+#> ! 1 column name longer than 60 characters - consider renaming manually:
 #> • date_of_attending_assessment_centre_i0
 ```
 

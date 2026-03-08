@@ -77,8 +77,7 @@ decode_names <- function(data, max_nchar = 60L) {
   long_cols <- new_names[nchar(new_names) > max_nchar]
   if (length(long_cols) > 0) {
     cli::cli_alert_warning(
-      "{length(long_cols)} column name{?s} longer than {max_nchar} characters \\
-       \u2014 consider renaming manually:"
+      "{length(long_cols)} column name{?s} longer than {max_nchar} characters - consider renaming manually:"
     )
     cli::cli_ul(long_cols)
   }
@@ -144,8 +143,7 @@ decode_values <- function(data, metadata_dir = "data/metadata/") {
 
   if (length(target_cols) == 0) {
     cli::cli_alert_warning(
-      "No UKB field ID columns detected. \\
-       Call {.fn decode_values} before {.fn decode_names}."
+      "No UKB field ID columns detected. Call {.fn decode_values} before {.fn decode_names}."
     )
     return(invisible(data))
   }
@@ -186,8 +184,7 @@ decode_values <- function(data, metadata_dir = "data/metadata/") {
   }
 
   cli::cli_alert_success(
-    "Decoded {n_decoded} categorical column{?s}; \\
-     {n_skipped} non-categorical column{?s} unchanged."
+    "Decoded {n_decoded} categorical column{?s}; {n_skipped} non-categorical column{?s} unchanged."
   )
 
   data

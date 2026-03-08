@@ -31,6 +31,6 @@ job_id <- extract_batch(c(31, 53, 21022))
 job_status(job_id)
 
 s <- job_status(job_id)
-if (s == "failed") message(attr(s, "failure_message"))
+if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 }
 }
