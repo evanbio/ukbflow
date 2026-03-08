@@ -47,7 +47,7 @@
 #' @param ci_digits Integer. Decimal places for the auto-generated
 #'   \code{OR (95\% CI)} column. Default: \code{2L}.
 #' @param ci_sep Character. Separator between lower and upper CI in the label,
-#'   e.g. \code{", "} or \code{" \u2013 "}. Default: \code{", "}.
+#'   e.g. \code{", "} or \code{" - "}. Default: \code{", "}.
 #' @param p_cols Character vector. Names of numeric p-value columns in
 #'   \code{data}. These are formatted to \code{p_digits} decimal places with
 #'   \code{"<0.001"}-style clipping. \code{NULL} = none.
@@ -169,7 +169,7 @@ plot_forest <- function(data,
     cli::cli_abort("{.arg ci_col} must be scalar or length {n}.")
   if (!is.null(p_cols) && !all(p_cols %in% names(data)))
     cli::cli_abort("{.arg p_cols} must be column names present in {.arg data}.")
-  if (!is.logical(bold_p) || (!isTRUE(bold_p) && !isFALSE(bold_p) && length(bold_p) != n))
+  if (!is.logical(bold_p) || (length(bold_p) != 1L && length(bold_p) != n))
     cli::cli_abort("{.arg bold_p} must be TRUE, FALSE, or a logical vector of length {n}.")
 
   # ---------------------------------------------------------------------------
@@ -385,7 +385,7 @@ plot_tableone <- function(
     stat_width     = 140,
     pvalue_width   = 100,
     row_height     = 8,
-    save           = TRUE,
+    save           = FALSE,
     dest           = NULL
 ) {
   # ---------------------------------------------------------------------------

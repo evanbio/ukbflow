@@ -275,7 +275,7 @@ When `save = TRUE`, four files are written simultaneously:
 | `.docx` | `gt::gtsave()` | Ready for Word submission |
 | `.html` | `gt::gtsave()` | Interactive preview |
 | `.pdf` | `pagedown::chrome_print()` | Requires Chrome / Chromium |
-| `.png` | `webshot2::webshot()` | 2× zoom, table element only |
+| `.png` | `webshot2::webshot()` | 2x zoom, table element only |
 
 > PDF and PNG rendering requires `pagedown` and `webshot2` respectively.
 > Install with `install.packages(c("pagedown", "webshot2"))`.
