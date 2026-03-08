@@ -132,6 +132,8 @@ test_that("fetch_ls() returns empty data.frame when pattern matches nothing", {
 # ===========================================================================
 
 test_that("fetch_url() returns a named character vector for a single file", {
+  mockery::stub(fetch_url, ".dx_ls_raw",
+                function(...) list(success = FALSE, stdout = "", stderr = ""))
   mockery::stub(fetch_url, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   result <- fetch_url("Showcase metadata/field.tsv")
@@ -171,6 +173,8 @@ test_that("fetch_url() returns character(0) for empty folder", {
 
 test_that("fetch_file() calls .dx_download_file for a single file", {
   downloaded <- character(0)
+  mockery::stub(fetch_file, ".dx_ls_raw",
+                function(...) list(success = FALSE, stdout = "", stderr = ""))
   mockery::stub(fetch_file, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   mockery::stub(fetch_file, ".dx_download_file",
@@ -192,6 +196,8 @@ test_that("fetch_file() returns character(0) for empty folder", {
 })
 
 test_that("fetch_file() creates dest_dir if it does not exist", {
+  mockery::stub(fetch_file, ".dx_ls_raw",
+                function(...) list(success = FALSE, stdout = "", stderr = ""))
   mockery::stub(fetch_file, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   mockery::stub(fetch_file, ".dx_download_file",
