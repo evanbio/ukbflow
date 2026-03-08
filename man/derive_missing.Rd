@@ -15,9 +15,8 @@ derive_missing(
 \item{data}{(data.frame or data.table) Decoded UKB data, typically output
 of \code{\link{decode_values}} followed by \code{\link{decode_names}}.}
 
-\item{cols}{\if{html}{\out{<\code{\link[tidyselect]{tidyselect}}>}} Columns to process.
-Default: \code{everything()} (all columns). Non-character columns in the
-selection are silently skipped.}
+\item{cols}{(tidyselect) Columns to process. Default: \code{everything()}
+(all columns). Non-character columns in the selection are silently skipped.}
 
 \item{action}{(character) One of \code{"na"} (default) or \code{"unknown"}.
 \itemize{

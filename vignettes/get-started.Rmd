@@ -71,9 +71,9 @@ res <- assoc_coxph(
 ### Plot the results
 
 ```{r plot}
-plot_forest(res)
+# plot_forest() takes a reshaped data.frame — see vignette("plot") for details
 plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
-              strata = "outcome_status", save = TRUE, dest = "results/table1")
+              strata = "outcome_status", dest = "results/table1")
 ```
 
 ## Full Function Overview

@@ -58,7 +58,7 @@ A \code{data.table} with one row per exposure \eqn{\times} term
 \item{\code{CI_lower}}{Lower confidence bound.}
 \item{\code{CI_upper}}{Upper confidence bound.}
 \item{\code{p_value}}{Wald test p-value.}
-\item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05\u20131.44)"}.}
+\item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 }
 }
 \description{

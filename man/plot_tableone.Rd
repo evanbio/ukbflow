@@ -23,7 +23,7 @@ plot_tableone(
   stat_width = 140,
   pvalue_width = 100,
   row_height = 8,
-  save = TRUE,
+  save = FALSE,
   dest = NULL
 )
 }

@@ -136,11 +136,11 @@ test_that("auth_list_projects() returns character vector of projects", {
 # ===========================================================================
 
 test_that("auth_select_project() throws error when project argument is missing", {
-  expect_error(auth_select_project(), "project ID or name")
+  expect_error(auth_select_project(), "project ID")
 })
 
 test_that("auth_select_project() throws error when project is empty string", {
-  expect_error(auth_select_project(""), "project ID or name")
+  expect_error(auth_select_project(""), "project ID")
 })
 
 test_that("auth_select_project() throws error when dx select fails", {

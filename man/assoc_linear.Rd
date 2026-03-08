@@ -53,7 +53,7 @@ A \code{data.table} with one row per exposure \eqn{\times} term
 \item{\code{CI_upper}}{Upper confidence bound.}
 \item{\code{p_value}}{t-test p-value.}
 \item{\code{beta_label}}{Formatted string, e.g.
-\code{"0.23 (0.05\u20130.41)"}.}
+\code{"0.23 (0.05-0.41)"}.}
 }
 }
 \description{

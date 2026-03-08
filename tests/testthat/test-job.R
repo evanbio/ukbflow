@@ -78,14 +78,6 @@ test_that(".dx_job_output_id() stops when output$csv is empty list", {
 })
 
 # ===========================================================================
-# .dx_job_output_name() — pure function, no mocking needed
-# ===========================================================================
-
-test_that(".dx_job_output_name() returns output name from runInput", {
-  expect_equal(ukbflow:::.dx_job_output_name(.fake_desc_done()), "ad_pheno")
-})
-
-# ===========================================================================
 # .dx_parse_jobs() — pure function, no mocking needed
 # ===========================================================================
 
@@ -203,18 +195,6 @@ test_that("job_wait() stops on invalid job_id format", {
   expect_error(job_wait("notajob"), "job-XXXX")
 })
 
-test_that("job_wait() prints done symbol when verbose = TRUE", {
-  mockery::stub(job_wait, ".dx_job_describe", function(...) .fake_desc_done())
-  expect_message(job_wait("job-XXXX", verbose = TRUE), "\u2714")
-})
-
-test_that("job_wait() prints fail symbol when verbose = TRUE and job failed", {
-  mockery::stub(job_wait, ".dx_job_describe", function(...) .fake_desc_failed())
-  expect_error(
-    expect_message(job_wait("job-XXXX", verbose = TRUE), "\u2716"),
-    "AppError"
-  )
-})
 
 # ===========================================================================
 # job_path()

@@ -18,7 +18,7 @@ if (!nzchar(token)) {
 # ===========================================================================
 
 test_that("auth_login() successfully logs in with a valid token", {
-  expect_message(auth_login(token = token), "successfully")
+  expect_message(auth_login(token = token), "Logged in to DNAnexus")
 })
 
 

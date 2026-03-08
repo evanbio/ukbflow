@@ -77,7 +77,7 @@ for numeric/binary exposures).}
 \item{\code{CI_upper}}{Upper bound of the confidence interval.}
 \item{\code{p_value}}{Wald test p-value.}
 \item{\code{HR_label}}{Formatted string, e.g.
-\code{"1.23 (1.05\u20131.44)"}.}
+\code{"1.23 (1.05-1.44)"}.}
 }
 }
 \description{

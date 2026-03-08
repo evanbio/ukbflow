@@ -298,7 +298,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
   # 5. Submit one Swiss Army Knife job per chromosome
   # ---------------------------------------------------------------------------
   cli::cli_inform(
-    "Submitting {length(chr)} job(s) \-- {instance_type} / priority: {priority}"
+    "Submitting {length(chr)} job(s) -- {instance_type} / priority: {priority}"
   )
 
   job_ids <- character(length(chr))
@@ -325,7 +325,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
 
     if (res$success) {
       job_ids[i] <- trimws(res$stdout)
-      cli::cli_alert_success("chr{ch} \-> {.val {job_ids[i]}}")
+      cli::cli_alert_success("chr{ch} -> {.val {job_ids[i]}}")
     } else {
       job_ids[i] <- NA_character_
       cli::cli_alert_danger("chr{ch} submission failed: {res$stderr}")
@@ -527,7 +527,7 @@ grs_score <- function(file,
   # 6. Submit one Swiss Army Knife job per GRS
   # ---------------------------------------------------------------------------
   cli::cli_inform(
-    "Submitting {length(file)} job(s) \-- {instance_type} / priority: {priority}"
+    "Submitting {length(file)} job(s) -- {instance_type} / priority: {priority}"
   )
 
   job_ids <- character(length(file))
@@ -559,7 +559,7 @@ grs_score <- function(file,
 
     if (res$success) {
       job_ids[i] <- trimws(res$stdout)
-      cli::cli_alert_success("{nm} \-> {.val {job_ids[i]}}")
+      cli::cli_alert_success("{nm} -> {.val {job_ids[i]}}")
     } else {
       job_ids[i] <- NA_character_
       cli::cli_alert_danger("{nm} submission failed: {res$stderr}")
@@ -649,7 +649,7 @@ grs_standardize <- function(data, grs_cols = NULL) {
     data.table::setnames(dt, "tmp__", z_col)
 
     cli::cli_alert_success(
-      "{col} \-> {z_col}  [mean={round(mu, 4)}, sd={round(sigma, 4)}]"
+      "{col} -> {z_col}  [mean={round(mu, 4)}, sd={round(sigma, 4)}]"
     )
   }
 

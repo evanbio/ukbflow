@@ -92,7 +92,7 @@ Default: \code{"black"}.}
 \code{OR (95\% CI)} column. Default: \code{2L}.}
 
 \item{ci_sep}{Character. Separator between lower and upper CI in the label,
-e.g. \code{", "} or \code{" \u2013 "}. Default: \code{", "}.}
+e.g. \code{", "} or \code{" - "}. Default: \code{", "}.}
 
 \item{p_cols}{Character vector. Names of numeric p-value columns in
 \code{data}. These are formatted to \code{p_digits} decimal places with

@@ -26,9 +26,8 @@
 #'
 #' @param data (data.frame or data.table) Decoded UKB data, typically output
 #'   of \code{\link{decode_values}} followed by \code{\link{decode_names}}.
-#' @param cols <\code{\link[tidyselect]{tidyselect}}> Columns to process.
-#'   Default: \code{everything()} (all columns). Non-character columns in the
-#'   selection are silently skipped.
+#' @param cols (tidyselect) Columns to process. Default: \code{everything()}
+#'   (all columns). Non-character columns in the selection are silently skipped.
 #' @param action (character) One of \code{"na"} (default) or \code{"unknown"}.
 #'   \itemize{
 #'     \item \code{"na"}: convert all informative missing labels to \code{NA}.
