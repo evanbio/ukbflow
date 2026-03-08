@@ -116,8 +116,7 @@ derive_missing <- function(data,
   }
 
   cli::cli_alert_success(
-    "derive_missing: replaced {n_vals_replaced} value{?s} across \\
-     {n_cols_affected} column{?s} (action = {.val {action}})."
+    "derive_missing: replaced {n_vals_replaced} value{?s} across {n_cols_affected} column{?s} (action = {.val {action}})."
   )
 
   data
@@ -350,11 +349,14 @@ derive_cut <- function(data,
     cut_breaks <- stats::quantile(x, probs = seq(0, 1, length.out = n + 1L),
                                   na.rm = TRUE)
     cut_breaks <- unique(cut_breaks)   # collapse duplicate boundaries from ties
-    if (length(cut_breaks) < n + 1L) {
+    n_actual <- length(cut_breaks) - 1L
+    if (n_actual < n) {
       cli::cli_alert_warning(
-        "Ties at quantile boundaries reduced the number of distinct groups \\
-         (requested {n}, got {length(cut_breaks) - 1L})."
+        "Ties at quantile boundaries reduced the number of distinct groups (requested {n}, got {n_actual})."
       )
+      # Reason: labels must match the actual number of groups after tie
+      # collapsing; truncate to avoid cut() error
+      labels <- labels[seq_len(n_actual)]
     }
   } else {
     cut_breaks <- c(-Inf, breaks, Inf)
@@ -469,8 +471,7 @@ derive_selfreport <- function(data,
 
   if (length(disease_cols) == 0L) {
     cli::cli_alert_warning(
-      "derive_selfreport: no disease columns for field {fid_disease}. \\
-       Supply disease_cols manually."
+      "derive_selfreport: no disease columns for field {fid_disease}. Supply disease_cols manually."
     )
     data[, (status_col) := FALSE]
     data[, (date_col)   := data.table::as.IDate(NA_character_)]
@@ -783,8 +784,7 @@ derive_hes <- function(data,
 
   if (is.null(disease_cols) || !disease_cols %in% names(data)) {
     cli::cli_alert_warning(
-      "derive_hes: ICD-10 code column (p41270) not found. \\
-       Supply disease_cols manually."
+      "derive_hes: ICD-10 code column (p41270) not found. Supply disease_cols manually."
     )
     data[, (status_col) := FALSE]
     data[, (date_col)   := data.table::as.IDate(NA_character_)]
@@ -1006,8 +1006,7 @@ derive_cancer_registry <- function(data,
 
   if (length(code_cols) == 0L) {
     cli::cli_alert_warning(
-      "derive_cancer_registry: no ICD-10 code columns (p40006_i*) found. \\
-       Supply code_cols manually."
+      "derive_cancer_registry: no ICD-10 code columns (p40006_i*) found. Supply code_cols manually."
     )
     data[, (status_col) := FALSE]
     data[, (date_col)   := data.table::as.IDate(NA_character_)]
@@ -1177,8 +1176,7 @@ derive_death_registry <- function(data,
 
   if (length(primary_cols) == 0L && length(secondary_cols) == 0L) {
     cli::cli_alert_warning(
-      "derive_death_registry: no death cause columns found. \\
-       Supply primary_cols / secondary_cols manually."
+      "derive_death_registry: no death cause columns found. Supply primary_cols / secondary_cols manually."
     )
     data[, (status_col) := FALSE]
     data[, (date_col)   := data.table::as.IDate(NA_character_)]
@@ -1433,8 +1431,7 @@ derive_icd10 <- function(data,
   if ("first_occurrence" %in% source) {
     if (is.null(fo_field) && is.null(fo_col)) {
       cli::cli_alert_warning(
-        "derive_icd10: 'first_occurrence' selected but fo_field and fo_col \\
-         are both NULL - skipping this source."
+        "derive_icd10: 'first_occurrence' selected but fo_field and fo_col are both NULL - skipping this source."
       )
     } else {
       data <- derive_first_occurrence(data, name = name,
@@ -1495,8 +1492,7 @@ derive_icd10 <- function(data,
   n_dated  <- sum(!is.na(data[[date_col]]))
   n_src    <- length(active_status)
   cli::cli_alert_success(
-    "derive_icd10 ({name}): {n_cases} case{?s} across \\
-     {n_src} source{?s}, {n_dated} with date."
+    "derive_icd10 ({name}): {n_cases} case{?s} across {n_src} source{?s}, {n_dated} with date."
   )
 
   data
@@ -1580,8 +1576,7 @@ derive_case <- function(data,
   }
   if (length(status_cols_present) < 2L) {
     cli::cli_alert_warning(
-      "derive_case ({name}): only one status column found \\
-       ({status_cols_present[1L]}), combining with itself."
+      "derive_case ({name}): only one status column found ({status_cols_present[1L]}), combining with itself."
     )
   }
 

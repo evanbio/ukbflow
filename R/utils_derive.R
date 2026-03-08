@@ -30,8 +30,7 @@
   q1_v     <- if (length(x_valid) > 0L) round(stats::quantile(x_valid, 0.25),    2L) else NA
   q3_v     <- if (length(x_valid) > 0L) round(stats::quantile(x_valid, 0.75),    2L) else NA
   cli::cli_text(
-    "  {.field {col}}: mean={mean_v}, median={median_v}, sd={sd_v}, \\
-     Q1={q1_v}, Q3={q3_v}, NA={na_pct}% (n={na_n})"
+    "  {.field {col}}: mean={mean_v}, median={median_v}, sd={sd_v}, Q1={q1_v}, Q3={q3_v}, NA={na_pct}% (n={na_n})"
   )
 }
 
@@ -43,8 +42,7 @@
 
   if (n_lvls > max_levels) {
     cli::cli_alert_warning(
-      "{.field {col}}: {n_lvls} levels > max_levels ({max_levels}), \\
-       consider collapsing categories."
+      "{.field {col}}: {n_lvls} levels > max_levels ({max_levels}), consider collapsing categories."
     )
   }
 
