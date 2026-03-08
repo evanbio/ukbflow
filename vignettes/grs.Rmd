@@ -35,7 +35,7 @@ cloud jobs via the DNAnexus Swiss Army Knife app.
 **Typical pipeline:**
 
 ```
-grs_check()  →  grs_bgen2pgen()  →  grs_score()  →  grs_standardize()  →  grs_validate()
+grs_check()  ->  grs_bgen2pgen()  ->  grs_score()  ->  grs_standardize()  ->  grs_validate()
 ```
 
 > **Prerequisite**: you must be authenticated to UKB RAP and have a project
@@ -43,7 +43,7 @@ grs_check()  →  grs_bgen2pgen()  →  grs_score()  →  grs_standardize()  →
 
 ---
 
-## Step 1: Validate the Weights File — `grs_check()`
+## Step 1: Validate the Weights File -- `grs_check()`
 
 Before uploading to RAP, validate your SNP weights file. The function reads
 the file, checks required columns, flags problems, and writes a
@@ -78,7 +78,7 @@ w <- grs_check("weights.csv", dest = "weights_clean.txt")
 ```
 
 ```{r grs-check-rap}
-# On RAP (JupyterLab / RStudio) — use /mnt/project/ paths directly
+# On RAP (JupyterLab / RStudio) -- use /mnt/project/ paths directly
 w <- grs_check(
   file = "/mnt/project/weights/weights.csv",
   dest = "/mnt/project/weights/weights_clean.txt"
@@ -90,13 +90,13 @@ passed directly to downstream functions.
 
 ---
 
-## Step 2: Convert BGEN to PGEN — `grs_bgen2pgen()`
+## Step 2: Convert BGEN to PGEN -- `grs_bgen2pgen()`
 
 UKB imputed genotype data is stored in BGEN format on RAP. `grs_bgen2pgen()`
 submits one Swiss Army Knife job per chromosome to convert BGEN files to the
 faster PGEN format with a MAF filter applied via plink2.
 
-This function is called from your local machine or RAP JupyterLab — the heavy
+This function is called from your local machine or RAP JupyterLab -- the heavy
 lifting runs entirely in the cloud.
 
 ```{r grs-bgen2pgen-test}
@@ -104,8 +104,8 @@ lifting runs entirely in the cloud.
 ids <- grs_bgen2pgen(chr = 22, priority = "high")
 #> Uploading 'grs_bgen2pgen_std.R' to RAP ...
 #> ✔ Uploaded: '/grs_bgen2pgen_std.R'
-#> Submitting 1 job(s) — mem2_ssd1_v2_x4 / priority: high
-#> ✔ chr22 → 'job-Gxxxxxxxxxxxxxxxxxxxxxxxx'
+#> Submitting 1 job(s) -- mem2_ssd1_v2_x4 / priority: high
+#> ✔ chr22 -> 'job-Gxxxxxxxxxxxxxxxxxxxxxxxx'
 #> ✔ 1/1 job(s) submitted. Monitor with job_ls().
 ```
 
@@ -141,7 +141,7 @@ job_wait(c(ids_small, ids_large))
 
 ---
 
-## Step 3: Calculate GRS Scores — `grs_score()`
+## Step 3: Calculate GRS Scores -- `grs_score()`
 
 Once PGEN files are ready, `grs_score()` uploads your weights file(s) and
 submits one plink2 scoring job per GRS. Each job scores all 22 chromosomes
@@ -161,9 +161,9 @@ ids <- grs_score(
 #> ✔ Uploaded: '/grs_a_weights.txt'
 #> Uploading 'grs_b_weights.txt' ...
 #> ✔ Uploaded: '/grs_b_weights.txt'
-#> Submitting 2 job(s) — mem2_ssd1_v2_x4 / priority: high
-#> ✔ grs_a → 'job-Gxxxxxxxxxxxxxxxxxxxxxxxx'
-#> ✔ grs_b → 'job-Gyyyyyyyyyyyyyyyyyyyyyyyy'
+#> Submitting 2 job(s) -- mem2_ssd1_v2_x4 / priority: high
+#> ✔ grs_a -> 'job-Gxxxxxxxxxxxxxxxxxxxxxxxx'
+#> ✔ grs_b -> 'job-Gyyyyyyyyyyyyyyyyyyyyyyyy'
 #> ✔ 2/2 job(s) submitted. Monitor with job_ls().
 
 job_wait(ids)
@@ -189,7 +189,7 @@ score named `GRS_<name>`.
 
 ---
 
-## Step 4: Standardise GRS Columns — `grs_standardize()`
+## Step 4: Standardise GRS Columns -- `grs_standardize()`
 
 After downloading the score CSVs from RAP (via `fetch_file()`) and merging
 them into your analysis dataset, Z-score standardise each GRS column so that
@@ -199,8 +199,8 @@ effect estimates are interpretable as per-SD associations.
 # Auto-detect all columns containing "grs" (case-insensitive)
 cohort <- grs_standardize(cohort)
 #> Auto-detected 2 GRS column(s): 'GRS_a', 'GRS_b'
-#> ✔ GRS_a → GRS_a_z  [mean=0.0000, sd=1.0000]
-#> ✔ GRS_b → GRS_b_z  [mean=0.0000, sd=1.0000]
+#> ✔ GRS_a -> GRS_a_z  [mean=0.0000, sd=1.0000]
+#> ✔ GRS_b -> GRS_b_z  [mean=0.0000, sd=1.0000]
 ```
 
 ```{r grs-standardize-explicit}
@@ -215,7 +215,7 @@ after their source column.
 
 ---
 
-## Step 5: Validate Predictive Performance — `grs_validate()`
+## Step 5: Validate Predictive Performance -- `grs_validate()`
 
 `grs_validate()` runs four complementary validation analyses for each GRS:
 
@@ -256,7 +256,7 @@ res <- grs_validate(
   covariates  = c("age", "sex", paste0("pc", 1:10))
 )
 
-res$per_sd          # HR per SD × model
+res$per_sd          # HR per SD x model
 res$high_vs_low     # HR: top 20% vs bottom 20%
 res$trend           # p-trend across Q1–Q4
 res$discrimination  # C-index with 95% CI
@@ -284,7 +284,7 @@ library(ukbflow)
 # 1. Validate weights (local)
 grs_check("weights.csv", dest = "weights_clean.txt")
 
-# 2. Convert BGEN → PGEN on RAP (submit jobs)
+# 2. Convert BGEN -> PGEN on RAP (submit jobs)
 ids_std  <- grs_bgen2pgen(chr = 15:22, maf = 0.01)
 ids_lrg  <- grs_bgen2pgen(chr = 1:14,  maf = 0.01, instance = "large")
 job_wait(c(ids_std, ids_lrg))
@@ -324,7 +324,7 @@ res$discrimination
 
 - `?grs_check`, `?grs_bgen2pgen`, `?grs_score`
 - `?grs_standardize`, `?grs_validate`
-- `vignette("auth")` — RAP authentication and project selection
-- `vignette("job")` — monitoring and managing RAP jobs
-- `vignette("assoc")` — association analysis functions used inside `grs_validate()`
+- `vignette("auth")` -- RAP authentication and project selection
+- `vignette("job")` -- monitoring and managing RAP jobs
+- `vignette("assoc")` -- association analysis functions used inside `grs_validate()`
 - [GitHub Issues](https://github.com/evanbio/ukbflow/issues)

@@ -21,7 +21,7 @@
     "",
     "suppressPackageStartupMessages(library(cli))",
     "",
-    'cli_h1("BGEN \u2192 PGEN: Chromosome {chr}")',
+    'cli_h1("BGEN \-> PGEN: Chromosome {chr}")',
     "",
     "# --- Paths (fixed UKB RAP layout) ---",
     'geno_dir    <- "/mnt/project/Bulk/Imputation/UKB imputation from genotype"',
@@ -86,7 +86,7 @@
     'pgen_file <- paste0(out_prefix, ".pgen")',
     "if (file.exists(pgen_file) && status == 0L) {",
     '  sz <- round(file.size(pgen_file) / 1024^3, 2)',
-    '  cli_alert_success("Done in {elapsed} min \u2014 {pgen_file} ({sz} GB)")',
+    '  cli_alert_success("Done in {elapsed} min \-- {pgen_file} ({sz} GB)")',
     '  log_file <- paste0(out_prefix, ".log")',
     "  if (file.exists(log_file)) {",
     "    ll    <- readLines(log_file)",
@@ -95,7 +95,7 @@
     "  }",
     '  quit(save = "no", status = 0L)',
     "} else {",
-    '  cli_alert_danger("plink2 failed \u2014 check {out_prefix}.log")',
+    '  cli_alert_danger("plink2 failed \-- check {out_prefix}.log")',
     '  quit(save = "no", status = 1L)',
     "}"
   )
