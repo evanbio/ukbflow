@@ -1,0 +1,165 @@
+# Package index
+
+## Authentication
+
+Connect to the UK Biobank Research Analysis Platform (RAP) and manage
+project selection.
+
+- [`auth_list_projects()`](https://evanbio.github.io/ukbflow/reference/auth_list_projects.md)
+  : List available DNAnexus projects
+- [`auth_login()`](https://evanbio.github.io/ukbflow/reference/auth_login.md)
+  : Login to DNAnexus with a token
+- [`auth_logout()`](https://evanbio.github.io/ukbflow/reference/auth_logout.md)
+  : Logout from DNAnexus
+- [`auth_select_project()`](https://evanbio.github.io/ukbflow/reference/auth_select_project.md)
+  : Select a DNAnexus project
+- [`auth_status()`](https://evanbio.github.io/ukbflow/reference/auth_status.md)
+  : Check current DNAnexus authentication status
+
+## Fetch — RAP File System
+
+Explore and retrieve files from RAP project storage.
+
+- [`fetch_ls()`](https://evanbio.github.io/ukbflow/reference/fetch_ls.md)
+  : List files and folders at a remote RAP path
+- [`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)
+  : Print a remote RAP directory tree
+- [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)
+  : Get pre-authenticated download URL(s) for a remote RAP file or
+  folder
+- [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
+  : Download a remote RAP file or folder to local disk
+- [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
+  : Download all UKB Showcase metadata files
+- [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
+  : Download the UKB field dictionary file
+
+## Extract — Phenotype Data
+
+Extract UKB fields from the RAP dataset into R.
+
+- [`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)
+  : List all approved fields in the UKB dataset
+- [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)
+  : Extract phenotype data from a UKB dataset
+- [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
+  : Submit a large-scale phenotype extraction job via table-exporter
+
+## Decode — Column Names and Values
+
+Convert raw UKB column names and coded values to human-readable labels.
+
+- [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
+  : Rename UKB field ID columns to human-readable snake_case names
+- [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
+  : Decode UKB categorical column values using Showcase metadata
+
+## Derive — Disease Phenotypes
+
+Build case definitions from HES, cancer registry, self-report, and First
+Occurrence data sources.
+
+- [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md)
+  : Define a self-reported phenotype from UKB touchscreen data
+- [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md)
+  : Derive a binary disease flag from UKB HES inpatient diagnoses
+- [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md)
+  : Derive a binary disease flag from UKB cancer registry
+- [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md)
+  : Derive a binary disease flag from UKB death registry
+- [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md)
+  : Derive a binary disease flag from UKB First Occurrence fields
+- [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md)
+  : Derive a unified ICD-10 disease flag across multiple UKB data
+  sources
+- [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
+  : Combine self-report and ICD-10 sources into a unified case
+  definition
+
+## Derive — Covariates and Timing
+
+Derive continuous covariates, categorical cuts, follow-up time, and
+event timing variables.
+
+- [`derive_covariate()`](https://evanbio.github.io/ukbflow/reference/derive_covariate.md)
+  : Prepare UKB covariates for analysis
+- [`derive_cut()`](https://evanbio.github.io/ukbflow/reference/derive_cut.md)
+  : Cut a continuous UKB variable into quantile-based or custom groups
+- [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md)
+  : Handle informative missing labels in UKB decoded data
+- [`derive_age()`](https://evanbio.github.io/ukbflow/reference/derive_age.md)
+  : Compute age at event for one or more UKB outcomes
+- [`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md)
+  : Compute follow-up end date and follow-up time for survival analysis
+- [`derive_timing()`](https://evanbio.github.io/ukbflow/reference/derive_timing.md)
+  : Classify disease timing relative to UKB baseline assessment
+
+## Jobs — Monitoring and Retrieval
+
+Submit, monitor, and retrieve results from RAP extraction jobs.
+
+- [`job_ls()`](https://evanbio.github.io/ukbflow/reference/job_ls.md) :
+  List recent DNAnexus jobs in the current project
+- [`job_path()`](https://evanbio.github.io/ukbflow/reference/job_path.md)
+  : Get the RAP file path of a completed DNAnexus job output
+- [`job_result()`](https://evanbio.github.io/ukbflow/reference/job_result.md)
+  : Load the result of a completed DNAnexus job into R
+- [`job_status()`](https://evanbio.github.io/ukbflow/reference/job_status.md)
+  : Check the current state of a DNAnexus job
+- [`job_wait()`](https://evanbio.github.io/ukbflow/reference/job_wait.md)
+  : Wait for a DNAnexus job to finish
+
+## Association Analysis
+
+Fit regression models for UKB outcomes with automatic three-model
+adjustment framework.
+
+- [`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)
+  [`assoc_cox()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)
+  : Cox proportional hazards association analysis
+- [`assoc_logistic()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md)
+  [`assoc_logit()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md)
+  : Logistic regression association analysis
+- [`assoc_linear()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md)
+  [`assoc_lm()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md)
+  : Linear regression association analysis
+- [`assoc_coxph_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md)
+  [`assoc_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md)
+  : Proportional hazards assumption test for Cox regression
+- [`assoc_subgroup()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)
+  [`assoc_sub()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)
+  : Subgroup association analysis with optional interaction test
+- [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)
+  [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)
+  : Dose-response trend analysis
+- [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
+  [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
+  : Fine-Gray competing risks association analysis
+- [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
+  : Cox regression lag sensitivity analysis
+
+## GRS — Genetic Risk Scores
+
+End-to-end RAP-native pipeline for computing and validating polygenic
+risk scores with plink2.
+
+- [`grs_check()`](https://evanbio.github.io/ukbflow/reference/grs_check.md)
+  : Check and export a GRS weights file
+- [`grs_bgen2pgen()`](https://evanbio.github.io/ukbflow/reference/grs_bgen2pgen.md)
+  : Convert UKB imputed BGEN files to PGEN on RAP
+- [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)
+  : Calculate genetic risk scores from PGEN files on RAP
+- [`grs_standardize()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md)
+  [`grs_zscore()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md)
+  : Standardise GRS columns by Z-score transformation
+- [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md)
+  : Validate GRS predictive performance
+
+## Visualisation
+
+Publication-quality forest plots and Table 1 for manuscripts.
+
+- [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
+  : Publication-ready forest plot
+- [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
+  : Publication-ready Table 1 (Baseline Characteristics)
