@@ -66,7 +66,11 @@ pak::pkg_install("evanbio/ukbflow")
 remotes::install_github("evanbio/ukbflow")
 ```
 
-**环境要求：** R ≥ 4.1，[dxpy](https://documentation.dnanexus.com/downloads)（仅本地模式需要）
+**环境要求：** R ≥ 4.1 · [dxpy](https://documentation.dnanexus.com/downloads)（dx-toolkit，RAP 交互必需）
+
+```bash
+pip install dxpy
+```
 
 ---
 

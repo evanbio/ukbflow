@@ -23,7 +23,11 @@ pak::pkg_install("evanbio/ukbflow")
 remotes::install_github("evanbio/ukbflow")
 ```
 
-**Requirements:** R ≥ 4.1, [dxpy](https://documentation.dnanexus.com/downloads) (local mode only)
+**Requirements:** R ≥ 4.1 · [dxpy](https://documentation.dnanexus.com/downloads) (dx-toolkit, required for RAP interaction)
+
+```bash
+pip install dxpy
+```
 
 ## Key Features
 
