@@ -28,7 +28,7 @@
 #' job_status(job_id)
 #'
 #' s <- job_status(job_id)
-#' if (s == "failed") message(attr(s, "failure_message"))
+#' if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 #' }
 job_status <- function(job_id) {
   if (!grepl("^job-", job_id)) {
@@ -105,8 +105,7 @@ job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
     )
 
     if (verbose) {
-      symbol <- if (state == "done") "\u2714" else if (state == "failed") "\u2716" else "\u25cb"
-      cli::cli_inform("{symbol} [{hms}] {job_id} \u2014 {state}")
+      cli::cli_inform("[{hms}] {job_id} - {state}")
     }
 
     if (state %in% terminal) break
@@ -205,7 +204,7 @@ job_result <- function(job_id) {
   # Reason: integer64 = "double" avoids bit64 dependency; UKB eids are
   # 7-digit integers, well within double precision range
   dt <- data.table::fread(path, data.table = TRUE, integer64 = "double")
-  cli::cli_inform("\u2714 {nrow(dt)} rows \u00d7 {ncol(dt)} cols (incl. eid)")
+  cli::cli_inform("{nrow(dt)} rows x {ncol(dt)} cols (incl. eid)")
   dt
 }
 

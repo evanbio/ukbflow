@@ -65,7 +65,7 @@ For failed jobs, the error message is accessible via:
 
 ```{r job-failed}
 s <- job_status(job_id)
-if (s == "failed") message(attr(s, "failure_message"))
+if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 ```
 
 ### Wait for completion
@@ -110,7 +110,7 @@ df <- data.table::fread(job_path(job_id))
 
 ```{r job-result}
 df <- job_result(job_id)
-#> ✔ 502353 rows × 5 cols (incl. eid)
+#> 502353 rows x 5 cols (incl. eid)
 ```
 
 ---

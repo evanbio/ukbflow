@@ -1,7 +1,6 @@
 # =============================================================================
 # utils_job.R — Internal helpers for job_ series
 # Depends on .dx_run() defined in utils_auth.R
-# Depends on .dx_make_url() / .dx_download_file() defined in utils_fetch.R
 # =============================================================================
 
 
@@ -45,18 +44,6 @@
     )
   }
   csv[[1]]$`$dnanexus_link`
-}
-
-
-#' Extract the output file name (without extension) from a job describe list
-#'
-#' @param desc Named list returned by \code{.dx_job_describe()}.
-#' @return Character string — output file base name, e.g. \code{"ad_pheno"}.
-#'
-#' @keywords internal
-#' @noRd
-.dx_job_output_name <- function(desc) {
-  desc$runInput$output
 }
 
 
