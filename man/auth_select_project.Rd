@@ -7,13 +7,15 @@
 auth_select_project(project)
 }
 \arguments{
-\item{project}{(character) Project ID or name to select.}
+\item{project}{(character) Project ID in the form \code{"project-XXXXXXXXXXXX"}.}
 }
 \value{
 Invisible TRUE on success.
 }
 \description{
-Switches the active project context on the DNAnexus platform.
+Switches the active project context on the DNAnexus platform. Only project
+IDs (e.g. \code{"project-XXXXXXXXXXXX"}) are accepted. Run
+\code{\link[=auth_list_projects]{auth_list_projects()}} to find your project ID.
 }
 \examples{
 \dontrun{

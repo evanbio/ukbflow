@@ -6,6 +6,8 @@
 \alias{ukbflow-package}
 \title{ukbflow: Streamlined Workflow for UK Biobank Data Extraction, Analysis, and Visualization}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Provides tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
 }
 \seealso{

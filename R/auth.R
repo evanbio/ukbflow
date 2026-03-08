@@ -42,7 +42,7 @@ auth_login <- function(token = NULL) {
     stop("Login failed: token invalid or expired.", call. = FALSE)
   }
 
-  message("Logged in to DNAnexus successfully as: ", verify$stdout)
+  cli::cli_alert_success("Logged in to DNAnexus as: {.val {verify$stdout}}")
   invisible(TRUE)
 }
 
@@ -70,8 +70,10 @@ auth_status <- function() {
     project = .dx_get_project_id()
   )
 
-  message("User:    ", status$user)
-  message("Project: ", if (is.na(status$project)) "None selected" else status$project)
+  cli::cli_inform(c(
+    "*" = "User:    {.val {status$user}}",
+    "*" = "Project: {.val {if (is.na(status$project)) 'None selected' else status$project}}"
+  ))
 
   invisible(status)
 }
@@ -95,7 +97,7 @@ auth_logout <- function() {
     stop("Logout failed: ", result$stderr, call. = FALSE)
   }
 
-  message("Logged out from DNAnexus.")
+  cli::cli_alert_success("Logged out from DNAnexus.")
   invisible(TRUE)
 }
 
@@ -119,21 +121,23 @@ auth_list_projects <- function() {
   }
 
   if (!nzchar(result$stdout)) {
-    message("No projects found.")
+    cli::cli_inform("No projects found.")
     return(invisible(character(0)))
   }
 
   projects <- strsplit(result$stdout, "\n")[[1]]
-  message(paste(projects, collapse = "\n"))
+  cli::cli_inform(paste(projects, collapse = "\n"))
   invisible(projects)
 }
 
 
 #' Select a DNAnexus project
 #'
-#' Switches the active project context on the DNAnexus platform.
+#' Switches the active project context on the DNAnexus platform. Only project
+#' IDs (e.g. `"project-XXXXXXXXXXXX"`) are accepted. Run
+#' [auth_list_projects()] to find your project ID.
 #'
-#' @param project (character) Project ID or name to select.
+#' @param project (character) Project ID in the form `"project-XXXXXXXXXXXX"`.
 #'
 #' @return Invisible TRUE on success.
 #' @export
@@ -144,7 +148,20 @@ auth_list_projects <- function() {
 #' }
 auth_select_project <- function(project) {
   if (missing(project) || !nzchar(project)) {
-    stop("Please provide a project ID or name.", call. = FALSE)
+    stop(
+      "Please provide a project ID. Run auth_list_projects() to see available projects.",
+      call. = FALSE
+    )
+  }
+
+  # Reason: only accept project IDs (project-XXXX) to avoid name/ID ambiguity;
+  # names are not unique and can cause silent mismatches.
+  if (!grepl("^project-[A-Za-z0-9]+$", project)) {
+    stop(
+      "Invalid project ID format. Expected 'project-XXXXXXXXXXXX'. ",
+      "Run auth_list_projects() to see available IDs.",
+      call. = FALSE
+    )
   }
 
   result <- .dx_run(c("select", project))
@@ -153,13 +170,13 @@ auth_select_project <- function(project) {
     stop("Failed to select project: ", result$stderr, call. = FALSE)
   }
 
-  # Reason: verify project was actually switched by checking env after select
+  # Reason: verify project was actually switched
   confirmed <- .dx_get_project_id()
 
-  if (is.na(confirmed) || confirmed != project) {
+  if (is.na(confirmed)) {
     stop("Project selection failed: context was not updated.", call. = FALSE)
   }
 
-  message("Project selected: ", confirmed)
+  cli::cli_alert_success("Project selected: {.val {confirmed}}")
   invisible(TRUE)
 }

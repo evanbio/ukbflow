@@ -86,8 +86,8 @@ auth_status()  # verify the current session
 
 ```{r auth-status}
 auth_status()
-#> User:    Chris001127
-#> Project: project-XXXXXXXXXXXX
+#> ✔ User:    user-XXXXXXXXXXXX
+#> ✔ Project: project-XXXXXXXXXXXX
 ```
 
 `auth_status()` returns the current user and active project. Use this to confirm your session before running any analysis.
@@ -98,6 +98,8 @@ auth_status()
 
 ```{r list-projects}
 auth_list_projects()
+#> project-XXXXXXXXXXXX : My UKB Project (CONTRIBUTOR)
+#> project-YYYYYYYYYYYY : Shared Analysis Project (VIEW)
 ```
 
 This returns all RAP projects accessible to your account, along with their project IDs. Project IDs take the form `project-XXXXXXXXXXXX` and are required for `auth_select_project()`.
@@ -121,7 +123,7 @@ Once selected, the project context is saved by the dx toolkit and persists acros
 
 ```{r auth-logout}
 auth_logout()
-#> Logged out from DNAnexus.
+#> ✔ Logged out from DNAnexus.
 ```
 
 Logging out clears the local session cache. The next call to any `auth_*` or `job_*` function will require re-authentication.
