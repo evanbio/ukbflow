@@ -178,13 +178,13 @@ Bug reports, feature requests, and pull requests are welcome. See [CONTRIBUTING.
 
 ## License
 
-MIT License © 2026 [Evan Zhou](mailto:evanzhou.bio@gmail.com)
+MIT License © 2026 [Yibin Zhou](mailto:evanzhou.bio@gmail.com)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by [Evan Zhou](https://github.com/evanbio)**
+**Made with ❤️ by [Yibin Zhou](https://github.com/evanbio)**
 
 [⬆ Back to Top](#ukbflow)
 

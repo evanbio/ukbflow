@@ -11,3 +11,6 @@ dev/
 *.Rproj
 .Renviron
 .Rproj.user
+
+# Package
+builds/

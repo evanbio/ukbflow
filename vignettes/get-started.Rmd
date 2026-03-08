@@ -100,4 +100,4 @@ plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
 > UK Biobank holds data on half a million people. `ukbflow` exists to make
 > that data accessible — cleanly, reproducibly, and without leaving the cloud.
 
-—— Evan Zhou
+—— Yibin Zhou

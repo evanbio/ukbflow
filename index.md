@@ -88,4 +88,4 @@ plot_forest(res)
 
 ## License
 
-MIT License © 2026 Evan Zhou
+MIT License © 2026 Yibin Zhou

@@ -178,13 +178,13 @@ remotes::install_github("evanbio/ukbflow")
 
 ## 许可证
 
-MIT License © 2026 [Evan Zhou](mailto:evanzhou.bio@gmail.com)
+MIT License © 2026 [Yibin Zhou](mailto:evanzhou.bio@gmail.com)
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by [Evan Zhou](https://github.com/evanbio)**
+**Made with ❤️ by [Yibin Zhou](https://github.com/evanbio)**
 
 [⬆ 回到顶部](#ukbflow)
 
