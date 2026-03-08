@@ -106,15 +106,126 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="ukbflow-010">ukbflow 0.1.0<a class="anchor" aria-label="anchor" href="#ukbflow-010"></a></h2>
 <p><em>Released: March 6, 2026</em></p>
-<ul><li>Initial release.</li>
-<li>RAP-native workflow for UK Biobank analysis.</li>
-<li>Core modules: <code>fetch_*</code>, <code>decode_*</code>, <code>derive_*</code>, <code>assoc_*</code>, <code>plot_*</code>, <code>grs_*</code>.</li>
+<p>Initial release of <strong>ukbflow</strong> — a RAP-native R workflow for UK Biobank analysis.</p>
+<div class="section level3">
+<h3 id="new-features-0-1-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-1-0"></a></h3>
+<div class="section level4">
+<h4 id="connection-0-1-0">Connection<a class="anchor" aria-label="anchor" href="#connection-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/auth_login.html">auth_login()</a></code> — authenticate to RAP via dx-toolkit token</li>
+<li>
+<code><a href="../reference/auth_logout.html">auth_logout()</a></code> — revoke current session</li>
+<li>
+<code><a href="../reference/auth_status.html">auth_status()</a></code> — check current login state</li>
+<li>
+<code><a href="../reference/auth_list_projects.html">auth_list_projects()</a></code> — list accessible RAP projects</li>
+<li>
+<code><a href="../reference/auth_select_project.html">auth_select_project()</a></code> — set active RAP project</li>
 </ul></div>
-  </main></div>
+<div class="section level4">
+<h4 id="data-access-0-1-0">Data Access<a class="anchor" aria-label="anchor" href="#data-access-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/fetch_ls.html">fetch_ls()</a></code> / <code><a href="../reference/fetch_tree.html">fetch_tree()</a></code> — browse RAP project file structure</li>
+<li>
+<code><a href="../reference/fetch_file.html">fetch_file()</a></code> — download files from RAP to local</li>
+<li>
+<code><a href="../reference/fetch_url.html">fetch_url()</a></code> — generate pre-signed download URLs</li>
+<li>
+<code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code> — retrieve UKB field metadata (field.tsv, encoding.tsv)</li>
+<li>
+<code><a href="../reference/fetch_field.html">fetch_field()</a></code> — retrieve UKB field-level metadata for specific field IDs</li>
+<li>
+<code><a href="../reference/extract_ls.html">extract_ls()</a></code> — list available UKB datasets on RAP</li>
+<li>
+<code><a href="../reference/extract_pheno.html">extract_pheno()</a></code> — synchronously extract phenotype fields from a RAP dataset</li>
+<li>
+<code><a href="../reference/extract_batch.html">extract_batch()</a></code> — submit a DNAnexus table-exporter job to extract phenotype fields</li>
+<li>
+<code><a href="../reference/job_wait.html">job_wait()</a></code> — poll job status until completion</li>
+<li>
+<code><a href="../reference/job_status.html">job_status()</a></code> / <code><a href="../reference/job_ls.html">job_ls()</a></code> / <code><a href="../reference/job_path.html">job_path()</a></code> / <code><a href="../reference/job_result.html">job_result()</a></code> — monitor and locate RAP jobs</li>
+</ul></div>
+<div class="section level4">
+<h4 id="data-processing-0-1-0">Data Processing<a class="anchor" aria-label="anchor" href="#data-processing-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/decode_values.html">decode_values()</a></code> — convert integer codes to human-readable labels</li>
+<li>
+<code><a href="../reference/decode_names.html">decode_names()</a></code> — rename <code>p{field}_i{instance}_a{array}</code> columns to descriptive names</li>
+<li>
+<code><a href="../reference/derive_missing.html">derive_missing()</a></code> — recode UKB informative-missing labels to <code>NA</code>
+</li>
+<li>
+<code><a href="../reference/derive_covariate.html">derive_covariate()</a></code> — standardise common covariates (age, BMI, TDI, etc.)</li>
+<li>
+<code><a href="../reference/derive_cut.html">derive_cut()</a></code> — create ordered factor variables from numeric cutpoints</li>
+<li>
+<code><a href="../reference/derive_hes.html">derive_hes()</a></code> — derive disease phenotypes from Hospital Episode Statistics (ICD-10)</li>
+<li>
+<code><a href="../reference/derive_cancer_registry.html">derive_cancer_registry()</a></code> — derive cancer phenotypes from UK cancer registry (ICD-10)</li>
+<li>
+<code><a href="../reference/derive_death_registry.html">derive_death_registry()</a></code> — derive phenotypes from death registry (primary + secondary causes)</li>
+<li>
+<code><a href="../reference/derive_first_occurrence.html">derive_first_occurrence()</a></code> — derive phenotypes from UKB First Occurrence fields</li>
+<li>
+<code><a href="../reference/derive_selfreport.html">derive_selfreport()</a></code> — derive disease phenotypes from self-reported illness codes</li>
+<li>
+<code><a href="../reference/derive_icd10.html">derive_icd10()</a></code> — merge multi-source ICD-10 case definitions across all registers</li>
+<li>
+<code><a href="../reference/derive_case.html">derive_case()</a></code> — merge arbitrary multi-source case definitions</li>
+<li>
+<code><a href="../reference/derive_followup.html">derive_followup()</a></code> — compute follow-up time with competing event support</li>
+<li>
+<code><a href="../reference/derive_timing.html">derive_timing()</a></code> — classify prevalent vs. incident cases</li>
+<li>
+<code><a href="../reference/derive_age.html">derive_age()</a></code> — compute age at event</li>
+</ul></div>
+<div class="section level4">
+<h4 id="association-analysis-0-1-0">Association Analysis<a class="anchor" aria-label="anchor" href="#association-analysis-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/assoc_linear.html">assoc_linear()</a></code> — linear regression with automatic three-model framework</li>
+<li>
+<code><a href="../reference/assoc_logistic.html">assoc_logistic()</a></code> — logistic regression with automatic three-model framework</li>
+<li>
+<code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> — Cox proportional hazards with automatic three-model framework</li>
+<li>
+<code><a href="../reference/assoc_coxph_zph.html">assoc_coxph_zph()</a></code> — test proportional hazards assumption</li>
+<li>
+<code><a href="../reference/assoc_competing.html">assoc_competing()</a></code> — Fine-Gray competing risks regression</li>
+<li>
+<code><a href="../reference/assoc_subgroup.html">assoc_subgroup()</a></code> — subgroup analysis with interaction likelihood-ratio test</li>
+<li>
+<code><a href="../reference/assoc_trend.html">assoc_trend()</a></code> — dose-response trend analysis across ordered categories</li>
+<li>
+<code><a href="../reference/assoc_lag.html">assoc_lag()</a></code> — landmark / lag-time sensitivity analysis</li>
+</ul></div>
+<div class="section level4">
+<h4 id="genomic-risk-score-grs-0-1-0">Genomic Risk Score (GRS)<a class="anchor" aria-label="anchor" href="#genomic-risk-score-grs-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/grs_check.html">grs_check()</a></code> — validate and reformat a GWAS summary statistics weight file</li>
+<li>
+<code><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen()</a></code> — submit parallel BGEN → PGEN conversion jobs on RAP</li>
+<li>
+<code><a href="../reference/grs_score.html">grs_score()</a></code> — submit distributed plink2 GRS scoring jobs on RAP</li>
+<li>
+<code><a href="../reference/grs_standardize.html">grs_standardize()</a></code> — standardise GRS columns to mean = 0, SD = 1</li>
+<li>
+<code><a href="../reference/grs_validate.html">grs_validate()</a></code> — validate GRS distribution and association with known risk factors</li>
+</ul></div>
+<div class="section level4">
+<h4 id="visualization-0-1-0">Visualization<a class="anchor" aria-label="anchor" href="#visualization-0-1-0"></a></h4>
+<ul><li>
+<code><a href="../reference/plot_forest.html">plot_forest()</a></code> — publication-ready forest plots with customisable CI columns and p-value formatting</li>
+<li>
+<code><a href="../reference/plot_tableone.html">plot_tableone()</a></code> — Table 1 baseline characteristics figure</li>
+</ul></div>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Evan Zhou"> Evan Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
+  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

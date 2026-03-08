@@ -122,10 +122,17 @@
 <div class="section level2">
 <h2 id="architecture-hybrid-local-r--rap-cloud">Architecture (Hybrid: local R → RAP cloud)<a class="anchor" aria-label="anchor" href="#architecture-hybrid-local-r--rap-cloud"></a></h2>
 <ul><li>
-<strong>Midstream</strong>: Clinical and association analysis (<code>ukb_table1</code>, <code>ukb_assoc</code>)</li>
+<strong>Connection</strong>: <code>auth_*</code> — authenticate and manage RAP projects via dx-toolkit</li>
 <li>
-<strong>Downstream</strong>: Publication-quality visualization (<code>plot_ukb_forest</code>, <code>plot_ukb_surv</code>, <code>plot_ukb_phewas</code>)</li>
-<li>Note: Upstream data extraction functions (<code>ukb_fetch</code>, <code>ukb_clean</code>) need major refactor to be RAP-compatible</li>
+<strong>Data Access</strong>: <code>fetch_*</code>, <code>extract_*</code>, <code>job_*</code> — retrieve phenotype data from RAP, monitor jobs</li>
+<li>
+<strong>Data Processing</strong>: <code>decode_*</code>, <code>derive_*</code> — harmonize and derive analysis-ready cohort</li>
+<li>
+<strong>Association Analysis</strong>: <code>assoc_*</code> — Cox, logistic, linear, subgroup, trend, competing risks</li>
+<li>
+<strong>Genomic Scoring</strong>: <code>grs_*</code> — distributed plink2 GRS pipeline on RAP worker nodes</li>
+<li>
+<strong>Visualization</strong>: <code>plot_*</code> — publication-ready forest plots and Table 1</li>
 </ul></div>
 <div class="section level2">
 <h2 id="key-conventions">Key Conventions<a class="anchor" aria-label="anchor" href="#key-conventions"></a></h2>
@@ -137,7 +144,7 @@
 <div class="section level2">
 <h2 id="repo">Repo<a class="anchor" aria-label="anchor" href="#repo"></a></h2>
 <ul><li>GitHub: <a href="https://github.com/evanbio/ukbflow" class="external-link uri">https://github.com/evanbio/ukbflow</a> (private)</li>
-<li>Author: Evan Zhou</li>
+<li>Author: Yibin Zhou</li>
 <li>Email: <a href="mailto:evanzhou.bio@gmail.com" class="email">evanzhou.bio@gmail.com</a>
 </li>
 </ul></div>
@@ -162,17 +169,16 @@
 <ul><li>
 <strong>RAP 账号已申请</strong>：可在 RAP 上真实测试</li>
 <li>
-<strong>包骨架基本完成</strong>：R/ 目录各模块已有，正在进入 refactor + 文档阶段</li>
+<strong>包 v0.1.0 完成</strong>：所有模块已重构为 RAP-native，文档 + vignette + pkgdown 网站完整</li>
 <li>
-<strong>开发方式</strong>：Evan Zhou + Claude Code 协作，效率等同小团队</li>
+<strong>开发方式</strong>：Yibin Zhou + Claude Code 协作，效率等同小团队</li>
 <li>
 <strong>可行性确认</strong>：竞品空白真实、用例完整、发表路径清晰，全面可行</li>
 </ul></div>
 <div class="section level2">
 <h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a></h2>
-<ol style="list-style-type: decimal"><li>Refactor：定位改为 RAP-native，去掉本地下载假设</li>
-<li>文档补全：roxygen2 + vignette（AD2cSCC 完整流程）</li>
-<li>pkgdown 网站：GitHub Pages</li>
+<ol style="list-style-type: decimal"><li>pkgdown 网站部署：GitHub Pages（gh-pages 分支，CI 自动构建）</li>
+<li>RAP 真实测试：基于 AD2cSCC 流程验证各模块</li>
 <li>bioRxiv preprint → 投 Bioinformatics Application Note</li>
 </ol></div>
 </div>
@@ -182,7 +188,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Evan Zhou"> Evan Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
+  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

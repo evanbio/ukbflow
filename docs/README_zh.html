@@ -159,61 +159,40 @@
 <hr></div>
 <div class="section level2">
 <h2 id="核心功能">核心功能<a class="anchor" aria-label="anchor" href="#%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"></a></h2>
-<table class="table"><tr><td width="50%">
-<div class="section level3">
-<h3 id="文件获取与提取">文件获取与提取<a class="anchor" aria-label="anchor" href="#%E6%96%87%E4%BB%B6%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%8F%90%E5%8F%96"></a></h3>
-<ul><li>浏览 RAP 项目文件（<code>fetch_ls</code>、<code>fetch_tree</code>）</li>
-<li>下载汇总结果（<code>fetch_file</code>）</li>
-<li>提取 UKB 表型字段（<code>extract_pheno</code>）</li>
-</ul></div>
+<table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>层级</th>
+<th>核心函数</th>
+<th>说明</th>
+</tr></thead><tbody><tr><td><strong>连接</strong></td>
+<td>
+<code>auth_login</code>、<code>auth_select_project</code>
 </td>
-<td width="50%">
-
-<div class="section level3">
-<h3 id="解码">解码<a class="anchor" aria-label="anchor" href="#%E8%A7%A3%E7%A0%81"></a></h3>
-<ul><li>值解码：<code>0/1</code> → <code>"Female"/"Male"</code>（<code>decode_values</code>）</li>
-<li>列名解码：<code>p31</code> → <code>sex</code>（<code>decode_names</code>）</li>
-</ul></div>
+<td>通过 dx-toolkit 认证并连接 RAP</td>
+</tr><tr><td><strong>数据获取</strong></td>
+<td>
+<code>fetch_metadata</code>、<code>extract_batch</code>、<code>job_wait</code>
 </td>
-</tr><tr><td width="50%">
-
-<div class="section level3">
-<h3 id="衍生--疾病表型">衍生 — 疾病表型<a class="anchor" aria-label="anchor" href="#%E8%A1%8D%E7%94%9F--%E7%96%BE%E7%97%85%E8%A1%A8%E5%9E%8B"></a></h3>
-<ul><li>自报告、HES、癌症注册、死亡注册</li>
-<li>First Occurrence 字段</li>
-<li>多源合并（<code>derive_icd10</code>、<code>derive_case</code>）</li>
-</ul></div>
+<td>从 RAP 上的 UKB 数据集提取表型数据</td>
+</tr><tr><td><strong>数据处理</strong></td>
+<td>
+<code>decode_names</code>、<code>decode_values</code>、<code>derive_icd10</code>、<code>derive_followup</code>、<code>derive_case</code>
 </td>
-<td width="50%">
-
-<div class="section level3">
-<h3 id="衍生--生存变量">衍生 — 生存变量<a class="anchor" aria-label="anchor" href="#%E8%A1%8D%E7%94%9F--%E7%94%9F%E5%AD%98%E5%8F%98%E9%87%8F"></a></h3>
-<ul><li>患病时间分类（<code>derive_timing</code>）</li>
-<li>事件发生年龄（<code>derive_age</code>）</li>
-<li>随访时间（含竞争事件，<code>derive_followup</code>）</li>
-</ul></div>
+<td>多源记录整合；构建分析就绪队列</td>
+</tr><tr><td><strong>关联分析</strong></td>
+<td>
+<code>assoc_coxph</code>、<code>assoc_logistic</code>、<code>assoc_subgroup</code>
 </td>
-</tr><tr><td width="50%">
-
-<div class="section level3">
-<h3 id="关联分析">关联分析<a class="anchor" aria-label="anchor" href="#%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90"></a></h3>
-<ul><li>Cox、逻辑回归、线性回归</li>
-<li>亚组分析 + 交互项 LRT</li>
-<li>剂量-反应趋势、Fine-Gray 竞争风险</li>
-<li>自动三模型框架（粗模型 → 年龄性别校正 → 全校正）</li>
-</ul></div>
+<td>三模型框架校正；亚组与趋势分析</td>
+</tr><tr><td><strong>基因组评分</strong></td>
+<td>
+<code>grs_bgen2pgen</code>、<code>grs_score</code>、<code>grs_standardize</code>
 </td>
-<td width="50%">
-
-<div class="section level3">
-<h3 id="可视化与-grs">可视化与 GRS<a class="anchor" aria-label="anchor" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E4%B8%8E-grs"></a></h3>
-<ul><li>森林图（<code>plot_forest</code>）</li>
-<li>基线特征表（<code>plot_tableone</code>）</li>
-<li>RAP 端到端 GRS 流程（<code>grs_check</code>、<code>grs_score</code>、<code>grs_validate</code>）</li>
-</ul></div>
+<td>在 RAP 工作节点分布式运行 plink2 评分</td>
+</tr><tr><td><strong>可视化</strong></td>
+<td>
+<code>plot_forest</code>、<code>plot_tableone</code>
 </td>
-</tr></table><hr></div>
-
+<td>发表级图表输出</td>
+</tr></tbody></table><hr></div>
 <div class="section level2">
 <h2 id="函数一览">函数一览<a class="anchor" aria-label="anchor" href="#%E5%87%BD%E6%95%B0%E4%B8%80%E8%A7%88"></a></h2>
 <details><summary><b>认证与文件获取</b>
@@ -301,9 +280,9 @@
 <hr></div>
 <div class="section level2">
 <h2 id="许可证">许可证<a class="anchor" aria-label="anchor" href="#%E8%AE%B8%E5%8F%AF%E8%AF%81"></a></h2>
-<p>MIT License © 2026 <a href="mailto:evanzhou.bio@gmail.com">Evan Zhou</a></p>
+<p>MIT License © 2026 <a href="mailto:evanzhou.bio@gmail.com">Yibin Zhou</a></p>
 <hr><div align="center">
-<p><strong>Made with ❤️ by <a href="https://github.com/evanbio" class="external-link">Evan Zhou</a></strong></p>
+<p><strong>Made with ❤️ by <a href="https://github.com/evanbio" class="external-link">Yibin Zhou</a></strong></p>
 <p><a href="#ukbflow">⬆ 回到顶部</a></p>
 </div>
 </div>
@@ -314,7 +293,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Evan Zhou"> Evan Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
+  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
