@@ -20,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Evan Zhou \email{evanzhou.bio@gmail.com} (\href{https://orcid.org/0009-0009-4600-8175}{ORCID})
+\strong{Maintainer}: Yibin Zhou \email{evanzhou.bio@gmail.com} (\href{https://orcid.org/0009-0009-4600-8175}{ORCID})
 
 }
 \keyword{internal}
