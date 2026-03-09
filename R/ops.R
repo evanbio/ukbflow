@@ -190,9 +190,11 @@ ops_setup <- function(
 #' This dataset is entirely synthetic. Column names follow RAP conventions
 #' (e.g. `p41270`, `p20002_i0_a0`).
 #'
-#' @param scenario (character) Data structure to generate. Currently supports
-#'   `"cohort"`: a wide participant-level table suitable for the full
-#'   `derive_*` → `assoc_*` → `plot_*` pipeline.
+#' @param scenario (character) Data structure to generate:
+#'   - `"cohort"`: wide participant-level table for the full
+#'     `derive_*` → `assoc_*` → `plot_*` pipeline.
+#'   - `"forest"`: association results table matching `assoc_coxph()` output,
+#'     for testing `plot_forest()`. `n` = number of exposures (default 8).
 #' @param n (integer) Number of participants. Default `1000L`.
 #' @param seed (integer or NULL) Random seed for reproducibility. Pass `NULL`
 #'   for a different dataset on every call. Default `42L`.
@@ -233,19 +235,25 @@ ops_toy <- function(
     n        = 1000L,
     seed     = 42L
 ) {
-  scenario <- match.arg(scenario, choices = "cohort")
-  n        <- as.integer(n)
+  scenario <- match.arg(scenario, choices = c("cohort", "forest"))
+
+  # Reason: sensible defaults differ by scenario — cohort needs many rows,
+  # forest needs a small number of exposures
+  if (missing(n)) n <- if (scenario == "cohort") 1000L else 8L
+  n <- as.integer(n)
 
   if (n < 1L) stop("n must be a positive integer.", call. = FALSE)
   if (!is.null(seed)) set.seed(as.integer(seed))
 
   dt <- switch(scenario,
-    cohort = .ops_toy_cohort(n)
+    cohort = .ops_toy_cohort(n),
+    forest = .ops_toy_forest(n)
   )
 
   seed_info <- if (!is.null(seed)) paste0(" | seed = ", seed) else ""
+  unit <- switch(scenario, cohort = "participants", forest = "rows")
   cli::cli_alert_success(
-    "ops_toy: {n} participants | {ncol(dt)} columns | scenario = {.val {scenario}}{seed_info}"
+    "ops_toy: {nrow(dt)} {unit} | {ncol(dt)} columns | scenario = {.val {scenario}}{seed_info}"
   )
 
   dt

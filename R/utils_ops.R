@@ -80,11 +80,12 @@
     paste0("p20002_i0_a", 0:4)
   )
 
-  # Date: decimal year format e.g. 1995.5 (mid-year), NA-aligned with disease
+  # Date: decimal year format e.g. 2005.5 (mid-year), NA-aligned with disease
+  # Reason: keep most self-report dates post-2000 so incident cases dominate
   sr_dates <- stats::setNames(
     lapply(seq_along(sr_fill), function(i) {
       has_val <- !is.na(sr_disease[[i]])
-      ifelse(has_val, sample(1975L:2010L, n, replace = TRUE) + 0.5, NA_real_)
+      ifelse(has_val, sample(2000L:2015L, n, replace = TRUE) + 0.5, NA_real_)
     }),
     paste0("p20008_i0_a", 0:4)
   )
@@ -93,55 +94,64 @@
   icd10_hes     <- c("E11", "I10", "J45", "L20", "C44", "I25",
                      "N18", "F32", "K57", "M79", "I48", "G35")
   hes_has_rec   <- runif(n) < 0.35
-  hes_date_span <- as.integer(as.Date("2020-12-31") - as.Date("1997-01-01"))
+  hes_date_span <- as.integer(as.Date("2022-12-31") - as.Date("2000-01-01"))
 
-  p41270 <- sapply(seq_len(n), function(i) {
-    if (!hes_has_rec[i]) return(NA_character_)
-    codes <- sample(icd10_hes, sample(1:4, 1))
-    paste0('["', paste(codes, collapse = '","'), '"]')
+  # Reason: build p41270 and p41280 together so code count and dates are
+  # index-aligned — every code at position k gets a date in p41280_ak.
+  hes_records <- lapply(seq_len(n), function(i) {
+    if (!hes_has_rec[i]) return(list(json = NA_character_, dates = rep(NA_character_, 9L)))
+    k     <- sample(1:4, 1)
+    codes <- sample(icd10_hes, k)
+    dates <- format(as.Date("2000-01-01") + sample(0L:hes_date_span, k, replace = TRUE))
+    list(
+      json  = paste0('["', paste(codes, collapse = '","'), '"]'),
+      dates = c(dates, rep(NA_character_, 9L - k))   # pad to length 9
+    )
   })
 
-  # p41280_a0~a9: dates aligned to HES record presence, sparser at higher index
+  p41270 <- vapply(hes_records, `[[`, character(1), "json")
+
   p41280 <- stats::setNames(
-    lapply(0:9, function(i) {
-      prob <- max(0.05, 0.40 - i * 0.04)
-      ifelse(
-        hes_has_rec & runif(n) < prob,
-        format(as.Date("1997-01-01") + sample(0L:hes_date_span, n, replace = TRUE)),
-        NA_character_
-      )
-    }),
-    paste0("p41280_a", 0:9)
+    lapply(0:8, function(i)
+      vapply(hes_records, function(r) r$dates[i + 1L], character(1))
+    ),
+    paste0("p41280_a", 0:8)
   )
 
-  # ── 7. Cancer registry (i0 only) ─────────────────────────────────────────────
-  icd10_cancer  <- c("C44", "C50", "C34", "C61", "C18", "C43", "C20", "C64")
-  cancer_span   <- as.integer(as.Date("2020-12-31") - as.Date("1990-01-01"))
-  cancer_flag   <- runif(n) < 0.05
+  # ── 7. Cancer registry (i0~i2, 3 instances) ──────────────────────────────────
+  icd10_cancer <- c("C44", "C50", "C34", "C61", "C18", "C43", "C20", "C64")
+  hist_codes   <- c(8090L, 8140L, 8500L, 8070L, 8010L, 8743L, 8130L, 8520L, 8000L, 8720L)
+  behv_codes   <- c(3L, 3L, 3L, 3L, 3L, 3L, 3L, 2L, 2L, 1L, 0L, 6L, 5L, 9L)  # 3=malignant ~85%
+  cancer_span  <- as.integer(as.Date("2020-12-31") - as.Date("1990-01-01"))
 
-  p40006_i0 <- ifelse(cancer_flag, sample(icd10_cancer, n, replace = TRUE), NA_character_)
-  p40005_i0 <- ifelse(
-    cancer_flag,
-    format(as.Date("1990-01-01") + sample(0L:cancer_span, n, replace = TRUE)),
-    NA_character_
-  )
+  # Decreasing prevalence across instances
+  cancer_prob <- c(0.05, 0.02, 0.008)
 
-  # ── 8. Death registry (i0 only) ──────────────────────────────────────────────
+  cancer_cols <- lapply(seq_along(cancer_prob), function(i) {
+    flag <- runif(n) < cancer_prob[i]
+    list(
+      icd  = ifelse(flag, sample(icd10_cancer, n, replace = TRUE), NA_character_),
+      hist = ifelse(flag, sample(hist_codes,   n, replace = TRUE), NA_integer_),
+      behv = ifelse(flag, sample(behv_codes,   n, replace = TRUE), NA_integer_),
+      date = ifelse(flag,
+        format(as.Date("1990-01-01") + sample(0L:cancer_span, n, replace = TRUE)),
+        NA_character_)
+    )
+  })
+
+  # ── 8. Death registry (i0, 3 contributory causes) ────────────────────────────
   icd10_death <- c("I21.9", "C34.9", "I25.9", "C50.9", "C61",
                    "I64",   "C25.9", "I48.0", "C18.9")
-  death_span  <- as.integer(as.Date("2023-12-31") - as.Date("2006-01-01"))
+  death_span  <- as.integer(as.Date("2023-12-31") - as.Date("2011-01-01"))
   death_flag  <- runif(n) < 0.10
 
   p40001_i0    <- ifelse(death_flag, sample(icd10_death, n, replace = TRUE), NA_character_)
-  p40002_i0_a0 <- ifelse(
-    death_flag & runif(n) < 0.30, sample(icd10_death, n, replace = TRUE), NA_character_
-  )
-  p40002_i0_a1 <- ifelse(
-    death_flag & runif(n) < 0.10, sample(icd10_death, n, replace = TRUE), NA_character_
-  )
+  p40002_i0_a0 <- ifelse(death_flag & runif(n) < 0.30, sample(icd10_death, n, replace = TRUE), NA_character_)
+  p40002_i0_a1 <- ifelse(death_flag & runif(n) < 0.15, sample(icd10_death, n, replace = TRUE), NA_character_)
+  p40002_i0_a2 <- ifelse(death_flag & runif(n) < 0.05, sample(icd10_death, n, replace = TRUE), NA_character_)
   p40000_i0 <- ifelse(
     death_flag,
-    format(as.Date("2006-01-01") + sample(0L:death_span, n, replace = TRUE)),
+    format(as.Date("2011-01-01") + sample(0L:death_span, n, replace = TRUE)),
     NA_character_
   )
 
@@ -154,7 +164,12 @@
     NA_character_
   )
 
-  # ── 10. Messy columns (robustness testing) ────────────────────────────────────
+  # ── 10. GRS columns (raw, unstandardised — for testing grs_standardize()) ────
+  grs_bmi     <- round(rnorm(n, mean = 0.82, sd = 2.5), 6L)
+  grs_raw     <- round(rnorm(n, mean = 1.54, sd = 3.5), 6L)
+  grs_finngen <- round(rnorm(n, mean = 0.41, sd = 1.8), 6L)
+
+  # ── 11. Messy columns (robustness testing) ────────────────────────────────────
   # Reason: stress-test derive_missing and decode_ against real data quality issues
   messy_allna <- rep(NA_character_, n)
   messy_empty <- ifelse(runif(n) < 0.5, "", NA_character_)
@@ -179,21 +194,97 @@
   dt[, p41270 := p41270]
   dt <- cbind(dt, data.table::as.data.table(p41280))
 
-  dt[, `:=`(p40006_i0 = p40006_i0, p40005_i0 = p40005_i0)]
+  # Cancer: 3 instances × 4 fields (icd, hist, behv, date)
+  for (i in seq_along(cancer_cols)) {
+    idx <- i - 1L
+    dt[, (paste0("p40006_i", idx)) := cancer_cols[[i]]$icd ]
+    dt[, (paste0("p40011_i", idx)) := cancer_cols[[i]]$hist]
+    dt[, (paste0("p40012_i", idx)) := cancer_cols[[i]]$behv]
+    dt[, (paste0("p40005_i", idx)) := cancer_cols[[i]]$date]
+  }
 
   dt[, `:=`(
     p40001_i0    = p40001_i0,
     p40002_i0_a0 = p40002_i0_a0,
     p40002_i0_a1 = p40002_i0_a1,
+    p40002_i0_a2 = p40002_i0_a2,
     p40000_i0    = p40000_i0
   )]
 
   dt[, p131742 := p131742]
 
   dt[, `:=`(
+    grs_bmi     = grs_bmi,
+    grs_raw     = grs_raw,
+    grs_finngen = grs_finngen
+  )]
+
+  dt[, `:=`(
     messy_allna = messy_allna,
     messy_empty = messy_empty,
     messy_label = messy_label
+  )]
+
+  dt
+}
+
+
+#' Generate toy forest plot data (assoc_coxph-style results table)
+#'
+#' @param n (integer) Number of exposures. Default 8L.
+#' @return A data.table matching the output structure of assoc_coxph().
+#' @keywords internal
+#' @noRd
+.ops_toy_forest <- function(n = 8L) {
+
+  exposures <- c(
+    "bmi", "smoking_ex", "smoking_current", "alcohol_freq",
+    "townsend_deprivation", "age_at_recruitment", "ethnicity_asian",
+    "ethnicity_black", "physical_activity", "sleep_duration"
+  )[seq_len(min(n, 10L))]
+
+  models <- c("Unadjusted", "Age and sex adjusted", "Fully adjusted")
+
+  # Generate one row per exposure × model
+  rows <- lapply(exposures, function(exp) {
+    # Each exposure gets a "true" log-HR drawn from a realistic range
+    log_hr_true <- rnorm(1, mean = 0.05, sd = 0.25)
+
+    lapply(models, function(mod) {
+      # SE shrinks with adjustment (wider CI for unadjusted)
+      se <- switch(mod,
+        "Unadjusted"           = runif(1, 0.03, 0.10),
+        "Age and sex adjusted" = runif(1, 0.03, 0.09),
+        "Fully adjusted"       = runif(1, 0.03, 0.08)
+      )
+      hr       <- exp(log_hr_true + rnorm(1, 0, se * 0.2))
+      ci_lower <- exp(log(hr) - 1.96 * se)
+      ci_upper <- exp(log(hr) + 1.96 * se)
+      z        <- log(hr) / se
+      p_val    <- 2 * stats::pnorm(-abs(z))
+
+      list(
+        exposure     = exp,
+        term         = exp,
+        model        = mod,
+        n            = sample(40000L:500000L, 1L),
+        n_events     = sample(500L:20000L, 1L),
+        person_years = round(runif(1, 3e5, 7e6), 0),
+        HR           = round(hr, 6L),
+        CI_lower     = round(ci_lower, 6L),
+        CI_upper     = round(ci_upper, 6L),
+        p_value      = round(p_val, 6L),
+        HR_label     = sprintf("%.2f (%.2f-%.2f)", hr, ci_lower, ci_upper)
+      )
+    })
+  })
+
+  dt <- data.table::rbindlist(unlist(rows, recursive = FALSE))
+
+  # model as ordered factor — matches assoc_coxph output
+  dt[, model := factor(model,
+    levels  = c("Unadjusted", "Age and sex adjusted", "Fully adjusted"),
+    ordered = TRUE
   )]
 
   dt
