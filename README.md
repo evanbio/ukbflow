@@ -84,6 +84,7 @@ pip install dxpy
 | **Association Analysis** | `assoc_coxph`, `assoc_logistic`, `assoc_subgroup` | Three-model adjustment; subgroup & trend analysis |
 | **Genomic Scoring** | `grs_bgen2pgen`, `grs_score`, `grs_standardize` | Distributed plink2 scoring on RAP worker nodes |
 | **Visualization** | `plot_forest`, `plot_tableone` | Publication-ready figures & tables |
+| **Utilities** | `ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot` | Environment check, synthetic data, and pipeline diagnostics |
 
 ---
 
@@ -150,6 +151,16 @@ pip install dxpy
 
 - `plot_forest()` — forest plot (PNG / PDF / JPG / TIFF, 300 dpi)
 - `plot_tableone()` — Table 1 (DOCX / HTML / PDF / PNG)
+
+</details>
+
+<details>
+<summary><b>Utilities &amp; Diagnostics</b></summary>
+
+- `ops_setup()` — environment health check (dx CLI, RAP auth, R packages)
+- `ops_toy()` — generate synthetic UKB-like data for development and testing
+- `ops_na()` — summarise missing values (NA and `""`) across all columns
+- `ops_snapshot()` — record pipeline checkpoints and track dataset changes
 
 </details>
 
