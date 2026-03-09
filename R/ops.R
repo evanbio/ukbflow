@@ -179,3 +179,74 @@ ops_setup <- function(
 
   invisible(results)
 }
+
+
+#' Generate toy UKB-like data for testing and development
+#'
+#' Creates a small, synthetic dataset that mimics the structure of UK Biobank
+#' phenotype data on the RAP. Useful for developing and testing `derive_*`,
+#' `assoc_*`, and `plot_*` functions without requiring real UKB data access.
+#'
+#' This dataset is entirely synthetic. Column names follow RAP conventions
+#' (e.g. `p41270`, `p20002_i0_a0`).
+#'
+#' @param scenario (character) Data structure to generate. Currently supports
+#'   `"cohort"`: a wide participant-level table suitable for the full
+#'   `derive_*` → `assoc_*` → `plot_*` pipeline.
+#' @param n (integer) Number of participants. Default `1000L`.
+#' @param seed (integer or NULL) Random seed for reproducibility. Pass `NULL`
+#'   for a different dataset on every call. Default `42L`.
+#'
+#' @return A `data.table` with UKB-style column names. See Details for the
+#'   columns included in each scenario.
+#'
+#' @details
+#' ## scenario = "cohort"
+#' Includes the following column groups:
+#' - **Demographics**: `eid`, `p31`, `p34`, `p53_i0`, `p21022`
+#' - **Covariates**: `p21001_i0`, `p20116_i0`, `p1558_i0`, `p21000_i0`,
+#'   `p22189`, `p54_i0`
+#' - **Genetic PCs**: `p22009_a1` – `p22009_a10`
+#' - **Self-report disease**: `p20002_i0_a0–a4`, `p20008_i0_a0–a4`
+#' - **HES**: `p41270` (JSON array), `p41280_a0–a9`
+#' - **Cancer registry**: `p40006_i0`, `p40005_i0`
+#' - **Death registry**: `p40001_i0`, `p40002_i0_a0–a1`, `p40000_i0`
+#' - **First occurrence**: `p131742`
+#' - **Messy columns**: `messy_allna`, `messy_empty`, `messy_label`
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' dt <- ops_toy()
+#' dt <- ops_toy(n = 500, seed = 1)
+#'
+#' # Dynamic dataset (different every call)
+#' dt <- ops_toy(seed = NULL)
+#'
+#' # Feed directly into derive pipeline
+#' dt <- ops_toy()
+#' dt <- derive_missing(dt)
+#' }
+ops_toy <- function(
+    scenario = "cohort",
+    n        = 1000L,
+    seed     = 42L
+) {
+  scenario <- match.arg(scenario, choices = "cohort")
+  n        <- as.integer(n)
+
+  if (n < 1L) stop("n must be a positive integer.", call. = FALSE)
+  if (!is.null(seed)) set.seed(as.integer(seed))
+
+  dt <- switch(scenario,
+    cohort = .ops_toy_cohort(n)
+  )
+
+  seed_info <- if (!is.null(seed)) paste0(" | seed = ", seed) else ""
+  cli::cli_alert_success(
+    "ops_toy: {n} participants | {ncol(dt)} columns | scenario = {.val {scenario}}{seed_info}"
+  )
+
+  dt
+}
