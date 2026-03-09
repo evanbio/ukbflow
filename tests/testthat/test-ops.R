@@ -321,3 +321,196 @@ test_that(".ops_check_deps() version is character or NA for each entry", {
     expect_true(is.na(d$version) || is.character(d$version))
   }
 })
+
+
+# ===========================================================================
+# ops_na() — input validation
+# ===========================================================================
+
+test_that("ops_na() aborts on non-data.frame input", {
+  expect_error(ops_na("not a df"), "data.frame")
+})
+
+test_that("ops_na() aborts on 0-row data", {
+  expect_error(ops_na(data.frame(x = integer(0))), "0 rows")
+})
+
+test_that("ops_na() aborts when threshold < 0", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_na(dt, threshold = -1)), "threshold")
+})
+
+test_that("ops_na() aborts when threshold >= 100", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_na(dt, threshold = 100)), "threshold")
+})
+
+test_that("ops_na() aborts on invalid verbose", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_na(dt, verbose = "yes")), "verbose")
+})
+
+
+# ===========================================================================
+# ops_na() — output structure
+# ===========================================================================
+
+test_that("ops_na() returns a data.table invisibly", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_true(data.table::is.data.table(result))
+})
+
+test_that("ops_na() result has columns: column, n_na, pct_na", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_true(all(c("column", "n_na", "pct_na") %in% names(result)))
+})
+
+test_that("ops_na() returns one row per column in data", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_equal(nrow(result), ncol(dt))
+})
+
+test_that("ops_na() result is sorted by pct_na descending", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_true(all(diff(result$pct_na) <= 0))
+})
+
+test_that("ops_na() pct_na values are in [0, 100]", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_true(all(result$pct_na >= 0 & result$pct_na <= 100))
+})
+
+test_that("ops_na() n_na is non-negative integer", {
+  dt     <- suppressMessages(ops_toy(n = 50, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_true(all(result$n_na >= 0L))
+  expect_true(is.integer(result$n_na))
+})
+
+test_that("ops_na() messy_allna column shows 100% missing", {
+  dt     <- suppressMessages(ops_toy(n = 100, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_equal(result[column == "messy_allna", pct_na], 100)
+})
+
+test_that("ops_na() complete numeric column shows 0% missing", {
+  dt     <- suppressMessages(ops_toy(n = 100, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  expect_equal(result[column == "p21001_i0", pct_na], 0)
+})
+
+test_that("ops_na() counts empty strings as missing", {
+  dt     <- suppressMessages(ops_toy(n = 200, seed = 1))
+  result <- suppressMessages(ops_na(dt, verbose = FALSE))
+  # messy_empty contains "" and NA — both counted as missing
+  expect_gt(result[column == "messy_empty", n_na], 0L)
+})
+
+test_that("ops_na() threshold does not affect returned data.table", {
+  dt      <- suppressMessages(ops_toy(n = 100, seed = 1))
+  res0    <- suppressMessages(ops_na(dt, threshold = 0,  verbose = FALSE))
+  res50   <- suppressMessages(ops_na(dt, threshold = 50, verbose = FALSE))
+  expect_equal(nrow(res0), nrow(res50))
+  expect_identical(res0, res50)
+})
+
+test_that("ops_na() verbose=FALSE produces no messages", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_no_message(ops_na(dt, verbose = FALSE))
+})
+
+
+# ===========================================================================
+# ops_snapshot() — input validation
+# ===========================================================================
+
+test_that("ops_snapshot() aborts on non-data.frame data", {
+  expect_error(ops_snapshot("not a df"), "data.frame")
+})
+
+test_that("ops_snapshot() aborts on invalid label", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_snapshot(dt, label = 123)), "label")
+})
+
+test_that("ops_snapshot() aborts on empty string label", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_snapshot(dt, label = "")), "label")
+})
+
+test_that("ops_snapshot() aborts on invalid verbose", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_snapshot(dt, verbose = "yes")), "verbose")
+})
+
+
+# ===========================================================================
+# ops_snapshot() — record and history
+# ===========================================================================
+
+test_that("ops_snapshot() reset clears history", {
+  suppressMessages(ops_snapshot(reset = TRUE))
+  suppressMessages(ops_snapshot(suppressMessages(ops_toy(n = 50, seed = 1)),
+                                label = "x", verbose = FALSE))
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  history <- suppressMessages(ops_snapshot(verbose = FALSE))
+  expect_null(history)
+})
+
+test_that("ops_snapshot() records a new row each call", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "s1", verbose = FALSE))
+  suppressMessages(ops_snapshot(dt, label = "s2", verbose = FALSE))
+  history <- suppressMessages(ops_snapshot(verbose = FALSE))
+  expect_equal(nrow(history), 2L)
+})
+
+test_that("ops_snapshot() result has expected columns", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  row <- suppressMessages(ops_snapshot(dt, label = "test", verbose = FALSE))
+  expect_true(all(c("idx", "label", "timestamp",
+                    "nrow", "ncol", "n_na_cols", "size_mb") %in% names(row)))
+})
+
+test_that("ops_snapshot() auto-labels as snapshot_N when label omitted", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt  <- suppressMessages(ops_toy(n = 50, seed = 1))
+  row <- suppressMessages(ops_snapshot(dt, verbose = FALSE))
+  expect_equal(row$label, "snapshot_1")
+})
+
+test_that("ops_snapshot() nrow and ncol match input data", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt  <- suppressMessages(ops_toy(n = 200, seed = 1))
+  row <- suppressMessages(ops_snapshot(dt, label = "chk", verbose = FALSE))
+  expect_equal(row$nrow, 200L)
+  expect_equal(row$ncol, ncol(dt))
+})
+
+test_that("ops_snapshot() idx increments sequentially", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "a", verbose = FALSE))
+  suppressMessages(ops_snapshot(dt, label = "b", verbose = FALSE))
+  suppressMessages(ops_snapshot(dt, label = "c", verbose = FALSE))
+  history <- suppressMessages(ops_snapshot(verbose = FALSE))
+  expect_equal(history$idx, 1:3)
+})
+
+test_that("ops_snapshot() verbose=FALSE produces no messages when recording", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_no_message(ops_snapshot(dt, label = "quiet", verbose = FALSE))
+})
+
+test_that("ops_snapshot() warns when no history and no data supplied", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  expect_message(ops_snapshot(verbose = TRUE), "No snapshots")
+})
