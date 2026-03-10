@@ -176,6 +176,9 @@ home:
   - text: "Genetic Risk Score (GRS) Analysis on UKB RAP"
     href: articles/grs.html
     desc: "End-to-end GRS pipeline from weights to validation"
+  - text: "Case Study: Smoking and Lung Cancer Risk"
+    href: articles/smoking_lung_cancer.html
+    desc: "End-to-end worked example with simulated UKB data"
   - text: "Function Reference"
     href: reference/
     desc: "Complete documentation for all functions"
@@ -257,6 +260,9 @@ navbar:
         href: articles/plot.html
       - text: "Genetic Risk Score (GRS) Analysis on UKB RAP"
         href: articles/grs.html
+      - text: "--------"
+      - text: "Case Study: Smoking and Lung Cancer Risk"
+        href: articles/smoking_lung_cancer.html
       - text: "--------"
       - text: "All Articles"
         href: articles/

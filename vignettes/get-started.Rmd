@@ -89,6 +89,14 @@ plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
 | Plot | `plot_forest()`, `plot_tableone()` | `vignette("plot")` |
 | GRS | `grs_check()`, `grs_score()`, `grs_validate()` | `vignette("grs")` |
 
+## End-to-End Case Study
+
+For a complete worked example using a simulated UK Biobank cohort — covering
+data loading, phenotype derivation, cohort assembly, Cox regression, and
+publication-ready visualisation — see:
+
+`vignette("smoking_lung_cancer")` — **Smoking and Lung Cancer Risk: A Complete Analysis Workflow**
+
 ## Additional Resources
 
 - [Documentation site](https://evanbio.github.io/ukbflow/)
