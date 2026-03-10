@@ -269,30 +269,20 @@ grs_bgen2pgen <- function(chr      = 1:22,
   on.exit(unlink(tmp_script), add = TRUE)
   writeLines(.bgen2pgen_script(n_threads, plink_memory, maf), tmp_script)
 
-  # Check for existing file with same name and remove it before uploading.
-  # Reason: RAP allows multiple files with identical names in the same folder
-  # (each gets a unique file-ID), but tools like Swiss Army Knife cannot
-  # distinguish between them and will error. Always start with a clean slate.
-  existing <- tryCatch(
-    fetch_ls(".", type = "file"),
-    error = function(e) NULL
-  )
-  if (!is.null(existing) && script_name %in% existing$name) {
-    cli::cli_inform("Removing existing {.val {script_name}} from RAP ...")
-    rm_res <- .dx_run(c("rm", script_remote), timeout = 30L)
-    if (!rm_res$success)
-      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}", call = NULL)
-    cli::cli_alert_success("Removed: {.val {script_remote}}")
-  }
+  existing <- tryCatch(fetch_ls(".", type = "file"), error = function(e) NULL)
 
-  cli::cli_inform("Uploading {.val {script_name}} to RAP ...")
-  up <- .dx_run(
-    c("upload", tmp_script, "--path", script_remote, "--brief", "--wait"),
-    timeout = 120L
-  )
-  if (!up$success)
-    cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
-  cli::cli_alert_success("Uploaded: {.val {script_remote}}")
+  if (!is.null(existing) && script_name %in% existing$name) {
+    cli::cli_alert_success("{.val {script_name}} already on RAP, skipping upload.")
+  } else {
+    cli::cli_inform("Uploading {.val {script_name}} to RAP ...")
+    up <- .dx_run(
+      c("upload", tmp_script, "--path", script_remote, "--brief", "--wait"),
+      timeout = 120L
+    )
+    if (!up$success)
+      cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
+    cli::cli_alert_success("Uploaded: {.val {script_remote}}")
+  }
 
   # ---------------------------------------------------------------------------
   # 5. Submit one Swiss Army Knife job per chromosome
@@ -314,7 +304,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
 
     res <- .dx_run(c(
       "run", "swiss-army-knife",
-      "-icmd",           cmd,
+      paste0("-icmd=", cmd),
       "--destination",   dest,
       "--instance-type", instance_type,
       "--priority",      priority,
@@ -507,22 +497,19 @@ grs_score <- function(file,
 
   # Re-fetch to account for any files added during weight uploads
   existing2 <- tryCatch(fetch_ls(".", type = "file"), error = function(e) NULL)
-  if (!is.null(existing2) && script_name %in% existing2$name) {
-    cli::cli_inform("Removing existing {.val {script_name}} from RAP ...")
-    rm_res <- .dx_run(c("rm", script_remote), timeout = 30L)
-    if (!rm_res$success)
-      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}", call = NULL)
-    cli::cli_alert_success("Removed: {.val {script_remote}}")
-  }
 
-  cli::cli_inform("Uploading {.val {script_name}} to RAP ...")
-  up <- .dx_run(
-    c("upload", tmp_script, "--path", script_remote, "--brief", "--wait"),
-    timeout = 120L
-  )
-  if (!up$success)
-    cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
-  cli::cli_alert_success("Uploaded: {.val {script_remote}}")
+  if (!is.null(existing2) && script_name %in% existing2$name) {
+    cli::cli_alert_success("{.val {script_name}} already on RAP, skipping upload.")
+  } else {
+    cli::cli_inform("Uploading {.val {script_name}} to RAP ...")
+    up <- .dx_run(
+      c("upload", tmp_script, "--path", script_remote, "--brief", "--wait"),
+      timeout = 120L
+    )
+    if (!up$success)
+      cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
+    cli::cli_alert_success("Uploaded: {.val {script_remote}}")
+  }
 
   # ---------------------------------------------------------------------------
   # 6. Submit one Swiss Army Knife job per GRS
@@ -549,7 +536,7 @@ grs_score <- function(file,
 
     res <- .dx_run(c(
       "run", "swiss-army-knife",
-      "-icmd",           cmd,
+      paste0("-icmd=", cmd),
       "--destination",   dest,
       "--instance-type", instance_type,
       "--priority",      priority,
