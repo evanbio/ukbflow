@@ -67,8 +67,12 @@
   )
 
   # ── 5. Self-report disease (i0, a0~a4) ───────────────────────────────────────
-  # UKB coding 6: common non-cancer illness codes
-  sr_codes <- c("1065", "1473", "1220", "1452", "1094", "1381", "1075", "1072")
+  # UKB coding 6: non-cancer illness text labels (as exported from RAP)
+  sr_codes <- c(
+    "hypertension", "type 2 diabetes", "asthma", "back problem",
+    "thyroid problem (not cancer)", "fracture", "joint disorder",
+    "heart attack/myocardial infarction"
+  )
 
   # Decreasing fill rate across array slots (a0 most populated)
   sr_fill <- c(0.30, 0.18, 0.10, 0.05, 0.02)
@@ -88,6 +92,33 @@
       ifelse(has_val, sample(2000L:2015L, n, replace = TRUE) + 0.5, NA_real_)
     }),
     paste0("p20008_i0_a", 0:4)
+  )
+
+  # ── 5b. Self-report cancer (p20001 i0 a0~a4, p20006 i0 a0~a4) ───────────────
+  # UKB coding 3: cancer illness text labels (as exported from RAP)
+  sc_codes <- c(
+    "lung cancer", "breast cancer", "bladder cancer",
+    "malignant melanoma", "non-melanoma skin cancer",
+    "lymphoma", "thyroid cancer", "kidney/renal cell cancer"
+  )
+
+  # Lower fill rate than non-cancer; decreasing across array slots
+  sc_fill <- c(0.05, 0.03, 0.015, 0.008, 0.003)
+
+  sc_disease <- stats::setNames(
+    lapply(sc_fill, function(p)
+      ifelse(runif(n) < p, sample(sc_codes, n, replace = TRUE), NA_character_)
+    ),
+    paste0("p20001_i0_a", 0:4)
+  )
+
+  # Decimal year format, NA-aligned with disease — same convention as p20008
+  sc_dates <- stats::setNames(
+    lapply(seq_along(sc_fill), function(i) {
+      has_val <- !is.na(sc_disease[[i]])
+      ifelse(has_val, sample(2000L:2015L, n, replace = TRUE) + 0.5, NA_real_)
+    }),
+    paste0("p20006_i0_a", 0:4)
   )
 
   # ── 6. HES (p41270 JSON + p41280_a0~a9) ──────────────────────────────────────
@@ -190,6 +221,7 @@
 
   dt <- cbind(dt, data.table::as.data.table(pc_cols))
   dt <- cbind(dt, data.table::as.data.table(sr_disease), data.table::as.data.table(sr_dates))
+  dt <- cbind(dt, data.table::as.data.table(sc_disease), data.table::as.data.table(sc_dates))
 
   dt[, p41270 := p41270]
   dt <- cbind(dt, data.table::as.data.table(p41280))
