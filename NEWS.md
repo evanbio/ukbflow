@@ -1,3 +1,33 @@
+# ukbflow 0.2.0
+
+*Released: March 10, 2026*
+
+## New Features
+
+### Operations (ops_*)
+- `ops_setup()` — check and report the local environment (R, dx-toolkit, dxpy) health
+- `ops_toy()` — generate synthetic UKB-style cohort or forest-plot data for testing and demos; includes GRS columns and cancer self-report fields
+- `ops_na()` — summarise missing-value rates per column with threshold-based filtering and `cli` progress feedback
+- `ops_snapshot()` — record and display a history of dataset row/column counts across pipeline steps
+
+## Bug Fixes
+
+- All `cli::cli_abort()` calls now pass `call = NULL` to suppress internal call-stack noise in error messages
+- `ops_toy()`: added cancer self-report fields (`p20001`, `p20006`) and corrected `sr_codes` → text label mapping
+
+## Documentation
+
+- New vignette: *Smoking and Lung Cancer — End-to-End Analysis* (`vignette("smoking_lung_cancer")`)
+- New vignette: *ops_* Series* covering setup, toy data, NA summary, and snapshots
+- pkgdown site now auto-deploys via GitHub Actions (CI-managed `docs/`)
+
+## Internal
+
+- Resolved R CMD check NOTEs: added `importFrom(stats, rnorm, runif)`, `importFrom(utils, object.size)`, and `pct_na` to `globalVariables()`
+- Added `builds/` to `.Rbuildignore`
+
+---
+
 # ukbflow 0.1.0
 
 *Released: March 6, 2026*

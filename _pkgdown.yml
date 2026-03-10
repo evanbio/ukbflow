@@ -224,7 +224,7 @@ navbar:
 
   components:
     version:
-      text: "0.1.0"
+      text: "0.2.0"
       href: news/index.html
 
     install:
@@ -395,6 +395,8 @@ reference:
 
 news:
   releases:
+  - text: "Version 0.2.0 - ops_* Series (March 2026)"
+    href: https://github.com/evanbio/ukbflow/releases/tag/v0.2.0
   - text: "Version 0.1.0 - Initial Release (March 2026)"
     href: https://github.com/evanbio/ukbflow/releases/tag/v0.1.0
   - text: "View All Releases"
@@ -412,7 +414,7 @@ footer:
   components:
     package_info: |
       <div class="text-muted">
-        <strong>ukbflow v0.1.0</strong><br>
+        <strong>ukbflow v0.2.0</strong><br>
         <small>Last updated: March 2026</small>
       </div>
 
