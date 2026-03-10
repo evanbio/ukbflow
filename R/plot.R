@@ -157,20 +157,20 @@ plot_forest <- function(data,
   # ---------------------------------------------------------------------------
   n <- nrow(data)
   if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame.")
-  if (length(est)   != n) cli::cli_abort("{.arg est} must have length {n}.")
-  if (length(lower) != n) cli::cli_abort("{.arg lower} must have length {n}.")
-  if (length(upper) != n) cli::cli_abort("{.arg upper} must have length {n}.")
+    cli::cli_abort("{.arg data} must be a data.frame.", call = NULL)
+  if (length(est)   != n) cli::cli_abort("{.arg est} must have length {n}.", call = NULL)
+  if (length(lower) != n) cli::cli_abort("{.arg lower} must have length {n}.", call = NULL)
+  if (length(upper) != n) cli::cli_abort("{.arg upper} must have length {n}.", call = NULL)
   if (!is.null(indent)     && length(indent)     != n)
-    cli::cli_abort("{.arg indent} must have length {n}.")
+    cli::cli_abort("{.arg indent} must have length {n}.", call = NULL)
   if (!is.null(bold_label) && length(bold_label) != n)
-    cli::cli_abort("{.arg bold_label} must have length {n}.")
+    cli::cli_abort("{.arg bold_label} must have length {n}.", call = NULL)
   if (length(ci_col) > 1L  && length(ci_col) != n)
-    cli::cli_abort("{.arg ci_col} must be scalar or length {n}.")
+    cli::cli_abort("{.arg ci_col} must be scalar or length {n}.", call = NULL)
   if (!is.null(p_cols) && !all(p_cols %in% names(data)))
-    cli::cli_abort("{.arg p_cols} must be column names present in {.arg data}.")
+    cli::cli_abort("{.arg p_cols} must be column names present in {.arg data}.", call = NULL)
   if (!is.logical(bold_p) || (length(bold_p) != 1L && length(bold_p) != n))
-    cli::cli_abort("{.arg bold_p} must be TRUE, FALSE, or a logical vector of length {n}.")
+    cli::cli_abort("{.arg bold_p} must be TRUE, FALSE, or a logical vector of length {n}.", call = NULL)
 
   # ---------------------------------------------------------------------------
   # 2. Defaults
@@ -260,7 +260,7 @@ plot_forest <- function(data,
   # ---------------------------------------------------------------------------
   if (isTRUE(save)) {
     if (is.null(dest))
-      cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.")
+      cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.", call = NULL)
     h <- if (is.null(save_height)) nr * 0.9 + 3 else save_height
     .fp_save(p, dest, save_width, h)
   }
@@ -392,17 +392,19 @@ plot_tableone <- function(
   # 1. Validate inputs
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame.")
+    cli::cli_abort("{.arg data} must be a data.frame.", call = NULL)
   if (!all(vars %in% names(data)))
     cli::cli_abort(
-      "All {.arg vars} must be column names in {.arg data}. Missing: {.val {setdiff(vars, names(data))}}."
+      "All {.arg vars} must be column names in {.arg data}. Missing: {.val {setdiff(vars, names(data))}}.",
+      call = NULL
     )
   if (!is.null(strata) && !strata %in% names(data))
     cli::cli_abort(
-      "{.arg strata} ({.val {strata}}) is not a column in {.arg data}."
+      "{.arg strata} ({.val {strata}}) is not a column in {.arg data}.",
+      call = NULL
     )
   if (isTRUE(save) && is.null(dest))
-    cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.")
+    cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.", call = NULL)
 
   # Silently disable p / SMD when no strata
   if (isTRUE(add_p) && is.null(strata)) {

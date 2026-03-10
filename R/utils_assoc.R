@@ -16,7 +16,8 @@
   bad <- setdiff(stats::na.omit(unique(xi)), c(0L, 1L))
   if (length(bad) > 0L) {
     cli::cli_abort(
-      "outcome_col {.field {col}}: values other than 0/1/NA found: {bad}"
+      "outcome_col {.field {col}}: values other than 0/1/NA found: {bad}",
+      call = NULL
     )
   }
   xi

@@ -298,10 +298,10 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
   if (nrow(data) == 0L) {
-    cli::cli_abort("{.arg data} has 0 rows.")
+    cli::cli_abort("{.arg data} has 0 rows.", call = NULL)
   }
   if (!is.numeric(threshold) || length(threshold) != 1L ||
       is.na(threshold) || threshold < 0 || threshold >= 100) {
@@ -310,7 +310,7 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
     )
   }
   if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
-    cli::cli_abort("{.arg verbose} must be a single logical value.")
+    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
   }
 
   n_row <- nrow(data)
@@ -416,9 +416,9 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
   # ── Validation ──────────────────────────────────────────────────────────────
   if (!is.logical(reset)  || length(reset)  != 1L || is.na(reset))
-    cli::cli_abort("{.arg reset} must be a single logical value.")
+    cli::cli_abort("{.arg reset} must be a single logical value.", call = NULL)
   if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose))
-    cli::cli_abort("{.arg verbose} must be a single logical value.")
+    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
 
   # ── Reset ───────────────────────────────────────────────────────────────────
   if (reset) {
@@ -444,10 +444,10 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
   # ── Record new snapshot ──────────────────────────────────────────────────────
   if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   if (!is.null(label) &&
       (!is.character(label) || length(label) != 1L || is.na(label) || !nzchar(label)))
-    cli::cli_abort("{.arg label} must be a single non-empty character string.")
+    cli::cli_abort("{.arg label} must be a single non-empty character string.", call = NULL)
 
   history <- .ukbflow_cache$snapshots
   idx     <- if (is.null(history)) 1L else nrow(history) + 1L

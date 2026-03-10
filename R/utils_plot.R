@@ -85,10 +85,11 @@
 
   # 4. Build final table: left cols | gap_ci | OR (95% CI) | right cols
   if (ci_column <= 1L)
-    cli::cli_abort("{.arg ci_column} must be >= 2.")
+    cli::cli_abort("{.arg ci_column} must be >= 2.", call = NULL)
   if (ci_column > ncol_orig + 1L)
     cli::cli_abort(
-      "{.arg ci_column} ({ci_column}) exceeds ncol(data)+1 ({ncol_orig + 1L})."
+      "{.arg ci_column} ({ci_column}) exceeds ncol(data)+1 ({ncol_orig + 1L}).",
+      call = NULL
     )
 
   gap_df <- data.frame(gap_ci        = strrep(" ", 20L), stringsAsFactors = FALSE)
@@ -581,7 +582,7 @@
   # PDF (HTML → pagedown::chrome_print) ---------------------------------------
   if (html_ready) tryCatch({
     if (!requireNamespace("pagedown", quietly = TRUE))
-      cli::cli_abort("Package {.pkg pagedown} is required for PDF export.")
+      cli::cli_abort("Package {.pkg pagedown} is required for PDF export.", call = NULL)
     out <- paste0(base, ".pdf")
     pagedown::chrome_print(
       input      = tmp_html,
@@ -603,7 +604,7 @@
   # PNG (HTML → webshot2::webshot) --------------------------------------------
   if (html_ready) tryCatch({
     if (!requireNamespace("webshot2", quietly = TRUE))
-      cli::cli_abort("Package {.pkg webshot2} is required for PNG export.")
+      cli::cli_abort("Package {.pkg webshot2} is required for PNG export.", call = NULL)
     out <- paste0(base, ".png")
     webshot2::webshot(
       url      = tmp_html,

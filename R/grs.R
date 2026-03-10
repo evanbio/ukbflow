@@ -54,11 +54,11 @@ grs_check <- function(file, dest = "weights.txt") {
   # 1. Read
   # ---------------------------------------------------------------------------
   if (!file.exists(file))
-    cli::cli_abort("File not found: {.path {file}}")
+    cli::cli_abort("File not found: {.path {file}}", call = NULL)
 
   dt <- data.table::fread(file, data.table = TRUE)
   if (nrow(dt) == 0L)
-    cli::cli_abort("File contains no data rows: {.path {file}}")
+    cli::cli_abort("File contains no data rows: {.path {file}}", call = NULL)
   cli::cli_inform("Read {.path {file}}: {nrow(dt)} rows, {ncol(dt)} columns.")
   # Normalise effect_allele to uppercase to tolerate lowercase input
   if ("effect_allele" %in% names(dt))
@@ -82,7 +82,7 @@ grs_check <- function(file, dest = "weights.txt") {
   # ---------------------------------------------------------------------------
   n_na <- sum(!stats::complete.cases(w))
   if (n_na > 0L)
-    cli::cli_abort("{n_na} row(s) have NA in required columns - remove before proceeding.")
+    cli::cli_abort("{n_na} row(s) have NA in required columns - remove before proceeding.", call = NULL)
   cli::cli_alert_success("No NA values.")
 
   # ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ grs_check <- function(file, dest = "weights.txt") {
   # ---------------------------------------------------------------------------
   n_dup <- sum(duplicated(w$snp))
   if (n_dup > 0L)
-    cli::cli_abort("{n_dup} duplicate SNP ID(s) found - each SNP must appear once.")
+    cli::cli_abort("{n_dup} duplicate SNP ID(s) found - each SNP must appear once.", call = NULL)
   cli::cli_alert_success("No duplicate SNPs.")
 
   # ---------------------------------------------------------------------------
@@ -121,7 +121,7 @@ grs_check <- function(file, dest = "weights.txt") {
   # 7. Beta: numeric
   # ---------------------------------------------------------------------------
   if (!is.numeric(w$beta))
-    cli::cli_abort("{.field beta} must be numeric (found {.cls {class(w$beta)}}).")
+    cli::cli_abort("{.field beta} must be numeric (found {.cls {class(w$beta)}}).", call = NULL)
 
   # ---------------------------------------------------------------------------
   # 8. Beta summary
@@ -227,10 +227,10 @@ grs_bgen2pgen <- function(chr      = 1:22,
 
   chr <- as.integer(chr)
   if (any(is.na(chr)) || any(chr < 1L) || any(chr > 22L))
-    cli::cli_abort("{.arg chr} must be integers between 1 and 22.")
+    cli::cli_abort("{.arg chr} must be integers between 1 and 22.", call = NULL)
 
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
-    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).")
+    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).", call = NULL)
 
   if (instance == "standard" && any(chr %in% 1:14))
     cli::cli_warn(c(
@@ -256,7 +256,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
   # ---------------------------------------------------------------------------
   project_id <- .dx_get_project_id()
   if (is.na(project_id) || !nzchar(project_id))
-    cli::cli_abort("No project selected. Run {.fn auth_select_project} first.")
+    cli::cli_abort("No project selected. Run {.fn auth_select_project} first.", call = NULL)
 
   # ---------------------------------------------------------------------------
   # 4. Generate driver script, write to tempfile, upload to RAP
@@ -281,7 +281,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
     cli::cli_inform("Removing existing {.val {script_name}} from RAP ...")
     rm_res <- .dx_run(c("rm", script_remote), timeout = 30L)
     if (!rm_res$success)
-      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}")
+      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}", call = NULL)
     cli::cli_alert_success("Removed: {.val {script_remote}}")
   }
 
@@ -291,7 +291,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
     timeout = 120L
   )
   if (!up$success)
-    cli::cli_abort("Script upload failed: {up$stderr}")
+    cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
   cli::cli_alert_success("Uploaded: {.val {script_remote}}")
 
   # ---------------------------------------------------------------------------
@@ -416,15 +416,16 @@ grs_score <- function(file,
   priority <- match.arg(priority, c("low", "high"))
 
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
-    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.")
+    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.", call = NULL)
 
   if (!is.character(file))
-    cli::cli_abort("{.arg file} must be a named character vector.")
+    cli::cli_abort("{.arg file} must be a named character vector.", call = NULL)
   if (is.null(names(file)) || any(!nzchar(names(file))))
-    cli::cli_abort("{.arg file} must be fully named (each entry needs a name).")
+    cli::cli_abort("{.arg file} must be fully named (each entry needs a name).", call = NULL)
   if (any(duplicated(names(file))))
     cli::cli_abort(
-      "Duplicate names in {.arg file}: {.val {names(file)[duplicated(names(file))]}}"
+      "Duplicate names in {.arg file}: {.val {names(file)[duplicated(names(file))]}}",
+      call = NULL
     )
 
   missing_local <- file[!file.exists(file)]
@@ -432,7 +433,7 @@ grs_score <- function(file,
     cli::cli_abort(c(
       "Local weight file(s) not found:",
       setNames(missing_local, rep("x", length(missing_local)))
-    ))
+    ), call = NULL)
 
   # ---------------------------------------------------------------------------
   # 2. Instance config
@@ -452,7 +453,7 @@ grs_score <- function(file,
   # ---------------------------------------------------------------------------
   project_id <- .dx_get_project_id()
   if (is.na(project_id) || !nzchar(project_id))
-    cli::cli_abort("No project selected. Run {.fn auth_select_project} first.")
+    cli::cli_abort("No project selected. Run {.fn auth_select_project} first.", call = NULL)
 
   # ---------------------------------------------------------------------------
   # 4. Upload weight files to RAP root
@@ -479,7 +480,7 @@ grs_score <- function(file,
       cli::cli_inform("Removing existing {.val {fname}} from RAP ...")
       rm_res <- .dx_run(c("rm", remote_path), timeout = 30L)
       if (!rm_res$success)
-        cli::cli_abort("Failed to remove {.val {fname}}: {rm_res$stderr}")
+        cli::cli_abort("Failed to remove {.val {fname}}: {rm_res$stderr}", call = NULL)
     }
 
     cli::cli_inform("Uploading {.val {fname}} ...")
@@ -488,7 +489,7 @@ grs_score <- function(file,
       timeout = 120L
     )
     if (!up$success)
-      cli::cli_abort("Upload failed for {.val {fname}}: {up$stderr}")
+      cli::cli_abort("Upload failed for {.val {fname}}: {up$stderr}", call = NULL)
 
     cli::cli_alert_success("Uploaded: {.val {remote_path}}")
   }
@@ -510,7 +511,7 @@ grs_score <- function(file,
     cli::cli_inform("Removing existing {.val {script_name}} from RAP ...")
     rm_res <- .dx_run(c("rm", script_remote), timeout = 30L)
     if (!rm_res$success)
-      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}")
+      cli::cli_abort("Failed to remove existing script: {rm_res$stderr}", call = NULL)
     cli::cli_alert_success("Removed: {.val {script_remote}}")
   }
 
@@ -520,7 +521,7 @@ grs_score <- function(file,
     timeout = 120L
   )
   if (!up$success)
-    cli::cli_abort("Script upload failed: {up$stderr}")
+    cli::cli_abort("Script upload failed: {up$stderr}", call = NULL)
   cli::cli_alert_success("Uploaded: {.val {script_remote}}")
 
   # ---------------------------------------------------------------------------
@@ -608,7 +609,7 @@ grs_standardize <- function(data, grs_cols = NULL) {
   # 1. Validate data
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
 
   dt <- data.table::as.data.table(data)
 
@@ -618,12 +619,12 @@ grs_standardize <- function(data, grs_cols = NULL) {
   if (is.null(grs_cols)) {
     grs_cols <- names(dt)[grepl("grs", names(dt), ignore.case = TRUE)]
     if (length(grs_cols) == 0L)
-      cli::cli_abort("No columns containing {.val grs} found. Supply column names via {.arg grs_cols}.")
+      cli::cli_abort("No columns containing {.val grs} found. Supply column names via {.arg grs_cols}.", call = NULL)
     cli::cli_inform("Auto-detected {length(grs_cols)} GRS column(s): {.val {grs_cols}}")
   } else {
     missing_cols <- setdiff(grs_cols, names(dt))
     if (length(missing_cols) > 0L)
-      cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}")
+      cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}", call = NULL)
   }
 
   # ---------------------------------------------------------------------------
@@ -635,7 +636,7 @@ grs_standardize <- function(data, grs_cols = NULL) {
     sigma   <- stats::sd(x, na.rm = TRUE)
 
     if (sigma == 0)
-      cli::cli_abort("{.field {col}} has zero variance - cannot standardise.")
+      cli::cli_abort("{.field {col}} has zero variance - cannot standardise.", call = NULL)
 
     z_col   <- paste0(col, "_z")
     z_vals  <- (x - mu) / sigma
@@ -738,7 +739,7 @@ grs_validate <- function(data,
   # 1. Validate inputs
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
 
   # Work on a copy so derive_cut() in-place ops don't touch the user's data
   dt <- data.table::copy(data.table::as.data.table(data))
@@ -746,13 +747,13 @@ grs_validate <- function(data,
   if (is.null(grs_cols)) {
     grs_cols <- names(dt)[grepl("grs", names(dt), ignore.case = TRUE)]
     if (length(grs_cols) == 0L)
-      cli::cli_abort("No GRS columns found. Supply column names via {.arg grs_cols}.")
+      cli::cli_abort("No GRS columns found. Supply column names via {.arg grs_cols}.", call = NULL)
     cli::cli_inform("Auto-detected {length(grs_cols)} GRS column(s): {.val {grs_cols}}")
   }
 
   missing_cols <- setdiff(c(grs_cols, outcome_col, time_col, covariates), names(dt))
   if (length(missing_cols) > 0L)
-    cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}")
+    cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}", call = NULL)
 
   is_cox <- !is.null(time_col)
 
@@ -826,7 +827,8 @@ grs_validate <- function(data,
 
   if (!is_cox && !requireNamespace("pROC", quietly = TRUE))
     cli::cli_abort(
-      "Package {.pkg pROC} is required for AUC. Install with {.code install.packages('pROC')}."
+      "Package {.pkg pROC} is required for AUC. Install with {.code install.packages('pROC')}.",
+      call = NULL
     )
 
   disc_list <- lapply(grs_cols, function(col) {

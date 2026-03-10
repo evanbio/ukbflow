@@ -120,7 +120,7 @@ assoc_coxph <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
   all_cols <- names(data)
 
@@ -130,18 +130,20 @@ assoc_coxph <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
   if (!base && is.null(covariates)) {
     cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied."
+      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
+      call = NULL
     )
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   # ---------------------------------------------------------------------------
@@ -347,7 +349,7 @@ assoc_logistic <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -356,18 +358,20 @@ assoc_logistic <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
   if (!base && is.null(covariates)) {
     cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied."
+      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
+      call = NULL
     )
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   # ---------------------------------------------------------------------------
@@ -562,7 +566,7 @@ assoc_linear <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -571,18 +575,20 @@ assoc_linear <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
   if (!base && is.null(covariates)) {
     cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied."
+      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
+      call = NULL
     )
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   # Warn if outcome looks binary - logistic regression is more appropriate
@@ -597,7 +603,8 @@ assoc_linear <- function(data,
 
   if (!is.numeric(outcome_vec) && !is.logical(outcome_vec)) {
     cli::cli_abort(
-      "outcome_col {.field {outcome_col}} must be numeric. Found: {class(outcome_vec)[1]}."
+      "outcome_col {.field {outcome_col}} must be numeric. Found: {class(outcome_vec)[1]}.",
+      call = NULL
     )
   }
 
@@ -775,7 +782,7 @@ assoc_coxph_zph <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -784,13 +791,15 @@ assoc_coxph_zph <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
   if (!base && is.null(covariates)) {
     cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied."
+      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
+      call = NULL
     )
   }
 
@@ -1014,16 +1023,16 @@ assoc_subgroup <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
   if (!is.character(by) || length(by) != 1L) {
-    cli::cli_abort("{.arg by} must be a single character string.")
+    cli::cli_abort("{.arg by} must be a single character string.", call = NULL)
   }
   if (method == "coxph" && is.null(time_col)) {
-    cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.")
+    cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.", call = NULL)
   }
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -1032,7 +1041,8 @@ assoc_subgroup <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
@@ -1368,16 +1378,16 @@ assoc_trend <- function(data,
   # 0. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
   if (method == "coxph" && is.null(time_col)) {
-    cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.")
+    cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.", call = NULL)
   }
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
   if (!base && is.null(covariates)) {
-    cli::cli_abort("When {.arg base = FALSE}, {.arg covariates} must be supplied.")
+    cli::cli_abort("When {.arg base = FALSE}, {.arg covariates} must be supplied.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -1386,7 +1396,8 @@ assoc_trend <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
@@ -1396,7 +1407,8 @@ assoc_trend <- function(data,
                                       logical(1L))]
   if (length(non_factor) > 0L) {
     cli::cli_abort(
-      "exposure_col must be a factor. Non-factor column{?s}: {.field {non_factor}}. Use {.fn factor} or {.fn derive_cut} first."
+      "exposure_col must be a factor. Non-factor column{?s}: {.field {non_factor}}. Use {.fn factor} or {.fn derive_cut} first.",
+      call = NULL
     )
   }
 
@@ -1417,7 +1429,8 @@ assoc_trend <- function(data,
     bad <- exposure_col[nlv_all != length(scores)]
     if (length(bad) > 0L) {
       cli::cli_abort(
-        "{.arg scores} has length {length(scores)} but exposure{?s} {.field {bad}} ha{?s/ve} {nlv_all[exposure_col %in% bad]} level{?s}. Length must equal nlevels."
+        "{.arg scores} has length {length(scores)} but exposure{?s} {.field {bad}} ha{?s/ve} {nlv_all[exposure_col %in% bad]} level{?s}. Length must equal nlevels.",
+        call = NULL
       )
     }
   }
@@ -1819,7 +1832,7 @@ assoc_competing <- function(data,
   # 1. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
 
   dt <- data.table::as.data.table(data)
@@ -1827,11 +1840,11 @@ assoc_competing <- function(data,
   req_cols <- c(outcome_col, time_col, exposure_col, compete_col, covariates)
   missing_cols <- setdiff(req_cols, names(dt))
   if (length(missing_cols) > 0L) {
-    cli::cli_abort("Column{?s} not found in data: {.field {missing_cols}}")
+    cli::cli_abort("Column{?s} not found in data: {.field {missing_cols}}", call = NULL)
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   # Normalise logical exposures → integer (avoids "ad_tfTRUE" term names)
@@ -2029,7 +2042,7 @@ assoc_lag <- function(data,
   # 1. Input validation
   # ---------------------------------------------------------------------------
   if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.")
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
 
   missing_cols <- setdiff(
@@ -2038,16 +2051,17 @@ assoc_lag <- function(data,
   )
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}"
+      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
+      call = NULL
     )
   }
 
   if (!is.numeric(lag_years) || any(lag_years < 0)) {
-    cli::cli_abort("{.arg lag_years} must be a non-negative numeric vector.")
+    cli::cli_abort("{.arg lag_years} must be a non-negative numeric vector.", call = NULL)
   }
 
   if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.")
+    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
   }
 
   lag_years <- sort(unique(lag_years))
