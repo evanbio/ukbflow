@@ -398,6 +398,7 @@
     list(pkg = "tidyselect",   required = TRUE,  group = "assoc / derive"),
     # Visualisation
     list(pkg = "forestploter", required = TRUE,  group = "plot_forest"),
+    list(pkg = "broom",        required = TRUE,  group = "plot_tableone"),
     list(pkg = "gt",           required = TRUE,  group = "plot_tableone"),
     list(pkg = "gtsummary",    required = TRUE,  group = "plot_tableone"),
     # Optional / Suggests
