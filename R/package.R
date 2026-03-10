@@ -3,7 +3,8 @@
 
 ## usethis namespace: start
 #' @import data.table
-#' @importFrom stats confint anova relevel setNames
+#' @importFrom stats confint anova relevel setNames rnorm runif
+#' @importFrom utils object.size
 ## usethis namespace: end
 
 utils::globalVariables(c(
@@ -20,7 +21,9 @@ utils::globalVariables(c(
   "instance_date", "i.date",
   "icd_code", "raw_clean", "col_name", "diag_date",
   "hist_code", "behv_code",
-  "death_date"
+  "death_date",
+  # data.table column references — ops_*
+  "pct_na"
 ))
 
 NULL
