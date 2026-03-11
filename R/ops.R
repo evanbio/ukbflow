@@ -514,3 +514,75 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
   invisible(new_row)
 }
+
+
+#' Exclude withdrawn participants from a dataset
+#'
+#' Reads a UK Biobank withdrawal list (a headerless single-column CSV of
+#' anonymised participant IDs) and removes the corresponding rows from
+#' `data`. A pair of [ops_snapshot()] calls is made automatically so the
+#' before/after row counts are recorded in the session snapshot history.
+#'
+#' @param data A data.frame or data.table containing a participant ID column.
+#' @param file (character) Path to the UKB withdrawal CSV file. The file must
+#'   be a single-column, **header-free** CSV as supplied by UK Biobank
+#'   (e.g. `w854944_20260310.csv`).
+#' @param eid_col (character) Name of the participant ID column in `data`.
+#'   Default `"eid"`.
+#' @param verbose (logical) Print the CLI report. Default `TRUE`.
+#'
+#' @return A data.table with withdrawn participants removed.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' dt <- fread("ukb_phenotype.csv")
+#' dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
+#' }
+ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
+
+  # ── Validation ──────────────────────────────────────────────────────────────
+  if (!is.data.frame(data))
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
+  if (!is.character(file) || length(file) != 1L || !nzchar(file))
+    cli::cli_abort("{.arg file} must be a single non-empty character string.", call = NULL)
+  if (!file.exists(file))
+    cli::cli_abort("Withdrawal file not found: {.path {file}}", call = NULL)
+  if (!is.character(eid_col) || length(eid_col) != 1L || !nzchar(eid_col))
+    cli::cli_abort("{.arg eid_col} must be a single non-empty character string.", call = NULL)
+  if (!eid_col %in% names(data))
+    cli::cli_abort("Column {.val {eid_col}} not found in {.arg data}.", call = NULL)
+  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose))
+    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
+
+  dt <- data.table::as.data.table(data)
+
+  # ── Read withdrawal list ─────────────────────────────────────────────────────
+  # Reason: UKB withdrawal files are headerless single-column CSVs; fread
+  # auto-detects integer type so no coercion is needed.
+  withdraw_ids <- data.table::fread(file, header = FALSE)[[1L]]
+  n_withdraw   <- length(withdraw_ids)
+
+  # ── Snapshot before ──────────────────────────────────────────────────────────
+  ops_snapshot(dt, label = "before_withdraw", verbose = verbose)
+
+  # ── Exclude ──────────────────────────────────────────────────────────────────
+  n_found <- sum(dt[[eid_col]] %in% withdraw_ids)
+  dt      <- dt[!get(eid_col) %in% withdraw_ids]
+
+  # ── Snapshot after ───────────────────────────────────────────────────────────
+  ops_snapshot(dt, label = "after_withdraw", verbose = verbose)
+
+  # ── Extra CLI summary ────────────────────────────────────────────────────────
+  if (verbose) {
+    fname <- basename(file)
+    cli::cli_inform(c(
+      "i" = "Withdrawal file: {.file {fname}} ({n_withdraw} IDs)",
+      "x" = "Excluded: {n_found} participant{?s} found in data",
+      "v" = "Remaining: {format(nrow(dt), big.mark = ',')} participants"
+    ))
+  }
+
+  dt
+}
