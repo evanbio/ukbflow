@@ -514,3 +514,106 @@ test_that("ops_snapshot() warns when no history and no data supplied", {
   suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
   expect_message(ops_snapshot(verbose = TRUE), "No snapshots")
 })
+
+
+# ===========================================================================
+# ops_withdraw() — input validation
+# ===========================================================================
+
+test_that("ops_withdraw() aborts on non-data.frame input", {
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("1234567", wfile)
+  expect_error(ops_withdraw("not a df", file = wfile), "data.frame")
+})
+
+test_that("ops_withdraw() aborts when file does not exist", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(ops_withdraw(dt, file = "nonexistent.csv"), "not found")
+})
+
+test_that("ops_withdraw() aborts when eid_col not in data", {
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("1234567", wfile)
+  expect_error(
+    suppressMessages(ops_withdraw(dt, file = wfile, eid_col = "wrong_col")),
+    "wrong_col"
+  )
+})
+
+test_that("ops_withdraw() aborts on invalid verbose", {
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("1234567", wfile)
+  expect_error(
+    suppressMessages(ops_withdraw(dt, file = wfile, verbose = "yes")),
+    "verbose"
+  )
+})
+
+
+# ===========================================================================
+# ops_withdraw() — expected use
+# ===========================================================================
+
+test_that("ops_withdraw() returns a data.table", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt    <- suppressMessages(ops_toy(n = 100, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("9999999", wfile)  # eid not in toy data
+  result <- suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE))
+  expect_true(data.table::is.data.table(result))
+})
+
+test_that("ops_withdraw() removes 0 rows when no eid matches", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt    <- suppressMessages(ops_toy(n = 100, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("9999999", wfile)
+  result <- suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE))
+  expect_equal(nrow(result), 100L)
+})
+
+test_that("ops_withdraw() removes matched eids correctly", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt         <- suppressMessages(ops_toy(n = 100, seed = 1))
+  inject_ids <- dt$eid[1:3]
+  wfile      <- withr::local_tempfile(fileext = ".csv")
+  writeLines(as.character(inject_ids), wfile)
+  result <- suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE))
+  expect_equal(nrow(result), 97L)
+  expect_false(any(result$eid %in% inject_ids))
+})
+
+test_that("ops_withdraw() works with custom eid_col", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 100, seed = 1))
+  data.table::setnames(dt, "eid", "participant_id")
+  inject_ids <- dt$participant_id[1:2]
+  wfile      <- withr::local_tempfile(fileext = ".csv")
+  writeLines(as.character(inject_ids), wfile)
+  result <- suppressMessages(
+    ops_withdraw(dt, file = wfile, eid_col = "participant_id", verbose = FALSE)
+  )
+  expect_equal(nrow(result), 98L)
+  expect_false(any(result$participant_id %in% inject_ids))
+})
+
+test_that("ops_withdraw() records two snapshots in session history", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt    <- suppressMessages(ops_toy(n = 100, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("9999999", wfile)
+  suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE))
+  history <- suppressMessages(ops_snapshot(verbose = FALSE))
+  expect_equal(nrow(history), 2L)
+  expect_equal(history$label, c("before_withdraw", "after_withdraw"))
+})
+
+test_that("ops_withdraw() verbose=FALSE produces no messages", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines("9999999", wfile)
+  expect_no_message(ops_withdraw(dt, file = wfile, verbose = FALSE))
+})
