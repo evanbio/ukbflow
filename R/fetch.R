@@ -142,6 +142,13 @@ fetch_url <- function(path, duration = "1d") {
 #' }
 fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
                        resume = FALSE, verbose = TRUE) {
+  if (!.is_on_rap())
+    cli::cli_abort(
+      c("fetch_file() can only be called from within the UKB Research Analysis Platform (RAP).",
+        "i" = "Individual-level UKB data must remain within the RAP environment."),
+      call = NULL
+    )
+
   if (!dir.exists(dest_dir)) {
     dir.create(dest_dir, recursive = TRUE)
   }

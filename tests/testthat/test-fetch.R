@@ -173,6 +173,7 @@ test_that("fetch_url() returns character(0) for empty folder", {
 
 test_that("fetch_file() calls .dx_download_file for a single file", {
   downloaded <- character(0)
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_file, ".dx_ls_raw",
                 function(...) list(success = FALSE, stdout = "", stderr = ""))
   mockery::stub(fetch_file, ".dx_make_url",
@@ -186,6 +187,7 @@ test_that("fetch_file() calls .dx_download_file for a single file", {
 })
 
 test_that("fetch_file() returns character(0) for empty folder", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_file, "fetch_ls",
                 function(...) data.frame(name = character(0), type = character(0),
                                          size = character(0),
@@ -196,6 +198,7 @@ test_that("fetch_file() returns character(0) for empty folder", {
 })
 
 test_that("fetch_file() creates dest_dir if it does not exist", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_file, ".dx_ls_raw",
                 function(...) list(success = FALSE, stdout = "", stderr = ""))
   mockery::stub(fetch_file, ".dx_make_url",
