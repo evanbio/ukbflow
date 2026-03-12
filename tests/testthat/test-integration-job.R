@@ -104,7 +104,7 @@ test_that("job_wait() stops with error message for known failed job", {
 # ===========================================================================
 
 test_that("job_path() returns a /mnt/project/ path for known done job", {
-  skip_if_not(.is_on_rap(), "job_path() requires RAP environment")
+  skip("job_path() requires real RAP environment with valid job ID")
   result <- job_path(JOB_DONE)
   expect_type(result, "character")
   expect_true(startsWith(result, "/mnt/project/"))

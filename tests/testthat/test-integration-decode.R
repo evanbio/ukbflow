@@ -13,6 +13,10 @@ if (!nzchar(token)) {
   skip("DX_API_TOKEN not set. Set it to run integration tests.")
 }
 
+if (!ukbflow:::.is_on_rap()) {
+  skip("Not running on RAP. fetch_file() requires the RAP environment.")
+}
+
 META_DIR <- withr::local_tempdir()
 
 # ===========================================================================
