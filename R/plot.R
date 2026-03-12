@@ -199,7 +199,8 @@ plot_forest <- function(data,
       cli::cli_abort(
         c("{.arg header} length ({length(header)}) must equal final column count ({nc}).",
           "i" = "Final table has {nc} column(s): {nc - 2L} original + gap_ci + OR label.",
-          "i" = "Pass {.val \"\"} for the gap column position.")
+          "i" = "Pass {.val \"\"} for the gap column position."),
+        call = NULL
       )
     names(data_r) <- header
   }
@@ -216,7 +217,8 @@ plot_forest <- function(data,
     } else if (length(align) != nc) {
       cli::cli_abort(
         c("{.arg align} has length {length(align)}, expected {n_orig} (original cols) or {nc} (final cols).",
-          "i" = "Original data has {n_orig} column(s); after inserting gap_ci and OR label the table has {nc} column(s).")
+          "i" = "Original data has {n_orig} column(s); after inserting gap_ci and OR label the table has {nc} column(s)."),
+        call = NULL
       )
     }
   }
@@ -331,6 +333,13 @@ plot_forest <- function(data,
 #'   When \code{save = TRUE}, four files are written:
 #'   \code{<dest>.docx}, \code{<dest>.html}, \code{<dest>.pdf},
 #'   \code{<dest>.png}. Required when \code{save = TRUE}.
+#' @param png_scale Numeric. Zoom factor for PNG export via \pkg{webshot2}.
+#'   Higher values produce larger, higher-resolution images. Default: \code{2}.
+#' @param pdf_width Numeric or \code{NULL}. PDF paper width in inches passed to
+#'   \code{pagedown::chrome_print}. A larger value increases the page size so
+#'   more content fits on a single page. Default: \code{NULL} (Chrome default).
+#' @param pdf_height Numeric or \code{NULL}. PDF paper height in inches.
+#'   Increase if the table is cut off across pages. Default: \code{NULL}.
 #'
 #' @return A \pkg{gt} table object, returned invisibly.
 #'
@@ -386,7 +395,10 @@ plot_tableone <- function(
     pvalue_width   = 100,
     row_height     = 8,
     save           = FALSE,
-    dest           = NULL
+    dest           = NULL,
+    png_scale      = 2,
+    pdf_width      = NULL,
+    pdf_height     = NULL
 ) {
   # ---------------------------------------------------------------------------
   # 1. Validate inputs
@@ -454,7 +466,7 @@ plot_tableone <- function(
   # 6. Save
   # ---------------------------------------------------------------------------
   if (isTRUE(save))
-    .t1_save(gt_tbl, dest)
+    .t1_save(gt_tbl, dest, png_scale, pdf_width, pdf_height)
 
   invisible(gt_tbl)
 }

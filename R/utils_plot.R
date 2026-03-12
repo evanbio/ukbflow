@@ -227,7 +227,8 @@
   } else {
     cli::cli_abort(
       c("Unknown {.arg background} value {.val {background}}.",
-        "i" = "Must be one of: {.val {c('zebra', 'bold_label', 'none')}}")
+        "i" = "Must be one of: {.val {c('zebra', 'bold_label', 'none')}}"),
+      call = NULL
     )
   }
 
@@ -375,8 +376,14 @@
     tbl,
     columns = "smd",
     label   = "**SMD**",
-    align   = "center"
+    align   = "center",
+    hide    = FALSE
   )
+
+  tbl <- gtsummary::modify_table_body(tbl, function(tb) {
+    dplyr::relocate(tb, "smd", .before = "p.value")
+  })
+
   tbl
 }
 
@@ -527,7 +534,7 @@
 #
 # Reason: browsers strip backgrounds by default when printing/rendering.
 # CSS `print-color-adjust: exact` + printBackground=TRUE forces preservation.
-.t1_save <- function(gt_tbl, dest) {
+.t1_save <- function(gt_tbl, dest, png_scale = 2, pdf_width = NULL, pdf_height = NULL) {
   base <- tools::file_path_sans_ext(dest)
 
   # Inject CSS for background/border preservation in PDF & PNG rendering.
@@ -584,15 +591,18 @@
     if (!requireNamespace("pagedown", quietly = TRUE))
       cli::cli_abort("Package {.pkg pagedown} is required for PDF export.", call = NULL)
     out <- paste0(base, ".pdf")
+    pdf_opts <- list(
+      printBackground     = TRUE,
+      preferCSSPageSize   = TRUE,
+      displayHeaderFooter = FALSE
+    )
+    if (!is.null(pdf_width))  pdf_opts$paperWidth  <- pdf_width
+    if (!is.null(pdf_height)) pdf_opts$paperHeight <- pdf_height
     pagedown::chrome_print(
       input      = tmp_html,
       output     = out,
       format     = "pdf",
-      options    = list(
-        printBackground     = TRUE,   # preserve backgrounds
-        preferCSSPageSize   = TRUE,
-        displayHeaderFooter = FALSE
-      ),
+      options    = pdf_opts,
       extra_args = c("--no-sandbox", "--disable-dev-shm-usage"),
       verbose    = 0
     )
@@ -609,7 +619,7 @@
     webshot2::webshot(
       url      = tmp_html,
       file     = out,
-      zoom     = 2,
+      zoom     = png_scale,
       selector = ".gt_table",
       expand   = 10
     )
