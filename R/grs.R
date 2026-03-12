@@ -176,9 +176,9 @@ grs_check <- function(file, dest = "weights.txt") {
 #' \strong{Instance types:}
 #' \describe{
 #'   \item{\code{"standard"}}{\code{mem2_ssd1_v2_x4}: 4 cores, 12 GB RAM.
-#'     Suitable for smaller chromosomes (roughly chr 15–22).}
+#'     Suitable for smaller chromosomes (roughly chr 17–22).}
 #'   \item{\code{"large"}}{\code{mem2_ssd2_v2_x8}: 8 cores, 28 GB RAM,
-#'     640 GB SSD. Required for large chromosomes (roughly chr 1–14) where
+#'     640 GB SSD. Required for large chromosomes (roughly chr 1–16) where
 #'     standard storage is insufficient.}
 #' }
 #'
@@ -208,7 +208,7 @@ grs_check <- function(file, dest = "weights.txt") {
 #' ids_small <- grs_bgen2pgen(chr = 15:22)
 #'
 #' # Large chromosomes - upgrade instance to handle storage
-#' ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
+#' ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 #'
 #' # Monitor
 #' job_ls()
@@ -232,9 +232,9 @@ grs_bgen2pgen <- function(chr      = 1:22,
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
     cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).", call = NULL)
 
-  if (instance == "standard" && any(chr %in% 1:14))
+  if (instance == "standard" && any(chr %in% 1:16))
     cli::cli_warn(c(
-      "chr {.val {intersect(chr, 1:14)}} may exceed storage on {.val {'mem2_ssd1_v2_x4'}}.",
+      "chr {.val {intersect(chr, 1:16)}} may exceed storage on {.val {'mem2_ssd1_v2_x4'}}.",
       "i" = "Consider {.code instance = \"large\"} (mem2_ssd2_v2_x8, 640 GB SSD) for these chromosomes."
     ))
 

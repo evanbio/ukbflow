@@ -53,9 +53,9 @@ auto-uploads to \code{dest} on completion. Output files per chromosome:
 \strong{Instance types:}
 \describe{
 \item{\code{"standard"}}{\code{mem2_ssd1_v2_x4}: 4 cores, 12 GB RAM.
-Suitable for smaller chromosomes (roughly chr 15–22).}
+Suitable for smaller chromosomes (roughly chr 17–22).}
 \item{\code{"large"}}{\code{mem2_ssd2_v2_x8}: 8 cores, 28 GB RAM,
-640 GB SSD. Required for large chromosomes (roughly chr 1–14) where
+640 GB SSD. Required for large chromosomes (roughly chr 1–16) where
 standard storage is insufficient.}
 }
 }
@@ -68,7 +68,7 @@ ids <- grs_bgen2pgen(chr = 22, priority = "high")
 ids_small <- grs_bgen2pgen(chr = 15:22)
 
 # Large chromosomes - upgrade instance to handle storage
-ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
+ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 
 # Monitor
 job_ls()
