@@ -14,7 +14,6 @@ BugReports: https://github.com/evanbio/ukbflow/issues
 Depends:
     R (>= 4.1)
 Imports:
-    broom,
     cli,
     curl,
     data.table,

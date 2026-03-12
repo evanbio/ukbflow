@@ -24,7 +24,10 @@ plot_tableone(
   pvalue_width = 100,
   row_height = 8,
   save = FALSE,
-  dest = NULL
+  dest = NULL,
+  png_scale = 2,
+  pdf_width = NULL,
+  pdf_height = NULL
 )
 }
 \arguments{
@@ -92,6 +95,16 @@ Default \code{8}.}
 When \code{save = TRUE}, four files are written:
 \code{<dest>.docx}, \code{<dest>.html}, \code{<dest>.pdf},
 \code{<dest>.png}. Required when \code{save = TRUE}.}
+
+\item{png_scale}{Numeric. Zoom factor for PNG export via \pkg{webshot2}.
+Higher values produce larger, higher-resolution images. Default: \code{2}.}
+
+\item{pdf_width}{Numeric or \code{NULL}. PDF paper width in inches passed to
+\code{pagedown::chrome_print}. A larger value increases the page size so
+more content fits on a single page. Default: \code{NULL} (Chrome default).}
+
+\item{pdf_height}{Numeric or \code{NULL}. PDF paper height in inches.
+Increase if the table is cut off across pages. Default: \code{NULL}.}
 }
 \value{
 A \pkg{gt} table object, returned invisibly.

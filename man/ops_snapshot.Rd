@@ -4,7 +4,13 @@
 \alias{ops_snapshot}
 \title{Record and review dataset pipeline snapshots}
 \usage{
-ops_snapshot(data = NULL, label = NULL, reset = FALSE, verbose = TRUE)
+ops_snapshot(
+  data = NULL,
+  label = NULL,
+  reset = FALSE,
+  verbose = TRUE,
+  check_na = TRUE
+)
 }
 \arguments{
 \item{data}{A data.frame or data.table to snapshot. Pass \code{NULL} (or omit)
@@ -18,6 +24,11 @@ is the sequential index.}
 returns invisibly. Default \code{FALSE}.}
 
 \item{verbose}{(logical) Print the CLI report. Default \code{TRUE}.}
+
+\item{check_na}{(logical) Whether to count columns with any \code{NA} or blank
+string values and include the delta in the report. Set to \code{FALSE} to skip
+the NA scan (useful for large datasets or when NA tracking is not needed).
+Default \code{TRUE}.}
 }
 \value{
 When \code{data} is supplied, returns the new snapshot row invisibly

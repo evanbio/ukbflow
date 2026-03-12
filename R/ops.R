@@ -391,6 +391,10 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 #' @param reset (logical) If `TRUE`, clears the entire snapshot history and
 #'   returns invisibly. Default `FALSE`.
 #' @param verbose (logical) Print the CLI report. Default `TRUE`.
+#' @param check_na (logical) Whether to count columns with any `NA` or blank
+#'   string values and include the delta in the report. Set to `FALSE` to skip
+#'   the NA scan (useful for large datasets or when NA tracking is not needed).
+#'   Default `TRUE`.
 #'
 #' @return When `data` is supplied, returns the new snapshot row invisibly
 #'   (a one-row data.table). When called with no `data`, returns the full
@@ -412,17 +416,21 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 #' # Reset history
 #' ops_snapshot(reset = TRUE)
 #' }
-ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRUE) {
+ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRUE,
+                         check_na = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
-  if (!is.logical(reset)  || length(reset)  != 1L || is.na(reset))
+  if (!is.logical(reset)    || length(reset)    != 1L || is.na(reset))
     cli::cli_abort("{.arg reset} must be a single logical value.", call = NULL)
-  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose))
+  if (!is.logical(verbose)  || length(verbose)  != 1L || is.na(verbose))
     cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
+  if (!is.logical(check_na) || length(check_na) != 1L || is.na(check_na))
+    cli::cli_abort("{.arg check_na} must be a single logical value.", call = NULL)
 
   # ── Reset ───────────────────────────────────────────────────────────────────
   if (reset) {
-    .ukbflow_cache$snapshots <- NULL
+    .ukbflow_cache$snapshots     <- NULL
+    .ukbflow_cache$snapshot_cols <- NULL
     if (verbose) cli::cli_alert_success("Snapshot history cleared.")
     return(invisible(NULL))
   }
@@ -454,11 +462,15 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
   if (is.null(label)) label <- paste0("snapshot_", idx)
 
-  # Reason: count NA + "" consistently with ops_na()
-  dt_tmp   <- data.table::as.data.table(data)
-  n_na_cols <- sum(vapply(dt_tmp, function(col) {
-    any(is.na(col) | (is.character(col) & !is.na(col) & col == ""))
-  }, logical(1L)))
+  # Reason: count NA + "" consistently with ops_na(); skippable via check_na = FALSE
+  if (check_na) {
+    dt_tmp    <- data.table::as.data.table(data)
+    n_na_cols <- sum(vapply(dt_tmp, function(col) {
+      any(is.na(col) | (is.character(col) & !is.na(col) & col == ""))
+    }, logical(1L)))
+  } else {
+    n_na_cols <- NA_integer_
+  }
 
   size_mb <- round(as.numeric(object.size(data)) / 1024^2, 2)
 
@@ -479,6 +491,10 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
     data.table::rbindlist(list(history, new_row))
   }
 
+  # Store column names separately (negligible overhead, enables diff/drop workflows)
+  if (is.null(.ukbflow_cache$snapshot_cols)) .ukbflow_cache$snapshot_cols <- list()
+  .ukbflow_cache$snapshot_cols[[label]] <- data.table::copy(colnames(data))
+
   # ── CLI output ───────────────────────────────────────────────────────────────
   if (verbose) {
     prev <- if (idx > 1L) history[nrow(history)] else NULL
@@ -487,7 +503,7 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
     .fmt_delta <- function(curr, prev_val, unit = "") {
       curr_str <- paste0(formatC(curr, format = "fg", big.mark = ","), unit)
-      if (is.null(prev_val)) return(curr_str)
+      if (is.null(prev_val) || is.na(prev_val) || is.na(curr)) return(curr_str)
       delta <- curr - prev_val
       delta_str <- if (delta == 0) {
         "(= 0)"
@@ -501,7 +517,7 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 
     s_row  <- .fmt_delta(nrow(data),  prev$nrow,      "")
     s_col  <- .fmt_delta(ncol(data),  prev$ncol,      "")
-    s_na   <- .fmt_delta(n_na_cols,   prev$n_na_cols, "")
+    s_na   <- if (check_na) .fmt_delta(n_na_cols, prev$n_na_cols, "") else "(skipped)"
     s_size <- .fmt_delta(size_mb,     prev$size_mb,   " MB")
 
     # Reason: individual cli_inform calls avoid duplicate-key merging in cli
@@ -513,6 +529,183 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
   }
 
   invisible(new_row)
+}
+
+
+#' Retrieve column names recorded at a snapshot
+#'
+#' Returns the column names stored by a previous \code{\link{ops_snapshot}}
+#' call, optionally excluding columns you wish to keep.
+#'
+#' @param label (character) Snapshot label passed to \code{ops_snapshot()}.
+#' @param keep (character or NULL) Column names to exclude from the returned
+#'   vector (i.e. columns to retain in the data even if they were present at
+#'   that snapshot). Default \code{NULL}.
+#'
+#' @return A character vector of column names.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ops_snapshot_cols("raw")
+#' ops_snapshot_cols("raw", keep = "eid")
+#' }
+ops_snapshot_cols <- function(label, keep = NULL) {
+
+  cols <- .ukbflow_cache$snapshot_cols[[label]]
+  if (is.null(cols))
+    cli::cli_abort("No snapshot found with label {.val {label}}.", call = NULL)
+
+  # Always protect built-in safe cols + user-registered safe cols + explicit keep
+  builtin_safe <- c("eid", "sex", "age", "age_at_recruitment")
+  user_safe    <- .ukbflow_cache$safe_cols
+  protected    <- unique(c(builtin_safe, user_safe, keep))
+
+  setdiff(cols, protected)
+}
+
+
+#' Register additional safe columns protected from snapshot-based drops
+#'
+#' Adds column names to the session-level safe list. Columns in this list are
+#' automatically excluded when \code{\link{ops_snapshot_cols}} is used to
+#' build a drop vector, in addition to the built-in protected columns
+#' (\code{"eid"}, \code{"sex"}, \code{"age"}, \code{"age_at_recruitment"}).
+#'
+#' @param cols (character) One or more column names to protect.
+#' @param reset (logical) If \code{TRUE}, clear the current user-registered
+#'   safe list before adding. Default \code{FALSE}.
+#'
+#' @return Invisibly returns the updated safe cols vector.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ops_set_safe_cols(c("date_baseline", "townsend_index"))
+#' ops_set_safe_cols(reset = TRUE)  # clear user-registered safe cols
+#' }
+ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
+
+  if (!is.logical(reset) || length(reset) != 1L || is.na(reset))
+    cli::cli_abort("{.arg reset} must be a single logical value.", call = NULL)
+
+  if (reset) {
+    .ukbflow_cache$safe_cols <- NULL
+    cli::cli_alert_success("User-registered safe cols cleared.")
+  }
+
+  if (!is.null(cols)) {
+    if (!is.character(cols))
+      cli::cli_abort("{.arg cols} must be a character vector.", call = NULL)
+    .ukbflow_cache$safe_cols <- unique(c(.ukbflow_cache$safe_cols, cols))
+    cli::cli_alert_success("Safe cols registered: {.val {cols}}")
+  }
+
+  invisible(.ukbflow_cache$safe_cols)
+}
+
+
+#' Remove raw source columns recorded at a snapshot
+#'
+#' Drops columns that were present at snapshot \code{from} from \code{data},
+#' while automatically protecting built-in safe columns
+#' (\code{"eid"}, \code{"sex"}, \code{"age"}, \code{"age_at_recruitment"}) and
+#' any user-registered safe columns set via \code{\link{ops_set_safe_cols}}.
+#' Columns that no longer exist in \code{data} are silently skipped.
+#'
+#' @param data A data.frame or data.table.
+#' @param from (character) Label of the snapshot whose columns should be
+#'   dropped (typically \code{"raw"}).
+#' @param keep (character or NULL) Additional column names to protect beyond
+#'   the built-in and user-registered safe cols. Default \code{NULL}.
+#' @param verbose (logical) Print a summary of dropped columns. Default
+#'   \code{TRUE}.
+#'
+#' @return The input \code{data} with raw columns removed in-place (for
+#'   data.table) or a modified copy (for data.frame). Always returns a
+#'   data.table.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ops_snapshot(data, label = "raw")
+#' # ... derive_* operations ...
+#' ops_snapshot(data, label = "derived")
+#' ops_snapshot_diff("raw", "derived")   # inspect
+#' data <- ops_snapshot_remove(data, from = "raw")  # clean up
+#' }
+ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
+
+  if (!is.data.frame(data))
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
+  if (!is.character(from) || length(from) != 1L || !nzchar(from))
+    cli::cli_abort("{.arg from} must be a single non-empty character string.", call = NULL)
+
+  if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
+
+  # Build protected set
+  builtin_safe <- c("eid", "sex", "age", "age_at_recruitment")
+  user_safe    <- .ukbflow_cache$safe_cols
+  protected    <- unique(c(builtin_safe, user_safe, keep))
+
+  # Columns to drop: in snapshot but not protected and still present in data
+  snap_cols    <- ops_snapshot_cols(from)  # already excludes protected via built-in logic
+  cols_to_drop <- intersect(snap_cols, names(data))
+
+  if (length(cols_to_drop) == 0L) {
+    if (verbose) cli::cli_alert_info("ops_snapshot_remove: no columns to drop.")
+    return(invisible(data))
+  }
+
+  data[, (cols_to_drop) := NULL]
+
+  if (verbose) {
+    cli::cli_alert_success(
+      "ops_snapshot_remove: dropped {length(cols_to_drop)} raw column{?s}, {ncol(data)} remaining."
+    )
+  }
+
+  invisible(data)
+}
+
+
+#' Compare column names between two snapshots
+#'
+#' Returns lists of columns added and removed between two recorded snapshots.
+#'
+#' @param label1 (character) Label of the earlier snapshot.
+#' @param label2 (character) Label of the later snapshot.
+#'
+#' @return A named list with two character vectors: \code{added} (columns
+#'   present in \code{label2} but not \code{label1}) and \code{removed}
+#'   (columns present in \code{label1} but not \code{label2}).
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ops_snapshot_diff("raw", "derived")
+#' # $added   — newly derived columns
+#' # $removed — columns dropped between snapshots
+#' }
+ops_snapshot_diff <- function(label1, label2) {
+
+  cols1 <- .ukbflow_cache$snapshot_cols[[label1]]
+  cols2 <- .ukbflow_cache$snapshot_cols[[label2]]
+
+  if (is.null(cols1))
+    cli::cli_abort("No snapshot found with label {.val {label1}}.", call = NULL)
+  if (is.null(cols2))
+    cli::cli_abort("No snapshot found with label {.val {label2}}.", call = NULL)
+
+  result <- list(
+    added   = setdiff(cols2, cols1),
+    removed = setdiff(cols1, cols2)
+  )
+
+  cli::cli_inform("Columns added ({length(result$added)}):   {.val {result$added}}")
+  cli::cli_inform("Columns removed ({length(result$removed)}): {.val {result$removed}}")
+
+  invisible(result)
 }
 
 
@@ -565,14 +758,14 @@ ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
   n_withdraw   <- length(withdraw_ids)
 
   # ── Snapshot before ──────────────────────────────────────────────────────────
-  ops_snapshot(dt, label = "before_withdraw", verbose = verbose)
+  ops_snapshot(dt, label = "before_withdraw", verbose = verbose, check_na = FALSE)
 
   # ── Exclude ──────────────────────────────────────────────────────────────────
   n_found <- sum(dt[[eid_col]] %in% withdraw_ids)
   dt      <- dt[!get(eid_col) %in% withdraw_ids]
 
   # ── Snapshot after ───────────────────────────────────────────────────────────
-  ops_snapshot(dt, label = "after_withdraw", verbose = verbose)
+  ops_snapshot(dt, label = "after_withdraw", verbose = verbose, check_na = FALSE)
 
   # ── Extra CLI summary ────────────────────────────────────────────────────────
   if (verbose) {
