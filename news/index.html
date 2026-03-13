@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,9 @@
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul></li>
@@ -103,6 +106,87 @@
       <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="ukbflow-030">ukbflow 0.3.0<a class="anchor" aria-label="anchor" href="#ukbflow-030"></a></h2>
+<p><em>Released: March 13, 2026</em></p>
+<div class="section level3">
+<h3 id="new-features-0-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<div class="section level4">
+<h4 id="operations-ops_-0-3-0">Operations (ops_*)<a class="anchor" aria-label="anchor" href="#operations-ops_-0-3-0"></a></h4>
+<ul><li>
+<code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code> — exclude UKB withdrawn participants from a cohort data.table by EID</li>
+</ul></div>
+<div class="section level4">
+<h4 id="snapshot--column-tracking-0-3-0">Snapshot — Column Tracking<a class="anchor" aria-label="anchor" href="#snapshot--column-tracking-0-3-0"></a></h4>
+<ul><li>
+<code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code> gains column-tracking helpers: <code>cols()</code>, <code><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff()</a></code>, <code><a href="https://rdrr.io/r/base/rm.html" class="external-link">remove()</a></code>, and <code>set_safe_cols()</code>
+</li>
+</ul></div>
+<div class="section level4">
+<h4 id="visualisation-enhancements-0-3-0">Visualisation Enhancements<a class="anchor" aria-label="anchor" href="#visualisation-enhancements-0-3-0"></a></h4>
+<ul><li>
+<code><a href="../reference/plot_tableone.html">plot_tableone()</a></code> — new <code>png_scale</code>, <code>pdf_width</code>, and <code>pdf_height</code> parameters for fine-grained output control</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
+<ul><li>
+<code><a href="../reference/fetch_file.html">fetch_file()</a></code> — enforce RAP-only guard; updated tests</li>
+<li>
+<code><a href="../reference/grs_score.html">grs_score()</a></code> — fix <code>-icmd</code> argument format; skip script upload if file already exists on RAP</li>
+<li>GRS pipeline — updated chr split threshold: chromosomes 1–16 use large instances, 17–22 use standard</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-0"></a></h3>
+<ul><li>Added roxygen2 documentation for <code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code>
+</li>
+<li>Unit tests added for <code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-3-0">Internal<a class="anchor" aria-label="anchor" href="#internal-0-3-0"></a></h3>
+<ul><li>Added <code>broom</code> to <code>DESCRIPTION</code> Imports and <code><a href="../reference/ops_setup.html">ops_setup()</a></code> dependency check</li>
+<li>Updated package logo (new hex sticker design)</li>
+<li>Integration tests requiring RAP environment are now skipped in local CI</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="ukbflow-020">ukbflow 0.2.0<a class="anchor" aria-label="anchor" href="#ukbflow-020"></a></h2>
+<p><em>Released: March 10, 2026</em></p>
+<div class="section level3">
+<h3 id="new-features-0-2-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-2-0"></a></h3>
+<div class="section level4">
+<h4 id="operations-ops_-0-2-0">Operations (ops_*)<a class="anchor" aria-label="anchor" href="#operations-ops_-0-2-0"></a></h4>
+<ul><li>
+<code><a href="../reference/ops_setup.html">ops_setup()</a></code> — check and report the local environment (R, dx-toolkit, dxpy) health</li>
+<li>
+<code><a href="../reference/ops_toy.html">ops_toy()</a></code> — generate synthetic UKB-style cohort or forest-plot data for testing and demos; includes GRS columns and cancer self-report fields</li>
+<li>
+<code><a href="../reference/ops_na.html">ops_na()</a></code> — summarise missing-value rates per column with threshold-based filtering and <code>cli</code> progress feedback</li>
+<li>
+<code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code> — record and display a history of dataset row/column counts across pipeline steps</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-0">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-0"></a></h3>
+<ul><li>All <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code> calls now pass <code>call = NULL</code> to suppress internal call-stack noise in error messages</li>
+<li>
+<code><a href="../reference/ops_toy.html">ops_toy()</a></code>: added cancer self-report fields (<code>p20001</code>, <code>p20006</code>) and corrected <code>sr_codes</code> → text label mapping</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-2-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-2-0"></a></h3>
+<ul><li>New vignette: <em>Smoking and Lung Cancer — End-to-End Analysis</em> (<code><a href="../articles/smoking_lung_cancer.html">vignette("smoking_lung_cancer")</a></code>)</li>
+<li>New vignette: <em>ops_</em> Series* covering setup, toy data, NA summary, and snapshots</li>
+<li>pkgdown site now auto-deploys via GitHub Actions (CI-managed <code>docs/</code>)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-0-2-0">Internal<a class="anchor" aria-label="anchor" href="#internal-0-2-0"></a></h3>
+<ul><li>Resolved R CMD check NOTEs: added <code>importFrom(stats, rnorm, runif)</code>, <code>importFrom(utils, object.size)</code>, and <code>pct_na</code> to <code><a href="https://rdrr.io/r/utils/globalVariables.html" class="external-link">globalVariables()</a></code>
+</li>
+<li>Added <code>builds/</code> to <code>.Rbuildignore</code>
+</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="ukbflow-010">ukbflow 0.1.0<a class="anchor" aria-label="anchor" href="#ukbflow-010"></a></h2>
 <p><em>Released: March 6, 2026</em></p>
@@ -234,7 +318,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

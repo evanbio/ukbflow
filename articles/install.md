@@ -146,7 +146,7 @@ auth_status()  # confirms user and active project
 library(ukbflow)
 
 packageVersion("ukbflow")
-#> [1] '0.1.0'
+#> [1] '0.3.0'
 ```
 
 ------------------------------------------------------------------------

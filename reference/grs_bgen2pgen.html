@@ -69,7 +69,7 @@ chromosomes."><meta property="og:image" content="https://evanbio.github.io/ukbfl
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,6 +92,9 @@ chromosomes."><meta property="og:image" content="https://evanbio.github.io/ukbfl
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul></li>
@@ -175,11 +178,11 @@ auto-uploads to <code>dest</code> on completion. Output files per chromosome:
 <code>chr{N}_maf001.pgen/.pvar/.psam/.log</code>.</p>
 <p><strong>Instance types:</strong></p><dl><dt><code>"standard"</code></dt>
 <dd><p><code>mem2_ssd1_v2_x4</code>: 4 cores, 12 GB RAM.
-Suitable for smaller chromosomes (roughly chr 15–22).</p></dd>
+Suitable for smaller chromosomes (roughly chr 17–22).</p></dd>
 
 <dt><code>"large"</code></dt>
 <dd><p><code>mem2_ssd2_v2_x8</code>: 8 cores, 28 GB RAM,
-640 GB SSD. Required for large chromosomes (roughly chr 1–14) where
+640 GB SSD. Required for large chromosomes (roughly chr 1–16) where
 standard storage is insufficient.</p></dd>
 
 
@@ -195,7 +198,7 @@ standard storage is insufficient.</p></dd>
 <span class="r-in"><span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Large chromosomes - upgrade instance to handle storage</span></span></span>
-<span class="r-in"><span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Monitor</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="job_ls.html">job_ls</a></span><span class="op">(</span><span class="op">)</span></span></span>
@@ -216,7 +219,7 @@ standard storage is insufficient.</p></dd>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

@@ -13,8 +13,10 @@ articles:
   grs: grs.html
   install: install.html
   job: job.html
+  ops: ops.html
   plot: plot.html
-last_built: 2026-03-08T14:20Z
+  smoking_lung_cancer: smoking_lung_cancer.html
+last_built: 2026-03-13T11:38Z
 urls:
   reference: https://evanbio.github.io/ukbflow/reference
   article: https://evanbio.github.io/ukbflow/articles

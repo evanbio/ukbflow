@@ -24,5 +24,9 @@
   Guide](https://evanbio.github.io/ukbflow/articles/install.md):
 - [Monitoring and Retrieving Extraction
   Jobs](https://evanbio.github.io/ukbflow/articles/job.md):
+- [Operational Utilities: Setup, Diagnostics, and Pipeline
+  Tracking](https://evanbio.github.io/ukbflow/articles/ops.md):
 - [Publication-Ready
   Visualisation](https://evanbio.github.io/ukbflow/articles/plot.md):
+- [Smoking and Lung Cancer Risk: A Complete Analysis
+  Workflow](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md):

@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,9 @@
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul>
@@ -281,8 +284,8 @@ the heavy lifting runs entirely in the cloud.</p>
 <span><span class="co">#&gt; ✔ 1/1 job(s) submitted. Monitor with job_ls().</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full run: small chromosomes on standard, large on upgraded instance</span></span>
-<span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span>
-<span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
+<span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span>
+<span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Monitor progress</span></span>
 <span><span class="fu"><a href="../reference/job_ls.html">job_ls</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -312,7 +315,7 @@ the heavy lifting runs entirely in the cloud.</p>
 <td>8</td>
 <td>28 GB</td>
 <td>640 GB</td>
-<td>chr 1–14</td>
+<td>chr 1–16</td>
 </tr>
 </tbody>
 </table>
@@ -353,7 +356,7 @@ the heavy lifting runs entirely in the cloud.</p>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Storage warning</strong>: chromosomes 1–14 may exceed the 200
+<p><strong>Storage warning</strong>: chromosomes 1–16 may exceed the 200
 GB SSD on <code>"standard"</code> instances. Use
 <code>instance = "large"</code> for these.</p>
 </blockquote>
@@ -559,8 +562,8 @@ analyses for each GRS:</p>
 <span><span class="fu"><a href="../reference/grs_check.html">grs_check</a></span><span class="op">(</span><span class="st">"weights.csv"</span>, dest <span class="op">=</span> <span class="st">"weights_clean.txt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 2. Convert BGEN -&gt; PGEN on RAP (submit jobs)</span></span>
-<span><span class="va">ids_std</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">22</span>, maf <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="va">ids_lrg</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span>,  maf <span class="op">=</span> <span class="fl">0.01</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
+<span><span class="va">ids_std</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span>, maf <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="va">ids_lrg</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>,  maf <span class="op">=</span> <span class="fl">0.01</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_std</span>, <span class="va">ids_lrg</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 3. Score GRS on RAP (submit jobs)</span></span>
@@ -632,7 +635,7 @@ Issues</a></li>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

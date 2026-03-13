@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,9 @@
     <li><a class="dropdown-item" href="articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/">All Articles</a></li>
   </ul></li>
@@ -193,6 +196,11 @@
 <code>plot_forest</code>、<code>plot_tableone</code>
 </td>
 <td>发表级图表输出</td>
+</tr><tr class="odd"><td><strong>实用工具</strong></td>
+<td>
+<code>ops_setup</code>、<code>ops_toy</code>、<code>ops_na</code>、<code>ops_snapshot</code>
+</td>
+<td>环境检查、合成数据生成与流程诊断</td>
 </tr></tbody></table><hr></div>
 <div class="section level2">
 <h2 id="函数一览">函数一览<a class="anchor" aria-label="anchor" href="#%E5%87%BD%E6%95%B0%E4%B8%80%E8%A7%88"></a></h2>
@@ -258,6 +266,15 @@
 <code><a href="reference/plot_forest.html">plot_forest()</a></code> — 森林图（PNG / PDF / JPG / TIFF，300 dpi）</li>
 <li>
 <code><a href="reference/plot_tableone.html">plot_tableone()</a></code> — 基线特征表（DOCX / HTML / PDF / PNG）</li>
+</ul></details><details><summary><b>实用工具与诊断</b>
+</summary><ul><li>
+<code><a href="reference/ops_setup.html">ops_setup()</a></code> — 环境健康检查（dx CLI、RAP 认证、R 包依赖）</li>
+<li>
+<code><a href="reference/ops_toy.html">ops_toy()</a></code> — 生成合成 UKB 风格数据，用于开发与测试</li>
+<li>
+<code><a href="reference/ops_na.html">ops_na()</a></code> — 逐列汇总缺失值（NA 与 <code>""</code>）及缺失率</li>
+<li>
+<code><a href="reference/ops_snapshot.html">ops_snapshot()</a></code> — 记录流程检查点，追踪数据集在各步骤的变化</li>
 </ul></details><details><summary><b>GRS 流程</b>
 </summary><ul><li>
 <code><a href="reference/grs_check.html">grs_check()</a></code> — 验证 SNP 权重文件</li>
@@ -303,7 +320,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

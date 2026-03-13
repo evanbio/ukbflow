@@ -96,8 +96,8 @@ ids <- grs_bgen2pgen(chr = 22, priority = "high")
 
 ``` r
 # Full run: small chromosomes on standard, large on upgraded instance
-ids_small <- grs_bgen2pgen(chr = 15:22)
-ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
+ids_small <- grs_bgen2pgen(chr = 17:22)
+ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 
 # Monitor progress
 job_ls()
@@ -109,7 +109,7 @@ job_wait(c(ids_small, ids_large))
 | Preset       | DNAnexus instance | Cores | RAM   | SSD    | Recommended for |
 |--------------|-------------------|-------|-------|--------|-----------------|
 | `"standard"` | `mem2_ssd1_v2_x4` | 4     | 12 GB | 200 GB | chr 15–22       |
-| `"large"`    | `mem2_ssd2_v2_x8` | 8     | 28 GB | 640 GB | chr 1–14        |
+| `"large"`    | `mem2_ssd2_v2_x8` | 8     | 28 GB | 640 GB | chr 1–16        |
 
 **Key arguments:**
 
@@ -121,7 +121,7 @@ job_wait(c(ids_small, ids_large))
 | `instance` | `"standard"` | Instance type preset                |
 | `priority` | `"low"`      | Job priority (`"low"` or `"high"`)  |
 
-> **Storage warning**: chromosomes 1–14 may exceed the 200 GB SSD on
+> **Storage warning**: chromosomes 1–16 may exceed the 200 GB SSD on
 > `"standard"` instances. Use `instance = "large"` for these.
 
 ------------------------------------------------------------------------
@@ -276,8 +276,8 @@ library(ukbflow)
 grs_check("weights.csv", dest = "weights_clean.txt")
 
 # 2. Convert BGEN -> PGEN on RAP (submit jobs)
-ids_std  <- grs_bgen2pgen(chr = 15:22, maf = 0.01)
-ids_lrg  <- grs_bgen2pgen(chr = 1:14,  maf = 0.01, instance = "large")
+ids_std  <- grs_bgen2pgen(chr = 17:22, maf = 0.01)
+ids_lrg  <- grs_bgen2pgen(chr = 1:16,  maf = 0.01, instance = "large")
 job_wait(c(ids_std, ids_lrg))
 
 # 3. Score GRS on RAP (submit jobs)

@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/evanbio/ukbflow/blob/main/DESCRIPTION)
 
 Zhou Y (2026). *ukbflow: Streamlined Workflow for UK Biobank Data
-Extraction, Analysis, and Visualization*. R package version 0.1.0,
+Extraction, Analysis, and Visualization*. R package version 0.3.0,
 <https://github.com/evanbio/ukbflow>.
 
     @Manual{,
       title = {ukbflow: Streamlined Workflow for UK Biobank Data Extraction, Analysis, and Visualization},
       author = {Yibin Zhou},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.3.0},
       url = {https://github.com/evanbio/ukbflow},
     }

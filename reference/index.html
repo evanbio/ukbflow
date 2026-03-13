@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,9 @@
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul></li>
@@ -513,6 +516,78 @@
         </dt>
         <dd>Validate GRS predictive performance</dd>
       </dl></div><div class="section level2">
+      <h2 id="utilities-diagnostics">Utilities &amp; Diagnostics<a class="anchor" aria-label="anchor" href="#utilities-diagnostics"></a></h2>
+
+      <div class="section-desc"><p>Environment checks, synthetic data generation, missing-value summaries, pipeline snapshots, and cohort management.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="ops_setup.html">ops_setup()</a></code>
+
+        </dt>
+        <dd>Check the ukbflow operating environment</dd>
+
+        <dt>
+
+          <code><a href="ops_toy.html">ops_toy()</a></code>
+
+        </dt>
+        <dd>Generate toy UKB-like data for testing and development</dd>
+
+        <dt>
+
+          <code><a href="ops_na.html">ops_na()</a></code>
+
+        </dt>
+        <dd>Summarise missing values by column</dd>
+
+        <dt>
+
+          <code><a href="ops_snapshot.html">ops_snapshot()</a></code>
+
+        </dt>
+        <dd>Record and review dataset pipeline snapshots</dd>
+
+        <dt>
+
+          <code><a href="ops_snapshot_cols.html">ops_snapshot_cols()</a></code>
+
+        </dt>
+        <dd>Retrieve column names recorded at a snapshot</dd>
+
+        <dt>
+
+          <code><a href="ops_snapshot_diff.html">ops_snapshot_diff()</a></code>
+
+        </dt>
+        <dd>Compare column names between two snapshots</dd>
+
+        <dt>
+
+          <code><a href="ops_snapshot_remove.html">ops_snapshot_remove()</a></code>
+
+        </dt>
+        <dd>Remove raw source columns recorded at a snapshot</dd>
+
+        <dt>
+
+          <code><a href="ops_set_safe_cols.html">ops_set_safe_cols()</a></code>
+
+        </dt>
+        <dd>Register additional safe columns protected from snapshot-based drops</dd>
+
+        <dt>
+
+          <code><a href="ops_withdraw.html">ops_withdraw()</a></code>
+
+        </dt>
+        <dd>Exclude withdrawn participants from a dataset</dd>
+      </dl></div><div class="section level2">
       <h2 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a></h2>
 
       <div class="section-desc"><p>Publication-quality forest plots and Table 1 for manuscripts.</p></div>
@@ -550,7 +625,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

@@ -155,6 +155,30 @@ risk scores with plink2.
 - [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md)
   : Validate GRS predictive performance
 
+## Utilities & Diagnostics
+
+Environment checks, synthetic data generation, missing-value summaries,
+pipeline snapshots, and cohort management.
+
+- [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
+  : Check the ukbflow operating environment
+- [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+  : Generate toy UKB-like data for testing and development
+- [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) :
+  Summarise missing values by column
+- [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+  : Record and review dataset pipeline snapshots
+- [`ops_snapshot_cols()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.md)
+  : Retrieve column names recorded at a snapshot
+- [`ops_snapshot_diff()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_diff.md)
+  : Compare column names between two snapshots
+- [`ops_snapshot_remove()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.md)
+  : Remove raw source columns recorded at a snapshot
+- [`ops_set_safe_cols()`](https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.md)
+  : Register additional safe columns protected from snapshot-based drops
+- [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+  : Exclude withdrawn participants from a dataset
+
 ## Visualisation
 
 Publication-quality forest plots and Table 1 for manuscripts.

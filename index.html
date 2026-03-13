@@ -99,7 +99,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,6 +124,9 @@
     <li><a class="dropdown-item" href="articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/">All Articles</a></li>
   </ul>
@@ -176,6 +179,7 @@
 <p><strong>Association Analysis</strong> — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (<code>assoc_coxph</code>, <code>assoc_logistic</code>, <code>assoc_subgroup</code>)</p>
 <p><strong>Genomic Scoring</strong> — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardisation (<code>grs_bgen2pgen</code>, <code>grs_score</code>, <code>grs_standardize</code>)</p>
 <p><strong>Visualization</strong> — Publication-ready forest plots and Table 1, saved in all major formats at 300 dpi (<code>plot_forest</code>, <code>plot_tableone</code>)</p>
+<p><strong>Utilities</strong> — Verify environment before analysis; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps (<code>ops_setup</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>)</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -256,6 +260,8 @@
 <li><a href="articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
 <li><a href="articles/plot.html">Publication-Ready Visualisation</a></li>
 <li><a href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+<li><a href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+<li><a href="articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
 <li><a href="reference/">Function Reference</a></li>
 <li><a href="https://github.com/evanbio/ukbflow" class="external-link">GitHub</a></li>
 </ul>
@@ -313,7 +319,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

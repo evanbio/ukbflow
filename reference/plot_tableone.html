@@ -67,7 +67,7 @@ theming, and automatic export to four formats."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,6 +90,9 @@ theming, and automatic export to four formats."><meta property="og:image" conten
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul></li>
@@ -136,7 +139,10 @@ theming, and automatic export to four formats.</p>
 <span>  pvalue_width <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  row_height <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  dest <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  dest <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  png_scale <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  pdf_width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pdf_height <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -248,6 +254,22 @@ When <code>save = TRUE</code>, four files are written:
 <code>&lt;dest&gt;.docx</code>, <code>&lt;dest&gt;.html</code>, <code>&lt;dest&gt;.pdf</code>,
 <code>&lt;dest&gt;.png</code>. Required when <code>save = TRUE</code>.</p></dd>
 
+
+<dt id="arg-png-scale">png_scale<a class="anchor" aria-label="anchor" href="#arg-png-scale"></a></dt>
+<dd><p>Numeric. Zoom factor for PNG export via <span class="pkg">webshot2</span>.
+Higher values produce larger, higher-resolution images. Default: <code>2</code>.</p></dd>
+
+
+<dt id="arg-pdf-width">pdf_width<a class="anchor" aria-label="anchor" href="#arg-pdf-width"></a></dt>
+<dd><p>Numeric or <code>NULL</code>. PDF paper width in inches passed to
+<code><a href="https://rdrr.io/pkg/pagedown/man/chrome_print.html" class="external-link">pagedown::chrome_print</a></code>. A larger value increases the page size so
+more content fits on a single page. Default: <code>NULL</code> (Chrome default).</p></dd>
+
+
+<dt id="arg-pdf-height">pdf_height<a class="anchor" aria-label="anchor" href="#arg-pdf-height"></a></dt>
+<dd><p>Numeric or <code>NULL</code>. PDF paper height in inches.
+Increase if the table is cut off across pages. Default: <code>NULL</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -306,7 +328,7 @@ and <strong>png</strong>.</p></li>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

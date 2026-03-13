@@ -1,5 +1,104 @@
 # Changelog
 
+## ukbflow 0.3.0
+
+*Released: March 13, 2026*
+
+### New Features
+
+#### Operations (ops\_\*)
+
+- [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+  — exclude UKB withdrawn participants from a cohort data.table by EID
+
+#### Snapshot — Column Tracking
+
+- [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+  gains column-tracking helpers: `cols()`,
+  [`diff()`](https://rdrr.io/r/base/diff.html),
+  [`remove()`](https://rdrr.io/r/base/rm.html), and `set_safe_cols()`
+
+#### Visualisation Enhancements
+
+- [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
+  — new `png_scale`, `pdf_width`, and `pdf_height` parameters for
+  fine-grained output control
+
+### Bug Fixes
+
+- [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
+  — enforce RAP-only guard; updated tests
+- [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)
+  — fix `-icmd` argument format; skip script upload if file already
+  exists on RAP
+- GRS pipeline — updated chr split threshold: chromosomes 1–16 use large
+  instances, 17–22 use standard
+
+### Documentation
+
+- Added roxygen2 documentation for
+  [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+- Unit tests added for
+  [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+
+### Internal
+
+- Added `broom` to `DESCRIPTION` Imports and
+  [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
+  dependency check
+- Updated package logo (new hex sticker design)
+- Integration tests requiring RAP environment are now skipped in local
+  CI
+
+------------------------------------------------------------------------
+
+## ukbflow 0.2.0
+
+*Released: March 10, 2026*
+
+### New Features
+
+#### Operations (ops\_\*)
+
+- [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
+  — check and report the local environment (R, dx-toolkit, dxpy) health
+- [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+  — generate synthetic UKB-style cohort or forest-plot data for testing
+  and demos; includes GRS columns and cancer self-report fields
+- [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) —
+  summarise missing-value rates per column with threshold-based
+  filtering and `cli` progress feedback
+- [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+  — record and display a history of dataset row/column counts across
+  pipeline steps
+
+### Bug Fixes
+
+- All
+  [`cli::cli_abort()`](https://cli.r-lib.org/reference/cli_abort.html)
+  calls now pass `call = NULL` to suppress internal call-stack noise in
+  error messages
+- [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md):
+  added cancer self-report fields (`p20001`, `p20006`) and corrected
+  `sr_codes` → text label mapping
+
+### Documentation
+
+- New vignette: *Smoking and Lung Cancer — End-to-End Analysis*
+  ([`vignette("smoking_lung_cancer")`](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md))
+- New vignette: *ops\_* Series\* covering setup, toy data, NA summary,
+  and snapshots
+- pkgdown site now auto-deploys via GitHub Actions (CI-managed `docs/`)
+
+### Internal
+
+- Resolved R CMD check NOTEs: added `importFrom(stats, rnorm, runif)`,
+  `importFrom(utils, object.size)`, and `pct_na` to
+  [`globalVariables()`](https://rdrr.io/r/utils/globalVariables.html)
+- Added `builds/` to `.Rbuildignore`
+
+------------------------------------------------------------------------
+
 ## ukbflow 0.1.0
 
 *Released: March 6, 2026*

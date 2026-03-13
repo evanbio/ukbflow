@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,9 @@
     <li><a class="dropdown-item" href="../articles/assoc.html">Association Analysis for UKB Outcomes</a></li>
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
+    <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul>
@@ -290,6 +293,15 @@ RAP cloud environment.</p>
 </table>
 </div>
 <div class="section level2">
+<h2 id="end-to-end-case-study">End-to-End Case Study<a class="anchor" aria-label="anchor" href="#end-to-end-case-study"></a>
+</h2>
+<p>For a complete worked example using a simulated UK Biobank cohort —
+covering data loading, phenotype derivation, cohort assembly, Cox
+regression, and publication-ready visualisation — see:</p>
+<p><code><a href="../articles/smoking_lung_cancer.html">vignette("smoking_lung_cancer")</a></code> — <strong>Smoking and
+Lung Cancer Risk: A Complete Analysis Workflow</strong></p>
+</div>
+<div class="section level2">
 <h2 id="additional-resources">Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"></a>
 </h2>
 <ul>
@@ -297,19 +309,13 @@ RAP cloud environment.</p>
 site</a></li>
 <li><a href="https://github.com/evanbio/ukbflow" class="external-link">GitHub</a></li>
 <li>View all functions: <code><a href="../reference/ukbflow-package.html">?ukbflow</a></code> or
-<code><a href="https://rdrr.io/pkg/ukbflow/man" class="external-link">help(package = "ukbflow")</a></code>
+<code><a href="https://evanbio.github.io/ukbflow/reference">help(package = "ukbflow")</a></code>
 </li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="a-note-from-the-author">A note from the author<a class="anchor" aria-label="anchor" href="#a-note-from-the-author"></a>
-</h2>
 <blockquote>
-<p>UK Biobank holds data on half a million people. <code>ukbflow</code>
-exists to make that data accessible — cleanly, reproducibly, and without
-leaving the cloud.</p>
+<p><em>“All models are wrong, but some are publishable.”</em></p>
+<p>— after George Box</p>
 </blockquote>
-<p>—— Yibin Zhou</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -327,7 +333,7 @@ leaving the cloud.</p>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.1.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

@@ -74,18 +74,24 @@ plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
 | Plot     | [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md), [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)                                                                                        | [`vignette("plot")`](https://evanbio.github.io/ukbflow/articles/plot.md)                       |
 | GRS      | [`grs_check()`](https://evanbio.github.io/ukbflow/reference/grs_check.md), [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md), [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md)                   | [`vignette("grs")`](https://evanbio.github.io/ukbflow/articles/grs.md)                         |
 
+## End-to-End Case Study
+
+For a complete worked example using a simulated UK Biobank cohort —
+covering data loading, phenotype derivation, cohort assembly, Cox
+regression, and publication-ready visualisation — see:
+
+[`vignette("smoking_lung_cancer")`](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md)
+— **Smoking and Lung Cancer Risk: A Complete Analysis Workflow**
+
 ## Additional Resources
 
 - [Documentation site](https://evanbio.github.io/ukbflow/)
 - [GitHub](https://github.com/evanbio/ukbflow)
 - View all functions:
   [`?ukbflow`](https://evanbio.github.io/ukbflow/reference/ukbflow-package.md)
-  or [`help(package = "ukbflow")`](https://rdrr.io/pkg/ukbflow/man)
+  or
+  [`help(package = "ukbflow")`](https://evanbio.github.io/ukbflow/reference)
 
-## A note from the author
-
-> UK Biobank holds data on half a million people. `ukbflow` exists to
-> make that data accessible — cleanly, reproducibly, and without leaving
-> the cloud.
-
-—— Yibin Zhou
+> *“All models are wrong, but some are publishable.”*
+>
+> — after George Box

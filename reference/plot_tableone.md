@@ -27,7 +27,10 @@ plot_tableone(
   pvalue_width = 100,
   row_height = 8,
   save = FALSE,
-  dest = NULL
+  dest = NULL,
+  png_scale = 2,
+  pdf_width = NULL,
+  pdf_height = NULL
 )
 ```
 
@@ -129,6 +132,23 @@ plot_tableone(
   Character or `NULL`. File path without extension. When `save = TRUE`,
   four files are written: `<dest>.docx`, `<dest>.html`, `<dest>.pdf`,
   `<dest>.png`. Required when `save = TRUE`.
+
+- png_scale:
+
+  Numeric. Zoom factor for PNG export via webshot2. Higher values
+  produce larger, higher-resolution images. Default: `2`.
+
+- pdf_width:
+
+  Numeric or `NULL`. PDF paper width in inches passed to
+  [`pagedown::chrome_print`](https://rdrr.io/pkg/pagedown/man/chrome_print.html).
+  A larger value increases the page size so more content fits on a
+  single page. Default: `NULL` (Chrome default).
+
+- pdf_height:
+
+  Numeric or `NULL`. PDF paper height in inches. Increase if the table
+  is cut off across pages. Default: `NULL`.
 
 ## Value
 

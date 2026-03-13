@@ -17,5 +17,5 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Evan Zhou <evanzhou.bio@gmail.com>
+**Maintainer**: Yibin Zhou <evanzhou.bio@gmail.com>
 ([ORCID](https://orcid.org/0009-0009-4600-8175))

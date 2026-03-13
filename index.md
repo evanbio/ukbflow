@@ -63,6 +63,11 @@ standardisation (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
 **Visualization** — Publication-ready forest plots and Table 1, saved in
 all major formats at 300 dpi (`plot_forest`, `plot_tableone`)
 
+**Utilities** — Verify environment before analysis; generate synthetic
+UKB-like data for development; diagnose missing values; track cohort
+changes across pipeline steps (`ops_setup`, `ops_toy`, `ops_na`,
+`ops_snapshot`)
+
 ## Quick Start
 
 ``` r

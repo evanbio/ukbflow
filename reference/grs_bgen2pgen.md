@@ -69,12 +69,12 @@ auto-uploads to `dest` on completion. Output files per chromosome:
 - `"standard"`:
 
   `mem2_ssd1_v2_x4`: 4 cores, 12 GB RAM. Suitable for smaller
-  chromosomes (roughly chr 15–22).
+  chromosomes (roughly chr 17–22).
 
 - `"large"`:
 
   `mem2_ssd2_v2_x8`: 8 cores, 28 GB RAM, 640 GB SSD. Required for large
-  chromosomes (roughly chr 1–14) where standard storage is insufficient.
+  chromosomes (roughly chr 1–16) where standard storage is insufficient.
 
 ## Examples
 
@@ -87,7 +87,7 @@ ids <- grs_bgen2pgen(chr = 22, priority = "high")
 ids_small <- grs_bgen2pgen(chr = 15:22)
 
 # Large chromosomes - upgrade instance to handle storage
-ids_large <- grs_bgen2pgen(chr = 1:14, instance = "large")
+ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 
 # Monitor
 job_ls()

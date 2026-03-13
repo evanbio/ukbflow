@@ -16,7 +16,9 @@
 <url><loc>https://evanbio.github.io/ukbflow/articles/index.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/install.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/job.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/articles/ops.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/plot.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/authors.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/index.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/news/index.html</loc></url>
@@ -68,6 +70,15 @@
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_result.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_status.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_wait.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_na.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_setup.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_snapshot.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_snapshot_diff.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_toy.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_withdraw.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/plot_forest.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/plot_tableone.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/ukbflow-package.html</loc></url>

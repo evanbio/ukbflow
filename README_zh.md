@@ -87,6 +87,7 @@ pip install dxpy
 | **关联分析**   | `assoc_coxph`、`assoc_logistic`、`assoc_subgroup`                                 | 三模型框架校正；亚组与趋势分析        |
 | **基因组评分** | `grs_bgen2pgen`、`grs_score`、`grs_standardize`                                   | 在 RAP 工作节点分布式运行 plink2 评分 |
 | **可视化**     | `plot_forest`、`plot_tableone`                                                    | 发表级图表输出                        |
+| **实用工具**   | `ops_setup`、`ops_toy`、`ops_na`、`ops_snapshot`                                  | 环境检查、合成数据生成与流程诊断      |
 
 ------------------------------------------------------------------------
 
@@ -171,6 +172,17 @@ pip install dxpy
   — 森林图（PNG / PDF / JPG / TIFF，300 dpi）
 - [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
   — 基线特征表（DOCX / HTML / PDF / PNG）
+
+**实用工具与诊断**
+
+- [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
+  — 环境健康检查（dx CLI、RAP 认证、R 包依赖）
+- [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+  — 生成合成 UKB 风格数据，用于开发与测试
+- [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) —
+  逐列汇总缺失值（NA 与 `""`）及缺失率
+- [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+  — 记录流程检查点，追踪数据集在各步骤的变化
 
 **GRS 流程**
 
