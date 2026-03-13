@@ -8,7 +8,7 @@
 
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://codecov.io/gh/evanbio/ukbflow?branch=main)
-[![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [📚 文档](https://evanbio.github.io/ukbflow/) •
@@ -84,7 +84,7 @@ pip install dxpy
 | **关联分析** | `assoc_coxph`、`assoc_logistic`、`assoc_subgroup` | 三模型框架校正；亚组与趋势分析 |
 | **基因组评分** | `grs_bgen2pgen`、`grs_score`、`grs_standardize` | 在 RAP 工作节点分布式运行 plink2 评分 |
 | **可视化** | `plot_forest`、`plot_tableone` | 发表级图表输出 |
-| **实用工具** | `ops_setup`、`ops_toy`、`ops_na`、`ops_snapshot` | 环境检查、合成数据生成与流程诊断 |
+| **实用工具** | `ops_setup`、`ops_toy`、`ops_na`、`ops_snapshot`、`ops_withdraw` | 环境检查、合成数据生成、流程诊断与队列管理 |
 
 ---
 
@@ -161,6 +161,7 @@ pip install dxpy
 - `ops_toy()` — 生成合成 UKB 风格数据，用于开发与测试
 - `ops_na()` — 逐列汇总缺失值（NA 与 `""`）及缺失率
 - `ops_snapshot()` — 记录流程检查点，追踪数据集在各步骤的变化
+- `ops_withdraw()` — 从队列中排除 UKB 撤回参与者
 
 </details>
 

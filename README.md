@@ -8,7 +8,7 @@
 
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://codecov.io/gh/evanbio/ukbflow?branch=main)
-[![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [📚 Documentation](https://evanbio.github.io/ukbflow/) •
@@ -84,7 +84,7 @@ pip install dxpy
 | **Association Analysis** | `assoc_coxph`, `assoc_logistic`, `assoc_subgroup` | Three-model adjustment; subgroup & trend analysis |
 | **Genomic Scoring** | `grs_bgen2pgen`, `grs_score`, `grs_standardize` | Distributed plink2 scoring on RAP worker nodes |
 | **Visualization** | `plot_forest`, `plot_tableone` | Publication-ready figures & tables |
-| **Utilities** | `ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot` | Environment check, synthetic data, and pipeline diagnostics |
+| **Utilities** | `ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw` | Environment check, synthetic data, pipeline diagnostics, and cohort management |
 
 ---
 
@@ -161,6 +161,7 @@ pip install dxpy
 - `ops_toy()` — generate synthetic UKB-like data for development and testing
 - `ops_na()` — summarise missing values (NA and `""`) across all columns
 - `ops_snapshot()` — record pipeline checkpoints and track dataset changes
+- `ops_withdraw()` — exclude UKB withdrawn participants from a cohort
 
 </details>
 
