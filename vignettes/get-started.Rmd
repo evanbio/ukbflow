@@ -103,9 +103,6 @@ publication-ready visualisation — see:
 - [GitHub](https://github.com/evanbio/ukbflow)
 - View all functions: `?ukbflow` or `help(package = "ukbflow")`
 
-## A note from the author
-
-> UK Biobank holds data on half a million people. `ukbflow` exists to make
-> that data accessible — cleanly, reproducibly, and without leaving the cloud.
-
-—— Yibin Zhou
+> *"All models are wrong, but some are publishable."*
+>
+> — after George Box

@@ -1,3 +1,37 @@
+# ukbflow 0.3.0
+
+*Released: March 13, 2026*
+
+## New Features
+
+### Operations (ops_*)
+- `ops_withdraw()` — exclude UKB withdrawn participants from a cohort data.table by EID
+
+### Snapshot — Column Tracking
+- `ops_snapshot()` gains column-tracking helpers: `cols()`, `diff()`, `remove()`, and `set_safe_cols()`
+
+### Visualisation Enhancements
+- `plot_tableone()` — new `png_scale`, `pdf_width`, and `pdf_height` parameters for fine-grained output control
+
+## Bug Fixes
+
+- `fetch_file()` — enforce RAP-only guard; updated tests
+- `grs_score()` — fix `-icmd` argument format; skip script upload if file already exists on RAP
+- GRS pipeline — updated chr split threshold: chromosomes 1–16 use large instances, 17–22 use standard
+
+## Documentation
+
+- Added roxygen2 documentation for `ops_withdraw()`
+- Unit tests added for `ops_withdraw()`
+
+## Internal
+
+- Added `broom` to `DESCRIPTION` Imports and `ops_setup()` dependency check
+- Updated package logo (new hex sticker design)
+- Integration tests requiring RAP environment are now skipped in local CI
+
+---
+
 # ukbflow 0.2.0
 
 *Released: March 10, 2026*
