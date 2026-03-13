@@ -65,8 +65,8 @@ all major formats at 300 dpi (`plot_forest`, `plot_tableone`)
 
 **Utilities** — Verify environment before analysis; generate synthetic
 UKB-like data for development; diagnose missing values; track cohort
-changes across pipeline steps (`ops_setup`, `ops_toy`, `ops_na`,
-`ops_snapshot`)
+changes across pipeline steps; exclude withdrawn participants
+(`ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
 
 ## Quick Start
 
