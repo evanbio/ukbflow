@@ -1843,6 +1843,16 @@ derive_followup <- function(data,
   if (!is.null(death_col)) valid_date_cols <- c(valid_date_cols, death_col)
   if (!is.null(lost_col))  valid_date_cols <- c(valid_date_cols, lost_col)
 
+  # Reason: coerce all date columns to IDate before pmin. Real RAP data and
+  # ops_toy both store date columns as character strings; mixing character with
+  # IDate in pmin causes IDate to be cast to its integer representation
+  # (e.g. "18628"), which charToDate() cannot parse.
+  for (col in valid_date_cols) {
+    if (!inherits(data[[col]], "IDate")) {
+      data[, (col) := data.table::as.IDate(as.character(get(col)))]
+    }
+  }
+
   # ── Compute follow-up end (earliest competing date) ────────────────────────
   data[, (end_col) := data.table::as.IDate(
     do.call(pmin, c(.SD, list(censor_date), list(na.rm = TRUE)))
