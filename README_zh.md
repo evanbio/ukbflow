@@ -32,27 +32,42 @@ MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/
 ``` r
 library(ukbflow)
 
-# 认证并提取数据
-auth_login()
-df <- extract_pheno(c(31, 21022, 53, 20116, 41270, 41280)) |>
-  decode_values() |>
-  decode_names()
+# 本地生成合成 UKB 数据（在 RAP 上请替换为 extract_batch() + job_wait()）
+data <- ops_toy(n = 5000, seed = 2026) |>
+  derive_missing()
 
-# 衍生疾病表型
-df <- df |>
-  derive_missing() |>
-  derive_icd10(name = "outcome", icd10 = "E11",
-               source = c("hes", "first_occurrence")) |>
-  derive_followup(name = "outcome", event_col = "outcome_date",
-                  baseline_col = "date_baseline",
-                  censor_date  = as.Date("2022-06-01"))
+# 衍生肺癌结局（ICD-10 C34）及随访时间
+data <- data |>
+  derive_icd10(name = "lung", icd10 = "C34",
+               source = c("cancer_registry", "hes")) |>
+  derive_followup(name         = "lung",
+                  event_col    = "lung_icd10_date",
+                  baseline_col = "p53_i0",
+                  censor_date  = as.Date("2022-10-31"),
+                  death_col    = "p40000_i0")
 
-# 关联分析 → 森林图
-res <- assoc_coxph(df, outcome_col = "outcome_status",
-                   time_col = "outcome_followup_years",
-                   exposure_col = "exposure_status",
-                   covariates = c("age_at_recruitment", "sex", "tdi"))
-plot_forest(res)
+# 定义暴露变量：曾吸烟 vs. 从不吸烟
+data[, smoking_ever := factor(
+  ifelse(p20116_i0 == "Never", "Never", "Ever"),
+  levels = c("Never", "Ever")
+)]
+
+# Cox 回归：吸烟 → 肺癌（三模型校正框架）
+res <- assoc_coxph(data,
+  outcome_col  = "lung_icd10",
+  time_col     = "lung_followup_years",
+  exposure_col = "smoking_ever",
+  covariates   = c("p21022", "p31", "p22189"))
+
+# 森林图
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
 ```
 
 ------------------------------------------------------------------------
@@ -95,7 +110,7 @@ pip install dxpy
 
 **认证与文件获取**
 
-- [`auth_login()`](https://evanbio.github.io/ukbflow/reference/auth_login.md)、[`auth_status()`](https://evanbio.github.io/ukbflow/reference/auth_status.md)、[`auth_select_project()`](https://evanbio.github.io/ukbflow/reference/auth_select_project.md)
+- [`auth_login()`](https://evanbio.github.io/ukbflow/reference/auth_login.md)、[`auth_status()`](https://evanbio.github.io/ukbflow/reference/auth_status.md)、[`auth_logout()`](https://evanbio.github.io/ukbflow/reference/auth_logout.md)、[`auth_list_projects()`](https://evanbio.github.io/ukbflow/reference/auth_list_projects.md)、[`auth_select_project()`](https://evanbio.github.io/ukbflow/reference/auth_select_project.md)
   — RAP 认证
 - [`fetch_ls()`](https://evanbio.github.io/ukbflow/reference/fetch_ls.md)、[`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)、[`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)、[`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
   — RAP 文件系统
@@ -104,12 +119,25 @@ pip install dxpy
 
 **提取与解码**
 
-- [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)、[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
+- [`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)、[`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)、[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
   — 表型提取
 - [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
   — 整数编码 → 可读标签
 - [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
   — 字段 ID → snake_case 列名
+
+**任务监控**
+
+- [`job_status()`](https://evanbio.github.io/ukbflow/reference/job_status.md)
+  — 按 ID 查询任务状态
+- [`job_wait()`](https://evanbio.github.io/ukbflow/reference/job_wait.md)
+  — 阻塞等待任务完成（支持超时）
+- [`job_path()`](https://evanbio.github.io/ukbflow/reference/job_path.md)
+  — 获取已完成任务的输出路径
+- [`job_result()`](https://evanbio.github.io/ukbflow/reference/job_result.md)
+  — 获取任务结果对象
+- [`job_ls()`](https://evanbio.github.io/ukbflow/reference/job_ls.md) —
+  列出最近提交的任务
 
 **衍生 — 疾病表型**
 
@@ -165,6 +193,8 @@ pip install dxpy
   — 剂量-反应趋势 + p_trend
 - [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
   — Fine-Gray 竞争风险（SHR）
+- [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
+  — 滞后暴露敏感性分析
 
 **可视化**
 
@@ -183,6 +213,14 @@ pip install dxpy
   逐列汇总缺失值（NA 与 `""`）及缺失率
 - [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
   — 记录流程检查点，追踪数据集在各步骤的变化
+- [`ops_snapshot_cols()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.md)
+  — 获取指定快照保存的列名列表
+- [`ops_snapshot_diff()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_diff.md)
+  — 比较两个快照之间的列差异
+- [`ops_snapshot_remove()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.md)
+  — 删除某快照之后新增的列
+- [`ops_set_safe_cols()`](https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.md)
+  — 设置受保护列，ops_snapshot_remove 不会删除这些列
 - [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
   — 从队列中排除 UKB 撤回参与者
 
