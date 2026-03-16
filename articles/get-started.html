@@ -186,10 +186,12 @@ RAP cloud environment.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>,</span>
-<span>               source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"first_occurrence"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, event_col <span class="op">=</span> <span class="st">"outcome_date"</span>,</span>
-<span>                  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span>,</span>
+<span>  <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, regex <span class="op">=</span> <span class="st">"diabetes"</span>, field <span class="op">=</span> <span class="st">"non_cancer"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, source <span class="op">=</span> <span class="st">"hes"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span><span class="op">)</span> <span class="op">|&gt;</span>                 <span class="co"># → outcome_status, outcome_date</span></span>
+<span>  <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span>name         <span class="op">=</span> <span class="st">"outcome"</span>,</span>
+<span>                  event_col    <span class="op">=</span> <span class="st">"outcome_date"</span>,</span>
+<span>                  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,         <span class="co"># date_of_attending_assessment_centre_i0</span></span>
 <span>                  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-06-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -208,9 +210,22 @@ RAP cloud environment.</p>
 <h3 id="plot-the-results">Plot the results<a class="anchor" aria-label="anchor" href="#plot-the-results"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># plot_forest() takes a reshaped data.frame — see vignette("plot") for details</span></span>
-<span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span><span class="va">df</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"bmi"</span><span class="op">)</span>,</span>
-<span>              strata <span class="op">=</span> <span class="st">"outcome_status"</span>, dest <span class="op">=</span> <span class="st">"results/table1"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Forest plot — see vignette("plot") for full usage</span></span>
+<span><span class="va">res_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<span>  data      <span class="op">=</span> <span class="va">res_df</span>,</span>
+<span>  est       <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">HR</span>,</span>
+<span>  lower     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_lower</span>,</span>
+<span>  upper     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_upper</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">2L</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Table 1</span></span>
+<span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
+<span>  data   <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  vars   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
+<span>  strata <span class="op">=</span> <span class="st">"outcome_status"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -242,6 +257,22 @@ RAP cloud environment.</p>
 <code><a href="../reference/fetch_tree.html">fetch_tree()</a></code>
 </td>
 <td><code><a href="../articles/fetch.html">vignette("fetch")</a></code></td>
+</tr>
+<tr class="odd">
+<td>Extract</td>
+<td>
+<code><a href="../reference/extract_pheno.html">extract_pheno()</a></code>, <code><a href="../reference/extract_batch.html">extract_batch()</a></code>,
+<code><a href="../reference/extract_ls.html">extract_ls()</a></code>
+</td>
+<td><code><a href="../articles/extract.html">vignette("extract")</a></code></td>
+</tr>
+<tr class="even">
+<td>Job</td>
+<td>
+<code><a href="../reference/job_wait.html">job_wait()</a></code>, <code><a href="../reference/job_status.html">job_status()</a></code>,
+<code><a href="../reference/job_result.html">job_result()</a></code>
+</td>
+<td><code><a href="../articles/job.html">vignette("job")</a></code></td>
 </tr>
 <tr class="odd">
 <td>Decode</td>
@@ -288,6 +319,14 @@ RAP cloud environment.</p>
 <code><a href="../reference/grs_validate.html">grs_validate()</a></code>
 </td>
 <td><code><a href="../articles/grs.html">vignette("grs")</a></code></td>
+</tr>
+<tr class="odd">
+<td>Ops</td>
+<td>
+<code><a href="../reference/ops_setup.html">ops_setup()</a></code>, <code><a href="../reference/ops_toy.html">ops_toy()</a></code>,
+<code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code>
+</td>
+<td><code><a href="../articles/ops.html">vignette("ops")</a></code></td>
 </tr>
 </tbody>
 </table>
