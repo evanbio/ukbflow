@@ -124,7 +124,7 @@ auth_list_projects()                         # find your project ID
 auth_select_project("project-XXXXXXXXXXXX")  # switch to your UKB project
 ```
 
-> For full details on token management, project selection, and both authentication modes, see `vignette("authentication")`.
+> For full details on token management, project selection, and both authentication modes, see `vignette("auth")`.
 
 ### RAP → RAP
 
@@ -218,5 +218,5 @@ remove.packages("ukbflow")
 
 After installation:
 
-1. Read the [Getting Started](getting-started.html) guide
+1. Read the [Getting Started](get-started.html) guide
 2. Browse the [Function Reference](https://evanbio.github.io/ukbflow/reference/)
