@@ -4,7 +4,7 @@
 
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://codecov.io/gh/evanbio/ukbflow?branch=main)
-[![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -50,34 +50,42 @@ pip install dxpy
 ```r
 library(ukbflow)
 
-# Authenticate
-auth_login()
-auth_select_project("project-XXXXXXXXXXXX")
+# Simulate UKB-style data locally (on RAP: replace with extract_batch() + job_wait())
+data <- ops_toy(n = 5000, seed = 2026) |>
+  derive_missing()
 
-# Extract and decode
-df <- extract_pheno(c(31, 21022, 53, 20116, 41270, 41280)) |>
-  decode_values() |>
-  decode_names()
+# Derive lung cancer outcome (ICD-10 C34) and follow-up time
+data <- data |>
+  derive_icd10(name = "lung", icd10 = "C34",
+               source = c("cancer_registry", "hes")) |>
+  derive_followup(name         = "lung",
+                  event_col    = "lung_icd10_date",
+                  baseline_col = "p53_i0",
+                  censor_date  = as.Date("2022-10-31"),
+                  death_col    = "p40000_i0")
 
-# Derive disease phenotype + follow-up
-df <- df |>
-  derive_missing() |>
-  derive_icd10(name = "outcome", icd10 = "E11",
-               source = c("hes", "first_occurrence")) |>
-  derive_followup(name = "outcome", event_col = "outcome_date",
-                  baseline_col = "date_baseline",
-                  censor_date  = as.Date("2022-06-01"))
+# Define exposure: ever vs. never smoker
+data[, smoking_ever := factor(
+  ifelse(p20116_i0 == "Never", "Never", "Ever"),
+  levels = c("Never", "Ever")
+)]
 
-# Association analysis
-res <- assoc_coxph(df,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure_status",
-  covariates   = c("age_at_recruitment", "sex", "tdi")
-)
+# Cox regression: smoking → lung cancer (3-model adjustment)
+res <- assoc_coxph(data,
+  outcome_col  = "lung_icd10",
+  time_col     = "lung_followup_years",
+  exposure_col = "smoking_ever",
+  covariates   = c("p21022", "p31", "p22189"))
 
 # Forest plot
-plot_forest(res)
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
 ```
 
 ## Documentation

@@ -31,27 +31,42 @@
 ```r
 library(ukbflow)
 
-# Authenticate and extract
-auth_login()
-df <- extract_pheno(c(31, 21022, 53, 20116, 41270, 41280)) |>
-  decode_values() |>
-  decode_names()
+# Simulate UKB-style data locally (on RAP: replace with extract_batch() + job_wait())
+data <- ops_toy(n = 5000, seed = 2026) |>
+  derive_missing()
 
-# Derive disease phenotype
-df <- df |>
-  derive_missing() |>
-  derive_icd10(name = "outcome", icd10 = "E11",
-               source = c("hes", "first_occurrence")) |>
-  derive_followup(name = "outcome", event_col = "outcome_date",
-                  baseline_col = "date_baseline",
-                  censor_date  = as.Date("2022-06-01"))
+# Derive lung cancer outcome (ICD-10 C34) and follow-up time
+data <- data |>
+  derive_icd10(name = "lung", icd10 = "C34",
+               source = c("cancer_registry", "hes")) |>
+  derive_followup(name        = "lung",
+                  event_col   = "lung_icd10_date",
+                  baseline_col = "p53_i0",
+                  censor_date  = as.Date("2022-10-31"),
+                  death_col    = "p40000_i0")
 
-# Association analysis → forest plot
-res <- assoc_coxph(df, outcome_col = "outcome_status",
-                   time_col = "outcome_followup_years",
-                   exposure_col = "exposure_status",
-                   covariates = c("age_at_recruitment", "sex", "tdi"))
-plot_forest(res)
+# Define exposure: ever vs. never smoker
+data[, smoking_ever := factor(
+  ifelse(p20116_i0 == "Never", "Never", "Ever"),
+  levels = c("Never", "Ever")
+)]
+
+# Cox regression: smoking → lung cancer (3-model adjustment)
+res <- assoc_coxph(data,
+  outcome_col  = "lung_icd10",
+  time_col     = "lung_followup_years",
+  exposure_col = "smoking_ever",
+  covariates   = c("p21022", "p31", "p22189"))
+
+# Forest plot
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
 ```
 
 ---
@@ -93,7 +108,7 @@ pip install dxpy
 <details>
 <summary><b>Auth & Fetch</b></summary>
 
-- `auth_login()`, `auth_status()`, `auth_select_project()` — RAP authentication
+- `auth_login()`, `auth_status()`, `auth_logout()`, `auth_list_projects()`, `auth_select_project()` — RAP authentication
 - `fetch_ls()`, `fetch_tree()`, `fetch_url()`, `fetch_file()` — RAP file system
 - `fetch_metadata()`, `fetch_field()` — UKB metadata shortcuts
 
@@ -102,9 +117,20 @@ pip install dxpy
 <details>
 <summary><b>Extract & Decode</b></summary>
 
-- `extract_pheno()`, `extract_batch()` — phenotype extraction
+- `extract_ls()`, `extract_pheno()`, `extract_batch()` — phenotype extraction
 - `decode_values()` — integer codes → human-readable labels
 - `decode_names()` — field IDs → snake_case column names
+
+</details>
+
+<details>
+<summary><b>Job Monitoring</b></summary>
+
+- `job_status()` — query job status by ID
+- `job_wait()` — block until job completes (with timeout)
+- `job_path()` — get output path of a completed job
+- `job_result()` — retrieve job result object
+- `job_ls()` — list recent jobs
 
 </details>
 
@@ -143,6 +169,7 @@ pip install dxpy
 - `assoc_subgroup()` — stratified analysis + interaction LRT
 - `assoc_trend()` — dose-response trend + p_trend
 - `assoc_competing()` — Fine-Gray competing risks (SHR)
+- `assoc_lag()` — lagged exposure sensitivity analysis
 
 </details>
 
@@ -161,6 +188,10 @@ pip install dxpy
 - `ops_toy()` — generate synthetic UKB-like data for development and testing
 - `ops_na()` — summarise missing values (NA and `""`) across all columns
 - `ops_snapshot()` — record pipeline checkpoints and track dataset changes
+- `ops_snapshot_cols()` — retrieve column list from a saved snapshot
+- `ops_snapshot_diff()` — compare columns between two snapshots
+- `ops_snapshot_remove()` — remove columns added after a given snapshot
+- `ops_set_safe_cols()` — define protected columns that ops_snapshot_remove will not drop
 - `ops_withdraw()` — exclude UKB withdrawn participants from a cohort
 
 </details>

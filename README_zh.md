@@ -31,27 +31,42 @@
 ```r
 library(ukbflow)
 
-# 认证并提取数据
-auth_login()
-df <- extract_pheno(c(31, 21022, 53, 20116, 41270, 41280)) |>
-  decode_values() |>
-  decode_names()
+# 本地生成合成 UKB 数据（在 RAP 上请替换为 extract_batch() + job_wait()）
+data <- ops_toy(n = 5000, seed = 2026) |>
+  derive_missing()
 
-# 衍生疾病表型
-df <- df |>
-  derive_missing() |>
-  derive_icd10(name = "outcome", icd10 = "E11",
-               source = c("hes", "first_occurrence")) |>
-  derive_followup(name = "outcome", event_col = "outcome_date",
-                  baseline_col = "date_baseline",
-                  censor_date  = as.Date("2022-06-01"))
+# 衍生肺癌结局（ICD-10 C34）及随访时间
+data <- data |>
+  derive_icd10(name = "lung", icd10 = "C34",
+               source = c("cancer_registry", "hes")) |>
+  derive_followup(name         = "lung",
+                  event_col    = "lung_icd10_date",
+                  baseline_col = "p53_i0",
+                  censor_date  = as.Date("2022-10-31"),
+                  death_col    = "p40000_i0")
 
-# 关联分析 → 森林图
-res <- assoc_coxph(df, outcome_col = "outcome_status",
-                   time_col = "outcome_followup_years",
-                   exposure_col = "exposure_status",
-                   covariates = c("age_at_recruitment", "sex", "tdi"))
-plot_forest(res)
+# 定义暴露变量：曾吸烟 vs. 从不吸烟
+data[, smoking_ever := factor(
+  ifelse(p20116_i0 == "Never", "Never", "Ever"),
+  levels = c("Never", "Ever")
+)]
+
+# Cox 回归：吸烟 → 肺癌（三模型校正框架）
+res <- assoc_coxph(data,
+  outcome_col  = "lung_icd10",
+  time_col     = "lung_followup_years",
+  exposure_col = "smoking_ever",
+  covariates   = c("p21022", "p31", "p22189"))
+
+# 森林图
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
 ```
 
 ---
@@ -93,7 +108,7 @@ pip install dxpy
 <details>
 <summary><b>认证与文件获取</b></summary>
 
-- `auth_login()`、`auth_status()`、`auth_select_project()` — RAP 认证
+- `auth_login()`、`auth_status()`、`auth_logout()`、`auth_list_projects()`、`auth_select_project()` — RAP 认证
 - `fetch_ls()`、`fetch_tree()`、`fetch_url()`、`fetch_file()` — RAP 文件系统
 - `fetch_metadata()`、`fetch_field()` — UKB 元数据快捷下载
 
@@ -102,9 +117,20 @@ pip install dxpy
 <details>
 <summary><b>提取与解码</b></summary>
 
-- `extract_pheno()`、`extract_batch()` — 表型提取
+- `extract_ls()`、`extract_pheno()`、`extract_batch()` — 表型提取
 - `decode_values()` — 整数编码 → 可读标签
 - `decode_names()` — 字段 ID → snake_case 列名
+
+</details>
+
+<details>
+<summary><b>任务监控</b></summary>
+
+- `job_status()` — 按 ID 查询任务状态
+- `job_wait()` — 阻塞等待任务完成（支持超时）
+- `job_path()` — 获取已完成任务的输出路径
+- `job_result()` — 获取任务结果对象
+- `job_ls()` — 列出最近提交的任务
 
 </details>
 
@@ -143,6 +169,7 @@ pip install dxpy
 - `assoc_subgroup()` — 分层分析 + 交互项 LRT
 - `assoc_trend()` — 剂量-反应趋势 + p_trend
 - `assoc_competing()` — Fine-Gray 竞争风险（SHR）
+- `assoc_lag()` — 滞后暴露敏感性分析
 
 </details>
 
@@ -161,6 +188,10 @@ pip install dxpy
 - `ops_toy()` — 生成合成 UKB 风格数据，用于开发与测试
 - `ops_na()` — 逐列汇总缺失值（NA 与 `""`）及缺失率
 - `ops_snapshot()` — 记录流程检查点，追踪数据集在各步骤的变化
+- `ops_snapshot_cols()` — 获取指定快照保存的列名列表
+- `ops_snapshot_diff()` — 比较两个快照之间的列差异
+- `ops_snapshot_remove()` — 删除某快照之后新增的列
+- `ops_set_safe_cols()` — 设置受保护列，ops_snapshot_remove 不会删除这些列
 - `ops_withdraw()` — 从队列中排除 UKB 撤回参与者
 
 </details>
