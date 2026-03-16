@@ -49,10 +49,12 @@ df <- extract_pheno(c(31, 21022, 53, 20116)) |>
 ```{r derive}
 df <- df |>
   derive_missing() |>
-  derive_icd10(name = "outcome", icd10 = "E11",
-               source = c("hes", "first_occurrence")) |>
-  derive_followup(name = "outcome", event_col = "outcome_date",
-                  baseline_col = "date_baseline",
+  derive_selfreport(name = "outcome", regex = "diabetes", field = "non_cancer") |>
+  derive_icd10(name = "outcome", icd10 = "E11", source = "hes") |>
+  derive_case(name = "outcome") |>                 # → outcome_status, outcome_date
+  derive_followup(name         = "outcome",
+                  event_col    = "outcome_date",
+                  baseline_col = "p53_i0",         # date_of_attending_assessment_centre_i0
                   censor_date  = as.Date("2022-06-01"))
 ```
 
@@ -71,9 +73,22 @@ res <- assoc_coxph(
 ### Plot the results
 
 ```{r plot}
-# plot_forest() takes a reshaped data.frame — see vignette("plot") for details
-plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
-              strata = "outcome_status", dest = "results/table1")
+# Forest plot — see vignette("plot") for full usage
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
+
+# Table 1
+plot_tableone(
+  data   = df,
+  vars   = c("age_at_recruitment", "sex", "smoking_status_i0"),
+  strata = "outcome_status"
+)
 ```
 
 ## Full Function Overview
@@ -82,12 +97,15 @@ plot_tableone(df, vars = c("age_at_recruitment", "sex", "bmi"),
 |---|---|---|
 | Auth | `auth_login()`, `auth_select_project()` | `vignette("auth")` |
 | Fetch | `fetch_ls()`, `fetch_file()`, `fetch_tree()` | `vignette("fetch")` |
+| Extract | `extract_pheno()`, `extract_batch()`, `extract_ls()` | `vignette("extract")` |
+| Job | `job_wait()`, `job_status()`, `job_result()` | `vignette("job")` |
 | Decode | `decode_values()`, `decode_names()` | `vignette("decode")` |
 | Derive | `derive_missing()`, `derive_icd10()`, `derive_case()` | `vignette("derive")` |
 | Survival | `derive_timing()`, `derive_age()`, `derive_followup()` | `vignette("derive-survival")` |
 | Assoc | `assoc_coxph()`, `assoc_logistic()`, `assoc_subgroup()` | `vignette("assoc")` |
 | Plot | `plot_forest()`, `plot_tableone()` | `vignette("plot")` |
 | GRS | `grs_check()`, `grs_score()`, `grs_validate()` | `vignette("grs")` |
+| Ops | `ops_setup()`, `ops_toy()`, `ops_snapshot()` | `vignette("ops")` |
 
 ## End-to-End Case Study
 
