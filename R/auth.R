@@ -19,7 +19,7 @@
 #' auth_login(token = "your_token_here")
 #' }
 auth_login <- function(token = NULL) {
-  if (is.null(token) || !nzchar(token)) {
+  if (is.null(token)) {
     token <- Sys.getenv("DX_API_TOKEN")
     if (!nzchar(token)) {
       stop(
@@ -27,6 +27,8 @@ auth_login <- function(token = NULL) {
         call. = FALSE
       )
     }
+  } else {
+    .assert_scalar_string(token)
   }
 
   result <- .dx_run(c("login", "--token", token, "--noprojects"))
@@ -147,12 +149,13 @@ auth_list_projects <- function() {
 #' auth_select_project("project-XXXXXXXXXXXX")
 #' }
 auth_select_project <- function(project) {
-  if (missing(project) || !nzchar(project)) {
+  if (missing(project)) {
     stop(
       "Please provide a project ID. Run auth_list_projects() to see available projects.",
       call. = FALSE
     )
   }
+  .assert_scalar_string(project)
 
   # Reason: only accept project IDs (project-XXXX) to avoid name/ID ambiguity;
   # names are not unique and can cause silent mismatches.
@@ -173,8 +176,12 @@ auth_select_project <- function(project) {
   # Reason: verify project was actually switched
   confirmed <- .dx_get_project_id()
 
-  if (is.na(confirmed)) {
-    stop("Project selection failed: context was not updated.", call. = FALSE)
+  if (is.na(confirmed) || !identical(confirmed, project)) {
+    stop(
+      "Project selection failed: expected ", project,
+      ", got ", ifelse(is.na(confirmed), "NA", confirmed),
+      call. = FALSE
+    )
   }
 
   cli::cli_alert_success("Project selected: {.val {confirmed}}")
