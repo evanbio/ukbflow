@@ -241,8 +241,6 @@ navbar:
     vignettes:
       text: "Vignettes"
       menu:
-      - text: "Get Started with ukbflow"
-        href: articles/get-started.html
       - text: "Authentication and Project Setup"
         href: articles/auth.html
       - text: "Exploring and Fetching RAP Files"
