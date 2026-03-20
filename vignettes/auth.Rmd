@@ -60,7 +60,7 @@ library(ukbflow)
 auth_login()  # reads DX_API_TOKEN from environment
 ```
 
-The token is cached locally by the dx toolkit and persists across R sessions. **You only need to log in once** — subsequent R sessions do not require re-authentication unless the token expires or you explicitly log out.
+The token is cached locally by the dx toolkit and persists across R sessions. In most local workflows, **you only need to log in once** — subsequent R sessions usually do not require re-authentication unless the token expires, the local dx session is cleared, or you explicitly log out.
 
 If you prefer to pass the token directly (e.g., in an interactive session), you can do so:
 
@@ -86,8 +86,8 @@ auth_status()  # verify the current session
 
 ```{r auth-status}
 auth_status()
-#> ✔ User:    user-XXXXXXXXXXXX
-#> ✔ Project: project-XXXXXXXXXXXX
+#> • User:    "user-XXXXXXXXXXXX"
+#> • Project: "project-XXXXXXXXXXXX"
 ```
 
 `auth_status()` returns the current user and active project. Use this to confirm your session before running any analysis.
@@ -110,7 +110,7 @@ This returns all RAP projects accessible to your account, along with their proje
 
 ```{r select-project}
 auth_select_project("project-XXXXXXXXXXXX")
-#> Project selected: project-XXXXXXXXXXXX
+#> ✔ Project selected: "project-XXXXXXXXXXXX"
 ```
 
 `ukbflow` uses project IDs rather than names to avoid ambiguity. Use `auth_list_projects()` to find the correct ID first.
@@ -126,7 +126,7 @@ auth_logout()
 #> ✔ Logged out from DNAnexus.
 ```
 
-Logging out clears the local session cache. The next call to any `auth_*` or `job_*` function will require re-authentication.
+Logging out clears the local dx session cache. After logout, any function that depends on DNAnexus authentication will fail until you log in again.
 
 ---
 
