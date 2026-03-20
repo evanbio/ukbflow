@@ -104,8 +104,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><a class="dropdown-item" href="../articles/get-started.html">Get Started with ukbflow</a></li>
-    <li><a class="dropdown-item" href="../articles/auth.html">Authentication and Project Setup</a></li>
+<li><a class="dropdown-item" href="../articles/auth.html">Authentication and Project Setup</a></li>
     <li><a class="dropdown-item" href="../articles/fetch.html">Exploring and Fetching RAP Files</a></li>
     <li><a class="dropdown-item" href="../articles/extract.html">Extracting Phenotype Data</a></li>
     <li><a class="dropdown-item" href="../articles/decode.html">Decoding UKB Column Names and Values</a></li>
@@ -210,9 +209,10 @@ This keeps the token out of your scripts entirely.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/auth_login.html">auth_login</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># reads DX_API_TOKEN from environment</span></span></code></pre></div>
 <p>The token is cached locally by the dx toolkit and persists across R
-sessions. <strong>You only need to log in once</strong> — subsequent R
-sessions do not require re-authentication unless the token expires or
-you explicitly log out.</p>
+sessions. In most local workflows, <strong>you only need to log in
+once</strong> — subsequent R sessions usually do not require
+re-authentication unless the token expires, the local dx session is
+cleared, or you explicitly log out.</p>
 <p>If you prefer to pass the token directly (e.g., in an interactive
 session), you can do so:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -241,8 +241,8 @@ handled automatically by the platform. No login step is required:</p>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_status.html">auth_status</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ User:    user-XXXXXXXXXXXX</span></span>
-<span><span class="co">#&gt; ✔ Project: project-XXXXXXXXXXXX</span></span></code></pre></div>
+<span><span class="co">#&gt; • User:    "user-XXXXXXXXXXXX"</span></span>
+<span><span class="co">#&gt; • Project: "project-XXXXXXXXXXXX"</span></span></code></pre></div>
 <p><code><a href="../reference/auth_status.html">auth_status()</a></code> returns the current user and active
 project. Use this to confirm your session before running any
 analysis.</p>
@@ -266,7 +266,7 @@ their project IDs. Project IDs take the form
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_select_project.html">auth_select_project</a></span><span class="op">(</span><span class="st">"project-XXXXXXXXXXXX"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Project selected: project-XXXXXXXXXXXX</span></span></code></pre></div>
+<span><span class="co">#&gt; ✔ Project selected: "project-XXXXXXXXXXXX"</span></span></code></pre></div>
 <p><code>ukbflow</code> uses project IDs rather than names to avoid
 ambiguity. Use <code><a href="../reference/auth_list_projects.html">auth_list_projects()</a></code> to find the correct ID
 first.</p>
@@ -280,9 +280,9 @@ persists across sessions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_logout.html">auth_logout</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ✔ Logged out from DNAnexus.</span></span></code></pre></div>
-<p>Logging out clears the local session cache. The next call to any
-<code>auth_*</code> or <code>job_*</code> function will require
-re-authentication.</p>
+<p>Logging out clears the local dx session cache. After logout, any
+function that depends on DNAnexus authentication will fail until you log
+in again.</p>
 <hr>
 </div>
 <div class="section level2">
