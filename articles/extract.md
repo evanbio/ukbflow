@@ -3,16 +3,16 @@
 ## Overview
 
 UKB phenotype data is stored in a proprietary `.dataset` format on the
-RAP and cannot be read directly. The `extract_*` functions convert
-approved fields into a standard data.table via the DNAnexus
-`dx extract_dataset` and `table-exporter` tools.
+RAP and cannot be read directly. The `extract_*` functions provide R
+interfaces for discovering approved fields and extracting phenotype data
+via the DNAnexus `dx extract_dataset` and `table-exporter` tools.
 
 Two workflows are available:
 
-| Function                                                                          | Mode        | Scale                | Output               |
-|-----------------------------------------------------------------------------------|-------------|----------------------|----------------------|
-| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | Async job   | Large (50+ fields)   | CSV on RAP cloud     |
-| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | Synchronous | Small (quick checks) | data.table in memory |
+| Function                                                                          | Mode        | Scale                                     | Output                    |
+|-----------------------------------------------------------------------------------|-------------|-------------------------------------------|---------------------------|
+| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | Async job   | Large / production (typically 50+ fields) | job ID → CSV on RAP cloud |
+| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | Synchronous | Small (quick checks)                      | data.table in memory      |
 
 **[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
 is the recommended approach** for any serious analysis.
@@ -49,7 +49,7 @@ extract_ls()
 extract_ls(pattern = "cancer")
 extract_ls(pattern = "p31|p53|p21022")
 
-# Force refresh after switching projects
+# Force refresh after switching projects or datasets
 extract_ls(refresh = TRUE)
 ```
 
@@ -168,5 +168,6 @@ Column naming differs between the two extraction methods:
 - [`?extract_ls`](https://evanbio.github.io/ukbflow/reference/extract_ls.md),
   [`?extract_pheno`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md),
   [`?extract_batch`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
-- `vignette("authentication")` — authentication setup
+- [`vignette("auth")`](https://evanbio.github.io/ukbflow/articles/auth.md)
+  — authentication setup
 - [GitHub Issues](https://github.com/evanbio/ukbflow/issues)

@@ -38,9 +38,9 @@ extract_batch(
 
 - instance_type:
 
-  (character) DNAnexus instance type, e.g. `"mem1_ssd1_v2_x32"`.
-  Default: `NULL` (auto-select: `x8` for up to 20 cols, `x16` for up to
-  100 cols, `x32` for more than 100 cols).
+  (character) DNAnexus instance type, e.g. `"mem1_ssd1_v2_x16"`.
+  Default: `NULL` (auto-select: `x4` for up to 20 cols, `x8` for up to
+  100 cols, `x16` for up to 500 cols, `x36` for more than 500 cols).
 
 - priority:
 

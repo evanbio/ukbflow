@@ -152,9 +152,10 @@
 </h2>
 <p>UKB phenotype data is stored in a proprietary <code>.dataset</code>
 format on the RAP and cannot be read directly. The
-<code>extract_*</code> functions convert approved fields into a standard
-data.table via the DNAnexus <code>dx extract_dataset</code> and
-<code>table-exporter</code> tools.</p>
+<code>extract_*</code> functions provide R interfaces for discovering
+approved fields and extracting phenotype data via the DNAnexus
+<code>dx extract_dataset</code> and <code>table-exporter</code>
+tools.</p>
 <p>Two workflows are available:</p>
 <table class="table">
 <colgroup>
@@ -173,8 +174,8 @@ data.table via the DNAnexus <code>dx extract_dataset</code> and
 <tr class="odd">
 <td><code><a href="../reference/extract_batch.html">extract_batch()</a></code></td>
 <td>Async job</td>
-<td>Large (50+ fields)</td>
-<td>CSV on RAP cloud</td>
+<td>Large / production (typically 50+ fields)</td>
+<td>job ID → CSV on RAP cloud</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/extract_pheno.html">extract_pheno()</a></code></td>
@@ -214,7 +215,7 @@ fields are approved for your project:</p>
 <span><span class="fu"><a href="../reference/extract_ls.html">extract_ls</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"cancer"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/extract_ls.html">extract_ls</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"p31|p53|p21022"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Force refresh after switching projects</span></span>
+<span><span class="co"># Force refresh after switching projects or datasets</span></span>
 <span><span class="fu"><a href="../reference/extract_ls.html">extract_ls</a></span><span class="op">(</span>refresh <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The result is a data.frame with two columns:</p>
 <table class="table">
@@ -388,7 +389,7 @@ codes to human-readable labels.</p>
 <code><a href="../reference/extract_batch.html">?extract_batch</a></code>
 </li>
 <li>
-<code>vignette("authentication")</code> — authentication setup</li>
+<code><a href="../articles/auth.html">vignette("auth")</a></code> — authentication setup</li>
 <li><a href="https://github.com/evanbio/ukbflow/issues" class="external-link">GitHub
 Issues</a></li>
 </ul>
