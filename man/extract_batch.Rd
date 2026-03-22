@@ -24,9 +24,9 @@ e.g. \code{"ad_cscc_pheno"}. Default: \code{NULL} (auto-generate as
 \code{"ukb_pheno_YYYYMMDD_HHMMSS"} to avoid same-day collisions).}
 
 \item{instance_type}{(character) DNAnexus instance type, e.g.
-\code{"mem1_ssd1_v2_x32"}. Default: \code{NULL} (auto-select:
-\code{x8} for up to 20 cols, \code{x16} for up to 100 cols,
-\code{x32} for more than 100 cols).}
+\code{"mem1_ssd1_v2_x16"}. Default: \code{NULL} (auto-select:
+\code{x4} for up to 20 cols, \code{x8} for up to 100 cols,
+\code{x16} for up to 500 cols, \code{x36} for more than 500 cols).}
 
 \item{priority}{(character) Job scheduling priority. \code{"low"}
 (recommended, cheaper) or \code{"high"} (faster queue). Default:
