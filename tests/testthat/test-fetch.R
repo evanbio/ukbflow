@@ -80,6 +80,20 @@ test_that(".dx_ls_parse() handles files-only output (no folders)", {
   expect_true(all(result$type == "file"))
 })
 
+test_that(".dx_ls_parse() returns empty data.frame when dx reports 'No data objects found'", {
+  stdout <- paste(
+    "Project: project-XXXXXXXXXXXX",
+    "Folder : /empty/",
+    "",
+    "No data objects found.",
+    sep = "\n"
+  )
+  result <- ukbflow:::.dx_ls_parse(stdout)
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), 0L)
+  expect_named(result, c("name", "type", "size", "modified"))
+})
+
 # ===========================================================================
 # fetch_ls()
 # ===========================================================================
@@ -132,8 +146,8 @@ test_that("fetch_ls() returns empty data.frame when pattern matches nothing", {
 # ===========================================================================
 
 test_that("fetch_url() returns a named character vector for a single file", {
-  mockery::stub(fetch_url, ".dx_ls_raw",
-                function(...) list(success = FALSE, stdout = "", stderr = ""))
+  mockery::stub(fetch_url, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = TRUE, exists = TRUE, stdout = ""))
   mockery::stub(fetch_url, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   result <- fetch_url("Showcase metadata/field.tsv")
@@ -174,8 +188,8 @@ test_that("fetch_url() returns character(0) for empty folder", {
 test_that("fetch_file() calls .dx_download_file for a single file", {
   downloaded <- character(0)
   local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
-  mockery::stub(fetch_file, ".dx_ls_raw",
-                function(...) list(success = FALSE, stdout = "", stderr = ""))
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = TRUE, exists = TRUE, stdout = ""))
   mockery::stub(fetch_file, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   mockery::stub(fetch_file, ".dx_download_file",
@@ -199,8 +213,8 @@ test_that("fetch_file() returns character(0) for empty folder", {
 
 test_that("fetch_file() creates dest_dir if it does not exist", {
   local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
-  mockery::stub(fetch_file, ".dx_ls_raw",
-                function(...) list(success = FALSE, stdout = "", stderr = ""))
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = TRUE, exists = TRUE, stdout = ""))
   mockery::stub(fetch_file, ".dx_make_url",
                 function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
   mockery::stub(fetch_file, ".dx_download_file",
@@ -278,4 +292,150 @@ test_that("fetch_tree() produces no output when verbose = FALSE", {
   mockery::stub(fetch_tree, ".dx_ls_names",
                 function(path, ...) .fake_dx(stdout = "Bulk/\n"))
   expect_silent(fetch_tree(verbose = FALSE))
+})
+
+
+# ===========================================================================
+# .dx_probe_path() — internal folder/file detector
+# ===========================================================================
+
+test_that(".dx_probe_path() detects folder by trailing slash without a network call", {
+  # Reason: trailing slash is a client-side signal — no dx ls should fire
+  result <- ukbflow:::.dx_probe_path("Bulk/")
+  expect_true(result$is_folder)
+  expect_false(result$is_file)
+  expect_true(result$exists)
+  expect_equal(result$stdout, "")
+})
+
+test_that(".dx_probe_path() returns is_folder = TRUE when dx reports Folder header", {
+  local_mocked_bindings(
+    .dx_ls_raw = function(...) .fake_dx(stdout = "Project: p\nFolder : /Bulk/\n"),
+    .package = "ukbflow"
+  )
+  result <- ukbflow:::.dx_probe_path("Bulk")
+  expect_true(result$is_folder)
+  expect_false(result$is_file)
+  expect_true(result$exists)
+})
+
+test_that(".dx_probe_path() returns is_file = TRUE for a file path", {
+  # Reason: dx ls -l on a single file has no "Folder :" header line
+  single_file_stdout <- paste(
+    "Project: project-XXXXXXXXXXXX",
+    "",
+    "State   Last modified             Size      Name",
+    "closed  2024-01-15 10:30:00    1.23 MB  field.tsv (file-AAAAAAAAAA)",
+    sep = "\n"
+  )
+  local_mocked_bindings(
+    .dx_ls_raw = function(...) .fake_dx(stdout = single_file_stdout),
+    .package = "ukbflow"
+  )
+  result <- ukbflow:::.dx_probe_path("Showcase metadata/field.tsv")
+  expect_false(result$is_folder)
+  expect_true(result$is_file)
+  expect_true(result$exists)
+})
+
+test_that(".dx_probe_path() returns exists = FALSE when dx fails", {
+  local_mocked_bindings(
+    .dx_ls_raw = function(...) .fake_dx(status = 1, stderr = "Not found"),
+    .package = "ukbflow"
+  )
+  result <- ukbflow:::.dx_probe_path("nonexistent/path")
+  expect_false(result$exists)
+  expect_false(result$is_folder)
+  expect_false(result$is_file)
+})
+
+
+# ===========================================================================
+# .dx_ls_parse() — edge cases
+# ===========================================================================
+
+test_that(".dx_ls_parse() handles file name with spaces", {
+  stdout <- paste(
+    "Project: project-XXXXXXXXXXXX",
+    "Folder : /",
+    "",
+    "State   Last modified             Size      Name",
+    "closed  2024-01-15 10:30:00    1.23 MB  my report file.tsv (file-AAAAAAAAAA)",
+    sep = "\n"
+  )
+  result <- ukbflow:::.dx_ls_parse(stdout)
+  expect_equal(nrow(result), 1L)
+  expect_equal(result$name, "my report file.tsv")
+})
+
+test_that(".dx_ls_parse() handles size reported in bytes", {
+  stdout <- paste(
+    "Project: project-XXXXXXXXXXXX",
+    "Folder : /",
+    "",
+    "State   Last modified             Size      Name",
+    "closed  2024-01-15 10:30:00    512 bytes  tiny.txt (file-AAAAAAAAAA)",
+    sep = "\n"
+  )
+  result <- ukbflow:::.dx_ls_parse(stdout)
+  expect_equal(nrow(result), 1L)
+  expect_equal(result$size, "512 bytes")
+})
+
+test_that(".dx_ls_parse() handles missing size field (NA)", {
+  stdout <- paste(
+    "Project: project-XXXXXXXXXXXX",
+    "Folder : /",
+    "",
+    "State   Last modified   Name",
+    "closed  2024-01-15 10:30:00  nosize.txt (file-AAAAAAAAAA)",
+    sep = "\n"
+  )
+  result <- ukbflow:::.dx_ls_parse(stdout)
+  expect_equal(nrow(result), 1L)
+  expect_true(is.na(result$size))
+})
+
+
+# ===========================================================================
+# fetch_file() — RAP guard and return values
+# ===========================================================================
+
+test_that("fetch_file() aborts when not called from within the RAP", {
+  local_mocked_bindings(.is_on_rap = function() FALSE, .package = "ukbflow")
+  expect_error(fetch_file("Showcase metadata/field.tsv"), class = "rlang_error")
+})
+
+test_that("fetch_file() returns destfile invisibly for a single file", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = TRUE, exists = TRUE, stdout = ""))
+  mockery::stub(fetch_file, ".dx_make_url",
+                function(path, ...) "https://dl.dnanex.us/fake/field.tsv")
+  mockery::stub(fetch_file, ".dx_download_file",
+                function(url, destfile, ...) invisible(destfile))
+  withr::with_tempdir({
+    result <- fetch_file("Showcase metadata/field.tsv", dest_dir = ".")
+    expect_equal(result, file.path(".", "field.tsv"))
+  })
+})
+
+test_that("fetch_file() returns destfiles invisibly for a folder", {
+  fake_files <- data.frame(
+    name = c("field.tsv", "encoding.tsv"),
+    type = "file", size = NA, modified = as.POSIXct(NA),
+    stringsAsFactors = FALSE
+  )
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = TRUE, is_file = FALSE, exists = TRUE, stdout = ""))
+  mockery::stub(fetch_file, "fetch_ls", function(...) fake_files)
+  mockery::stub(fetch_file, ".dx_make_url",
+                function(path, ...) paste0("https://dl.dnanex.us/fake/", basename(path)))
+  mockery::stub(fetch_file, ".dx_download_batch",
+                function(urls, destfiles, ...) invisible(destfiles))
+  withr::with_tempdir({
+    result <- fetch_file("Showcase metadata/", dest_dir = ".")
+    expect_equal(result, file.path(".", c("field.tsv", "encoding.tsv")))
+  })
 })
