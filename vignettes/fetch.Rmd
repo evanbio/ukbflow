@@ -47,10 +47,10 @@ See `vignette("auth")` for details.
 ```{r fetch-ls}
 # List project root
 fetch_ls()
-#>                        name   type      size            modified
-#> 1           Showcase metadata/ folder      <NA>                <NA>
-#> 2                    results/ folder      <NA>                <NA>
-#> 3              analysis.log   file    4.2 KB 2024-11-01 10:22:03
+#>                  name   type    size            modified
+#> 1  Showcase metadata folder    <NA>                <NA>
+#> 2             results folder    <NA>                <NA>
+#> 3        analysis.log   file  4.2 KB 2024-11-01 10:22:03
 
 # List a specific folder
 fetch_ls("Showcase metadata/")
@@ -92,7 +92,7 @@ fetch_tree("results/", max_depth = 3)
 
 ## Generating Download URLs
 
-`fetch_url()` generates temporary pre-authenticated HTTPS URLs for remote files. Useful for sharing or passing to other download tools.
+`fetch_url()` generates temporary pre-authenticated HTTPS URLs for remote files. Useful for passing to downstream tools or scripting metadata and results workflows without triggering a full download.
 
 ```{r fetch-url}
 # Single file
@@ -110,7 +110,9 @@ URLs are valid for the specified `duration` (default: `"1d"`).
 
 ### Single file or folder
 
-`fetch_file()` downloads a file or an entire folder to a local directory:
+`fetch_file()` downloads a file or an entire folder to a local directory.
+
+> **Note**: `fetch_file()`, `fetch_metadata()`, and `fetch_field()` can only be called from within the RAP environment. Calling them locally will produce an error, as individual-level UKB data must remain on the platform.
 
 ```{r fetch-file}
 # Download a single file
@@ -141,7 +143,7 @@ fetch_field(dest_dir = "data/metadata/")
 
 ## Common Options
 
-All `fetch_file()`, `fetch_metadata()`, and `fetch_field()` functions share these arguments:
+`fetch_metadata()` and `fetch_field()` are thin wrappers around `fetch_file()`, so all three share the same download-control arguments:
 
 | Argument | Default | Description |
 |---|---|---|
