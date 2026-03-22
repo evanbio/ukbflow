@@ -17,6 +17,37 @@
 }
 
 
+#' Probe a remote RAP path and return its type
+#'
+#' @param path (character) Remote path to probe.
+#' @return A list with fields:
+#'   \describe{
+#'     \item{is_folder}{Logical. TRUE if the path resolves to a folder.}
+#'     \item{is_file}{Logical. TRUE if the path resolves to a file.}
+#'     \item{exists}{Logical. TRUE if the path exists on the platform.}
+#'     \item{stdout}{Raw stdout from dx ls -l, for further inspection.}
+#'   }
+#'
+#' @keywords internal
+#' @noRd
+.dx_probe_path <- function(path) {
+  # Reason: trailing slash is a reliable client-side signal that the caller
+  # already knows the path is a folder — skip the network round-trip.
+  if (endsWith(trimws(path), "/")) {
+    return(list(is_folder = TRUE, is_file = FALSE, exists = TRUE, stdout = ""))
+  }
+
+  result <- .dx_ls_raw(path)
+  is_folder <- result$success && grepl("Folder\\s*:", result$stdout)
+  list(
+    is_folder = is_folder,
+    is_file   = result$success && !is_folder,
+    exists    = result$success,
+    stdout    = result$stdout
+  )
+}
+
+
 #' Run dx ls -l on a remote path and return raw output
 #'
 #' @keywords internal
@@ -93,7 +124,6 @@
 #' @param destfiles (character) Character vector of full local file paths.
 #' @param overwrite (logical) Overwrite existing files. Default: FALSE.
 #' @param resume (logical) Resume interrupted downloads. Default: FALSE.
-#' @param workers (integer) Number of parallel connections. Default: 4.
 #'
 #' @keywords internal
 #' @noRd

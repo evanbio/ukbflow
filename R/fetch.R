@@ -80,15 +80,9 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 #' fetch_url("Showcase metadata/", duration = "7d")
 #' }
 fetch_url <- function(path, duration = "1d") {
-  norm <- .dx_normalize_path(path)
-
-  # Reason: detect folder by trailing slash; if no slash, probe via dx ls to
-  # determine whether the path resolves to a folder or a file.
-  is_folder <- endsWith(trimws(path), "/")
-  if (!is_folder) {
-    probe <- .dx_ls_raw(path)
-    is_folder <- probe$success && grepl("Folder\\s*:", probe$stdout)
-  }
+  norm      <- .dx_normalize_path(path)
+  probe     <- .dx_probe_path(path)
+  is_folder <- probe$is_folder
 
   if (!is_folder) {
     url <- .dx_make_url(norm, duration = duration)
@@ -103,7 +97,7 @@ fetch_url <- function(path, duration = "1d") {
   }
 
   urls <- vapply(
-    file.path(norm, files$name),
+    file.path(norm, files$name, fsep = "/"),
     function(f) .dx_make_url(f, duration = duration),
     character(1)
   )
@@ -153,17 +147,14 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
     dir.create(dest_dir, recursive = TRUE)
   }
 
-  is_folder <- endsWith(trimws(path), "/")
-  if (!is_folder) {
-    probe <- .dx_ls_raw(path)
-    is_folder <- probe$success && grepl("Folder\\s*:", probe$stdout)
-  }
+  is_folder <- .dx_probe_path(path)$is_folder
 
   if (!is_folder) {
     # Single file
     url      <- .dx_make_url(path)
     destfile <- file.path(dest_dir, basename(.dx_normalize_path(path)))
     .dx_download_file(url, destfile, overwrite = overwrite, resume = resume, verbose = verbose)
+    return(invisible(destfile))
 
   } else {
     # Folder: list files, batch generate URLs, parallel download
@@ -174,12 +165,13 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
     }
 
     norm      <- .dx_normalize_path(path)
-    urls      <- vapply(file.path(norm, files$name),
+    urls      <- vapply(file.path(norm, files$name, fsep = "/"),
                         function(f) .dx_make_url(f), character(1))
     destfiles <- file.path(dest_dir, files$name)
 
     .dx_download_batch(urls, destfiles, overwrite = overwrite,
                        resume = resume, verbose = verbose)
+    return(invisible(destfiles))
   }
 }
 
@@ -305,7 +297,7 @@ fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
   if (verbose) {
     display <- if (nzchar(norm)) norm else "/"
     cli::cli_inform("Remote: {.path {display}}")
-    for (line in lines) cli::cli_inform(line)
+    for (line in lines) cli::cli_inform("{line}")
   }
 
   invisible(lines)
