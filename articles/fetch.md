@@ -42,10 +42,10 @@ data frame:
 ``` r
 # List project root
 fetch_ls()
-#>                        name   type      size            modified
-#> 1           Showcase metadata/ folder      <NA>                <NA>
-#> 2                    results/ folder      <NA>                <NA>
-#> 3              analysis.log   file    4.2 KB 2024-11-01 10:22:03
+#>                  name   type    size            modified
+#> 1  Showcase metadata folder    <NA>                <NA>
+#> 2             results folder    <NA>                <NA>
+#> 3        analysis.log   file  4.2 KB 2024-11-01 10:22:03
 
 # List a specific folder
 fetch_ls("Showcase metadata/")
@@ -92,7 +92,8 @@ fetch_tree("results/", max_depth = 3)
 
 [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)
 generates temporary pre-authenticated HTTPS URLs for remote files.
-Useful for sharing or passing to other download tools.
+Useful for passing to downstream tools or scripting metadata and results
+workflows without triggering a full download.
 
 ``` r
 # Single file
@@ -111,7 +112,16 @@ URLs are valid for the specified `duration` (default: `"1d"`).
 ### Single file or folder
 
 [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-downloads a file or an entire folder to a local directory:
+downloads a file or an entire folder to a local directory.
+
+> **Note**:
+> [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
+> [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md),
+> and
+> [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
+> can only be called from within the RAP environment. Calling them
+> locally will produce an error, as individual-level UKB data must
+> remain on the platform.
 
 ``` r
 # Download a single file
@@ -144,12 +154,12 @@ fetch_field(dest_dir = "data/metadata/")
 
 ## Common Options
 
-All
-[`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
-[`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md),
+[`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
 and
 [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
-functions share these arguments:
+are thin wrappers around
+[`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
+so all three share the same download-control arguments:
 
 | Argument    | Default                    | Description                                                                                                                                                                                                                                               |
 |-------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

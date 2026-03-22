@@ -186,10 +186,10 @@ returning a structured data frame:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List project root</span></span>
 <span><span class="fu"><a href="../reference/fetch_ls.html">fetch_ls</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                        name   type      size            modified</span></span>
-<span><span class="co">#&gt; 1           Showcase metadata/ folder      &lt;NA&gt;                &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 2                    results/ folder      &lt;NA&gt;                &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 3              analysis.log   file    4.2 KB 2024-11-01 10:22:03</span></span>
+<span><span class="co">#&gt;                  name   type    size            modified</span></span>
+<span><span class="co">#&gt; 1  Showcase metadata folder    &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2             results folder    &lt;NA&gt;                &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3        analysis.log   file  4.2 KB 2024-11-01 10:22:03</span></span>
 <span></span>
 <span><span class="co"># List a specific folder</span></span>
 <span><span class="fu"><a href="../reference/fetch_ls.html">fetch_ls</a></span><span class="op">(</span><span class="st">"Showcase metadata/"</span><span class="op">)</span></span>
@@ -255,8 +255,9 @@ avoid long waits on large projects.</p>
 <h2 id="generating-download-urls">Generating Download URLs<a class="anchor" aria-label="anchor" href="#generating-download-urls"></a>
 </h2>
 <p><code><a href="../reference/fetch_url.html">fetch_url()</a></code> generates temporary pre-authenticated HTTPS
-URLs for remote files. Useful for sharing or passing to other download
-tools.</p>
+URLs for remote files. Useful for passing to downstream tools or
+scripting metadata and results workflows without triggering a full
+download.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Single file</span></span>
 <span><span class="fu"><a href="../reference/fetch_url.html">fetch_url</a></span><span class="op">(</span><span class="st">"Showcase metadata/field.tsv"</span><span class="op">)</span></span>
@@ -274,7 +275,14 @@ tools.</p>
 <h3 id="single-file-or-folder">Single file or folder<a class="anchor" aria-label="anchor" href="#single-file-or-folder"></a>
 </h3>
 <p><code><a href="../reference/fetch_file.html">fetch_file()</a></code> downloads a file or an entire folder to a
-local directory:</p>
+local directory.</p>
+<blockquote>
+<p><strong>Note</strong>: <code><a href="../reference/fetch_file.html">fetch_file()</a></code>,
+<code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and <code><a href="../reference/fetch_field.html">fetch_field()</a></code> can only
+be called from within the RAP environment. Calling them locally will
+produce an error, as individual-level UKB data must remain on the
+platform.</p>
+</blockquote>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download a single file</span></span>
 <span><span class="fu"><a href="../reference/fetch_file.html">fetch_file</a></span><span class="op">(</span><span class="st">"Showcase metadata/field.tsv"</span>, dest_dir <span class="op">=</span> <span class="st">"data/"</span><span class="op">)</span></span>
@@ -304,8 +312,9 @@ files:</p>
 <div class="section level2">
 <h2 id="common-options">Common Options<a class="anchor" aria-label="anchor" href="#common-options"></a>
 </h2>
-<p>All <code><a href="../reference/fetch_file.html">fetch_file()</a></code>, <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and
-<code><a href="../reference/fetch_field.html">fetch_field()</a></code> functions share these arguments:</p>
+<p><code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code> and <code><a href="../reference/fetch_field.html">fetch_field()</a></code> are thin
+wrappers around <code><a href="../reference/fetch_file.html">fetch_file()</a></code>, so all three share the same
+download-control arguments:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
