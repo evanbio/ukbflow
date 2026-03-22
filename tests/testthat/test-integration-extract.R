@@ -4,74 +4,68 @@
 # Run manually before release: devtools::test(filter = "integration-extract")
 # =============================================================================
 
-skip_on_ci()
-skip_on_cran()
-
-token <- Sys.getenv("DX_API_TOKEN")
-if (!nzchar(token)) {
-  skip("DX_API_TOKEN not set. Set it to run integration tests.")
-}
 
 # ===========================================================================
 # extract_ls()
 # ===========================================================================
 
 test_that("extract_ls() returns a data.frame with correct columns", {
+  .skip_if_no_dx_token()
   result <- suppressMessages(extract_ls())
   expect_s3_class(result, "data.frame")
   expect_named(result, c("field_name", "title"))
 })
 
 test_that("extract_ls() returns at least one field", {
+  .skip_if_no_dx_token()
   result <- suppressMessages(extract_ls())
   expect_gt(nrow(result), 0)
 })
 
 test_that("extract_ls() field_name values follow participant. format", {
+  .skip_if_no_dx_token()
   result <- suppressMessages(extract_ls())
   expect_true(all(grepl("^participant\\.", result$field_name)))
 })
 
 test_that("extract_ls() title column has no fully-missing values", {
+  .skip_if_no_dx_token()
   result <- suppressMessages(extract_ls())
   expect_lt(sum(is.na(result$title)), nrow(result))
 })
 
-test_that("extract_ls() populates session cache after first call", {
+test_that("extract_ls() populates per-dataset session cache after first call", {
+  .skip_if_no_dx_token()
   .ukbflow_cache$fields <- NULL
   suppressMessages(extract_ls())
-  expect_false(is.null(.ukbflow_cache$fields))
-  expect_gt(nrow(.ukbflow_cache$fields), 0)
+  expect_gt(length(.ukbflow_cache$fields), 0L)
 })
 
 test_that("extract_ls() returns from cache on second call (no re-fetch)", {
-  suppressMessages(extract_ls())                     # ensure cache is warm
-  n_cached <- nrow(.ukbflow_cache$fields)
+  .skip_if_no_dx_token()
+  suppressMessages(extract_ls(refresh = TRUE))          # warm cache with real data
+  dataset_key <- names(.ukbflow_cache$fields)[1]
 
-  # Corrupt cache to a sentinel — if re-fetch happens sentinel is overwritten;
-  # if served from cache, nrow stays at 1
-  .ukbflow_cache$fields <- data.frame(
+  # Replace slot with sentinel — a re-fetch would overwrite it
+  .ukbflow_cache$fields[[dataset_key]] <- data.frame(
     field_name = "sentinel", title = "sentinel", stringsAsFactors = FALSE
   )
   result <- suppressMessages(extract_ls())
-  expect_equal(nrow(result), 1L)                     # served from (corrupted) cache
+  expect_equal(nrow(result), 1L)                        # served from (sentinel) cache
 
-  # Restore a clean cache for subsequent tests
   .ukbflow_cache$fields <- NULL
-  suppressMessages(extract_ls())
+  suppressMessages(extract_ls())                        # restore real cache
 })
 
 test_that("extract_ls() refresh = TRUE re-fetches and overwrites cache", {
-  # Seed stale data
-  .ukbflow_cache$fields <- data.frame(
-    field_name = "stale.field", title = "stale", stringsAsFactors = FALSE
-  )
+  .skip_if_no_dx_token()
   suppressMessages(extract_ls(refresh = TRUE))
-  expect_gt(nrow(.ukbflow_cache$fields), 1L)
-  .ukbflow_cache$fields <- NULL
+  dataset_key <- names(.ukbflow_cache$fields)[1]
+  expect_gt(nrow(.ukbflow_cache$fields[[dataset_key]]), 1L)
 })
 
 test_that("extract_ls() pattern filtering returns a non-empty subset", {
+  .skip_if_no_dx_token()
   result_all      <- suppressMessages(extract_ls())
   result_filtered <- extract_ls(pattern = "^participant\\.p31(_|$)")
   expect_lt(nrow(result_filtered), nrow(result_all))
@@ -80,11 +74,13 @@ test_that("extract_ls() pattern filtering returns a non-empty subset", {
 })
 
 test_that("extract_ls() pattern search is case-insensitive on title", {
+  .skip_if_no_dx_token()
   result <- extract_ls(pattern = "SEX")
   expect_gt(nrow(result), 0L)
 })
 
 test_that("extract_ls() returns empty data.frame for unmatched pattern", {
+  .skip_if_no_dx_token()
   result <- extract_ls(pattern = "xyzzy_no_such_field_12345")
   expect_equal(nrow(result), 0L)
 })

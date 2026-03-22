@@ -38,12 +38,13 @@
   )
 }
 
-# Helper: populate session cache with fake fields
-.set_fake_cache <- function() {
-  .ukbflow_cache$fields <- .fake_fields_df()
+# Helper: populate per-dataset session cache with fake fields
+.set_fake_cache <- function(dataset = "app12345.dataset") {
+  if (is.null(.ukbflow_cache$fields)) .ukbflow_cache$fields <- list()
+  .ukbflow_cache$fields[[dataset]] <- .fake_fields_df()
 }
 
-# Helper: clear session cache
+# Helper: clear session cache entirely
 .clear_cache <- function() {
   .ukbflow_cache$fields <- NULL
 }
@@ -133,23 +134,24 @@ test_that("extract_ls() fetches fields and caches on first call", {
                 ))
 
   result <- suppressMessages(extract_ls())
-  expect_false(is.null(.ukbflow_cache$fields))
-  expect_equal(nrow(.ukbflow_cache$fields), 2)
+  expect_false(is.null(.ukbflow_cache$fields[["app12345.dataset"]]))
+  expect_equal(nrow(.ukbflow_cache$fields[["app12345.dataset"]]), 2)
 })
 
 test_that("extract_ls() returns from cache on second call", {
-  .set_fake_cache()
+  .clear_cache()
   on.exit(.clear_cache())
 
   call_count <- 0L
+  mockery::stub(extract_ls, ".dx_find_dataset", function() "app12345.dataset")
   mockery::stub(extract_ls, ".dx_list_fields_raw", function(...) {
     call_count <<- call_count + 1L
     .fake_dx(stdout = "participant.p31\tSex\n")
   })
 
-  suppressMessages(extract_ls())
-  suppressMessages(extract_ls())
-  expect_equal(call_count, 0L)
+  suppressMessages(extract_ls())   # first call: fetches and caches
+  suppressMessages(extract_ls())   # second call: served from cache
+  expect_equal(call_count, 1L)
 })
 
 test_that("extract_ls() refresh = TRUE re-fetches from network", {
@@ -163,14 +165,14 @@ test_that("extract_ls() refresh = TRUE re-fetches from network", {
   mockery::stub(extract_ls, ".dx_find_dataset", function() "app12345.dataset")
 
   suppressMessages(extract_ls(refresh = TRUE))
-  expect_equal(nrow(.ukbflow_cache$fields), 1)
+  expect_equal(nrow(.ukbflow_cache$fields[["app12345.dataset"]]), 1)
 })
 
 test_that("extract_ls() pattern filters results", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
-  result <- extract_ls(pattern = "p31")
+  result <- extract_ls(dataset = "app12345.dataset", pattern = "p31")
   expect_true(all(grepl("p31", result$field_name) |
                     grepl("p31", result$title, ignore.case = TRUE)))
 })
@@ -179,7 +181,7 @@ test_that("extract_ls() pattern search is case-insensitive on title", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
-  result <- extract_ls(pattern = "SEX")
+  result <- extract_ls(dataset = "app12345.dataset", pattern = "SEX")
   expect_gt(nrow(result), 0)
 })
 
@@ -187,8 +189,25 @@ test_that("extract_ls() returns invisible and message when no pattern", {
   .set_fake_cache()
   on.exit(.clear_cache())
 
-  expect_message(res <- extract_ls(), "fields available")
+  expect_message(res <- extract_ls(dataset = "app12345.dataset"), "fields available")
   expect_s3_class(res, "data.frame")
+})
+
+test_that("extract_ls() caches per dataset — different datasets don't share cache", {
+  .clear_cache()
+  on.exit(.clear_cache())
+
+  call_count <- 0L
+  mockery::stub(extract_ls, ".dx_list_fields_raw", function(...) {
+    call_count <<- call_count + 1L
+    .fake_dx(stdout = "participant.p31\tSex\n")
+  })
+
+  suppressMessages(extract_ls(dataset = "app11111.dataset"))
+  suppressMessages(extract_ls(dataset = "app22222.dataset"))
+  expect_equal(call_count, 2L)   # each dataset triggers its own fetch
+  suppressMessages(extract_ls(dataset = "app11111.dataset"))
+  expect_equal(call_count, 2L)   # cache hit — no new fetch
 })
 
 test_that("extract_ls() throws error when .dx_list_fields_raw fails", {
@@ -219,6 +238,21 @@ test_that("extract_pheno() throws error on empty field_id", {
 test_that("extract_pheno() throws error on non-numeric field_id", {
   mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
   expect_error(extract_pheno("p31"), "non-empty numeric")
+})
+
+test_that("extract_pheno() throws error on NA field_id", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
+  expect_error(extract_pheno(c(31, NA)), "NA")
+})
+
+test_that("extract_pheno() throws error on Inf field_id", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
+  expect_error(extract_pheno(c(31, Inf)), "Inf")
+})
+
+test_that("extract_pheno() throws error on decimal field_id", {
+  mockery::stub(extract_pheno, ".is_on_rap", function() TRUE)
+  expect_error(extract_pheno(31.7), "whole numbers")
 })
 
 test_that("extract_pheno() throws error when no fields match", {
@@ -292,6 +326,18 @@ test_that("extract_pheno() returns a data.table", {
 
 test_that("extract_batch() throws error on invalid field_id", {
   expect_error(extract_batch(character(0)), "non-empty numeric")
+})
+
+test_that("extract_batch() throws error on NA field_id", {
+  expect_error(extract_batch(c(31, NA)), "NA")
+})
+
+test_that("extract_batch() throws error on Inf field_id", {
+  expect_error(extract_batch(c(31, Inf)), "Inf")
+})
+
+test_that("extract_batch() throws error on decimal field_id", {
+  expect_error(extract_batch(31.7), "whole numbers")
 })
 
 test_that("extract_batch() strips participant. prefix for table-exporter", {
@@ -416,7 +462,7 @@ test_that("extract_batch() auto-selects x8 for 21-100 cols", {
     title      = paste0("Field 53 | Instance ", 0:24),
     stringsAsFactors = FALSE
   )
-  .ukbflow_cache$fields <- big_df
+  .ukbflow_cache$fields <- list("app12345.dataset" = big_df)
   on.exit(.clear_cache())
 
   received_instance <- NULL
@@ -439,7 +485,7 @@ test_that("extract_batch() auto-selects x16 for 101-500 cols", {
     title      = paste0("Field 53 | Instance ", 0:109),
     stringsAsFactors = FALSE
   )
-  .ukbflow_cache$fields <- huge_df
+  .ukbflow_cache$fields <- list("app12345.dataset" = huge_df)
   on.exit(.clear_cache())
 
   received_instance <- NULL
@@ -462,7 +508,7 @@ test_that("extract_batch() auto-selects x36 for >500 cols", {
     title      = paste0("Field 53 | Instance ", 0:509),
     stringsAsFactors = FALSE
   )
-  .ukbflow_cache$fields <- giant_df
+  .ukbflow_cache$fields <- list("app12345.dataset" = giant_df)
   on.exit(.clear_cache())
 
   received_instance <- NULL
