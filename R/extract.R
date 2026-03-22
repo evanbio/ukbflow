@@ -43,9 +43,16 @@
 #' }
 extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 
-  # Return from cache if available and refresh not requested
-  if (!is.null(.ukbflow_cache$fields) && !refresh) {
-    df <- .ukbflow_cache$fields
+  # Reason: auto-detect before cache check so cache is keyed by dataset name —
+  # prevents returning stale fields after switching datasets or projects
+  if (is.null(dataset)) {
+    dataset <- .dx_find_dataset()
+    cli::cli_inform("Using dataset: {.val {dataset}}")
+  }
+
+  # Return from per-dataset cache if available and refresh not requested
+  if (!is.null(.ukbflow_cache$fields[[dataset]]) && !refresh) {
+    df <- .ukbflow_cache$fields[[dataset]]
     if (!is.null(pattern)) {
       return(df[
         grepl(pattern, df$field_name, perl = TRUE) |
@@ -57,23 +64,17 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
     return(invisible(df))
   }
 
-  # Auto-detect dataset if not provided
-  if (is.null(dataset)) {
-    dataset <- .dx_find_dataset()
-    cli::cli_inform("Using dataset: {.val {dataset}}")
-  }
-
   cli::cli_inform("Fetching approved fields... (cached after first call)")
 
   result <- .dx_list_fields_raw(dataset)
   if (!result$success) {
-    stop("Failed to list fields: ", result$stderr, call. = FALSE)
+    cli::cli_abort("Failed to list fields: {result$stderr}", call = NULL)
   }
 
   df <- .dx_parse_fields(result$stdout)
 
-  # Store full result in session cache
-  .ukbflow_cache$fields <- df
+  # Store in per-dataset cache slot
+  .ukbflow_cache$fields[[dataset]] <- df
 
   if (!is.null(pattern)) {
     df <- df[
@@ -117,17 +118,14 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
 
   if (!.is_on_rap()) {
-    stop(
-      "extract_pheno() must be run inside the RAP environment.\n",
-      "For large-scale extraction, use extract_batch() instead.",
-      call. = FALSE
+    cli::cli_abort(
+      c("extract_pheno() must be run inside the RAP environment.",
+        "i" = "For large-scale extraction, use extract_batch() instead."),
+      call = NULL
     )
   }
 
-  if (!is.numeric(field_id) || length(field_id) == 0) {
-    stop("field_id must be a non-empty numeric vector.", call. = FALSE)
-  }
-  field_id <- as.integer(unique(field_id))
+  field_id <- .assert_integer_ids(field_id)
 
   dest <- tempfile(fileext = ".csv")
   on.exit(unlink(dest), add = TRUE)
@@ -147,8 +145,10 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   unmatched    <- match_result$unmatched
 
   if (length(matched) == 0) {
-    stop("No matching fields found. Run extract_ls() to see available fields.",
-         call. = FALSE)
+    cli::cli_abort(
+      "No matching fields found. Run extract_ls() to see available fields.",
+      call = NULL
+    )
   }
 
   # Report matched fields
@@ -189,7 +189,7 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   result <- .dx_extract_run(dataset, all_fields, dest, timeout = timeout)
 
   if (!result$success) {
-    stop("Extraction failed: ", result$stderr, call. = FALSE)
+    cli::cli_abort("Extraction failed: {result$stderr}", call = NULL)
   }
 
   cli::cli_inform("Saved: {.file {dest}}")
@@ -224,9 +224,9 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
 #'   e.g. \code{"ad_cscc_pheno"}. Default: \code{NULL} (auto-generate as
 #'   \code{"ukb_pheno_YYYYMMDD_HHMMSS"} to avoid same-day collisions).
 #' @param instance_type (character) DNAnexus instance type, e.g.
-#'   \code{"mem1_ssd1_v2_x32"}. Default: \code{NULL} (auto-select:
-#'   \code{x8} for up to 20 cols, \code{x16} for up to 100 cols,
-#'   \code{x32} for more than 100 cols).
+#'   \code{"mem1_ssd1_v2_x16"}. Default: \code{NULL} (auto-select:
+#'   \code{x4} for up to 20 cols, \code{x8} for up to 100 cols,
+#'   \code{x16} for up to 500 cols, \code{x36} for more than 500 cols).
 #' @param priority (character) Job scheduling priority. \code{"low"}
 #'   (recommended, cheaper) or \code{"high"} (faster queue). Default:
 #'   \code{"low"}.
@@ -246,10 +246,7 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
                           instance_type = NULL, priority = c("low", "high")) {
   priority <- match.arg(priority)
 
-  if (!is.numeric(field_id) || length(field_id) == 0) {
-    stop("field_id must be a non-empty numeric vector.", call. = FALSE)
-  }
-  field_id <- as.integer(unique(field_id))
+  field_id <- .assert_integer_ids(field_id)
 
   # Auto-detect dataset
   if (is.null(dataset)) {
@@ -266,8 +263,10 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   unmatched    <- match_result$unmatched
 
   if (length(matched) == 0) {
-    stop("No matching fields found. Run extract_ls() to see available fields.",
-         call. = FALSE)
+    cli::cli_abort(
+      "No matching fields found. Run extract_ls() to see available fields.",
+      call = NULL
+    )
   }
 
   # Report matched fields
