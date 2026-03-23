@@ -47,7 +47,7 @@ df <- job_result(job_id)
 ```{r job-status}
 job_status(job_id)
 #> job-XXXXXXXXXXXX
-#>          "done"
+#>            done
 ```
 
 Possible states:
@@ -95,7 +95,7 @@ df <- job_result(job_id)
 
 ```{r job-path}
 path <- job_path(job_id)
-#> "/mnt/project/ukb_demographics.csv"
+#> "/mnt/project/results/ukb_demographics.csv"
 ```
 
 Use this to read the file directly or pass it to other tools:
@@ -110,7 +110,7 @@ df <- data.table::fread(job_path(job_id))
 
 ```{r job-result}
 df <- job_result(job_id)
-#> 502353 rows x 5 cols (incl. eid)
+# returns a data.table, e.g. 502353 rows x 5 cols (incl. eid)
 ```
 
 ---

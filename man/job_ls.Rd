@@ -7,11 +7,14 @@
 job_ls(n = 20, state = NULL)
 }
 \arguments{
-\item{n}{(integer) Maximum number of recent jobs to return. Default:
-\code{20}.}
+\item{n}{(integer) Maximum number of recent jobs to return. Must be a
+single positive integer. Default: \code{20}.}
 
-\item{state}{(character) Filter by state(s), e.g. \code{"failed"} or
-\code{c("done", "failed")}. Default: \code{NULL} (return all).}
+\item{state}{(character) Filter by state(s). Must be \code{NULL} or a
+character vector of valid states:
+\code{"idle"}, \code{"runnable"}, \code{"running"}, \code{"done"},
+\code{"failed"}, \code{"terminated"}.
+Default: \code{NULL} (return all).}
 }
 \value{
 A data.frame with columns:
