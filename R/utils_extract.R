@@ -28,9 +28,13 @@
 #' @keywords internal
 #' @noRd
 .dx_find_dataset <- function() {
+  # Reason: dataset name is stable for the session — cache avoids repeated
+  # dx ls network calls (e.g. from extract_ls(), decode_names(), etc.)
+  if (!is.null(.ukbflow_cache$dataset)) return(.ukbflow_cache$dataset)
+
   result <- .dx_run("ls", timeout = 30)
   if (!result$success) {
-    stop("Failed to list project files: ", result$stderr, call. = FALSE)
+    cli::cli_abort("Failed to list project files: {result$stderr}", call = NULL)
   }
 
   lines    <- strsplit(result$stdout, "\n")[[1]]
@@ -38,15 +42,17 @@
   datasets <- lines[grepl("\\.dataset$", lines)]
 
   if (length(datasets) == 0) {
-    stop(
-      "No .dataset file found in project root. ",
-      "Use fetch_ls() to verify your project contents.",
-      call. = FALSE
+    cli::cli_abort(
+      c("No {.file .dataset} file found in project root.",
+        "i" = "Use {.fn fetch_ls} to verify your project contents."),
+      call = NULL
     )
   }
 
   # Reason: multiple datasets may exist (different dates); take the latest
-  trimws(datasets[length(datasets)])
+  dataset <- trimws(datasets[length(datasets)])
+  .ukbflow_cache$dataset <- dataset
+  dataset
 }
 
 

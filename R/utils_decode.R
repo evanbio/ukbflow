@@ -82,11 +82,10 @@
 
   path <- file.path(metadata_dir, "field.tsv")
   if (!file.exists(path)) {
-    stop(
-      "field.tsv not found in '", metadata_dir, "'. ",
-      "Run fetch_file(\"Showcase metadata/field.tsv\", dest_dir = \"",
-      metadata_dir, "\") first.",
-      call. = FALSE
+    cli::cli_abort(
+      c("{.file field.tsv} not found in {.path {metadata_dir}}.",
+        "i" = "Run {.code fetch_file(\"Showcase metadata/field.tsv\", dest_dir = \"{metadata_dir}\")} first."),
+      call = NULL
     )
   }
 
@@ -119,11 +118,10 @@
 
   path <- file.path(metadata_dir, "esimpint.tsv")
   if (!file.exists(path)) {
-    stop(
-      "esimpint.tsv not found in '", metadata_dir, "'. ",
-      "Run fetch_file(\"Showcase metadata/esimpint.tsv\", dest_dir = \"",
-      metadata_dir, "\") first.",
-      call. = FALSE
+    cli::cli_abort(
+      c("{.file esimpint.tsv} not found in {.path {metadata_dir}}.",
+        "i" = "Run {.code fetch_file(\"Showcase metadata/esimpint.tsv\", dest_dir = \"{metadata_dir}\")} first."),
+      call = NULL
     )
   }
 

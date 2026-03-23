@@ -11,10 +11,10 @@
 #' snake_case identifiers (e.g. \code{sex},
 #' \code{date_of_attending_assessment_centre_i0}).
 #'
-#' Column labels are taken from the UKB field title dictionary cached by
-#' \code{\link{extract_ls}}. The cache is populated automatically when
-#' \code{extract_pheno()} or \code{extract_batch()} is called; if it is
-#' empty, \code{decode_names()} calls \code{extract_ls()} itself.
+#' Column labels are taken from the UKB field title dictionary via
+#' \code{\link{extract_ls}}. Both the dataset name and field list are cached
+#' after the first call, so subsequent calls to \code{decode_names()} involve
+#' no network requests.
 #'
 #' When an auto-generated name exceeds \code{max_nchar} characters it is
 #' flagged with a warning so you can decide whether to shorten it manually
@@ -38,7 +38,7 @@
 #' # participant.eid    → eid
 #' # participant.p31    → sex
 #' # participant.p21022 → age_at_recruitment
-#' # participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 30)
+#' # participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 60)
 #'
 #' # Shorten a long name afterwards
 #' names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"
@@ -46,22 +46,15 @@
 decode_names <- function(data, max_nchar = 60L) {
 
   if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
-  if (!is.numeric(max_nchar) || length(max_nchar) != 1L || max_nchar < 1L) {
-    stop("max_nchar must be a single positive integer.", call. = FALSE)
-  }
+  max_nchar <- .assert_count(max_nchar)
 
   col_names <- names(data)
 
-  # Use cached field dictionary; fetch from network only if cache is empty
-  fields_df <- .ukbflow_cache$fields
-  if (is.null(fields_df)) {
-    cli::cli_inform(
-      "Field dictionary not cached - calling {.fn extract_ls} to populate it."
-    )
-    fields_df <- extract_ls()
-  }
+  # Reason: delegate entirely to extract_ls() — both the dataset name and the
+  # field list are session-cached, so this is a pure memory lookup on warm paths
+  fields_df <- suppressMessages(extract_ls())
 
   # Build old → new name vector (positionally aligned with col_names)
   new_names <- .build_name_map(col_names, fields_df)
@@ -101,8 +94,7 @@ decode_names <- function(data, max_nchar = 60L) {
 #' }
 #' Download them once with:
 #' \preformatted{
-#' fetch_file("Showcase metadata/field.tsv",    dest_dir = "data/metadata/")
-#' fetch_file("Showcase metadata/esimpint.tsv", dest_dir = "data/metadata/")
+#' fetch_metadata(dest_dir = "data/metadata/")
 #' }
 #' Both files are cached in the session after the first read.
 #'
@@ -122,8 +114,7 @@ decode_names <- function(data, max_nchar = 60L) {
 #' @examples
 #' \dontrun{
 #' # Download metadata once
-#' fetch_file("Showcase metadata/field.tsv",    dest_dir = "data/metadata/")
-#' fetch_file("Showcase metadata/esimpint.tsv", dest_dir = "data/metadata/")
+#' fetch_metadata(dest_dir = "data/metadata/")
 #'
 #' # Recommended call order
 #' df <- extract_pheno(c(31, 54, 20116, 21000))
@@ -133,8 +124,9 @@ decode_names <- function(data, max_nchar = 60L) {
 decode_values <- function(data, metadata_dir = "data/metadata/") {
 
   if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
+    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
   }
+  .assert_scalar_string(metadata_dir)
 
   col_names <- names(data)
 
