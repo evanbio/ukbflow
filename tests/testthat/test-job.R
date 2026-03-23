@@ -154,6 +154,14 @@ test_that("job_status() stops on invalid job_id format", {
   expect_error(job_status("notajob"), "job-XXXX")
 })
 
+test_that("job_status() stops on NA job_id", {
+  expect_error(job_status(NA_character_))
+})
+
+test_that("job_status() stops on length > 1 job_id", {
+  expect_error(job_status(c("job-AAA", "job-BBB")))
+})
+
 # ===========================================================================
 # job_wait()
 # ===========================================================================
@@ -302,4 +310,44 @@ test_that("job_ls() stops when dx find jobs fails", {
   mockery::stub(job_ls, ".dx_find_jobs_raw",
                 function(...) .fake_dx(stderr = "Not logged in", status = 1))
   expect_error(job_ls(), "Failed to list jobs")
+})
+
+# ---------------------------------------------------------------------------
+# job_ls() — n validation
+# ---------------------------------------------------------------------------
+
+test_that("job_ls() stops when n is character", {
+  expect_error(job_ls(n = "five"), "positive integer")
+})
+
+test_that("job_ls() stops when n is 0", {
+  expect_error(job_ls(n = 0), "positive integer")
+})
+
+test_that("job_ls() stops when n is negative", {
+  expect_error(job_ls(n = -1), "positive integer")
+})
+
+test_that("job_ls() stops when n is Inf", {
+  expect_error(job_ls(n = Inf), "positive integer")
+})
+
+test_that("job_ls() stops when n is non-whole number", {
+  expect_error(job_ls(n = 1.5), "positive integer")
+})
+
+# ---------------------------------------------------------------------------
+# job_ls() — state validation
+# ---------------------------------------------------------------------------
+
+test_that("job_ls() stops when state is non-character", {
+  expect_error(job_ls(state = TRUE), "character vector")
+})
+
+test_that("job_ls() stops when state contains an invalid value", {
+  expect_error(job_ls(state = "oops"), "oops")
+})
+
+test_that("job_ls() stops when state contains mix of valid and invalid values", {
+  expect_error(job_ls(state = c("done", "oops")), "oops")
 })

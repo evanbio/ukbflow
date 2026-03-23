@@ -75,3 +75,137 @@ test_that(".assert_integer_ids() error message includes the argument name", {
   bad_ids <- c(31, NA)
   expect_error(ukbflow:::.assert_integer_ids(bad_ids), "bad_ids")
 })
+
+
+# ===========================================================================
+# .assert_job_id()
+# ===========================================================================
+
+test_that(".assert_job_id() accepts a valid job-XXXX string", {
+  expect_invisible(ukbflow:::.assert_job_id("job-XXXX"))
+})
+
+test_that(".assert_job_id() returns the job_id invisibly", {
+  result <- ukbflow:::.assert_job_id("job-ABC123")
+  expect_equal(result, "job-ABC123")
+})
+
+test_that(".assert_job_id() rejects wrong prefix", {
+  expect_error(ukbflow:::.assert_job_id("notajob"), "job-XXXX")
+})
+
+test_that(".assert_job_id() rejects NA_character_", {
+  expect_error(ukbflow:::.assert_job_id(NA_character_))
+})
+
+test_that(".assert_job_id() rejects length > 1 vector", {
+  expect_error(ukbflow:::.assert_job_id(c("job-AAA", "job-BBB")))
+})
+
+test_that(".assert_job_id() rejects non-character input", {
+  expect_error(ukbflow:::.assert_job_id(123))
+})
+
+test_that(".assert_job_id() rejects empty string", {
+  expect_error(ukbflow:::.assert_job_id(""))
+})
+
+test_that(".assert_job_id() error message includes the argument name", {
+  bad_id <- "notajob"
+  expect_error(ukbflow:::.assert_job_id(bad_id), "bad_id")
+})
+
+
+# ===========================================================================
+# .assert_count()
+# ===========================================================================
+
+test_that(".assert_count() accepts a valid positive integer", {
+  expect_invisible(ukbflow:::.assert_count(20))
+})
+
+test_that(".assert_count() returns as.integer invisibly", {
+  result <- ukbflow:::.assert_count(5)
+  expect_equal(result, 5L)
+  expect_type(result, "integer")
+})
+
+test_that(".assert_count() accepts 1", {
+  expect_invisible(ukbflow:::.assert_count(1))
+})
+
+test_that(".assert_count() rejects 0", {
+  expect_error(ukbflow:::.assert_count(0), "positive integer")
+})
+
+test_that(".assert_count() rejects negative value", {
+  expect_error(ukbflow:::.assert_count(-5), "positive integer")
+})
+
+test_that(".assert_count() rejects Inf", {
+  expect_error(ukbflow:::.assert_count(Inf), "positive integer")
+})
+
+test_that(".assert_count() rejects NA", {
+  expect_error(ukbflow:::.assert_count(NA_real_), "positive integer")
+})
+
+test_that(".assert_count() rejects decimal value", {
+  expect_error(ukbflow:::.assert_count(1.5), "positive integer")
+})
+
+test_that(".assert_count() rejects character input", {
+  expect_error(ukbflow:::.assert_count("five"), "positive integer")
+})
+
+test_that(".assert_count() rejects length > 1 vector", {
+  expect_error(ukbflow:::.assert_count(c(5, 10)), "positive integer")
+})
+
+test_that(".assert_count() error message includes the argument name", {
+  bad_n <- -1
+  expect_error(ukbflow:::.assert_count(bad_n), "bad_n")
+})
+
+
+# ===========================================================================
+# .assert_choices()
+# ===========================================================================
+
+test_that(".assert_choices() accepts NULL and returns NULL invisibly", {
+  result <- ukbflow:::.assert_choices(NULL, c("a", "b"))
+  expect_null(result)
+})
+
+test_that(".assert_choices() accepts a valid single choice", {
+  expect_invisible(ukbflow:::.assert_choices("a", c("a", "b", "c")))
+})
+
+test_that(".assert_choices() accepts valid multiple choices", {
+  expect_invisible(ukbflow:::.assert_choices(c("a", "b"), c("a", "b", "c")))
+})
+
+test_that(".assert_choices() accepts character(0)", {
+  expect_invisible(ukbflow:::.assert_choices(character(0), c("a", "b")))
+})
+
+test_that(".assert_choices() rejects non-character input", {
+  expect_error(ukbflow:::.assert_choices(TRUE, c("a", "b")), "character vector")
+})
+
+test_that(".assert_choices() rejects invalid value", {
+  expect_error(ukbflow:::.assert_choices("oops", c("a", "b")), "oops")
+})
+
+test_that(".assert_choices() error message lists valid values", {
+  expect_error(ukbflow:::.assert_choices("oops", c("a", "b")), "a")
+})
+
+test_that(".assert_choices() rejects mix of valid and invalid values", {
+  expect_error(ukbflow:::.assert_choices(c("a", "oops"), c("a", "b")), "oops")
+})
+
+test_that(".assert_choices() error message includes the argument name", {
+  bad_state <- "oops"
+  expect_error(ukbflow:::.assert_choices(bad_state, c("a", "b")), "bad_state")
+})
