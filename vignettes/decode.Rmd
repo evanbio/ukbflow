@@ -22,7 +22,7 @@ Raw UKB phenotype data contains encoded column names and values that need to be 
 | Source | Column names | Column values |
 |---|---|---|
 | `extract_pheno()` | `participant.p31` | Raw integer codes — needs `decode_values()` |
-| `extract_batch()` | `p31`, `p53_i0` | Already decoded — skip `decode_values()` |
+| `extract_batch()` | `p31`, `p53_i0` | Usually already decoded — `decode_values()` typically not needed |
 
 Both outputs need `decode_names()` to convert field ID column names to human-readable snake_case.
 
@@ -44,7 +44,7 @@ df <- decode_names(df)    # participant.p31 → sex
 
 ## Step 1: Decode Values
 
-`decode_values()` converts raw integer codes to human-readable labels for all categorical fields. Continuous, date, and text fields are left unchanged.
+`decode_values()` converts raw integer codes to human-readable labels for categorical fields that have UKB encoding mappings. Continuous, date, text, and already-decoded fields are left unchanged.
 
 ```{r decode-values}
 df <- decode_values(df)
@@ -77,7 +77,7 @@ Codes absent from the encoding table (including UKB missing codes `-1`, `-3`, `-
 
 ## Step 2: Decode Names
 
-`decode_names()` renames columns from field ID format to snake_case labels using the UKB field title dictionary.
+`decode_names()` renames columns from field ID format to snake_case labels using the approved UKB field dictionary available to your project.
 
 ```{r decode-names}
 df <- decode_names(df)
@@ -99,11 +99,11 @@ Both `extract_pheno()` format (`participant.p31`) and `extract_batch()` format (
 
 ### Long names
 
-Some UKB field titles are verbose. Names exceeding 60 characters are flagged with a warning:
+Some UKB field titles are verbose. Names exceeding `max_nchar` characters are flagged with a warning (default: 60). Lower the threshold to catch more aggressively:
 
 ```{r long-names}
-df <- decode_names(df, max_nchar = 60)
-#> ! 1 column name longer than 60 characters - consider renaming manually:
+df <- decode_names(df, max_nchar = 30)
+#> ! 1 column name longer than 30 characters - consider renaming manually:
 #> • date_of_attending_assessment_centre_i0
 ```
 

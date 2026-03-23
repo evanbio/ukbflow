@@ -25,10 +25,10 @@ snake_case identifiers (e.g. \code{sex},
 \code{date_of_attending_assessment_centre_i0}).
 }
 \details{
-Column labels are taken from the UKB field title dictionary cached by
-\code{\link{extract_ls}}. The cache is populated automatically when
-\code{extract_pheno()} or \code{extract_batch()} is called; if it is
-empty, \code{decode_names()} calls \code{extract_ls()} itself.
+Column labels are taken from the UKB field title dictionary via
+\code{\link{extract_ls}}. Both the dataset name and field list are cached
+after the first call, so subsequent calls to \code{decode_names()} involve
+no network requests.
 
 When an auto-generated name exceeds \code{max_nchar} characters it is
 flagged with a warning so you can decide whether to shorten it manually
@@ -43,7 +43,7 @@ df <- decode_names(df)
 # participant.eid    → eid
 # participant.p31    → sex
 # participant.p21022 → age_at_recruitment
-# participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 30)
+# participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 60)
 
 # Shorten a long name afterwards
 names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"
