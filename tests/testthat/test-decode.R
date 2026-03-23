@@ -48,12 +48,16 @@
 }
 
 .set_decode_cache <- function() {
-  .ukbflow_cache$fields     <- .fake_fields_decode()
+  # Reason: fields cache is a per-dataset named list; dataset cache avoids
+  # dx ls network call so decode_names() -> extract_ls() is a pure memory path
+  .ukbflow_cache$dataset    <- "fake_dataset"
+  .ukbflow_cache$fields     <- list("fake_dataset" = .fake_fields_decode())
   .ukbflow_cache$field_meta <- .fake_field_meta()
   .ukbflow_cache$esimpint   <- .fake_esimpint()
 }
 
 .clear_decode_cache <- function() {
+  .ukbflow_cache$dataset    <- NULL
   .ukbflow_cache$fields     <- NULL
   .ukbflow_cache$field_meta <- NULL
   .ukbflow_cache$esimpint   <- NULL
@@ -238,19 +242,17 @@ test_that("decode_names() does not warn within max_nchar limit", {
   expect_no_warning(suppressMessages(decode_names(df, max_nchar = 60)))
 })
 
-test_that("decode_names() uses cache without calling extract_ls()", {
+test_that("decode_names() produces correct output when dataset and fields are cached", {
+  # Reason: with both $dataset and $fields populated, decode_names() → extract_ls()
+  # is a pure memory path — verify the end result is correct, not the mechanism
   .set_decode_cache()
   on.exit(.clear_decode_cache())
 
-  called <- FALSE
-  mockery::stub(decode_names, "extract_ls", function(...) {
-    called <<- TRUE
-    .fake_fields_decode()
-  })
-
-  df <- data.frame(`participant.p31` = 1L, check.names = FALSE)
-  suppressMessages(decode_names(df))
-  expect_false(called)
+  df <- data.frame(`participant.eid` = 1L, `participant.p31` = 1L,
+                   check.names = FALSE)
+  result <- suppressMessages(decode_names(df))
+  expect_true("eid" %in% names(result))
+  expect_true("sex" %in% names(result))
 })
 
 test_that("decode_names() handles duplicate snake_case names with make.unique()", {
@@ -260,7 +262,8 @@ test_that("decode_names() handles duplicate snake_case names with make.unique()"
     title      = c("Some field | Instance 0", "Some field | Instance 0"),
     stringsAsFactors = FALSE
   )
-  .ukbflow_cache$fields <- fields_dup
+  .ukbflow_cache$dataset <- "fake_dataset"
+  .ukbflow_cache$fields  <- list("fake_dataset" = fields_dup)
   on.exit(.clear_decode_cache())
 
   df <- data.frame(p99_i0 = 1L, p99_i0_dup = 2L)
@@ -275,6 +278,21 @@ test_that("decode_names() handles duplicate snake_case names with make.unique()"
 
 test_that("decode_values() stops on non-data.frame input", {
   expect_error(decode_values("not a df"), "data.frame")
+})
+
+test_that("decode_values() stops on non-string metadata_dir", {
+  df <- data.frame(p31 = 1L)
+  expect_error(decode_values(df, metadata_dir = 123))
+})
+
+test_that("decode_values() stops on NA metadata_dir", {
+  df <- data.frame(p31 = 1L)
+  expect_error(decode_values(df, metadata_dir = NA_character_))
+})
+
+test_that("decode_values() stops on length > 1 metadata_dir", {
+  df <- data.frame(p31 = 1L)
+  expect_error(decode_values(df, metadata_dir = c("a/", "b/")))
 })
 
 test_that("decode_values() warns when no UKB field columns found", {

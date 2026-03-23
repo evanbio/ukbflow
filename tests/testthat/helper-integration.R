@@ -21,3 +21,18 @@
 
   invisible(token)
 }
+
+
+#' Skip integration test if not running on RAP with a valid token
+#'
+#' Extends \code{.skip_if_no_dx_token()} with an additional RAP environment
+#' check. Use for tests that require \code{fetch_file()} or other RAP-only
+#' operations.
+#'
+#' @keywords internal
+.skip_if_no_rap <- function() {
+  .skip_if_no_dx_token()
+  if (!ukbflow:::.is_on_rap()) {
+    testthat::skip("Not running on RAP — requires the RAP environment.")
+  }
+}

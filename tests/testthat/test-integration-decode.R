@@ -5,26 +5,30 @@
 # Run manually before release: devtools::test(filter = "integration-decode")
 # =============================================================================
 
-skip_on_ci()
-skip_on_cran()
 
-token <- Sys.getenv("DX_API_TOKEN")
-if (!nzchar(token)) {
-  skip("DX_API_TOKEN not set. Set it to run integration tests.")
-}
+# Download metadata files once for the decode_values() tests (RAP + token required)
+META_DIR <- local({
+  if (!nzchar(Sys.getenv("DX_API_TOKEN")) || !ukbflow:::.is_on_rap()) {
+    NULL
+  } else {
+    d <- withr::local_tempdir()
+    suppressMessages({
+      fetch_file("Showcase metadata/field.tsv",    dest_dir = d, overwrite = TRUE)
+      fetch_file("Showcase metadata/esimpint.tsv", dest_dir = d, overwrite = TRUE)
+    })
+    d
+  }
+})
 
-if (!ukbflow:::.is_on_rap()) {
-  skip("Not running on RAP. fetch_file() requires the RAP environment.")
-}
-
-META_DIR <- withr::local_tempdir()
 
 # ===========================================================================
 # decode_names() — requires live extract_ls() to populate cache
 # ===========================================================================
 
 test_that("decode_names() renames participant.p31 to sex via live cache", {
-  .ukbflow_cache$fields <- NULL
+  .skip_if_no_dx_token()
+  .ukbflow_cache$dataset <- NULL
+  .ukbflow_cache$fields  <- NULL
 
   df <- data.frame(`participant.eid` = 1L, `participant.p31` = 1L,
                    check.names = FALSE)
@@ -36,7 +40,9 @@ test_that("decode_names() renames participant.p31 to sex via live cache", {
 })
 
 test_that("decode_names() renames all columns from extract_pheno() format", {
-  .ukbflow_cache$fields <- NULL
+  .skip_if_no_dx_token()
+  .ukbflow_cache$dataset <- NULL
+  .ukbflow_cache$fields  <- NULL
 
   df <- data.frame(
     `participant.eid`    = 1L,
@@ -54,7 +60,9 @@ test_that("decode_names() renames all columns from extract_pheno() format", {
 })
 
 test_that("decode_names() renames p53 instance columns with _i0.._i3 suffixes", {
-  .ukbflow_cache$fields <- NULL
+  .skip_if_no_dx_token()
+  .ukbflow_cache$dataset <- NULL
+  .ukbflow_cache$fields  <- NULL
 
   df <- data.frame(
     `participant.eid`    = 1L,
@@ -70,21 +78,23 @@ test_that("decode_names() renames p53 instance columns with _i0.._i3 suffixes", 
 })
 
 test_that("decode_names() warms session cache as side effect", {
-  .ukbflow_cache$fields <- NULL
+  .skip_if_no_dx_token()
+  .ukbflow_cache$dataset <- NULL
+  .ukbflow_cache$fields  <- NULL
+
   df <- data.frame(`participant.p31` = 1L, check.names = FALSE)
   suppressMessages(decode_names(df))
+
   expect_false(is.null(.ukbflow_cache$fields))
-  expect_gt(nrow(.ukbflow_cache$fields), 0L)
+  expect_gt(length(.ukbflow_cache$fields), 0L)                         # list has at least one dataset entry
+  dataset_key <- names(.ukbflow_cache$fields)[1L]
+  expect_gt(nrow(.ukbflow_cache$fields[[dataset_key]]), 0L)            # that entry has rows
 })
+
 
 # ===========================================================================
 # decode_values() — requires local metadata files (no network after download)
 # ===========================================================================
-
-suppressMessages({
-  fetch_file("Showcase metadata/field.tsv",    dest_dir = META_DIR, overwrite = TRUE)
-  fetch_file("Showcase metadata/esimpint.tsv", dest_dir = META_DIR, overwrite = TRUE)
-})
 
 # Clear metadata cache before each test to ensure fresh reads
 .clear_meta_cache <- function() {
@@ -93,6 +103,8 @@ suppressMessages({
 }
 
 test_that("decode_values() decodes p31: 0 → Female, 1 → Male", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
   df <- data.frame(p31 = c(0L, 1L))
   result <- suppressMessages(decode_values(df, metadata_dir = META_DIR))
@@ -100,6 +112,8 @@ test_that("decode_values() decodes p31: 0 → Female, 1 → Male", {
 })
 
 test_that("decode_values() caches field_meta and esimpint after first call", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
   df <- data.frame(p31 = 1L)
   suppressMessages(decode_values(df, metadata_dir = META_DIR))
@@ -108,6 +122,8 @@ test_that("decode_values() caches field_meta and esimpint after first call", {
 })
 
 test_that("decode_values() leaves continuous field p22189 (Townsend) unchanged", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
   df <- data.frame(p31 = 1L, p22189 = -3.94)
   result <- suppressMessages(decode_values(df, metadata_dir = META_DIR))
@@ -116,6 +132,8 @@ test_that("decode_values() leaves continuous field p22189 (Townsend) unchanged",
 })
 
 test_that("decode_values() decodes smoking status p20116: 0/1/2 → labels", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
   df <- data.frame(p20116_i0 = c(0L, 1L, 2L))
   result <- suppressMessages(decode_values(df, metadata_dir = META_DIR))
@@ -123,6 +141,8 @@ test_that("decode_values() decodes smoking status p20116: 0/1/2 → labels", {
 })
 
 test_that("decode_values() returns NA for code absent from encoding table", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
   df <- data.frame(p31 = c(0L, 1L, 99L))
   result <- suppressMessages(decode_values(df, metadata_dir = META_DIR))
@@ -131,8 +151,11 @@ test_that("decode_values() returns NA for code absent from encoding table", {
 })
 
 test_that("decode_values() then decode_names() produces clean final output", {
+  .skip_if_no_rap()
+  if (is.null(META_DIR)) skip("Metadata files not available.")
   .clear_meta_cache()
-  .ukbflow_cache$fields <- NULL
+  .ukbflow_cache$dataset <- NULL
+  .ukbflow_cache$fields  <- NULL
 
   df <- data.frame(
     `participant.eid`    = c(1L, 2L),
