@@ -34,15 +34,10 @@ Returns a `data.table` if the input is a `data.table`.
 
 ## Details
 
-Column labels are taken from the UKB field title dictionary cached by
+Column labels are taken from the UKB field title dictionary via
 [`extract_ls`](https://evanbio.github.io/ukbflow/reference/extract_ls.md).
-The cache is populated automatically when
-[`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)
-or
-[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
-is called; if it is empty, `decode_names()` calls
-[`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)
-itself.
+Both the dataset name and field list are cached after the first call, so
+subsequent calls to `decode_names()` involve no network requests.
 
 When an auto-generated name exceeds `max_nchar` characters it is flagged
 with a warning so you can decide whether to shorten it manually with
@@ -59,7 +54,7 @@ df <- decode_names(df)
 # participant.eid    → eid
 # participant.p31    → sex
 # participant.p21022 → age_at_recruitment
-# participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 30)
+# participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 60)
 
 # Shorten a long name afterwards
 names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"

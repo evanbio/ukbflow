@@ -148,10 +148,10 @@ labels. Returns a <code>data.table</code> if the input is a <code>data.table</co
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Column labels are taken from the UKB field title dictionary cached by
-<code><a href="extract_ls.html">extract_ls</a></code>. The cache is populated automatically when
-<code><a href="extract_pheno.html">extract_pheno()</a></code> or <code><a href="extract_batch.html">extract_batch()</a></code> is called; if it is
-empty, <code>decode_names()</code> calls <code><a href="extract_ls.html">extract_ls()</a></code> itself.</p>
+    <p>Column labels are taken from the UKB field title dictionary via
+<code><a href="extract_ls.html">extract_ls</a></code>. Both the dataset name and field list are cached
+after the first call, so subsequent calls to <code>decode_names()</code> involve
+no network requests.</p>
 <p>When an auto-generated name exceeds <code>max_nchar</code> characters it is
 flagged with a warning so you can decide whether to shorten it manually
 with <code>names(data)[...] &lt;- ...</code>. The function never truncates names
@@ -167,7 +167,7 @@ that only you know.</p>
 <span class="r-in"><span><span class="co"># participant.eid    → eid</span></span></span>
 <span class="r-in"><span><span class="co"># participant.p31    → sex</span></span></span>
 <span class="r-in"><span><span class="co"># participant.p21022 → age_at_recruitment</span></span></span>
-<span class="r-in"><span><span class="co"># participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if &gt; 30)</span></span></span>
+<span class="r-in"><span><span class="co"># participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if &gt; 60)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Shorten a long name afterwards</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="st">"date_of_attending_assessment_centre_i0"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"date_baseline"</span></span></span>

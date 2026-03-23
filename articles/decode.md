@@ -5,10 +5,10 @@
 Raw UKB phenotype data contains encoded column names and values that
 need to be converted before analysis.
 
-| Source                                                                            | Column names      | Column values                                                                                               |
-|-----------------------------------------------------------------------------------|-------------------|-------------------------------------------------------------------------------------------------------------|
-| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | `participant.p31` | Raw integer codes — needs [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md) |
-| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | `p31`, `p53_i0`   | Already decoded — skip [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)    |
+| Source                                                                            | Column names      | Column values                                                                                                                    |
+|-----------------------------------------------------------------------------------|-------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | `participant.p31` | Raw integer codes — needs [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)                      |
+| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | `p31`, `p53_i0`   | Usually already decoded — [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md) typically not needed |
 
 Both outputs need
 [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
@@ -40,8 +40,9 @@ df <- decode_names(df)    # participant.p31 → sex
 ## Step 1: Decode Values
 
 [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
-converts raw integer codes to human-readable labels for all categorical
-fields. Continuous, date, and text fields are left unchanged.
+converts raw integer codes to human-readable labels for categorical
+fields that have UKB encoding mappings. Continuous, date, text, and
+already-decoded fields are left unchanged.
 
 ``` r
 df <- decode_values(df)
@@ -80,8 +81,8 @@ Codes absent from the encoding table (including UKB missing codes `-1`,
 ## Step 2: Decode Names
 
 [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
-renames columns from field ID format to snake_case labels using the UKB
-field title dictionary.
+renames columns from field ID format to snake_case labels using the
+approved UKB field dictionary available to your project.
 
 ``` r
 df <- decode_names(df)
@@ -107,12 +108,13 @@ format (`p31`) are handled automatically.
 
 ### Long names
 
-Some UKB field titles are verbose. Names exceeding 60 characters are
-flagged with a warning:
+Some UKB field titles are verbose. Names exceeding `max_nchar`
+characters are flagged with a warning (default: 60). Lower the threshold
+to catch more aggressively:
 
 ``` r
-df <- decode_names(df, max_nchar = 60)
-#> ! 1 column name longer than 60 characters - consider renaming manually:
+df <- decode_names(df, max_nchar = 30)
+#> ! 1 column name longer than 30 characters - consider renaming manually:
 #> • date_of_attending_assessment_centre_i0
 ```
 
