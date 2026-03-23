@@ -126,13 +126,16 @@ still running.</p>
 
 
 <dl><dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>(integer) Maximum number of recent jobs to return. Default:
-<code>20</code>.</p></dd>
+<dd><p>(integer) Maximum number of recent jobs to return. Must be a
+single positive integer. Default: <code>20</code>.</p></dd>
 
 
 <dt id="arg-state">state<a class="anchor" aria-label="anchor" href="#arg-state"></a></dt>
-<dd><p>(character) Filter by state(s), e.g. <code>"failed"</code> or
-<code>c("done", "failed")</code>. Default: <code>NULL</code> (return all).</p></dd>
+<dd><p>(character) Filter by state(s). Must be <code>NULL</code> or a
+character vector of valid states:
+<code>"idle"</code>, <code>"runnable"</code>, <code>"running"</code>, <code>"done"</code>,
+<code>"failed"</code>, <code>"terminated"</code>.
+Default: <code>NULL</code> (return all).</p></dd>
 
 </dl></div>
     <div class="section level2">

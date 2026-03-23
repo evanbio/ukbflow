@@ -14,12 +14,14 @@ job_ls(n = 20, state = NULL)
 
 - n:
 
-  (integer) Maximum number of recent jobs to return. Default: `20`.
+  (integer) Maximum number of recent jobs to return. Must be a single
+  positive integer. Default: `20`.
 
 - state:
 
-  (character) Filter by state(s), e.g. `"failed"` or
-  `c("done", "failed")`. Default: `NULL` (return all).
+  (character) Filter by state(s). Must be `NULL` or a character vector
+  of valid states: `"idle"`, `"runnable"`, `"running"`, `"done"`,
+  `"failed"`, `"terminated"`. Default: `NULL` (return all).
 
 ## Value
 

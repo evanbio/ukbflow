@@ -182,7 +182,7 @@ job completes.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/job_status.html">job_status</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; job-XXXXXXXXXXXX</span></span>
-<span><span class="co">#&gt;          "done"</span></span></code></pre></div>
+<span><span class="co">#&gt;            done</span></span></code></pre></div>
 <p>Possible states:</p>
 <table class="table">
 <thead><tr class="header">
@@ -249,7 +249,7 @@ terminated, so you can safely chain it with
 of the output CSV on RAP:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/job_path.html">job_path</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; "/mnt/project/ukb_demographics.csv"</span></span></code></pre></div>
+<span><span class="co">#&gt; "/mnt/project/results/ukb_demographics.csv"</span></span></code></pre></div>
 <p>Use this to read the file directly or pass it to other tools:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="../reference/job_path.html">job_path</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -262,7 +262,7 @@ of the output CSV on RAP:</p>
 environment:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/job_result.html">job_result</a></span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 502353 rows x 5 cols (incl. eid)</span></span></code></pre></div>
+<span><span class="co"># returns a data.table, e.g. 502353 rows x 5 cols (incl. eid)</span></span></code></pre></div>
 <hr>
 </div>
 </div>

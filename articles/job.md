@@ -37,7 +37,7 @@ returns the current state of a job:
 ``` r
 job_status(job_id)
 #> job-XXXXXXXXXXXX
-#>          "done"
+#>            done
 ```
 
 Possible states:
@@ -90,7 +90,7 @@ returns the `/mnt/project/` path of the output CSV on RAP:
 
 ``` r
 path <- job_path(job_id)
-#> "/mnt/project/ukb_demographics.csv"
+#> "/mnt/project/results/ukb_demographics.csv"
 ```
 
 Use this to read the file directly or pass it to other tools:
@@ -108,7 +108,7 @@ and `fread()` in one step. Must be run inside the RAP environment:
 
 ``` r
 df <- job_result(job_id)
-#> 502353 rows x 5 cols (incl. eid)
+# returns a data.table, e.g. 502353 rows x 5 cols (incl. eid)
 ```
 
 ------------------------------------------------------------------------
