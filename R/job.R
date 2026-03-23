@@ -31,9 +31,7 @@
 #' if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 #' }
 job_status <- function(job_id) {
-  if (!grepl("^job-", job_id)) {
-    stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
-  }
+  .assert_job_id(job_id)
 
   desc  <- .dx_job_describe(job_id)
   state <- desc$state
@@ -79,9 +77,7 @@ job_status <- function(job_id) {
 #' df <- job_result(job_id)
 #' }
 job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
-  if (!grepl("^job-", job_id)) {
-    stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
-  }
+  .assert_job_id(job_id)
 
   terminal <- c("done", "failed", "terminated")
   start    <- proc.time()[["elapsed"]]
@@ -91,10 +87,7 @@ job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
 
     # Reason: guard with is.finite() so timeout = Inf never triggers this branch
     if (is.finite(timeout) && elapsed >= timeout) {
-      stop(
-        sprintf("Timed out after %.0f seconds waiting for %s.", timeout, job_id),
-        call. = FALSE
-      )
+      cli::cli_abort("Timed out after {timeout} seconds waiting for {job_id}.", call = NULL)
     }
 
     desc  <- .dx_job_describe(job_id)
@@ -117,11 +110,11 @@ job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
     msg <- if (!is.null(desc$failureMessage)) desc$failureMessage else
            if (!is.null(desc$failureReason))  desc$failureReason  else
            "(no message)"
-    stop(sprintf("Job %s failed: %s", job_id, msg), call. = FALSE)
+    cli::cli_abort("Job {job_id} failed: {msg}", call = NULL)
   }
 
   if (state == "terminated") {
-    stop(sprintf("Job %s was terminated.", job_id), call. = FALSE)
+    cli::cli_abort("Job {job_id} was terminated.", call = NULL)
   }
 
   invisible(state)
@@ -146,20 +139,15 @@ job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
 #' df   <- data.table::fread(path)
 #' }
 job_path <- function(job_id) {
-  if (!grepl("^job-", job_id)) {
-    stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
-  }
+  .assert_job_id(job_id)
 
   desc  <- .dx_job_describe(job_id)
   state <- desc$state
 
   if (state != "done") {
-    stop(
-      sprintf(
-        "Job %s is '%s', not 'done'. Use job_wait() to wait for completion.",
-        job_id, state
-      ),
-      call. = FALSE
+    cli::cli_abort(
+      "Job {job_id} is '{state}', not 'done'. Use {.fn job_wait} to wait for completion.",
+      call = NULL
     )
   }
 
@@ -187,16 +175,14 @@ job_path <- function(job_id) {
 #' }
 job_result <- function(job_id) {
   if (!.is_on_rap()) {
-    stop(
-      "job_result() must be run inside the RAP environment.\n",
-      "To get the file path, use job_path() instead.",
-      call. = FALSE
+    cli::cli_abort(
+      c("{.fn job_result} must be run inside the RAP environment.",
+        "i" = "To get the file path, use {.fn job_path} instead."),
+      call = NULL
     )
   }
 
-  if (!grepl("^job-", job_id)) {
-    stop("job_id must be a 'job-XXXX' string.", call. = FALSE)
-  }
+  .assert_job_id(job_id)
 
   path <- job_path(job_id)
   cli::cli_inform("Reading {.file {path}}")
@@ -215,10 +201,13 @@ job_result <- function(job_id) {
 #' Useful for quickly reviewing which jobs have completed, failed, or are
 #' still running.
 #'
-#' @param n (integer) Maximum number of recent jobs to return. Default:
-#'   \code{20}.
-#' @param state (character) Filter by state(s), e.g. \code{"failed"} or
-#'   \code{c("done", "failed")}. Default: \code{NULL} (return all).
+#' @param n (integer) Maximum number of recent jobs to return. Must be a
+#'   single positive integer. Default: \code{20}.
+#' @param state (character) Filter by state(s). Must be \code{NULL} or a
+#'   character vector of valid states:
+#'   \code{"idle"}, \code{"runnable"}, \code{"running"}, \code{"done"},
+#'   \code{"failed"}, \code{"terminated"}.
+#'   Default: \code{NULL} (return all).
 #'
 #' @return A data.frame with columns:
 #'   \describe{
@@ -239,9 +228,15 @@ job_result <- function(job_id) {
 #' job_ls(state = c("done", "failed"))
 #' }
 job_ls <- function(n = 20, state = NULL) {
+  n     <- .assert_count(n)
+  state <- .assert_choices(
+    state,
+    c("idle", "runnable", "running", "done", "failed", "terminated")
+  )
+
   result <- .dx_find_jobs_raw(n)
   if (!result$success) {
-    stop("Failed to list jobs: ", result$stderr, call. = FALSE)
+    cli::cli_abort("Failed to list jobs: {result$stderr}", call = NULL)
   }
 
   df <- .dx_parse_jobs(result$stdout)

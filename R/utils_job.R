@@ -19,7 +19,7 @@
     env     = c(PYTHONIOENCODING = "utf-8")
   )
   if (!result$success) {
-    stop("Failed to describe job '", job_id, "': ", result$stderr, call. = FALSE)
+    cli::cli_abort("Failed to describe job {.val {job_id}}: {result$stderr}", call = NULL)
   }
   jsonlite::parse_json(result$stdout)
 }
@@ -37,10 +37,10 @@
   # output is NULL for failed/running jobs so we guard explicitly
   csv <- desc$output$csv
   if (is.null(csv) || length(csv) == 0) {
-    stop(
-      "Job has no output CSV. ",
-      "Check job state with job_status() before calling job_result().",
-      call. = FALSE
+    cli::cli_abort(
+      c("Job has no output CSV.",
+        "i" = "Check job state with {.fn job_status} before calling {.fn job_result}."),
+      call = NULL
     )
   }
   csv[[1]]$`$dnanexus_link`
@@ -75,7 +75,7 @@
   result <- .dx_run(c("describe", file_id, "--json"), timeout = 30,
                     env = c(PYTHONIOENCODING = "utf-8"))
   if (!result$success) {
-    stop("Failed to describe file '", file_id, "': ", result$stderr, call. = FALSE)
+    cli::cli_abort("Failed to describe file {.val {file_id}}: {result$stderr}", call = NULL)
   }
   desc   <- jsonlite::parse_json(result$stdout)
   folder <- sub("^/+", "", if (is.null(desc$folder)) "" else desc$folder)
