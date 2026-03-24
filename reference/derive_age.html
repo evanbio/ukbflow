@@ -138,7 +138,7 @@ $$age\_at\_event = age\_col + (event\_date - baseline\_date) / 365.25$$</p>
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
 <dd><p>(character) One or more output prefixes, e.g.
-<code>c("ad", "ad_icd10", "cscc")</code>. Each produces <code>age_at_{name}</code>.</p></dd>
+<code>c("disease", "disease_icd10", "outcome")</code>. Each produces <code>age_at_{name}</code>.</p></dd>
 
 
 <dt id="arg-baseline-col">baseline_col<a class="anchor" aria-label="anchor" href="#arg-baseline-col"></a></dt>
@@ -154,7 +154,7 @@ $$age\_at\_event = age\_col + (event\_date - baseline\_date) / 365.25$$</p>
 <dt id="arg-date-cols">date_cols<a class="anchor" aria-label="anchor" href="#arg-date-cols"></a></dt>
 <dd><p>(character or NULL) Named character vector mapping each
 name to its event date column, e.g.
-<code>c(ad = "ad_date", cscc = "cscc_date")</code>. <code>NULL</code> (default)
+<code>c(disease = "disease_date", outcome = "outcome_date")</code>. <code>NULL</code> (default)
 triggers auto-detection as <code>{name}_date</code>.</p></dd>
 
 

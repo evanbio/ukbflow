@@ -29,8 +29,8 @@ derive_hes(
 
 - name:
 
-  (character) Output column prefix, e.g. `"ad"` produces `ad_hes` and
-  `ad_hes_date`.
+  (character) Output column prefix, e.g. `"disease"` produces
+  `disease_hes` and `disease_hes_date`.
 
 - icd10:
 
@@ -75,7 +75,7 @@ The input `data` with two new columns added in-place: `{name}_hes`
 ``` r
 if (FALSE) { # \dontrun{
 df <- derive_hes(df, name = "disease", icd10 = "E11")
-df <- derive_hes(df, name = "copd",
+df <- derive_hes(df, name = "disease",
                  icd10 = c("J440", "J441"), match = "exact")
 df <- derive_hes(df, name = "disease",
                  icd10 = "^(E10|E11)", match = "regex")

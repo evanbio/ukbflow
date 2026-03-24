@@ -137,8 +137,8 @@ quantiles of the observed data (equal-frequency binning). When
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>(integer) Number of groups. Supported values: <code>2</code>, <code>3</code>,
-<code>4</code>, <code>5</code>.</p></dd>
+<dd><p>(integer) Number of groups. Any integer <code>&gt;= 2</code> is accepted.
+Commonly used values are <code>2</code>, <code>3</code>, <code>4</code>, <code>5</code>.</p></dd>
 
 
 <dt id="arg-breaks">breaks<a class="anchor" aria-label="anchor" href="#arg-breaks"></a></dt>
@@ -155,7 +155,8 @@ Defaults to <code>"Q1"</code>, <code>"Q2"</code>, ..., <code>"Qn"</code>.</p></d
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
 <dd><p>(character or NULL) Name for the new column. Defaults to
 <code>"{col}_bi"</code> / <code>"{col}_tri"</code> / <code>"{col}_quad"</code> /
-<code>"{col}_quin"</code> for <code>n</code> = 2 / 3 / 4 / 5.</p></dd>
+<code>"{col}_quin"</code> for <code>n</code> = 2 / 3 / 4 / 5; other values of
+<code>n</code> produce <code>"{col}_g{n}"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

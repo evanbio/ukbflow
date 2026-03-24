@@ -31,13 +31,13 @@ derive_followup(
 
 - name:
 
-  (character) Output column prefix, e.g. `"cscc"` produces
-  `cscc_followup_end` and `cscc_followup_years`.
+  (character) Output column prefix, e.g. `"outcome"` produces
+  `outcome_followup_end` and `outcome_followup_years`.
 
 - event_col:
 
   (character) Name of the outcome event date column (e.g.
-  `"cscc_date"`).
+  `"outcome_date"`).
 
 - baseline_col:
 

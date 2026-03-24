@@ -20,13 +20,13 @@ derive_first_occurrence(data, name, field, col = NULL)
 
 - name:
 
-  (character) Output column prefix, e.g. `"ad"` produces `ad_fo` and
-  `ad_fo_date`.
+  (character) Output column prefix, e.g. `"disease"` produces
+  `disease_fo` and `disease_fo_date`.
 
 - field:
 
   (integer or character) UKB field ID of the First Occurrence field,
-  e.g. `131720` for L20 (atopic dermatitis).
+  e.g. `131666` for E11 (type 2 diabetes).
 
 - col:
 
@@ -56,9 +56,9 @@ The input `data` (invisibly) with two new columns added in-place:
 **Column detection**: the function locates the source column
 automatically from `field`, handling both the raw format used by
 [`extract_pheno`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)
-(`participant.p131720`) and the snake_case format produced by
+(`participant.p131666`) and the snake_case format produced by
 [`decode_names`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
-(`date_l20_first_reported_atopic_dermatitis`). Supply `col` to override
+(`date_e11_first_reported_type_2_diabetes`). Supply `col` to override
 auto-detection.
 
 **data.table pass-by-reference**: when the input is a `data.table`, new

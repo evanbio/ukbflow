@@ -152,9 +152,10 @@ the built-in and user-registered safe cols. Default <code>NULL</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The input <code>data</code> with raw columns removed in-place (for
-data.table) or a modified copy (for data.frame). Always returns a
-data.table.</p>
+    <p>A <code>data.table</code> with the specified columns removed. For
+<code>data.table</code> input the operation is performed by reference (in-place);
+for <code>data.frame</code> input the data is first converted to a new
+<code>data.table</code> — the original <code>data.frame</code> is not modified.</p>
     </div>
 
     <div class="section level2">

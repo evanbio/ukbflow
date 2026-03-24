@@ -58,13 +58,18 @@ Includes the following column groups:
 
 - **Self-report disease**: `p20002_i0_a0–a4`, `p20008_i0_a0–a4`
 
-- **HES**: `p41270` (JSON array), `p41280_a0–a9`
+- **Self-report cancer**: `p20001_i0_a0–a4`, `p20006_i0_a0–a4`
 
-- **Cancer registry**: `p40006_i0`, `p40005_i0`
+- **HES**: `p41270` (JSON array), `p41280_a0–a8`
 
-- **Death registry**: `p40001_i0`, `p40002_i0_a0–a1`, `p40000_i0`
+- **Cancer registry**: `p40006_i0–i2`, `p40011_i0–i2`, `p40012_i0–i2`,
+  `p40005_i0–i2`
+
+- **Death registry**: `p40001_i0`, `p40002_i0_a0–a2`, `p40000_i0`
 
 - **First occurrence**: `p131742`
+
+- **GRS**: `grs_bmi`, `grs_raw`, `grs_finngen`
 
 - **Messy columns**: `messy_allna`, `messy_empty`, `messy_label`
 

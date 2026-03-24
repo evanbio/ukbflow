@@ -32,8 +32,8 @@ derive_cancer_registry(
 
 - name:
 
-  (character) Output column prefix, e.g. `"cscc_invasive"` produces
-  `cscc_invasive_cancer` and `cscc_invasive_cancer_date`.
+  (character) Output column prefix, e.g. `"outcome_invasive"` produces
+  `outcome_invasive_cancer` and `outcome_invasive_cancer_date`.
 
 - icd10:
 
@@ -100,11 +100,11 @@ downstream.
 ``` r
 if (FALSE) { # \dontrun{
 # ICD-10 only - no histology/behaviour filter
-df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
+df <- derive_cancer_registry(df, name = "outcome", icd10 = "^C50")
 
 # With histology and behaviour filters (malignant)
 df <- derive_cancer_registry(
-  df, name = "cancer_outcome",
+  df, name = "outcome_invasive",
   icd10     = "^C44",
   histology = c(8070, 8071, 8072),
   behaviour = 3L
@@ -112,7 +112,7 @@ df <- derive_cancer_registry(
 
 # In situ (behaviour = 2)
 df <- derive_cancer_registry(
-  df, name = "cancer_insitu",
+  df, name = "outcome_insitu",
   icd10     = "^C44",
   behaviour = 2L
 )

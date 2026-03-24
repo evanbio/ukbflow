@@ -29,13 +29,14 @@ derive_selfreport(
 
 - name:
 
-  (character) Output column name prefix, e.g. `"ad"` or `"cscc"`.
+  (character) Output column name prefix, e.g. `"disease"` or
+  `"outcome"`.
 
 - regex:
 
   (character) Regular expression matched against disease text values
   (after [`tolower()`](https://rdrr.io/r/base/chartr.html)), e.g.
-  `"^eczema/dermatitis$"`.
+  `"^diabetes$"`.
 
 - field:
 
@@ -101,7 +102,7 @@ df <- extract_pheno(c(20002, 20008, 53)) |>
   derive_selfreport(name = "disease", regex = "your disease label",
                     field = "noncancer")
 
-df <- derive_selfreport(df, name = "cancer_outcome",
+df <- derive_selfreport(df, name = "outcome",
                         regex = "your cancer label",
                         field = "cancer")
 } # }

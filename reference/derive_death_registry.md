@@ -30,8 +30,8 @@ derive_death_registry(
 
 - name:
 
-  (character) Output column prefix, e.g. `"ad"` produces `ad_death` and
-  `ad_death_date`.
+  (character) Output column prefix, e.g. `"disease"` produces
+  `disease_death` and `disease_death_date`.
 
 - icd10:
 
@@ -82,7 +82,7 @@ The input `data` with two new columns added in-place: `{name}_death`
 ``` r
 if (FALSE) { # \dontrun{
 df <- derive_death_registry(df, name = "disease", icd10 = "E11")
-df <- derive_death_registry(df, name = "copd",
+df <- derive_death_registry(df, name = "disease",
                             icd10 = c("J440", "J441"), match = "exact")
 } # }
 ```

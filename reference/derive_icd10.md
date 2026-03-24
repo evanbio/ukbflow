@@ -42,9 +42,9 @@ derive_icd10(
 
 - name:
 
-  (character) Output column prefix, e.g. `"ad"` produces `ad_icd10` and
-  `ad_icd10_date`, plus intermediate columns such as `ad_hes`,
-  `ad_hes_date`, etc.
+  (character) Output column prefix, e.g. `"disease"` produces
+  `disease_icd10` and `disease_icd10_date`, plus intermediate columns
+  such as `disease_hes`, `disease_hes_date`, etc.
 
 - icd10:
 
@@ -69,7 +69,7 @@ derive_icd10(
 - fo_field:
 
   (integer or character or NULL) UKB field ID for the First Occurrence
-  column (e.g. `131720L` for AD). Required when `"first_occurrence"` is
+  column (e.g. `131666L` for E11). Required when `"first_occurrence"` is
   in `source` and `fo_col` is `NULL`.
 
 - fo_col:
@@ -162,16 +162,16 @@ if (FALSE) { # \dontrun{
 # Non-cancer disease: HES + death + First Occurrence
 df <- derive_icd10(df, name = "disease", icd10 = "E11",
                    source   = c("hes", "death", "first_occurrence"),
-                   fo_field = 131000L)
+                   fo_field = 131666L)
 
 # COPD: HES + death only, exact 4-digit codes
-df <- derive_icd10(df, name = "copd",
+df <- derive_icd10(df, name = "disease",
                    icd10  = c("J440", "J441"),
                    source = c("hes", "death"),
                    match  = "exact")
 
 # Cancer outcome: HES + cancer registry + death
-df <- derive_icd10(df, name = "cancer_outcome",
+df <- derive_icd10(df, name = "outcome",
                    icd10  = "^C50",
                    match  = "regex",
                    source = c("hes", "death", "cancer_registry"))

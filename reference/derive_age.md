@@ -26,7 +26,8 @@ derive_age(
 - name:
 
   (character) One or more output prefixes, e.g.
-  `c("ad", "ad_icd10", "cscc")`. Each produces `age_at_{name}`.
+  `c("disease", "disease_icd10", "outcome")`. Each produces
+  `age_at_{name}`.
 
 - baseline_col:
 
@@ -40,8 +41,9 @@ derive_age(
 - date_cols:
 
   (character or NULL) Named character vector mapping each name to its
-  event date column, e.g. `c(ad = "ad_date", cscc = "cscc_date")`.
-  `NULL` (default) triggers auto-detection as `{name}_date`.
+  event date column, e.g.
+  `c(disease = "disease_date", outcome = "outcome_date")`. `NULL`
+  (default) triggers auto-detection as `{name}_date`.
 
 - status_cols:
 

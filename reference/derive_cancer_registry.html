@@ -150,9 +150,9 @@ cancer registry fields.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>(character) Output column prefix, e.g. <code>"cscc_invasive"</code>
-produces <code>cscc_invasive_cancer</code> and
-<code>cscc_invasive_cancer_date</code>.</p></dd>
+<dd><p>(character) Output column prefix, e.g. <code>"outcome_invasive"</code>
+produces <code>outcome_invasive_cancer</code> and
+<code>outcome_invasive_cancer_date</code>.</p></dd>
 
 
 <dt id="arg-icd-">icd10<a class="anchor" aria-label="anchor" href="#arg-icd-"></a></dt>
@@ -222,11 +222,11 @@ registry record satisfies all supplied filters.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># ICD-10 only - no histology/behaviour filter</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_cancer_registry</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"cancer_outcome"</span>, icd10 <span class="op">=</span> <span class="st">"^C50"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_cancer_registry</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"outcome"</span>, icd10 <span class="op">=</span> <span class="st">"^C50"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With histology and behaviour filters (malignant)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_cancer_registry</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">df</span>, name <span class="op">=</span> <span class="st">"cancer_outcome"</span>,</span></span>
+<span class="r-in"><span>  <span class="va">df</span>, name <span class="op">=</span> <span class="st">"outcome_invasive"</span>,</span></span>
 <span class="r-in"><span>  icd10     <span class="op">=</span> <span class="st">"^C44"</span>,</span></span>
 <span class="r-in"><span>  histology <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8070</span>, <span class="fl">8071</span>, <span class="fl">8072</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  behaviour <span class="op">=</span> <span class="fl">3L</span></span></span>
@@ -234,7 +234,7 @@ registry record satisfies all supplied filters.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># In situ (behaviour = 2)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_cancer_registry</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">df</span>, name <span class="op">=</span> <span class="st">"cancer_insitu"</span>,</span></span>
+<span class="r-in"><span>  <span class="va">df</span>, name <span class="op">=</span> <span class="st">"outcome_insitu"</span>,</span></span>
 <span class="r-in"><span>  icd10     <span class="op">=</span> <span class="st">"^C44"</span>,</span></span>
 <span class="r-in"><span>  behaviour <span class="op">=</span> <span class="fl">2L</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

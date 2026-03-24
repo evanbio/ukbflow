@@ -218,9 +218,10 @@ phenotype derivation pipeline:</p>
 </tbody>
 </table>
 <p>All functions accept a <code>data.frame</code> or
-<code>data.table</code> and return a <code>data.table</code> with new
-columns added <strong>in-place</strong> (no copy for
-<code>data.table</code> input).</p>
+<code>data.table</code> and return a <code>data.table</code>. For
+<code>data.table</code> input, new columns are added <strong>by
+reference</strong> (no copy); <code>data.frame</code> input is converted
+to <code>data.table</code> internally before modification.</p>
 <blockquote>
 <p><strong>Prerequisite</strong>: data should have been extracted with
 <code><a href="../reference/extract_pheno.html">extract_pheno()</a></code> or <code><a href="../reference/extract_batch.html">extract_batch()</a></code>, then
@@ -232,8 +233,9 @@ decoded with <code><a href="../reference/decode_values.html">decode_values()</a>
 <div class="section level2">
 <h2 id="extracting-the-required-fields">Extracting the Required Fields<a class="anchor" aria-label="anchor" href="#extracting-the-required-fields"></a>
 </h2>
-<p>The field IDs below are <strong>universal across all UKB
-projects</strong>. Include the fields relevant to your analysis:</p>
+<p>The field IDs below are standard UKB field identifiers; actual
+availability depends on your project approvals. Include the fields
+relevant to your analysis:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
@@ -266,7 +268,9 @@ projects</strong>. Include the fields relevant to your analysis:</p>
 <span>  <span class="fu"><a href="../reference/decode_values.html">decode_values</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/decode_names.html">decode_names</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Rename the verbose baseline date column to something concise</span></span>
+<span><span class="co"># Rename the verbose baseline date column to a shorter study-specific alias.</span></span>
+<span><span class="co"># This is optional but keeps downstream code concise; any name works as long</span></span>
+<span><span class="co"># as you pass the same name to baseline_col throughout.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="st">"date_of_attending_assessment_centre_i0"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"date_baseline"</span></span></code></pre></div>
 <hr>
 </div>
@@ -618,11 +622,12 @@ taken via <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-l
 </table>
 <blockquote>
 <p><strong>Why the earliest date matters</strong>:
-<code>disease_date</code> captures the true first occurrence of disease
-regardless of which source recorded it first. This column is the direct
-input to <code><a href="../reference/derive_timing.html">derive_timing()</a></code>, <code><a href="../reference/derive_age.html">derive_age()</a></code>, and
-<code><a href="../reference/derive_followup.html">derive_followup()</a></code> — it is the chronological anchor of every
-downstream survival analysis.</p>
+<code>disease_date</code> captures the earliest available date across
+contributing sources, regardless of which source recorded it first.
+Sources that are status-positive but date-missing do not contribute a
+date. This column is the direct input to <code><a href="../reference/derive_timing.html">derive_timing()</a></code>,
+<code><a href="../reference/derive_age.html">derive_age()</a></code>, and <code><a href="../reference/derive_followup.html">derive_followup()</a></code> — it is
+the chronological anchor of every downstream survival analysis.</p>
 </blockquote>
 <hr>
 </div>

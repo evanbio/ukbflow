@@ -150,8 +150,8 @@ fields (<code>p41270</code> and <code>p41280_a*</code>).</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>(character) Output column prefix, e.g. <code>"ad"</code> produces
-<code>ad_hes</code> and <code>ad_hes_date</code>.</p></dd>
+<dd><p>(character) Output column prefix, e.g. <code>"disease"</code> produces
+<code>disease_hes</code> and <code>disease_hes_date</code>.</p></dd>
 
 
 <dt id="arg-icd-">icd10<a class="anchor" aria-label="anchor" href="#arg-icd-"></a></dt>
@@ -200,7 +200,7 @@ matching codes (<code>IDate</code>).  <code>NA</code> if no date is available.</
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_hes</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_hes</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"copd"</span>,</span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_hes</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>,</span></span>
 <span class="r-in"><span>                 icd10 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"J440"</span>, <span class="st">"J441"</span><span class="op">)</span>, match <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">derive_hes</span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>,</span></span>
 <span class="r-in"><span>                 icd10 <span class="op">=</span> <span class="st">"^(E10|E11)"</span>, match <span class="op">=</span> <span class="st">"regex"</span><span class="op">)</span></span></span>

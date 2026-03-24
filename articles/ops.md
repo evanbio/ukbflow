@@ -14,8 +14,17 @@ cohort changes at each processing step.
 | [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md)             | Summarise missing values (NA and `""`) across all columns    |
 | [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md) | Record pipeline checkpoints and track dataset changes        |
 
-None of these functions modify your data or connect to the RAP — they
-are entirely read-only diagnostic and utility tools.
+[`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
+may query dx CLI and RAP authentication status as part of its health
+check. All other functions operate entirely locally:
+[`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+and [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md)
+are read-only;
+[`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+and its companions track and optionally clean up columns;
+[`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+removes withdrawn participants in-place. None of them read from or write
+to RAP storage.
 
 ------------------------------------------------------------------------
 
@@ -89,10 +98,10 @@ that covers all major UKB data domains:
 
 ``` r
 dt <- ops_toy()
-#> ✔ ops_toy: 1000 participants | 65 columns | scenario = "cohort" | seed = 42
+#> ✔ ops_toy: 1000 participants | 75 columns | scenario = "cohort" | seed = 42
 
 dim(dt)
-#> [1] 1000   65
+#> [1] 1000   75
 
 names(dt)
 #>  [1] "eid"          "p31"          "p34"          "p53_i0"
@@ -102,18 +111,19 @@ names(dt)
 
 Column groups included:
 
-| Group               | Columns                                                               |
-|---------------------|-----------------------------------------------------------------------|
-| Demographics        | `eid`, `p31`, `p34`, `p53_i0`, `p21022`                               |
-| Covariates          | `p21001_i0`, `p20116_i0`, `p1558_i0`, `p21000_i0`, `p22189`, `p54_i0` |
-| Genetic PCs         | `p22009_a1` – `p22009_a10`                                            |
-| Self-report disease | `p20002_i0_a0` – `a4`, `p20008_i0_a0` – `a4`                          |
-| HES                 | `p41270` (JSON array), `p41280_a0` – `a8`                             |
-| Cancer registry     | `p40006_i0` – `i2`, `p40005_i0` – `i2`, `p40011`, `p40012`            |
-| Death registry      | `p40001_i0`, `p40002_i0_a0` – `a2`, `p40000_i0`                       |
-| First occurrence    | `p131742`                                                             |
-| GRS columns         | `grs_bmi`, `grs_raw`, `grs_finngen`                                   |
-| Messy columns       | `messy_allna`, `messy_empty`, `messy_label`                           |
+| Group               | Columns                                                                        |
+|---------------------|--------------------------------------------------------------------------------|
+| Demographics        | `eid`, `p31`, `p34`, `p53_i0`, `p21022`                                        |
+| Covariates          | `p21001_i0`, `p20116_i0`, `p1558_i0`, `p21000_i0`, `p22189`, `p54_i0`          |
+| Genetic PCs         | `p22009_a1` – `p22009_a10`                                                     |
+| Self-report disease | `p20002_i0_a0` – `a4`, `p20008_i0_a0` – `a4`                                   |
+| Self-report cancer  | `p20001_i0_a0` – `a4`, `p20006_i0_a0` – `a4`                                   |
+| HES                 | `p41270` (JSON array), `p41280_a0` – `a8`                                      |
+| Cancer registry     | `p40006_i0` – `i2`, `p40011_i0` – `i2`, `p40012_i0` – `i2`, `p40005_i0` – `i2` |
+| Death registry      | `p40001_i0`, `p40002_i0_a0` – `a2`, `p40000_i0`                                |
+| First occurrence    | `p131742`                                                                      |
+| GRS columns         | `grs_bmi`, `grs_raw`, `grs_finngen`                                            |
+| Messy columns       | `messy_allna`, `messy_empty`, `messy_label`                                    |
 
 The messy columns deliberately stress-test
 [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md)
@@ -170,9 +180,14 @@ dt_random <- ops_toy(seed = NULL)   # different every call
 ## `ops_na()` — Missing Value Diagnostics
 
 [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md)
-scans every column for `NA` and empty strings (`""`), returning counts
-and percentages sorted by missingness. It is designed to be called
-before
+scans every column for `NA` **and empty strings (`""`)**, returning
+counts and percentages sorted by missingness. Counting `""` as missing
+is intentional — UKB exports frequently use empty strings as
+placeholders for absent text values, so
+[`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md)
+reports *effective* missingness rather than a plain
+[`is.na()`](https://rdrr.io/r/base/NA.html) count. It is designed to be
+called before
 [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md)
 to understand the data quality profile of a freshly extracted UKB
 dataset.
@@ -271,7 +286,13 @@ ops_snapshot(dt, label = "female_only")
 ```
 
 When `label` is omitted, snapshots are named `snapshot_1`, `snapshot_2`,
-etc. automatically.
+etc. automatically. Labels should be unique within a session: if the
+same label is used twice, the history row is appended again but the
+stored column list is overwritten — which can cause
+[`ops_snapshot_cols()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.md)
+and
+[`ops_snapshot_diff()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_diff.md)
+to behave unexpectedly.
 
 ### Viewing the full history
 
@@ -308,6 +329,98 @@ ops_snapshot(reset = TRUE)
 > **Session scope**: the snapshot history lives in ukbflow’s session
 > cache and is cleared when the R session ends or when
 > `ops_snapshot(reset = TRUE)` is called. It is not written to disk.
+
+------------------------------------------------------------------------
+
+## Snapshot Helpers
+
+### `ops_snapshot_cols()` — column names at a checkpoint
+
+Returns the column names recorded at a given snapshot label, minus
+protected columns (`eid`, `sex`, `age`, `age_at_recruitment`, and any
+registered via
+[`ops_set_safe_cols()`](https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.md)).
+The primary use is building a drop vector after the raw columns are no
+longer needed.
+
+``` r
+raw_cols <- ops_snapshot_cols("raw")
+# raw_cols is a character vector of droppable column names
+```
+
+Pass `keep` to protect additional columns beyond the defaults:
+
+``` r
+raw_cols <- ops_snapshot_cols("raw", keep = "p53_i0")
+```
+
+### `ops_snapshot_diff()` — compare two checkpoints
+
+Returns lists of columns added and removed between two snapshots —
+useful for auditing what `derive_*` functions produced.
+
+``` r
+result <- ops_snapshot_diff("raw", "after_derive_missing")
+result$added    # columns added in this step
+result$removed  # columns dropped in this step
+```
+
+### `ops_snapshot_remove()` — drop raw columns after deriving
+
+Removes the raw columns captured at a snapshot from `data`, keeping any
+derived columns added since. Built-in safe columns (`eid`, etc.) and
+columns supplied in `keep` are always retained.
+
+``` r
+# After deriving, drop the original raw columns
+dt <- ops_snapshot_remove(dt, from = "raw")
+#> ✔ ops_snapshot_remove: dropped 60 raw columns, 15 remaining.
+```
+
+For `data.table` input the operation is by reference (in-place); for
+`data.frame` input a new `data.table` is returned and the original is
+not modified.
+
+### `ops_set_safe_cols()` — register study-specific protected columns
+
+Adds column names to the session safe list so they are never dropped by
+[`ops_snapshot_cols()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.md)
+or
+[`ops_snapshot_remove()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.md).
+
+``` r
+ops_set_safe_cols(c("date_baseline", "age_at_recruitment"))
+
+# Clear registered safe cols
+ops_set_safe_cols(reset = TRUE)
+```
+
+------------------------------------------------------------------------
+
+## `ops_withdraw()` — Exclude Withdrawn Participants
+
+UK Biobank periodically issues withdrawal files listing participants who
+have revoked consent.
+[`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
+reads the headerless single-column CSV supplied by UKB and removes
+matching rows from your dataset. Two snapshots (`before_withdraw` /
+`after_withdraw`) are recorded automatically.
+
+``` r
+dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
+#> ── snapshot: before_withdraw ───────────────────────────────────────────────
+#>   rows      502,492
+#>   ...
+#> ── snapshot: after_withdraw ────────────────────────────────────────────────
+#>   rows      502,489  (-3)
+#>   ...
+#> ℹ Withdrawal file: w854944_20260310.csv (312 IDs)
+#> ✖ Excluded: 3 participants found in data
+#> ✔ Remaining: 502,489 participants
+```
+
+Run this immediately after loading your extracted dataset, before any
+`derive_*` steps, so withdrawn participants never enter the analysis.
 
 ------------------------------------------------------------------------
 
@@ -352,6 +465,11 @@ ops_snapshot()
   [`?ops_toy`](https://evanbio.github.io/ukbflow/reference/ops_toy.md),
   [`?ops_na`](https://evanbio.github.io/ukbflow/reference/ops_na.md),
   [`?ops_snapshot`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+- [`?ops_snapshot_cols`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_cols.md),
+  [`?ops_snapshot_diff`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_diff.md),
+  [`?ops_snapshot_remove`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.md),
+  [`?ops_set_safe_cols`](https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.md)
+- [`?ops_withdraw`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
 - [`vignette("get-started")`](https://evanbio.github.io/ukbflow/articles/get-started.md)
   — end-to-end pipeline overview
 - [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md)

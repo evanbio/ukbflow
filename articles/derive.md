@@ -20,8 +20,9 @@ derivation pipeline:
 | 10   | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)                         | Merge self-report + ICD-10 into final case definition |
 
 All functions accept a `data.frame` or `data.table` and return a
-`data.table` with new columns added **in-place** (no copy for
-`data.table` input).
+`data.table`. For `data.table` input, new columns are added **by
+reference** (no copy); `data.frame` input is converted to `data.table`
+internally before modification.
 
 > **Prerequisite**: data should have been extracted with
 > [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)
@@ -38,8 +39,9 @@ All functions accept a `data.frame` or `data.table` and return a
 
 ## Extracting the Required Fields
 
-The field IDs below are **universal across all UKB projects**. Include
-the fields relevant to your analysis:
+The field IDs below are standard UKB field identifiers; actual
+availability depends on your project approvals. Include the fields
+relevant to your analysis:
 
 ``` r
 library(ukbflow)
@@ -73,7 +75,9 @@ df <- extract_pheno(c(
   decode_values() |>
   decode_names()
 
-# Rename the verbose baseline date column to something concise
+# Rename the verbose baseline date column to a shorter study-specific alias.
+# This is optional but keeps downstream code concise; any name works as long
+# as you pass the same name to baseline_col throughout.
 names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"
 ```
 
@@ -352,9 +356,11 @@ Output columns:
 | `disease_status` | logical | `TRUE` if positive in self-report OR ICD-10   |
 | `disease_date`   | IDate   | **Earliest** date across all sources (`pmin`) |
 
-> **Why the earliest date matters**: `disease_date` captures the true
-> first occurrence of disease regardless of which source recorded it
-> first. This column is the direct input to
+> **Why the earliest date matters**: `disease_date` captures the
+> earliest available date across contributing sources, regardless of
+> which source recorded it first. Sources that are status-positive but
+> date-missing do not contribute a date. This column is the direct input
+> to
 > [`derive_timing()`](https://evanbio.github.io/ukbflow/reference/derive_timing.md),
 > [`derive_age()`](https://evanbio.github.io/ukbflow/reference/derive_age.md),
 > and

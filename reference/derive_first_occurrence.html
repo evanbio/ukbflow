@@ -136,13 +136,13 @@ and writes two analysis-ready columns:</p>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>(character) Output column prefix, e.g. <code>"ad"</code> produces
-<code>ad_fo</code> and <code>ad_fo_date</code>.</p></dd>
+<dd><p>(character) Output column prefix, e.g. <code>"disease"</code> produces
+<code>disease_fo</code> and <code>disease_fo_date</code>.</p></dd>
 
 
 <dt id="arg-field">field<a class="anchor" aria-label="anchor" href="#arg-field"></a></dt>
 <dd><p>(integer or character) UKB field ID of the First Occurrence
-field, e.g. <code>131720</code> for L20 (atopic dermatitis).</p></dd>
+field, e.g. <code>131666</code> for E11 (type 2 diabetes).</p></dd>
 
 
 <dt id="arg-col">col<a class="anchor" aria-label="anchor" href="#arg-col"></a></dt>
@@ -173,9 +173,9 @@ for time-to-event and prevalent/incident classification.</p></dd>
 
 </dl><p><strong>Column detection</strong>: the function locates the source column
 automatically from <code>field</code>, handling both the raw format used by
-<code><a href="extract_pheno.html">extract_pheno</a></code> (<code>participant.p131720</code>) and the
+<code><a href="extract_pheno.html">extract_pheno</a></code> (<code>participant.p131666</code>) and the
 snake_case format produced by <code><a href="decode_names.html">decode_names</a></code>
-(<code>date_l20_first_reported_atopic_dermatitis</code>).  Supply <code>col</code>
+(<code>date_e11_first_reported_type_2_diabetes</code>).  Supply <code>col</code>
 to override auto-detection.</p>
 <p><strong>data.table pass-by-reference</strong>: when the input is a
 <code>data.table</code>, new columns are added in-place via <code>:=</code>.

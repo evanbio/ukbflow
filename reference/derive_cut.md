@@ -23,7 +23,8 @@ derive_cut(data, col, n, breaks = NULL, labels = NULL, name = NULL)
 
 - n:
 
-  (integer) Number of groups. Supported values: `2`, `3`, `4`, `5`.
+  (integer) Number of groups. Any integer `>= 2` is accepted. Commonly
+  used values are `2`, `3`, `4`, `5`.
 
 - breaks:
 
@@ -40,7 +41,7 @@ derive_cut(data, col, n, breaks = NULL, labels = NULL, name = NULL)
 
   (character or NULL) Name for the new column. Defaults to `"{col}_bi"`
   / `"{col}_tri"` / `"{col}_quad"` / `"{col}_quin"` for `n` = 2 / 3 / 4
-  / 5.
+  / 5; other values of `n` produce `"{col}_g{n}"`.
 
 ## Value
 

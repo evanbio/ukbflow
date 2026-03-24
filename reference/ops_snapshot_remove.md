@@ -35,8 +35,10 @@ ops_snapshot_remove(data, from, keep = NULL, verbose = TRUE)
 
 ## Value
 
-The input `data` with raw columns removed in-place (for data.table) or a
-modified copy (for data.frame). Always returns a data.table.
+A `data.table` with the specified columns removed. For `data.table`
+input the operation is performed by reference (in-place); for
+`data.frame` input the data is first converted to a new `data.table` —
+the original `data.frame` is not modified.
 
 ## Examples
 

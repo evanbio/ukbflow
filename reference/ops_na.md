@@ -1,9 +1,8 @@
 # Summarise missing values by column
 
 Scans each column of a data.frame or data.table and returns the count
-and percentage of missing values (NA or empty string `""`). Results are
-sorted by missingness in descending order. Columns above 10\\ those
-between 0\\ regardless of `threshold`.
+and percentage of missing values. Results are sorted by missingness in
+descending order. Columns above 10\\ and 10\\ `threshold`.
 
 ## Usage
 
@@ -30,8 +29,18 @@ ops_na(data, threshold = 0, verbose = TRUE)
 ## Value
 
 An invisible data.table with columns `column`, `n_na`, and `pct_na`,
-sorted by `pct_na` descending. Always contains all columns regardless of
-`threshold` (which only affects CLI output).
+sorted by `pct_na` descending. `n_na` counts both `NA` and `""`. Always
+contains all columns regardless of `threshold` (which only affects CLI
+output).
+
+## Details
+
+**Missing value definition**: a value is counted as missing if it is
+`NA` *or* an empty string (`""`). Empty strings are treated as missing
+because UKB exports frequently use `""` as a placeholder for absent text
+values. This means `n_na` and `pct_na` reflect *effective* missingness,
+not just [`is.na()`](https://rdrr.io/r/base/NA.html). Numeric and
+logical columns are not affected (they cannot hold `""`).
 
 ## Examples
 

@@ -183,8 +183,13 @@ columns</td>
 </tr>
 </tbody>
 </table>
-<p>None of these functions modify your data or connect to the RAP — they
-are entirely read-only diagnostic and utility tools.</p>
+<p><code><a href="../reference/ops_setup.html">ops_setup()</a></code> may query dx CLI and RAP authentication
+status as part of its health check. All other functions operate entirely
+locally: <code><a href="../reference/ops_toy.html">ops_toy()</a></code> and <code><a href="../reference/ops_na.html">ops_na()</a></code> are read-only;
+<code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code> and its companions track and optionally
+clean up columns; <code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code> removes withdrawn
+participants in-place. None of them read from or write to RAP
+storage.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -249,10 +254,10 @@ it to develop and test <code>derive_*</code>, <code>assoc_*</code>, and
 participant-level table that covers all major UKB data domains:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ ops_toy: 1000 participants | 65 columns | scenario = "cohort" | seed = 42</span></span>
+<span><span class="co">#&gt; ✔ ops_toy: 1000 participants | 75 columns | scenario = "cohort" | seed = 42</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1000   65</span></span>
+<span><span class="co">#&gt; [1] 1000   75</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "eid"          "p31"          "p34"          "p53_i0"</span></span>
@@ -298,38 +303,46 @@ participant-level table that covers all major UKB data domains:</p>
 </td>
 </tr>
 <tr class="odd">
+<td>Self-report cancer</td>
+<td>
+<code>p20001_i0_a0</code> – <code>a4</code>,
+<code>p20006_i0_a0</code> – <code>a4</code>
+</td>
+</tr>
+<tr class="even">
 <td>HES</td>
 <td>
 <code>p41270</code> (JSON array), <code>p41280_a0</code> –
 <code>a8</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Cancer registry</td>
 <td>
-<code>p40006_i0</code> – <code>i2</code>, <code>p40005_i0</code> –
-<code>i2</code>, <code>p40011</code>, <code>p40012</code>
+<code>p40006_i0</code> – <code>i2</code>, <code>p40011_i0</code> –
+<code>i2</code>, <code>p40012_i0</code> – <code>i2</code>,
+<code>p40005_i0</code> – <code>i2</code>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Death registry</td>
 <td>
 <code>p40001_i0</code>, <code>p40002_i0_a0</code> – <code>a2</code>,
 <code>p40000_i0</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>First occurrence</td>
 <td><code>p131742</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>GRS columns</td>
 <td>
 <code>grs_bmi</code>, <code>grs_raw</code>,
 <code>grs_finngen</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Messy columns</td>
 <td>
 <code>messy_allna</code>, <code>messy_empty</code>,
@@ -386,11 +399,15 @@ testing <code><a href="../reference/plot_forest.html">plot_forest()</a></code> w
 <h2 id="ops_na-missing-value-diagnostics">
 <code>ops_na()</code> — Missing Value Diagnostics<a class="anchor" aria-label="anchor" href="#ops_na-missing-value-diagnostics"></a>
 </h2>
-<p><code><a href="../reference/ops_na.html">ops_na()</a></code> scans every column for <code>NA</code> and
-empty strings (<code>""</code>), returning counts and percentages sorted
-by missingness. It is designed to be called before
-<code><a href="../reference/derive_missing.html">derive_missing()</a></code> to understand the data quality profile of
-a freshly extracted UKB dataset.</p>
+<p><code><a href="../reference/ops_na.html">ops_na()</a></code> scans every column for <code>NA</code>
+<strong>and empty strings (<code>""</code>)</strong>, returning counts
+and percentages sorted by missingness. Counting <code>""</code> as
+missing is intentional — UKB exports frequently use empty strings as
+placeholders for absent text values, so <code><a href="../reference/ops_na.html">ops_na()</a></code> reports
+<em>effective</em> missingness rather than a plain <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code>
+count. It is designed to be called before <code><a href="../reference/derive_missing.html">derive_missing()</a></code>
+to understand the data quality profile of a freshly extracted UKB
+dataset.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ops_na.html">ops_na</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
@@ -481,8 +498,11 @@ change through the pipeline.</p>
 <span><span class="co">#&gt;   size       0.36 MB  (-0.25 MB)</span></span>
 <span><span class="co">#&gt; ────────────────────────────────────────────────────────────────────────────</span></span></code></pre></div>
 <p>When <code>label</code> is omitted, snapshots are named
-<code>snapshot_1</code>, <code>snapshot_2</code>, etc.
-automatically.</p>
+<code>snapshot_1</code>, <code>snapshot_2</code>, etc. automatically.
+Labels should be unique within a session: if the same label is used
+twice, the history row is appended again but the stored column list is
+overwritten — which can cause <code><a href="../reference/ops_snapshot_cols.html">ops_snapshot_cols()</a></code> and
+<code><a href="../reference/ops_snapshot_diff.html">ops_snapshot_diff()</a></code> to behave unexpectedly.</p>
 </div>
 <div class="section level3">
 <h3 id="viewing-the-full-history">Viewing the full history<a class="anchor" aria-label="anchor" href="#viewing-the-full-history"></a>
@@ -522,11 +542,101 @@ disk.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="snapshot-helpers">Snapshot Helpers<a class="anchor" aria-label="anchor" href="#snapshot-helpers"></a>
+</h2>
+<div class="section level3">
+<h3 id="ops_snapshot_cols-column-names-at-a-checkpoint">
+<code>ops_snapshot_cols()</code> — column names at a checkpoint<a class="anchor" aria-label="anchor" href="#ops_snapshot_cols-column-names-at-a-checkpoint"></a>
+</h3>
+<p>Returns the column names recorded at a given snapshot label, minus
+protected columns (<code>eid</code>, <code>sex</code>, <code>age</code>,
+<code>age_at_recruitment</code>, and any registered via
+<code><a href="../reference/ops_set_safe_cols.html">ops_set_safe_cols()</a></code>). The primary use is building a drop
+vector after the raw columns are no longer needed.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">raw_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_snapshot_cols.html">ops_snapshot_cols</a></span><span class="op">(</span><span class="st">"raw"</span><span class="op">)</span></span>
+<span><span class="co"># raw_cols is a character vector of droppable column names</span></span></code></pre></div>
+<p>Pass <code>keep</code> to protect additional columns beyond the
+defaults:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">raw_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_snapshot_cols.html">ops_snapshot_cols</a></span><span class="op">(</span><span class="st">"raw"</span>, keep <span class="op">=</span> <span class="st">"p53_i0"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="ops_snapshot_diff-compare-two-checkpoints">
+<code>ops_snapshot_diff()</code> — compare two checkpoints<a class="anchor" aria-label="anchor" href="#ops_snapshot_diff-compare-two-checkpoints"></a>
+</h3>
+<p>Returns lists of columns added and removed between two snapshots —
+useful for auditing what <code>derive_*</code> functions produced.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_snapshot_diff.html">ops_snapshot_diff</a></span><span class="op">(</span><span class="st">"raw"</span>, <span class="st">"after_derive_missing"</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">added</span>    <span class="co"># columns added in this step</span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">removed</span>  <span class="co"># columns dropped in this step</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="ops_snapshot_remove-drop-raw-columns-after-deriving">
+<code>ops_snapshot_remove()</code> — drop raw columns after
+deriving<a class="anchor" aria-label="anchor" href="#ops_snapshot_remove-drop-raw-columns-after-deriving"></a>
+</h3>
+<p>Removes the raw columns captured at a snapshot from
+<code>data</code>, keeping any derived columns added since. Built-in
+safe columns (<code>eid</code>, etc.) and columns supplied in
+<code>keep</code> are always retained.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># After deriving, drop the original raw columns</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_snapshot_remove.html">ops_snapshot_remove</a></span><span class="op">(</span><span class="va">dt</span>, from <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ ops_snapshot_remove: dropped 60 raw columns, 15 remaining.</span></span></code></pre></div>
+<p>For <code>data.table</code> input the operation is by reference
+(in-place); for <code>data.frame</code> input a new
+<code>data.table</code> is returned and the original is not
+modified.</p>
+</div>
+<div class="section level3">
+<h3 id="ops_set_safe_cols-register-study-specific-protected-columns">
+<code>ops_set_safe_cols()</code> — register study-specific protected
+columns<a class="anchor" aria-label="anchor" href="#ops_set_safe_cols-register-study-specific-protected-columns"></a>
+</h3>
+<p>Adds column names to the session safe list so they are never dropped
+by <code><a href="../reference/ops_snapshot_cols.html">ops_snapshot_cols()</a></code> or
+<code><a href="../reference/ops_snapshot_remove.html">ops_snapshot_remove()</a></code>.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ops_set_safe_cols.html">ops_set_safe_cols</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"date_baseline"</span>, <span class="st">"age_at_recruitment"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Clear registered safe cols</span></span>
+<span><span class="fu"><a href="../reference/ops_set_safe_cols.html">ops_set_safe_cols</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="ops_withdraw-exclude-withdrawn-participants">
+<code>ops_withdraw()</code> — Exclude Withdrawn Participants<a class="anchor" aria-label="anchor" href="#ops_withdraw-exclude-withdrawn-participants"></a>
+</h2>
+<p>UK Biobank periodically issues withdrawal files listing participants
+who have revoked consent. <code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code> reads the
+headerless single-column CSV supplied by UKB and removes matching rows
+from your dataset. Two snapshots (<code>before_withdraw</code> /
+<code>after_withdraw</code>) are recorded automatically.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_withdraw.html">ops_withdraw</a></span><span class="op">(</span><span class="va">dt</span>, file <span class="op">=</span> <span class="st">"w854944_20260310.csv"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── snapshot: before_withdraw ───────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   rows      502,492</span></span>
+<span><span class="co">#&gt;   ...</span></span>
+<span><span class="co">#&gt; ── snapshot: after_withdraw ────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   rows      502,489  (-3)</span></span>
+<span><span class="co">#&gt;   ...</span></span>
+<span><span class="co">#&gt; ℹ Withdrawal file: w854944_20260310.csv (312 IDs)</span></span>
+<span><span class="co">#&gt; ✖ Excluded: 3 participants found in data</span></span>
+<span><span class="co">#&gt; ✔ Remaining: 502,489 participants</span></span></code></pre></div>
+<p>Run this immediately after loading your extracted dataset, before any
+<code>derive_*</code> steps, so withdrawn participants never enter the
+analysis.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="typical-workflow">Typical Workflow<a class="anchor" aria-label="anchor" href="#typical-workflow"></a>
 </h2>
 <p>The four <code>ops_*</code> functions form a natural bookend around
 the core pipeline:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Verify environment before starting</span></span>
@@ -562,6 +672,11 @@ the core pipeline:</p>
 <code><a href="../reference/ops_setup.html">?ops_setup</a></code>, <code><a href="../reference/ops_toy.html">?ops_toy</a></code>,
 <code><a href="../reference/ops_na.html">?ops_na</a></code>, <code><a href="../reference/ops_snapshot.html">?ops_snapshot</a></code>
 </li>
+<li>
+<code><a href="../reference/ops_snapshot_cols.html">?ops_snapshot_cols</a></code>, <code><a href="../reference/ops_snapshot_diff.html">?ops_snapshot_diff</a></code>,
+<code><a href="../reference/ops_snapshot_remove.html">?ops_snapshot_remove</a></code>, <code><a href="../reference/ops_set_safe_cols.html">?ops_set_safe_cols</a></code>
+</li>
+<li><code><a href="../reference/ops_withdraw.html">?ops_withdraw</a></code></li>
 <li>
 <code><a href="../articles/get-started.html">vignette("get-started")</a></code> — end-to-end pipeline
 overview</li>
