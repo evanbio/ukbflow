@@ -211,7 +211,7 @@
     'cli_alert_info("{length(chr_results)}/22 chromosomes succeeded; {length(failed_chrs)} failed")',
     "",
     "# --- Merge chromosomes: sum SCORE1_SUM across all successful chromosomes ---",
-    "# Right-join keeps all individuals; NA score_next (absent from a chr) ->  0",
+    "# nxt[merged, ...] is a right-join on merged; NA score_next (chr absent) -> 0",
     "merged <- chr_results[[1L]]",
     'setnames(merged, "SCORE1_SUM", "score_sum")',
     "",

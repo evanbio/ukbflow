@@ -50,11 +50,8 @@
 #' }
 grs_check <- function(file, dest = "weights.txt") {
 
-  # ---------------------------------------------------------------------------
-  # 1. Read
-  # ---------------------------------------------------------------------------
-  if (!file.exists(file))
-    cli::cli_abort("File not found: {.path {file}}", call = NULL)
+  # Read
+  .assert_file_exists(file)
 
   dt <- data.table::fread(file, data.table = TRUE)
   if (nrow(dt) == 0L)
@@ -64,9 +61,7 @@ grs_check <- function(file, dest = "weights.txt") {
   if ("effect_allele" %in% names(dt))
     dt[, effect_allele := toupper(effect_allele)]
 
-  # ---------------------------------------------------------------------------
-  # 2. Required columns
-  # ---------------------------------------------------------------------------
+  # Required columns
   required    <- c("snp", "effect_allele", "beta")
   missing_cols <- setdiff(required, names(dt))
   if (length(missing_cols) > 0L)
@@ -77,25 +72,19 @@ grs_check <- function(file, dest = "weights.txt") {
 
   w <- dt[, ..required]
 
-  # ---------------------------------------------------------------------------
-  # 3. NA check
-  # ---------------------------------------------------------------------------
+  # NA check
   n_na <- sum(!stats::complete.cases(w))
   if (n_na > 0L)
     cli::cli_abort("{n_na} row(s) have NA in required columns - remove before proceeding.", call = NULL)
   cli::cli_alert_success("No NA values.")
 
-  # ---------------------------------------------------------------------------
-  # 4. Duplicate SNPs
-  # ---------------------------------------------------------------------------
+  # Duplicate SNPs
   n_dup <- sum(duplicated(w$snp))
   if (n_dup > 0L)
     cli::cli_abort("{n_dup} duplicate SNP ID(s) found - each SNP must appear once.", call = NULL)
   cli::cli_alert_success("No duplicate SNPs.")
 
-  # ---------------------------------------------------------------------------
-  # 5. SNP format: rs + digits
-  # ---------------------------------------------------------------------------
+  # SNP format: rs + digits
   n_bad_rs <- sum(!grepl("^rs[0-9]+$", w$snp))
   if (n_bad_rs > 0L)
     cli::cli_warn(
@@ -105,9 +94,7 @@ grs_check <- function(file, dest = "weights.txt") {
   else
     cli::cli_alert_success("All SNP IDs match rs[0-9]+ format.")
 
-  # ---------------------------------------------------------------------------
-  # 6. Effect allele: A / T / C / G only
-  # ---------------------------------------------------------------------------
+  # Effect allele: A / T / C / G only
   n_bad_al <- sum(!w$effect_allele %in% c("A", "T", "C", "G"))
   if (n_bad_al > 0L)
     cli::cli_warn(
@@ -117,15 +104,11 @@ grs_check <- function(file, dest = "weights.txt") {
   else
     cli::cli_alert_success("All effect alleles are A/T/C/G.")
 
-  # ---------------------------------------------------------------------------
-  # 7. Beta: numeric
-  # ---------------------------------------------------------------------------
+  # Beta: numeric
   if (!is.numeric(w$beta))
     cli::cli_abort("{.field beta} must be numeric (found {.cls {class(w$beta)}}).", call = NULL)
 
-  # ---------------------------------------------------------------------------
-  # 8. Beta summary
-  # ---------------------------------------------------------------------------
+  # Beta summary
   n_pos  <- sum(w$beta >  0)
   n_neg  <- sum(w$beta <  0)
   n_zero <- sum(w$beta == 0)
@@ -139,16 +122,11 @@ grs_check <- function(file, dest = "weights.txt") {
     " " = "Zero      : {n_zero}"
   ))
 
-  # ---------------------------------------------------------------------------
-  # 9. Final summary
-  # ---------------------------------------------------------------------------
   cli::cli_alert_success(
     "Weights file passed checks: {.strong {nrow(w)} SNPs} ready for UKB RAP."
   )
 
-  # ---------------------------------------------------------------------------
-  # 10. Write plink2-compatible output (space-delimited, no quotes)
-  # ---------------------------------------------------------------------------
+  # Write plink2-compatible output (space-delimited, no quotes)
   data.table::fwrite(w, dest, sep = " ", quote = FALSE)
   cli::cli_alert_success("Saved: {.path {dest}}")
 
@@ -219,9 +197,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
                            instance = "standard",
                            priority = "low") {
 
-  # ---------------------------------------------------------------------------
-  # 1. Validate
-  # ---------------------------------------------------------------------------
+  # Validate
   instance <- match.arg(instance, c("standard", "large"))
   priority <- match.arg(priority, c("low", "high"))
 
@@ -238,9 +214,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
       "i" = "Consider {.code instance = \"large\"} (mem2_ssd2_v2_x8, 640 GB SSD) for these chromosomes."
     ))
 
-  # ---------------------------------------------------------------------------
-  # 2. Instance config (mirrors scripts 06 and 13)
-  # ---------------------------------------------------------------------------
+  # Instance config (mirrors scripts 06 and 13)
   if (instance == "standard") {
     instance_type <- "mem2_ssd1_v2_x4"
     n_threads     <- 4L
@@ -251,16 +225,12 @@ grs_bgen2pgen <- function(chr      = 1:22,
     plink_memory  <- 28000L
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Verify project context
-  # ---------------------------------------------------------------------------
+  # Verify project context
   project_id <- .dx_get_project_id()
   if (is.na(project_id) || !nzchar(project_id))
     cli::cli_abort("No project selected. Run {.fn auth_select_project} first.", call = NULL)
 
-  # ---------------------------------------------------------------------------
-  # 4. Generate driver script, write to tempfile, upload to RAP
-  # ---------------------------------------------------------------------------
+  # Generate driver script, write to tempfile, upload to RAP
   script_name   <- if (instance == "standard") "grs_bgen2pgen_std.R"
                    else                         "grs_bgen2pgen_lrg.R"
   script_remote <- paste0("/", script_name)
@@ -284,9 +254,7 @@ grs_bgen2pgen <- function(chr      = 1:22,
     cli::cli_alert_success("Uploaded: {.val {script_remote}}")
   }
 
-  # ---------------------------------------------------------------------------
-  # 5. Submit one Swiss Army Knife job per chromosome
-  # ---------------------------------------------------------------------------
+  # Submit one Swiss Army Knife job per chromosome
   cli::cli_inform(
     "Submitting {length(chr)} job(s) -- {instance_type} / priority: {priority}"
   )
@@ -399,9 +367,7 @@ grs_score <- function(file,
                       instance = "standard",
                       priority = "low") {
 
-  # ---------------------------------------------------------------------------
-  # 1. Validate arguments
-  # ---------------------------------------------------------------------------
+  # Validate arguments
   instance <- match.arg(instance, c("standard", "large"))
   priority <- match.arg(priority, c("low", "high"))
 
@@ -425,9 +391,7 @@ grs_score <- function(file,
       setNames(missing_local, rep("x", length(missing_local)))
     ), call = NULL)
 
-  # ---------------------------------------------------------------------------
-  # 2. Instance config
-  # ---------------------------------------------------------------------------
+  # Instance config
   if (instance == "standard") {
     instance_type <- "mem2_ssd1_v2_x4"
     n_threads     <- 4L
@@ -438,19 +402,15 @@ grs_score <- function(file,
     plink_memory  <- 28000L
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Verify project context
-  # ---------------------------------------------------------------------------
+  # Verify project context
   project_id <- .dx_get_project_id()
   if (is.na(project_id) || !nzchar(project_id))
     cli::cli_abort("No project selected. Run {.fn auth_select_project} first.", call = NULL)
 
-  # ---------------------------------------------------------------------------
-  # 4. Upload weight files to RAP root
+  # Upload weight files to RAP root
   # Reason: SAK jobs access /mnt/project/<name>; uploading to root means the
   # driver script can read them at /mnt/project/<basename>.
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("Uploading {length(file)} weight file(s) to RAP")
+  cli::cli_rule(left = sprintf("Uploading %d weight file(s) to RAP", length(file)))
 
   existing <- tryCatch(fetch_ls(".", type = "file"), error = function(e) NULL)
   existing_names <- if (!is.null(existing)) existing$name else character(0L)
@@ -484,9 +444,7 @@ grs_score <- function(file,
     cli::cli_alert_success("Uploaded: {.val {remote_path}}")
   }
 
-  # ---------------------------------------------------------------------------
-  # 5. Generate driver script, upload once to RAP root
-  # ---------------------------------------------------------------------------
+  # Generate driver script, upload once to RAP root
   script_name   <- if (instance == "standard") "grs_score_std.R"
                    else                         "grs_score_lrg.R"
   script_remote <- paste0("/", script_name)
@@ -511,9 +469,7 @@ grs_score <- function(file,
     cli::cli_alert_success("Uploaded: {.val {script_remote}}")
   }
 
-  # ---------------------------------------------------------------------------
-  # 6. Submit one Swiss Army Knife job per GRS
-  # ---------------------------------------------------------------------------
+  # Submit one Swiss Army Knife job per GRS
   cli::cli_inform(
     "Submitting {length(file)} job(s) -- {instance_type} / priority: {priority}"
   )
@@ -592,17 +548,12 @@ grs_score <- function(file,
 #' grs_zscore(dt)   # identical
 grs_standardize <- function(data, grs_cols = NULL) {
 
-  # ---------------------------------------------------------------------------
-  # 1. Validate data
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
+  # Validate data
+  .assert_data_frame(data)
 
   dt <- data.table::as.data.table(data)
 
-  # ---------------------------------------------------------------------------
-  # 2. Resolve target columns
-  # ---------------------------------------------------------------------------
+  # Resolve target columns
   if (is.null(grs_cols)) {
     grs_cols <- names(dt)[grepl("grs", names(dt), ignore.case = TRUE)]
     if (length(grs_cols) == 0L)
@@ -614,9 +565,7 @@ grs_standardize <- function(data, grs_cols = NULL) {
       cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}", call = NULL)
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Z-score each column: add _z column immediately after source column
-  # ---------------------------------------------------------------------------
+  # Z-score each column: add _z column immediately after source column
   for (col in grs_cols) {
     x       <- dt[[col]]
     mu      <- mean(x, na.rm = TRUE)
@@ -722,11 +671,8 @@ grs_validate <- function(data,
                          time_col    = NULL,
                          covariates  = NULL) {
 
-  # ---------------------------------------------------------------------------
-  # 1. Validate inputs
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
+  # Validate inputs
+  .assert_data_frame(data)
 
   # Work on a copy so derive_cut() in-place ops don't touch the user's data
   dt <- data.table::copy(data.table::as.data.table(data))
@@ -742,12 +688,17 @@ grs_validate <- function(data,
   if (length(missing_cols) > 0L)
     cli::cli_abort("Column(s) not found in data: {.val {missing_cols}}", call = NULL)
 
+  non_numeric <- grs_cols[!vapply(grs_cols, function(col) is.numeric(dt[[col]]), logical(1L))]
+  if (length(non_numeric) > 0L)
+    cli::cli_abort(
+      "GRS column(s) must be numeric: {.val {non_numeric}}",
+      call = NULL
+    )
+
   is_cox <- !is.null(time_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Create Q4 (quartile) and E3 (20/60/20) grouping columns via derive_cut
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("Creating GRS groups")
+  # Create Q4 (quartile) and E3 (20/60/20) grouping columns via derive_cut
+  cli::cli_rule(left = "Creating GRS groups")
 
   quad_cols <- setNames(paste0(grs_cols, "_quad"), grs_cols)
   tri_cols  <- setNames(paste0(grs_cols, "_tri"),  grs_cols)
@@ -764,10 +715,8 @@ grs_validate <- function(data,
     dt[, (tri_cols[col]) := relevel(factor(get(tri_cols[col])), ref = "Low")]
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Effect per SD
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("Effect per SD ({if (is_cox) 'HR' else 'OR'})")
+  # Effect per SD
+  cli::cli_rule(left = sprintf("Effect per SD (%s)", if (is_cox) "HR" else "OR"))
 
   per_sd <- if (is_cox) {
     assoc_coxph(dt,
@@ -779,10 +728,8 @@ grs_validate <- function(data,
                    exposure_col = grs_cols,   covariates = covariates)
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. High vs Low (E3 grouping; keep only the High row from results)
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("High vs Low")
+  # High vs Low (E3 grouping; keep only the High row from results)
+  cli::cli_rule(left = "High vs Low")
 
   high_vs_low <- if (is_cox) {
     assoc_coxph(dt,
@@ -795,10 +742,8 @@ grs_validate <- function(data,
   }
   high_vs_low <- high_vs_low[grepl("High$", term)]
 
-  # ---------------------------------------------------------------------------
-  # 5. Trend test across Q4 quartiles
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("Trend test")
+  # Trend test across Q4 quartiles
+  cli::cli_rule(left = "Trend test")
 
   trend <- assoc_trend(dt,
                        outcome_col  = outcome_col,
@@ -807,10 +752,8 @@ grs_validate <- function(data,
                        method       = if (is_cox) "coxph" else "logistic",
                        covariates   = covariates)
 
-  # ---------------------------------------------------------------------------
-  # 6. Discrimination: AUC (logistic) or C-index (Cox)
-  # ---------------------------------------------------------------------------
-  cli::cli_h1("{if (is_cox) 'C-index' else 'AUC'}")
+  # Discrimination: AUC (logistic) or C-index (Cox)
+  cli::cli_rule(left = if (is_cox) "C-index" else "AUC")
 
   if (!is_cox && !requireNamespace("pROC", quietly = TRUE))
     cli::cli_abort(

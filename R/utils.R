@@ -185,6 +185,18 @@
 }
 
 
+#' Assert that a file path exists
+#'
+#' @keywords internal
+#' @noRd
+.assert_file_exists <- function(x, arg = deparse(substitute(x))) {
+  if (!file.exists(x)) {
+    cli::cli_abort("File not found: {.path {x}}", call = NULL)
+  }
+  invisible(x)
+}
+
+
 #' Assert that required columns are present in a data.frame
 #'
 #' Reports all missing columns in a single error rather than stopping at the
