@@ -3,11 +3,6 @@
 # =============================================================================
 
 
-# Null-coalescing operator: return lhs unless it is NULL, then return rhs.
-# Defined internally to avoid importing rlang just for this operator.
-`%||%` <- function(lhs, rhs) if (!is.null(lhs)) lhs else rhs
-
-
 # UKB labels that carry informative missingness (refusal / uncertainty).
 # These are converted to NA or "Unknown" depending on the action parameter.
 # "" (empty string) is handled separately — always converted to NA.
@@ -86,7 +81,7 @@
 #   2. Fallback → raw "p{field_id}" pattern (works before decode_names)
 # Returns NULL if not found.
 .detect_fo_col <- function(data, field_id) {
-  fields_df <- .ukbflow_cache$fields
+  fields_df <- tryCatch(suppressMessages(extract_ls()), error = function(e) NULL)
 
   if (!is.null(fields_df)) {
     idx <- grep(paste0("p", field_id), fields_df$field_name, fixed = TRUE)[1L]
@@ -101,7 +96,7 @@
   }
 
   # Fallback: raw field ID pattern (before decode_names)
-  cols <- grep(paste0("p", field_id), names(data), value = TRUE, fixed = TRUE)
+  cols <- grep(paste0("^p", field_id, "($|_)"), names(data), value = TRUE)
   if (length(cols) > 0L) return(cols[1L])
 
   NULL
@@ -113,7 +108,7 @@
 # pattern → greps column names. Falls back to raw "p{id}_i" pattern when
 # the cache is unavailable or decode_names() has not been run.
 .detect_cols_by_field <- function(data, field_id) {
-  fields_df <- .ukbflow_cache$fields
+  fields_df <- tryCatch(suppressMessages(extract_ls()), error = function(e) NULL)
 
   if (!is.null(fields_df)) {
     # Find any entry for this field ID in the dictionary
@@ -130,5 +125,5 @@
   }
 
   # Fallback: raw field ID pattern (works before decode_names)
-  grep(paste0("p", field_id, "_i"), names(data), value = TRUE)
+  grep(paste0("^p", field_id, "($|_)"), names(data), value = TRUE)
 }

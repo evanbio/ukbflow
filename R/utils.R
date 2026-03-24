@@ -3,6 +3,10 @@
 # =============================================================================
 
 
+# Null-coalescing operator: return lhs unless it is NULL, then return rhs.
+`%||%` <- function(lhs, rhs) if (!is.null(lhs)) lhs else rhs
+
+
 #' Assert that an argument is a single non-empty string
 #'
 #' @keywords internal
@@ -85,6 +89,24 @@
 }
 
 
+#' Assert that an argument is a single integer >= a specified minimum
+#'
+#' @param x The argument to check.
+#' @param min Minimum allowed value (inclusive).
+#' @param arg Name of the argument (for error messages).
+#' @return Invisibly returns \code{as.integer(x)}.
+#'
+#' @keywords internal
+#' @noRd
+.assert_count_min <- function(x, min, arg = deparse(substitute(x))) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
+      !is.finite(x) || x < min || x != floor(x)) {
+    cli::cli_abort("{.arg {arg}} must be a single integer >= {min}.", call = NULL)
+  }
+  invisible(as.integer(x))
+}
+
+
 #' Assert that an argument is NULL or a character vector of allowed values
 #'
 #' @param x The argument to check. \code{NULL} is always allowed.
@@ -112,4 +134,59 @@
     )
   }
   invisible(x)
+}
+
+
+#' Assert that an argument is a character vector
+#'
+#' @keywords internal
+#' @noRd
+.assert_character <- function(x, arg = deparse(substitute(x))) {
+  if (!is.character(x)) {
+    cli::cli_abort("{.arg {arg}} must be a character vector.", call = NULL)
+  }
+  invisible(x)
+}
+
+
+#' Assert that an argument is a data.frame
+#'
+#' @keywords internal
+#' @noRd
+.assert_data_frame <- function(x, arg = deparse(substitute(x))) {
+  if (!is.data.frame(x)) {
+    cli::cli_abort("{.arg {arg}} must be a data.frame.", call = NULL)
+  }
+  invisible(x)
+}
+
+
+#' Assert that an argument is a data.table
+#'
+#' @keywords internal
+#' @noRd
+.assert_data_table <- function(x, arg = deparse(substitute(x))) {
+  if (!data.table::is.data.table(x)) {
+    cli::cli_abort("{.arg {arg}} must be a data.table.", call = NULL)
+  }
+  invisible(x)
+}
+
+
+#' Assert that required columns are present in a data.frame
+#'
+#' Reports all missing columns in a single error rather than stopping at the
+#' first, so the user can fix everything in one pass.
+#'
+#' @keywords internal
+#' @noRd
+.assert_has_cols <- function(data, cols, arg = deparse(substitute(data))) {
+  missing <- setdiff(cols, names(data))
+  if (length(missing) > 0L) {
+    cli::cli_abort(
+      "{.arg {arg}} is missing column{?s}: {.val {missing}}.",
+      call = NULL
+    )
+  }
+  invisible(data)
 }

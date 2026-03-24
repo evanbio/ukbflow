@@ -61,16 +61,12 @@ derive_missing <- function(data,
                            action       = c("na", "unknown"),
                            extra_labels = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
+  .assert_data_frame(data)
 
   action <- match.arg(action)
 
   if (!is.null(extra_labels)) {
-    if (!is.character(extra_labels)) {
-      stop("extra_labels must be a character vector or NULL.", call. = FALSE)
-    }
+    .assert_character(extra_labels)
     extra_labels <- extra_labels[nchar(trimws(extra_labels)) > 0L]
   }
 
@@ -175,14 +171,12 @@ derive_covariate <- function(data,
                              factor_levels = NULL,
                              max_levels    = 5L) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
+  .assert_data_frame(data)
   if (!is.null(factor_levels) && !is.list(factor_levels)) {
-    stop("factor_levels must be a named list or NULL.", call. = FALSE)
+    cli::cli_abort("{.arg factor_levels} must be a named list or NULL.", call = NULL)
   }
   if (!is.null(factor_levels) && is.null(names(factor_levels))) {
-    stop("factor_levels must be a named list (names = column names).", call. = FALSE)
+    cli::cli_abort("{.arg factor_levels} must be a named list (names = column names).", call = NULL)
   }
 
   if (!data.table::is.data.table(data)) {
@@ -263,8 +257,8 @@ derive_covariate <- function(data,
 #'
 #' @param data (data.frame or data.table) UKB data.
 #' @param col (character) Name of the source numeric column.
-#' @param n (integer) Number of groups. Supported values: \code{2}, \code{3},
-#'   \code{4}, \code{5}.
+#' @param n (integer) Number of groups. Any integer \code{>= 2} is accepted.
+#'   Commonly used values are \code{2}, \code{3}, \code{4}, \code{5}.
 #' @param breaks (numeric vector or NULL) Interior cut points; length must
 #'   equal \code{n - 1}. When \code{NULL} (default), quantile-based equal-
 #'   frequency boundaries are computed automatically.
@@ -272,7 +266,8 @@ derive_covariate <- function(data,
 #'   Defaults to \code{"Q1"}, \code{"Q2"}, \ldots, \code{"Qn"}.
 #' @param name (character or NULL) Name for the new column. Defaults to
 #'   \code{"{col}_bi"} / \code{"{col}_tri"} / \code{"{col}_quad"} /
-#'   \code{"{col}_quin"} for \code{n} = 2 / 3 / 4 / 5.
+#'   \code{"{col}_quin"} for \code{n} = 2 / 3 / 4 / 5; other values of
+#'   \code{n} produce \code{"{col}_g{n}"}.
 #'
 #' @return The input \code{data} with one new factor column appended. Always
 #'   returns a \code{data.table}.
@@ -295,25 +290,17 @@ derive_cut <- function(data,
                        labels = NULL,
                        name   = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!col %in% names(data)) {
-    stop(sprintf("Column '%s' not found in data.", col), call. = FALSE)
-  }
-  if (!is.numeric(n) || length(n) != 1L || n < 2L) {
-    stop("n must be a single integer >= 2.", call. = FALSE)
-  }
-  n <- as.integer(n)
+  .assert_data_frame(data)
+  .assert_has_cols(data, col)
+  n <- .assert_count_min(n, min = 2L)
 
   if (!is.null(breaks)) {
     if (!is.numeric(breaks) || length(breaks) != n - 1L) {
-      stop(sprintf("breaks must be a numeric vector of length n - 1 (%d).", n - 1L),
-           call. = FALSE)
+      cli::cli_abort("{.arg breaks} must be a numeric vector of length n - 1 ({n - 1L}).", call = NULL)
     }
   }
   if (!is.null(labels) && length(labels) != n) {
-    stop(sprintf("labels must be a character vector of length n (%d).", n), call. = FALSE)
+    cli::cli_abort("{.arg labels} must be a character vector of length n ({n}).", call = NULL)
   }
 
   if (!data.table::is.data.table(data)) {
@@ -324,7 +311,7 @@ derive_cut <- function(data,
   x      <- data[[col]]
 
   if (!is.numeric(x)) {
-    stop(sprintf("Column '%s' must be numeric.", col), call. = FALSE)
+    cli::cli_abort("Column {.val {col}} must be numeric.", call = NULL)
   }
 
   # Default name based on n
@@ -401,10 +388,10 @@ derive_cut <- function(data,
 #'
 #' @param data (data.frame or data.table) UKB data containing self-report
 #'   fields.
-#' @param name (character) Output column name prefix, e.g. \code{"ad"} or
-#'   \code{"cscc"}.
+#' @param name (character) Output column name prefix, e.g. \code{"disease"} or
+#'   \code{"outcome"}.
 #' @param regex (character) Regular expression matched against disease text
-#'   values (after \code{tolower()}), e.g. \code{"^eczema/dermatitis$"}.
+#'   values (after \code{tolower()}), e.g. \code{"^diabetes$"}.
 #' @param field (character) Self-report field type: \code{"noncancer"}
 #'   (p20002 / p20008) or \code{"cancer"} (p20001 / p20006).
 #' @param ignore_case (logical) Should regex matching ignore case?
@@ -430,7 +417,7 @@ derive_cut <- function(data,
 #'   derive_selfreport(name = "disease", regex = "your disease label",
 #'                     field = "noncancer")
 #'
-#' df <- derive_selfreport(df, name = "cancer_outcome",
+#' df <- derive_selfreport(df, name = "outcome",
 #'                         regex = "your cancer label",
 #'                         field = "cancer")
 #' }
@@ -443,11 +430,9 @@ derive_selfreport <- function(data,
                               date_cols    = NULL,
                               visit_cols   = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name)  || length(name)  != 1L) stop("name must be a single string.",  call. = FALSE)
-  if (!is.character(regex) || length(regex) != 1L) stop("regex must be a single string.", call. = FALSE)
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
+  .assert_scalar_string(regex)
 
   field <- match.arg(field)
 
@@ -622,9 +607,9 @@ derive_selfreport <- function(data,
 #'
 #' \strong{Column detection}: the function locates the source column
 #' automatically from \code{field}, handling both the raw format used by
-#' \code{\link{extract_pheno}} (\code{participant.p131720}) and the
+#' \code{\link{extract_pheno}} (\code{participant.p131666}) and the
 #' snake_case format produced by \code{\link{decode_names}}
-#' (\code{date_l20_first_reported_atopic_dermatitis}).  Supply \code{col}
+#' (\code{date_e11_first_reported_type_2_diabetes}).  Supply \code{col}
 #' to override auto-detection.
 #'
 #' \strong{data.table pass-by-reference}: when the input is a
@@ -632,10 +617,10 @@ derive_selfreport <- function(data,
 #' The returned object and the original variable point to the same memory.
 #'
 #' @param data (data.frame or data.table) UKB phenotype data.
-#' @param name (character) Output column prefix, e.g. \code{"ad"} produces
-#'   \code{ad_fo} and \code{ad_fo_date}.
+#' @param name (character) Output column prefix, e.g. \code{"disease"} produces
+#'   \code{disease_fo} and \code{disease_fo_date}.
 #' @param field (integer or character) UKB field ID of the First Occurrence
-#'   field, e.g. \code{131720} for L20 (atopic dermatitis).
+#'   field, e.g. \code{131666} for E11 (type 2 diabetes).
 #' @param col (character or NULL) Name of the source column in \code{data}.
 #'   When \code{NULL} (default) the column is detected automatically from
 #'   \code{field}.
@@ -657,9 +642,7 @@ derive_selfreport <- function(data,
 #' }
 derive_first_occurrence <- function(data, name, field, col = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
+  .assert_data_frame(data)
   if (!data.table::is.data.table(data)) data.table::setDT(data)
 
   status_col <- paste0(name, "_fo")
@@ -668,16 +651,13 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
   # ── Locate source column ──────────────────────────────────────────────────
   if (!is.null(col)) {
     src_col <- col
-    if (!src_col %in% names(data)) {
-      stop("Column '", src_col, "' not found in data.", call. = FALSE)
-    }
+    .assert_has_cols(data, src_col)
   } else {
     src_col <- .detect_fo_col(data, field)
     if (is.null(src_col)) {
-      stop(
-        "Cannot find First Occurrence column for field ", field, ". ",
-        "Specify col= directly or ensure extract_ls() cache is populated.",
-        call. = FALSE
+      cli::cli_abort(
+        "Cannot find First Occurrence column for field {.val {field}}. Specify {.arg col} directly or ensure {.fn extract_ls} cache is populated.",
+        call = NULL
       )
     }
   }
@@ -722,8 +702,8 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
 #'
 #' @param data (data.frame or data.table) UKB phenotype data containing HES
 #'   fields (\code{p41270} and \code{p41280_a*}).
-#' @param name (character) Output column prefix, e.g. \code{"ad"} produces
-#'   \code{ad_hes} and \code{ad_hes_date}.
+#' @param name (character) Output column prefix, e.g. \code{"disease"} produces
+#'   \code{disease_hes} and \code{disease_hes_date}.
 #' @param icd10 (character) ICD-10 code(s) to match.  For \code{"prefix"} and
 #'   \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.  For
 #'   \code{"regex"}, supply a single regex string.
@@ -743,7 +723,7 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
 #' @examples
 #' \dontrun{
 #' df <- derive_hes(df, name = "disease", icd10 = "E11")
-#' df <- derive_hes(df, name = "copd",
+#' df <- derive_hes(df, name = "disease",
 #'                  icd10 = c("J440", "J441"), match = "exact")
 #' df <- derive_hes(df, name = "disease",
 #'                  icd10 = "^(E10|E11)", match = "regex")
@@ -755,12 +735,8 @@ derive_hes <- function(data,
                        disease_cols = NULL,
                        date_cols    = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   match      <- match.arg(match)
@@ -926,9 +902,9 @@ derive_hes <- function(data,
 #'
 #' @param data (data.frame or data.table) UKB phenotype data containing
 #'   cancer registry fields.
-#' @param name (character) Output column prefix, e.g. \code{"cscc_invasive"}
-#'   produces \code{cscc_invasive_cancer} and
-#'   \code{cscc_invasive_cancer_date}.
+#' @param name (character) Output column prefix, e.g. \code{"outcome_invasive"}
+#'   produces \code{outcome_invasive_cancer} and
+#'   \code{outcome_invasive_cancer_date}.
 #' @param icd10 (character or NULL) Regular expression matched against the
 #'   ICD-10 code column (\code{p40006}).  \code{NULL} = no ICD-10 filter.
 #'   Examples: \code{"^C44"}, \code{"^(C44|D04)"}.
@@ -956,11 +932,11 @@ derive_hes <- function(data,
 #' @examples
 #' \dontrun{
 #' # ICD-10 only - no histology/behaviour filter
-#' df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
+#' df <- derive_cancer_registry(df, name = "outcome", icd10 = "^C50")
 #'
 #' # With histology and behaviour filters (malignant)
 #' df <- derive_cancer_registry(
-#'   df, name = "cancer_outcome",
+#'   df, name = "outcome_invasive",
 #'   icd10     = "^C44",
 #'   histology = c(8070, 8071, 8072),
 #'   behaviour = 3L
@@ -968,7 +944,7 @@ derive_hes <- function(data,
 #'
 #' # In situ (behaviour = 2)
 #' df <- derive_cancer_registry(
-#'   df, name = "cancer_insitu",
+#'   df, name = "outcome_insitu",
 #'   icd10     = "^C44",
 #'   behaviour = 2L
 #' )
@@ -983,14 +959,10 @@ derive_cancer_registry <- function(data,
                                    behv_cols = NULL,
                                    date_cols = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!is.null(icd10) && (!is.character(icd10) || length(icd10) != 1L)) {
-    stop("icd10 must be a single regex string or NULL.", call. = FALSE)
+    cli::cli_abort("{.arg icd10} must be a single regex string or NULL.", call = NULL)
   }
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
@@ -1122,8 +1094,8 @@ derive_cancer_registry <- function(data,
 #'
 #' @param data (data.frame or data.table) UKB phenotype data containing
 #'   death registry fields.
-#' @param name (character) Output column prefix, e.g. \code{"ad"} produces
-#'   \code{ad_death} and \code{ad_death_date}.
+#' @param name (character) Output column prefix, e.g. \code{"disease"} produces
+#'   \code{disease_death} and \code{disease_death_date}.
 #' @param icd10 (character) ICD-10 code(s) to match.  For \code{"prefix"}
 #'   and \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.
 #'   For \code{"regex"}, supply a single regex string.
@@ -1145,7 +1117,7 @@ derive_cancer_registry <- function(data,
 #' @examples
 #' \dontrun{
 #' df <- derive_death_registry(df, name = "disease", icd10 = "E11")
-#' df <- derive_death_registry(df, name = "copd",
+#' df <- derive_death_registry(df, name = "disease",
 #'                             icd10 = c("J440", "J441"), match = "exact")
 #' }
 derive_death_registry <- function(data,
@@ -1156,12 +1128,8 @@ derive_death_registry <- function(data,
                                   secondary_cols = NULL,
                                   date_cols      = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   match      <- match.arg(match)
@@ -1308,9 +1276,9 @@ derive_death_registry <- function(data,
 #' }
 #'
 #' @param data (data.frame or data.table) UKB phenotype data.
-#' @param name (character) Output column prefix, e.g. \code{"ad"} produces
-#'   \code{ad_icd10} and \code{ad_icd10_date}, plus intermediate columns
-#'   such as \code{ad_hes}, \code{ad_hes_date}, etc.
+#' @param name (character) Output column prefix, e.g. \code{"disease"} produces
+#'   \code{disease_icd10} and \code{disease_icd10_date}, plus intermediate columns
+#'   such as \code{disease_hes}, \code{disease_hes_date}, etc.
 #' @param icd10 (character) ICD-10 code(s) to match.  For \code{"prefix"}
 #'   and \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.
 #'   For \code{"regex"}, supply a single regex string.  When
@@ -1324,7 +1292,7 @@ derive_death_registry <- function(data,
 #'   and \code{derive_death_registry}: \code{"prefix"} (default),
 #'   \code{"exact"}, or \code{"regex"}.
 #' @param fo_field (integer or character or NULL) UKB field ID for the
-#'   First Occurrence column (e.g. \code{131720L} for AD).  Required when
+#'   First Occurrence column (e.g. \code{131666L} for E11).  Required when
 #'   \code{"first_occurrence"} is in \code{source} and \code{fo_col} is
 #'   \code{NULL}.
 #' @param fo_col (character or NULL) Column name of the First Occurrence
@@ -1362,16 +1330,16 @@ derive_death_registry <- function(data,
 #' # Non-cancer disease: HES + death + First Occurrence
 #' df <- derive_icd10(df, name = "disease", icd10 = "E11",
 #'                    source   = c("hes", "death", "first_occurrence"),
-#'                    fo_field = 131000L)
+#'                    fo_field = 131666L)
 #'
 #' # COPD: HES + death only, exact 4-digit codes
-#' df <- derive_icd10(df, name = "copd",
+#' df <- derive_icd10(df, name = "disease",
 #'                    icd10  = c("J440", "J441"),
 #'                    source = c("hes", "death"),
 #'                    match  = "exact")
 #'
 #' # Cancer outcome: HES + cancer registry + death
-#' df <- derive_icd10(df, name = "cancer_outcome",
+#' df <- derive_icd10(df, name = "outcome",
 #'                    icd10  = "^C50",
 #'                    match  = "regex",
 #'                    source = c("hes", "death", "cancer_registry"))
@@ -1397,12 +1365,8 @@ derive_icd10 <- function(data,
                          cr_behv_cols    = NULL,
                          cr_date_cols    = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   source     <- match.arg(source, several.ok = TRUE)
@@ -1476,7 +1440,7 @@ derive_icd10 <- function(data,
   )
 
   # ── Combine: OR for status, pmin for date ──────────────────────────────────
-  data[, (status_col) := Reduce(`|`, lapply(active_status, function(col) data[[col]]))]
+  data[, (status_col) := as.logical(Reduce(`|`, lapply(active_status, function(col) data[[col]])))]
 
   if (length(active_dates) > 0L) {
     date_list <- lapply(active_dates, function(col) data[[col]])
@@ -1548,12 +1512,8 @@ derive_case <- function(data,
                         icd10_date_col      = NULL,
                         selfreport_date_col = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   # ── Resolve column names ───────────────────────────────────────────────────
@@ -1568,9 +1528,9 @@ derive_case <- function(data,
   # ── Validate presence ──────────────────────────────────────────────────────
   status_cols_present <- intersect(c(icd10_col, selfreport_col), names(data))
   if (length(status_cols_present) == 0L) {
-    stop(
-      "derive_case: neither '", icd10_col, "' nor '", selfreport_col,
-      "' found in data. Supply column names explicitly.", call. = FALSE
+    cli::cli_abort(
+      "derive_case: neither {.val {icd10_col}} nor {.val {selfreport_col}} found in data. Supply column names explicitly.",
+      call = NULL
     )
   }
   if (length(status_cols_present) < 2L) {
@@ -1582,7 +1542,7 @@ derive_case <- function(data,
   date_cols_present <- intersect(c(icd10_date_col, selfreport_date_col), names(data))
 
   # ── Status: OR across available status columns → logical ──────────────────
-  data[, (status_col) := Reduce(`|`, lapply(status_cols_present, function(col) data[[col]]))]
+  data[, (status_col) := as.logical(Reduce(`|`, lapply(status_cols_present, function(col) data[[col]])))]
 
   # ── Date: earliest across available date columns ───────────────────────────
   if (length(date_cols_present) > 0L) {
@@ -1634,14 +1594,14 @@ derive_case <- function(data,
 #'
 #' @param data (data.frame or data.table) UKB phenotype data.
 #' @param name (character) One or more output prefixes, e.g.
-#'   \code{c("ad", "ad_icd10", "cscc")}. Each produces \code{age_at_{name}}.
+#'   \code{c("disease", "disease_icd10", "outcome")}. Each produces \code{age_at_{name}}.
 #' @param baseline_col (character) Name of the baseline date column
 #'   (e.g. \code{"date_baseline"}).
 #' @param age_col (character) Name of the age-at-baseline column
 #'   (e.g. \code{"age_recruitment"}).
 #' @param date_cols (character or NULL) Named character vector mapping each
 #'   name to its event date column, e.g.
-#'   \code{c(ad = "ad_date", cscc = "cscc_date")}. \code{NULL} (default)
+#'   \code{c(disease = "disease_date", outcome = "outcome_date")}. \code{NULL} (default)
 #'   triggers auto-detection as \code{{name}_date}.
 #' @param status_cols (character or NULL) Named character vector mapping each
 #'   name to its status column. \code{NULL} (default) triggers auto-detection.
@@ -1667,19 +1627,13 @@ derive_age <- function(data,
                        date_cols   = NULL,
                        status_cols = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
+  .assert_data_frame(data)
   if (!is.character(name) || length(name) == 0L) {
-    stop("name must be a non-empty character vector.", call. = FALSE)
+    cli::cli_abort("{.arg name} must be a non-empty character vector.", call = NULL)
   }
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
-  for (col in c(baseline_col, age_col)) {
-    if (!col %in% names(data)) {
-      stop("derive_age: column '", col, "' not found in data.", call. = FALSE)
-    }
-  }
+  .assert_has_cols(data, c(baseline_col, age_col))
 
   # ── Process each name ──────────────────────────────────────────────────────
   for (nm in name) {
@@ -1735,9 +1689,13 @@ derive_age <- function(data,
     # ── CLI summary ──────────────────────────────────────────────────────────
     v <- data[[out_col]]
     n_cases <- sum(!is.na(v))
-    cli::cli_alert_info(
-      "  {out_col}: n={n_cases}, median={round(median(v, na.rm=TRUE), 1)}, range=[{round(min(v, na.rm=TRUE), 1)}, {round(max(v, na.rm=TRUE), 1)}]"
-    )
+    if (n_cases > 0L) {
+      cli::cli_alert_info(
+        "  {out_col}: n={n_cases}, median={round(median(v, na.rm=TRUE), 1)}, range=[{round(min(v, na.rm=TRUE), 1)}, {round(max(v, na.rm=TRUE), 1)}]"
+      )
+    } else {
+      cli::cli_alert_info("  {out_col}: n=0, all NA.")
+    }
   }
 
   cli::cli_alert_success("derive_age: {length(name)} event{?s} processed.")
@@ -1760,10 +1718,10 @@ derive_age <- function(data,
 #' \code{data.table}, new columns are added in-place via \code{:=}.
 #'
 #' @param data (data.frame or data.table) UKB phenotype data.
-#' @param name (character) Output column prefix, e.g. \code{"cscc"} produces
-#'   \code{cscc_followup_end} and \code{cscc_followup_years}.
+#' @param name (character) Output column prefix, e.g. \code{"outcome"} produces
+#'   \code{outcome_followup_end} and \code{outcome_followup_years}.
 #' @param event_col (character) Name of the outcome event date column
-#'   (e.g. \code{"cscc_date"}).
+#'   (e.g. \code{"outcome_date"}).
 #' @param baseline_col (character) Name of the baseline date column
 #'   (e.g. \code{"date_baseline"}).
 #' @param censor_date (Date or character) Scalar administrative censoring date,
@@ -1802,13 +1760,14 @@ derive_followup <- function(data,
                             death_col = NULL,
                             lost_col  = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
+
+  # Reason: FALSE is a documented sentinel meaning "disable this endpoint".
+  # Convert to NULL early so all downstream NULL-checks work correctly.
+  if (isFALSE(death_col)) death_col <- NULL
+  if (isFALSE(lost_col))  lost_col  <- NULL
 
   # ── Auto-detect death / lost-to-follow-up columns from extract_ls() cache ──
   # Reason: UKB field 40000 = date of death, field 191 = date lost to follow-up.
@@ -1818,17 +1777,9 @@ derive_followup <- function(data,
   if (is.null(lost_col))  lost_col  <- .detect_fo_col(data, 191L)
 
   # ── Validate required columns ──────────────────────────────────────────────
-  for (col in c(event_col, baseline_col)) {
-    if (!col %in% names(data)) {
-      stop("derive_followup: column '", col, "' not found in data.", call. = FALSE)
-    }
-  }
-  if (!is.null(death_col) && !death_col %in% names(data)) {
-    stop("derive_followup: death_col '", death_col, "' not found in data.", call. = FALSE)
-  }
-  if (!is.null(lost_col) && !lost_col %in% names(data)) {
-    stop("derive_followup: lost_col '", lost_col, "' not found in data.", call. = FALSE)
-  }
+  .assert_has_cols(data, c(event_col, baseline_col))
+  if (!is.null(death_col)) .assert_has_cols(data, death_col)
+  if (!is.null(lost_col))  .assert_has_cols(data, lost_col)
 
   censor_date <- data.table::as.IDate(censor_date)
 
@@ -1860,6 +1811,10 @@ derive_followup <- function(data,
 
   # ── Compute follow-up time in years ───────────────────────────────────────
   data[, (years_col) := as.numeric(get(end_col) - data.table::as.IDate(get(baseline_col))) / 365.25]
+
+  # Reason: prevalent cases have event_date < baseline, yielding negative follow-up
+  # time. Set to NA — negative survival time is not meaningful for Cox/logistic models.
+  data[!is.na(get(years_col)) & get(years_col) <= 0, (years_col) := NA_real_]
 
   # ── CLI summary ────────────────────────────────────────────────────────────
   yrs <- data[[years_col]]
@@ -1922,12 +1877,8 @@ derive_timing <- function(data,
                           status_col = NULL,
                           date_col   = NULL) {
 
-  if (!is.data.frame(data)) {
-    stop("data must be a data.frame or data.table.", call. = FALSE)
-  }
-  if (!is.character(name) || length(name) != 1L) {
-    stop("name must be a single string.", call. = FALSE)
-  }
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   # ── Resolve column names ───────────────────────────────────────────────────
@@ -1935,11 +1886,7 @@ derive_timing <- function(data,
   date_col    <- date_col    %||% paste0(name, "_date")
   timing_col  <- paste0(name, "_timing")
 
-  for (col in c(status_col, date_col, baseline_col)) {
-    if (!col %in% names(data)) {
-      stop("derive_timing: column '", col, "' not found in data.", call. = FALSE)
-    }
-  }
+  .assert_has_cols(data, c(status_col, date_col, baseline_col))
 
   # ── Classify timing with fcase (data.table's vectorised case_when) ─────────
   # Reason: fcase evaluates conditions sequentially and short-circuits,
