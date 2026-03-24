@@ -17,7 +17,8 @@ grs_validate(
 
 \item{grs_cols}{Character vector of GRS column names to validate.
 If \code{NULL} (default), all columns whose names contain \code{"grs"}
-(case-insensitive) are selected automatically.}
+(case-insensitive) are selected automatically. All specified columns
+must be numeric.}
 
 \item{outcome_col}{Character scalar. Name of the outcome column
 (\code{0}/\code{1} or \code{TRUE}/\code{FALSE}).}

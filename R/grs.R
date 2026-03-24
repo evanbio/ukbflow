@@ -42,7 +42,7 @@
 #' # Local
 #' w <- grs_check("weights.csv", dest = "weights_clean.txt")
 #'
-#' # On RAP (JupyterLab) - files accessed via /mnt/project/
+#' # On RAP (RStudio) - files accessed via /mnt/project/
 #' w <- grs_check(
 #'   file = "/mnt/project/weights/weights.csv",
 #'   dest = "/mnt/project/weights/weights_clean.txt"
@@ -623,7 +623,8 @@ grs_zscore <- grs_standardize
 #' @param data A \code{data.frame} or \code{data.table}.
 #' @param grs_cols Character vector of GRS column names to validate.
 #'   If \code{NULL} (default), all columns whose names contain \code{"grs"}
-#'   (case-insensitive) are selected automatically.
+#'   (case-insensitive) are selected automatically. All specified columns
+#'   must be numeric.
 #' @param outcome_col Character scalar. Name of the outcome column
 #'   (\code{0}/\code{1} or \code{TRUE}/\code{FALSE}).
 #' @param time_col Character scalar or \code{NULL}. Name of the follow-up

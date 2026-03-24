@@ -46,7 +46,7 @@ Checks performed:
 # Local
 w <- grs_check("weights.csv", dest = "weights_clean.txt")
 
-# On RAP (JupyterLab) - files accessed via /mnt/project/
+# On RAP (RStudio) - files accessed via /mnt/project/
 w <- grs_check(
   file = "/mnt/project/weights/weights.csv",
   dest = "/mnt/project/weights/weights_clean.txt"
