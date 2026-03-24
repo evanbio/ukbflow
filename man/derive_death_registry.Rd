@@ -18,8 +18,8 @@ derive_death_registry(
 \item{data}{(data.frame or data.table) UKB phenotype data containing
 death registry fields.}
 
-\item{name}{(character) Output column prefix, e.g. \code{"ad"} produces
-\code{ad_death} and \code{ad_death_date}.}
+\item{name}{(character) Output column prefix, e.g. \code{"disease"} produces
+\code{disease_death} and \code{disease_death_date}.}
 
 \item{icd10}{(character) ICD-10 code(s) to match.  For \code{"prefix"}
 and \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.
@@ -64,7 +64,7 @@ not onset date.}
 \examples{
 \dontrun{
 df <- derive_death_registry(df, name = "disease", icd10 = "E11")
-df <- derive_death_registry(df, name = "copd",
+df <- derive_death_registry(df, name = "disease",
                             icd10 = c("J440", "J441"), match = "exact")
 }
 }

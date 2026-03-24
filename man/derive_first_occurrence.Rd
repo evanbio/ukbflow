@@ -9,11 +9,11 @@ derive_first_occurrence(data, name, field, col = NULL)
 \arguments{
 \item{data}{(data.frame or data.table) UKB phenotype data.}
 
-\item{name}{(character) Output column prefix, e.g. \code{"ad"} produces
-\code{ad_fo} and \code{ad_fo_date}.}
+\item{name}{(character) Output column prefix, e.g. \code{"disease"} produces
+\code{disease_fo} and \code{disease_fo_date}.}
 
 \item{field}{(integer or character) UKB field ID of the First Occurrence
-field, e.g. \code{131720} for L20 (atopic dermatitis).}
+field, e.g. \code{131666} for E11 (type 2 diabetes).}
 
 \item{col}{(character or NULL) Name of the source column in \code{data}.
 When \code{NULL} (default) the column is detected automatically from
@@ -43,9 +43,9 @@ for time-to-event and prevalent/incident classification.}
 
 \strong{Column detection}: the function locates the source column
 automatically from \code{field}, handling both the raw format used by
-\code{\link{extract_pheno}} (\code{participant.p131720}) and the
+\code{\link{extract_pheno}} (\code{participant.p131666}) and the
 snake_case format produced by \code{\link{decode_names}}
-(\code{date_l20_first_reported_atopic_dermatitis}).  Supply \code{col}
+(\code{date_e11_first_reported_type_2_diabetes}).  Supply \code{col}
 to override auto-detection.
 
 \strong{data.table pass-by-reference}: when the input is a

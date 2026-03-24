@@ -19,11 +19,11 @@ derive_selfreport(
 \item{data}{(data.frame or data.table) UKB data containing self-report
 fields.}
 
-\item{name}{(character) Output column name prefix, e.g. \code{"ad"} or
-\code{"cscc"}.}
+\item{name}{(character) Output column name prefix, e.g. \code{"disease"} or
+\code{"outcome"}.}
 
 \item{regex}{(character) Regular expression matched against disease text
-values (after \code{tolower()}), e.g. \code{"^eczema/dermatitis$"}.}
+values (after \code{tolower()}), e.g. \code{"^diabetes$"}.}
 
 \item{field}{(character) Self-report field type: \code{"noncancer"}
 (p20002 / p20008) or \code{"cancer"} (p20001 / p20006).}
@@ -79,7 +79,7 @@ df <- extract_pheno(c(20002, 20008, 53)) |>
   derive_selfreport(name = "disease", regex = "your disease label",
                     field = "noncancer")
 
-df <- derive_selfreport(df, name = "cancer_outcome",
+df <- derive_selfreport(df, name = "outcome",
                         regex = "your cancer label",
                         field = "cancer")
 }

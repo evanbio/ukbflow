@@ -17,8 +17,8 @@ derive_hes(
 \item{data}{(data.frame or data.table) UKB phenotype data containing HES
 fields (\code{p41270} and \code{p41280_a*}).}
 
-\item{name}{(character) Output column prefix, e.g. \code{"ad"} produces
-\code{ad_hes} and \code{ad_hes_date}.}
+\item{name}{(character) Output column prefix, e.g. \code{"disease"} produces
+\code{disease_hes} and \code{disease_hes_date}.}
 
 \item{icd10}{(character) ICD-10 code(s) to match.  For \code{"prefix"} and
 \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.  For
@@ -59,7 +59,7 @@ matching codes (\code{IDate}).  \code{NA} if no date is available.}
 \examples{
 \dontrun{
 df <- derive_hes(df, name = "disease", icd10 = "E11")
-df <- derive_hes(df, name = "copd",
+df <- derive_hes(df, name = "disease",
                  icd10 = c("J440", "J441"), match = "exact")
 df <- derive_hes(df, name = "disease",
                  icd10 = "^(E10|E11)", match = "regex")

@@ -83,7 +83,8 @@ The divisor 365.25 accounts for leap years, ensuring sub-monthly precision in
 age calculation across the full UKB follow-up window.
 
 ```{r derive-age}
-# Multiple outcomes in one call — auto-detects {name}_date and {name}_status
+# Multiple outcomes in one call — auto-detects {name}_date and {name}_status.
+# Each name produces its own age_at_{name} column in a single pass.
 df <- derive_age(df,
   name         = c("exposure", "outcome"),
   baseline_col = "date_baseline",
@@ -131,7 +132,7 @@ df <- derive_followup(df,
 )
 #> ✔ derive_followup (outcome):
 #>   outcome_followup_end: 502 097 / 502 097 non-missing
-#>   outcome_followup_years: mean=11.84, median=12.31, range=[0.00, 14.92]
+#>   outcome_followup_years: mean=11.84, median=12.31, range=[0.03, 14.92]
 ```
 
 Output columns:
@@ -140,6 +141,14 @@ Output columns:
 |---|---|---|
 | `outcome_followup_end` | IDate | Earliest competing date |
 | `outcome_followup_years` | numeric | Years from baseline to end |
+
+### Prevalent cases receive `NA` follow-up time
+
+Participants whose event date falls **before or on the baseline date** (prevalent
+cases, `{name}_timing == 1`) will have `followup_years` set to `NA` rather than
+a zero or negative value, which has no meaning in time-to-event analysis.
+Use `derive_timing()` to identify and exclude prevalent cases before fitting a
+Cox model (see the full pipeline example below).
 
 ### Auto-detection of death and lost-to-follow-up columns
 
@@ -168,8 +177,8 @@ a Cox proportional hazards model:
 ```{r cox-example}
 library(survival)
 
-# Incident analysis: exclude participants with prevalent disease at baseline
-df_incident <- df[outcome_timing != 1L | is.na(outcome_timing)]
+# Incident analysis: exclude prevalent cases and those with undetermined timing
+df_incident <- df[outcome_timing != 1L]
 
 fit <- coxph(
   Surv(outcome_followup_years, outcome_status) ~

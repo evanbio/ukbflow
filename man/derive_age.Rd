@@ -17,7 +17,7 @@ derive_age(
 \item{data}{(data.frame or data.table) UKB phenotype data.}
 
 \item{name}{(character) One or more output prefixes, e.g.
-\code{c("ad", "ad_icd10", "cscc")}. Each produces \code{age_at_{name}}.}
+\code{c("disease", "disease_icd10", "outcome")}. Each produces \code{age_at_{name}}.}
 
 \item{baseline_col}{(character) Name of the baseline date column
 (e.g. \code{"date_baseline"}).}
@@ -27,7 +27,7 @@ derive_age(
 
 \item{date_cols}{(character or NULL) Named character vector mapping each
 name to its event date column, e.g.
-\code{c(ad = "ad_date", cscc = "cscc_date")}. \code{NULL} (default)
+\code{c(disease = "disease_date", outcome = "outcome_date")}. \code{NULL} (default)
 triggers auto-detection as \code{{name}_date}.}
 
 \item{status_cols}{(character or NULL) Named character vector mapping each

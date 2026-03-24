@@ -11,8 +11,8 @@ derive_cut(data, col, n, breaks = NULL, labels = NULL, name = NULL)
 
 \item{col}{(character) Name of the source numeric column.}
 
-\item{n}{(integer) Number of groups. Supported values: \code{2}, \code{3},
-\code{4}, \code{5}.}
+\item{n}{(integer) Number of groups. Any integer \code{>= 2} is accepted.
+Commonly used values are \code{2}, \code{3}, \code{4}, \code{5}.}
 
 \item{breaks}{(numeric vector or NULL) Interior cut points; length must
 equal \code{n - 1}. When \code{NULL} (default), quantile-based equal-
@@ -23,7 +23,8 @@ Defaults to \code{"Q1"}, \code{"Q2"}, \ldots, \code{"Qn"}.}
 
 \item{name}{(character or NULL) Name for the new column. Defaults to
 \code{"{col}_bi"} / \code{"{col}_tri"} / \code{"{col}_quad"} /
-\code{"{col}_quin"} for \code{n} = 2 / 3 / 4 / 5.}
+\code{"{col}_quin"} for \code{n} = 2 / 3 / 4 / 5; other values of
+\code{n} produce \code{"{col}_g{n}"}.}
 }
 \value{
 The input \code{data} with one new factor column appended. Always

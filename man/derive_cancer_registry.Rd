@@ -20,9 +20,9 @@ derive_cancer_registry(
 \item{data}{(data.frame or data.table) UKB phenotype data containing
 cancer registry fields.}
 
-\item{name}{(character) Output column prefix, e.g. \code{"cscc_invasive"}
-produces \code{cscc_invasive_cancer} and
-\code{cscc_invasive_cancer_date}.}
+\item{name}{(character) Output column prefix, e.g. \code{"outcome_invasive"}
+produces \code{outcome_invasive_cancer} and
+\code{outcome_invasive_cancer_date}.}
 
 \item{icd10}{(character or NULL) Regular expression matched against the
 ICD-10 code column (\code{p40006}).  \code{NULL} = no ICD-10 filter.
@@ -79,11 +79,11 @@ registry record satisfies all supplied filters.}
 \examples{
 \dontrun{
 # ICD-10 only - no histology/behaviour filter
-df <- derive_cancer_registry(df, name = "cancer_outcome", icd10 = "^C50")
+df <- derive_cancer_registry(df, name = "outcome", icd10 = "^C50")
 
 # With histology and behaviour filters (malignant)
 df <- derive_cancer_registry(
-  df, name = "cancer_outcome",
+  df, name = "outcome_invasive",
   icd10     = "^C44",
   histology = c(8070, 8071, 8072),
   behaviour = 3L
@@ -91,7 +91,7 @@ df <- derive_cancer_registry(
 
 # In situ (behaviour = 2)
 df <- derive_cancer_registry(
-  df, name = "cancer_insitu",
+  df, name = "outcome_insitu",
   icd10     = "^C44",
   behaviour = 2L
 )

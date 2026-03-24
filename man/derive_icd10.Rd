@@ -28,9 +28,9 @@ derive_icd10(
 \arguments{
 \item{data}{(data.frame or data.table) UKB phenotype data.}
 
-\item{name}{(character) Output column prefix, e.g. \code{"ad"} produces
-\code{ad_icd10} and \code{ad_icd10_date}, plus intermediate columns
-such as \code{ad_hes}, \code{ad_hes_date}, etc.}
+\item{name}{(character) Output column prefix, e.g. \code{"disease"} produces
+\code{disease_icd10} and \code{disease_icd10_date}, plus intermediate columns
+such as \code{disease_hes}, \code{disease_hes_date}, etc.}
 
 \item{icd10}{(character) ICD-10 code(s) to match.  For \code{"prefix"}
 and \code{"exact"}, supply a vector such as \code{c("L20", "L21")}.
@@ -48,7 +48,7 @@ and \code{derive_death_registry}: \code{"prefix"} (default),
 \code{"exact"}, or \code{"regex"}.}
 
 \item{fo_field}{(integer or character or NULL) UKB field ID for the
-First Occurrence column (e.g. \code{131720L} for AD).  Required when
+First Occurrence column (e.g. \code{131666L} for E11).  Required when
 \code{"first_occurrence"} is in \code{source} and \code{fo_col} is
 \code{NULL}.}
 
@@ -118,16 +118,16 @@ selected sources (\code{IDate}).}
 # Non-cancer disease: HES + death + First Occurrence
 df <- derive_icd10(df, name = "disease", icd10 = "E11",
                    source   = c("hes", "death", "first_occurrence"),
-                   fo_field = 131000L)
+                   fo_field = 131666L)
 
 # COPD: HES + death only, exact 4-digit codes
-df <- derive_icd10(df, name = "copd",
+df <- derive_icd10(df, name = "disease",
                    icd10  = c("J440", "J441"),
                    source = c("hes", "death"),
                    match  = "exact")
 
 # Cancer outcome: HES + cancer registry + death
-df <- derive_icd10(df, name = "cancer_outcome",
+df <- derive_icd10(df, name = "outcome",
                    icd10  = "^C50",
                    match  = "regex",
                    source = c("hes", "death", "cancer_registry"))

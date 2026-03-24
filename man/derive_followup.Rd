@@ -17,11 +17,11 @@ derive_followup(
 \arguments{
 \item{data}{(data.frame or data.table) UKB phenotype data.}
 
-\item{name}{(character) Output column prefix, e.g. \code{"cscc"} produces
-\code{cscc_followup_end} and \code{cscc_followup_years}.}
+\item{name}{(character) Output column prefix, e.g. \code{"outcome"} produces
+\code{outcome_followup_end} and \code{outcome_followup_years}.}
 
 \item{event_col}{(character) Name of the outcome event date column
-(e.g. \code{"cscc_date"}).}
+(e.g. \code{"outcome_date"}).}
 
 \item{baseline_col}{(character) Name of the baseline date column
 (e.g. \code{"date_baseline"}).}
