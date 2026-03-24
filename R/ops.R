@@ -50,7 +50,7 @@ ops_setup <- function(
     ))
   }
 
-  # ── Block 1: dx-toolkit ───────────────────────────────────────────────────
+  # dx-toolkit
   if (check_dx) {
     if (verbose) cli::cli_rule(left = "1. dx-toolkit")
 
@@ -69,7 +69,7 @@ ops_setup <- function(
     }
   }
 
-  # ── Block 3: RAP authentication ───────────────────────────────────────────
+  # RAP authentication
   if (check_auth) {
     if (verbose) cli::cli_rule(left = "2. RAP authentication")
 
@@ -97,7 +97,7 @@ ops_setup <- function(
     }
   }
 
-  # ── Block 4: R package dependencies ──────────────────────────────────────
+  # R package dependencies
   if (check_deps) {
     if (verbose) cli::cli_rule(left = "3. R packages")
 
@@ -210,10 +210,13 @@ ops_setup <- function(
 #'   `p22189`, `p54_i0`
 #' - **Genetic PCs**: `p22009_a1` – `p22009_a10`
 #' - **Self-report disease**: `p20002_i0_a0–a4`, `p20008_i0_a0–a4`
-#' - **HES**: `p41270` (JSON array), `p41280_a0–a9`
-#' - **Cancer registry**: `p40006_i0`, `p40005_i0`
-#' - **Death registry**: `p40001_i0`, `p40002_i0_a0–a1`, `p40000_i0`
+#' - **Self-report cancer**: `p20001_i0_a0–a4`, `p20006_i0_a0–a4`
+#' - **HES**: `p41270` (JSON array), `p41280_a0–a8`
+#' - **Cancer registry**: `p40006_i0–i2`, `p40011_i0–i2`, `p40012_i0–i2`,
+#'   `p40005_i0–i2`
+#' - **Death registry**: `p40001_i0`, `p40002_i0_a0–a2`, `p40000_i0`
 #' - **First occurrence**: `p131742`
+#' - **GRS**: `grs_bmi`, `grs_raw`, `grs_finngen`
 #' - **Messy columns**: `messy_allna`, `messy_empty`, `messy_label`
 #'
 #' @export
@@ -240,9 +243,8 @@ ops_toy <- function(
   # Reason: sensible defaults differ by scenario — cohort needs many rows,
   # forest needs a small number of exposures
   if (missing(n)) n <- if (scenario == "cohort") 1000L else 8L
+  .assert_count_min(n, 1L)
   n <- as.integer(n)
-
-  if (n < 1L) stop("n must be a positive integer.", call. = FALSE)
   if (!is.null(seed)) set.seed(as.integer(seed))
 
   dt <- switch(scenario,
@@ -263,10 +265,17 @@ ops_toy <- function(
 #' Summarise missing values by column
 #'
 #' Scans each column of a data.frame or data.table and returns the count and
-#' percentage of missing values (NA or empty string `""`). Results are sorted
-#' by missingness in descending order. Columns above 10\% are flagged in red;
-#' those between 0\% and 10\% in yellow. A summary block is always printed
-#' regardless of `threshold`.
+#' percentage of missing values. Results are sorted by missingness in
+#' descending order. Columns above 10\% are flagged in red; those between 0\%
+#' and 10\% in yellow. A summary block is always printed regardless of
+#' `threshold`.
+#'
+#' **Missing value definition**: a value is counted as missing if it is `NA`
+#' *or* an empty string (`""`). Empty strings are treated as missing because
+#' UKB exports frequently use `""` as a placeholder for absent text values.
+#' This means `n_na` and `pct_na` reflect *effective* missingness, not just
+#' `is.na()`. Numeric and logical columns are not affected (they cannot hold
+#' `""`).
 #'
 #' @param data A data.frame or data.table to scan.
 #' @param threshold (numeric) Columns with `pct_na <= threshold` are silenced
@@ -275,8 +284,9 @@ ops_toy <- function(
 #' @param verbose (logical) Print the CLI report. Default `TRUE`.
 #'
 #' @return An invisible data.table with columns `column`, `n_na`, and `pct_na`,
-#'   sorted by `pct_na` descending. Always contains all columns regardless of
-#'   `threshold` (which only affects CLI output).
+#'   sorted by `pct_na` descending. `n_na` counts both `NA` and `""`.
+#'   Always contains all columns regardless of `threshold` (which only affects
+#'   CLI output).
 #'
 #' @export
 #'
@@ -297,21 +307,13 @@ ops_toy <- function(
 ops_na <- function(data, threshold = 0, verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
-  if (nrow(data) == 0L) {
+  .assert_data_frame(data)
+  if (nrow(data) == 0L)
     cli::cli_abort("{.arg data} has 0 rows.", call = NULL)
-  }
   if (!is.numeric(threshold) || length(threshold) != 1L ||
-      is.na(threshold) || threshold < 0 || threshold >= 100) {
-    cli::cli_abort(
-      "{.arg threshold} must be a single numeric value in [0, 100)."
-    )
-  }
-  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
-    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
-  }
+      is.na(threshold) || threshold < 0 || threshold >= 100)
+    cli::cli_abort("{.arg threshold} must be a single numeric value in [0, 100).", call = NULL)
+  .assert_flag(verbose)
 
   n_row <- nrow(data)
   n_col <- ncol(data)
@@ -420,12 +422,9 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
                          check_na = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
-  if (!is.logical(reset)    || length(reset)    != 1L || is.na(reset))
-    cli::cli_abort("{.arg reset} must be a single logical value.", call = NULL)
-  if (!is.logical(verbose)  || length(verbose)  != 1L || is.na(verbose))
-    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
-  if (!is.logical(check_na) || length(check_na) != 1L || is.na(check_na))
-    cli::cli_abort("{.arg check_na} must be a single logical value.", call = NULL)
+  .assert_flag(reset)
+  .assert_flag(verbose)
+  .assert_flag(check_na)
 
   # ── Reset ───────────────────────────────────────────────────────────────────
   if (reset) {
@@ -451,11 +450,8 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
   }
 
   # ── Record new snapshot ──────────────────────────────────────────────────────
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  if (!is.null(label) &&
-      (!is.character(label) || length(label) != 1L || is.na(label) || !nzchar(label)))
-    cli::cli_abort("{.arg label} must be a single non-empty character string.", call = NULL)
+  .assert_data_frame(data)
+  if (!is.null(label)) .assert_scalar_string(label)
 
   history <- .ukbflow_cache$snapshots
   idx     <- if (is.null(history)) 1L else nrow(history) + 1L
@@ -552,6 +548,9 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 #' }
 ops_snapshot_cols <- function(label, keep = NULL) {
 
+  .assert_scalar_string(label)
+  if (!is.null(keep)) .assert_character(keep)
+
   cols <- .ukbflow_cache$snapshot_cols[[label]]
   if (is.null(cols))
     cli::cli_abort("No snapshot found with label {.val {label}}.", call = NULL)
@@ -586,8 +585,7 @@ ops_snapshot_cols <- function(label, keep = NULL) {
 #' }
 ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 
-  if (!is.logical(reset) || length(reset) != 1L || is.na(reset))
-    cli::cli_abort("{.arg reset} must be a single logical value.", call = NULL)
+  .assert_flag(reset)
 
   if (reset) {
     .ukbflow_cache$safe_cols <- NULL
@@ -621,9 +619,10 @@ ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 #' @param verbose (logical) Print a summary of dropped columns. Default
 #'   \code{TRUE}.
 #'
-#' @return The input \code{data} with raw columns removed in-place (for
-#'   data.table) or a modified copy (for data.frame). Always returns a
-#'   data.table.
+#' @return A \code{data.table} with the specified columns removed. For
+#'   \code{data.table} input the operation is performed by reference (in-place);
+#'   for \code{data.frame} input the data is first converted to a new
+#'   \code{data.table} — the original \code{data.frame} is not modified.
 #' @export
 #'
 #' @examples
@@ -636,10 +635,8 @@ ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 #' }
 ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  if (!is.character(from) || length(from) != 1L || !nzchar(from))
-    cli::cli_abort("{.arg from} must be a single non-empty character string.", call = NULL)
+  .assert_data_frame(data)
+  .assert_scalar_string(from)
 
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
@@ -649,7 +646,7 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
   protected    <- unique(c(builtin_safe, user_safe, keep))
 
   # Columns to drop: in snapshot but not protected and still present in data
-  snap_cols    <- ops_snapshot_cols(from)  # already excludes protected via built-in logic
+  snap_cols    <- ops_snapshot_cols(from, keep = keep)  # excludes built-in safe + user safe + keep
   cols_to_drop <- intersect(snap_cols, names(data))
 
   if (length(cols_to_drop) == 0L) {
@@ -688,6 +685,9 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 #' # $removed — columns dropped between snapshots
 #' }
 ops_snapshot_diff <- function(label1, label2) {
+
+  .assert_scalar_string(label1)
+  .assert_scalar_string(label2)
 
   cols1 <- .ukbflow_cache$snapshot_cols[[label1]]
   cols2 <- .ukbflow_cache$snapshot_cols[[label2]]
@@ -736,18 +736,14 @@ ops_snapshot_diff <- function(label1, label2) {
 ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  if (!is.character(file) || length(file) != 1L || !nzchar(file))
-    cli::cli_abort("{.arg file} must be a single non-empty character string.", call = NULL)
+  .assert_data_frame(data)
+  .assert_scalar_string(file)
   if (!file.exists(file))
     cli::cli_abort("Withdrawal file not found: {.path {file}}", call = NULL)
-  if (!is.character(eid_col) || length(eid_col) != 1L || !nzchar(eid_col))
-    cli::cli_abort("{.arg eid_col} must be a single non-empty character string.", call = NULL)
+  .assert_scalar_string(eid_col)
   if (!eid_col %in% names(data))
     cli::cli_abort("Column {.val {eid_col}} not found in {.arg data}.", call = NULL)
-  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose))
-    cli::cli_abort("{.arg verbose} must be a single logical value.", call = NULL)
+  .assert_flag(verbose)
 
   dt <- data.table::as.data.table(data)
 

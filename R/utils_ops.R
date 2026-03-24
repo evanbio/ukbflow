@@ -172,7 +172,7 @@
 
   # ── 8. Death registry (i0, 3 contributory causes) ────────────────────────────
   icd10_death <- c("I21.9", "C34.9", "I25.9", "C50.9", "C61",
-                   "I64",   "C25.9", "I48.0", "C18.9")
+                   "I64",   "C25.9", "I48.0", "C18.9", "E11.9")
   death_span  <- as.integer(as.Date("2023-12-31") - as.Date("2011-01-01"))
   death_flag  <- runif(n) < 0.10
 

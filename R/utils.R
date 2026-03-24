@@ -173,6 +173,18 @@
 }
 
 
+#' Assert that an argument is a single non-NA logical (flag)
+#'
+#' @keywords internal
+#' @noRd
+.assert_flag <- function(x, arg = deparse(substitute(x))) {
+  if (!is.logical(x) || length(x) != 1L || is.na(x)) {
+    cli::cli_abort("{.arg {arg}} must be a single TRUE or FALSE.", call = NULL)
+  }
+  invisible(x)
+}
+
+
 #' Assert that required columns are present in a data.frame
 #'
 #' Reports all missing columns in a single error rather than stopping at the
