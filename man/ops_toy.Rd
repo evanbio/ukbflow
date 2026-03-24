@@ -41,10 +41,13 @@ Includes the following column groups:
 \code{p22189}, \code{p54_i0}
 \item \strong{Genetic PCs}: \code{p22009_a1} – \code{p22009_a10}
 \item \strong{Self-report disease}: \verb{p20002_i0_a0–a4}, \verb{p20008_i0_a0–a4}
-\item \strong{HES}: \code{p41270} (JSON array), \verb{p41280_a0–a9}
-\item \strong{Cancer registry}: \code{p40006_i0}, \code{p40005_i0}
-\item \strong{Death registry}: \code{p40001_i0}, \verb{p40002_i0_a0–a1}, \code{p40000_i0}
+\item \strong{Self-report cancer}: \verb{p20001_i0_a0–a4}, \verb{p20006_i0_a0–a4}
+\item \strong{HES}: \code{p41270} (JSON array), \verb{p41280_a0–a8}
+\item \strong{Cancer registry}: \verb{p40006_i0–i2}, \verb{p40011_i0–i2}, \verb{p40012_i0–i2},
+\verb{p40005_i0–i2}
+\item \strong{Death registry}: \code{p40001_i0}, \verb{p40002_i0_a0–a2}, \code{p40000_i0}
 \item \strong{First occurrence}: \code{p131742}
+\item \strong{GRS}: \code{grs_bmi}, \code{grs_raw}, \code{grs_finngen}
 \item \strong{Messy columns}: \code{messy_allna}, \code{messy_empty}, \code{messy_label}
 }
 }

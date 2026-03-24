@@ -17,15 +17,24 @@ Default \code{0}: every column with any missing value is listed.}
 }
 \value{
 An invisible data.table with columns \code{column}, \code{n_na}, and \code{pct_na},
-sorted by \code{pct_na} descending. Always contains all columns regardless of
-\code{threshold} (which only affects CLI output).
+sorted by \code{pct_na} descending. \code{n_na} counts both \code{NA} and \code{""}.
+Always contains all columns regardless of \code{threshold} (which only affects
+CLI output).
 }
 \description{
 Scans each column of a data.frame or data.table and returns the count and
-percentage of missing values (NA or empty string \code{""}). Results are sorted
-by missingness in descending order. Columns above 10\\% are flagged in red;
-those between 0\\% and 10\\% in yellow. A summary block is always printed
-regardless of \code{threshold}.
+percentage of missing values. Results are sorted by missingness in
+descending order. Columns above 10\\% are flagged in red; those between 0\\%
+and 10\\% in yellow. A summary block is always printed regardless of
+\code{threshold}.
+}
+\details{
+\strong{Missing value definition}: a value is counted as missing if it is \code{NA}
+\emph{or} an empty string (\code{""}). Empty strings are treated as missing because
+UKB exports frequently use \code{""} as a placeholder for absent text values.
+This means \code{n_na} and \code{pct_na} reflect \emph{effective} missingness, not just
+\code{is.na()}. Numeric and logical columns are not affected (they cannot hold
+\code{""}).
 }
 \examples{
 \dontrun{

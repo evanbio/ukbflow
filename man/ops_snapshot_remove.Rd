@@ -19,9 +19,10 @@ the built-in and user-registered safe cols. Default \code{NULL}.}
 \code{TRUE}.}
 }
 \value{
-The input \code{data} with raw columns removed in-place (for
-data.table) or a modified copy (for data.frame). Always returns a
-data.table.
+A \code{data.table} with the specified columns removed. For
+\code{data.table} input the operation is performed by reference (in-place);
+for \code{data.frame} input the data is first converted to a new
+\code{data.table} — the original \code{data.frame} is not modified.
 }
 \description{
 Drops columns that were present at snapshot \code{from} from \code{data},
