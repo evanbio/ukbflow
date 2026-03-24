@@ -415,3 +415,37 @@ test_that(".assert_has_cols() error message includes the data argument name", {
   my_data <- data.frame(x = 1)
   expect_error(ukbflow:::.assert_has_cols(my_data, "missing"), "my_data")
 })
+
+
+# ===========================================================================
+# .assert_flag()
+# ===========================================================================
+
+test_that(".assert_flag() accepts TRUE", {
+  expect_invisible(ukbflow:::.assert_flag(TRUE))
+})
+
+test_that(".assert_flag() accepts FALSE", {
+  expect_invisible(ukbflow:::.assert_flag(FALSE))
+})
+
+test_that(".assert_flag() rejects NA", {
+  expect_error(ukbflow:::.assert_flag(NA), "TRUE or FALSE")
+})
+
+test_that(".assert_flag() rejects character", {
+  expect_error(ukbflow:::.assert_flag("yes"), "TRUE or FALSE")
+})
+
+test_that(".assert_flag() rejects numeric", {
+  expect_error(ukbflow:::.assert_flag(1L), "TRUE or FALSE")
+})
+
+test_that(".assert_flag() rejects length-2 logical", {
+  expect_error(ukbflow:::.assert_flag(c(TRUE, FALSE)), "TRUE or FALSE")
+})
+
+test_that(".assert_flag() error message includes argument name", {
+  my_flag <- "bad"
+  expect_error(ukbflow:::.assert_flag(my_flag), "my_flag")
+})

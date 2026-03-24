@@ -14,15 +14,15 @@ test_that("ops_toy() stops when scenario is invalid", {
 })
 
 test_that("ops_toy() stops when n < 1", {
-  expect_error(suppressMessages(ops_toy(n = 0)), "positive integer")
+  expect_error(suppressMessages(ops_toy(n = 0)), "integer")
 })
 
 test_that("ops_toy() stops when n is negative", {
-  expect_error(suppressMessages(ops_toy(n = -5)), "positive integer")
+  expect_error(suppressMessages(ops_toy(n = -5)), "integer")
 })
 
-test_that("ops_toy() accepts n as non-integer numeric (coerced)", {
-  expect_no_error(suppressMessages(ops_toy(n = 10.9, seed = 1)))
+test_that("ops_toy() rejects non-integer numeric n", {
+  expect_error(suppressMessages(ops_toy(n = 10.9, seed = 1)), "integer")
 })
 
 
@@ -85,15 +85,23 @@ test_that("ops_toy() cohort has HES date columns (p41280_a0~a8)", {
   expect_true(all(cols %in% names(dt)))
 })
 
-test_that("ops_toy() cohort has cancer registry columns", {
+test_that("ops_toy() cohort has self-report cancer columns (p20001_i0_a0~a4 and p20006_i0_a0~a4)", {
   dt <- suppressMessages(ops_toy(n = 50, seed = 1))
-  expect_true(all(c("p40006_i0", "p40005_i0") %in% names(dt)))
+  expect_true(all(paste0("p20001_i0_a", 0:4) %in% names(dt)))
+  expect_true(all(paste0("p20006_i0_a", 0:4) %in% names(dt)))
 })
 
-test_that("ops_toy() cohort has death registry columns", {
+test_that("ops_toy() cohort has cancer registry columns (3 instances, icd/hist/behv/date)", {
+  dt   <- suppressMessages(ops_toy(n = 50, seed = 1))
+  cols <- c(paste0("p40006_i", 0:2), paste0("p40011_i", 0:2),
+            paste0("p40012_i", 0:2), paste0("p40005_i", 0:2))
+  expect_true(all(cols %in% names(dt)))
+})
+
+test_that("ops_toy() cohort has death registry columns (primary + 3 secondary + date)", {
   dt <- suppressMessages(ops_toy(n = 50, seed = 1))
   expect_true(all(c("p40001_i0", "p40000_i0",
-                     "p40002_i0_a0", "p40002_i0_a1") %in% names(dt)))
+                    "p40002_i0_a0", "p40002_i0_a1", "p40002_i0_a2") %in% names(dt)))
 })
 
 test_that("ops_toy() cohort has first occurrence column p131742", {
@@ -289,6 +297,70 @@ test_that("ops_setup() verbose=FALSE produces no messages", {
   expect_no_message(
     ops_setup(check_dx = FALSE, check_auth = FALSE, verbose = FALSE)
   )
+})
+
+
+# ===========================================================================
+# ops_setup() — branch behaviour via stubbed internal helpers
+# ===========================================================================
+
+test_that("ops_setup() dx not found → summary$fail >= 1", {
+  local_mocked_bindings(
+    .ops_check_dx   = function() list(ok = FALSE, path = NA_character_, version = NA_character_),
+    .ops_check_auth = function() list(ok = FALSE, logged_in = FALSE,
+                                      user = NA_character_, project = NA_character_),
+    .package = "ukbflow"
+  )
+  result <- suppressMessages(ops_setup(check_deps = FALSE, verbose = FALSE))
+  expect_gte(result$summary$fail, 1L)
+})
+
+test_that("ops_setup() dx found + auth ok → summary$pass >= 2, fail == 0", {
+  local_mocked_bindings(
+    .ops_check_dx   = function() list(ok = TRUE, path = "/usr/bin/dx", version = "0.350.0"),
+    .ops_check_auth = function() list(ok = TRUE, logged_in = TRUE,
+                                      user = "testuser", project = "project-abc123"),
+    .package = "ukbflow"
+  )
+  result <- suppressMessages(ops_setup(check_deps = FALSE, verbose = FALSE))
+  expect_gte(result$summary$pass, 2L)
+  expect_equal(result$summary$fail, 0L)
+})
+
+test_that("ops_setup() dx found but not logged in → summary$warn >= 1, fail == 0", {
+  local_mocked_bindings(
+    .ops_check_dx   = function() list(ok = TRUE, path = "/usr/bin/dx", version = "0.350.0"),
+    .ops_check_auth = function() list(ok = FALSE, logged_in = FALSE,
+                                      user = NA_character_, project = NA_character_),
+    .package = "ukbflow"
+  )
+  result <- suppressMessages(ops_setup(check_deps = FALSE, verbose = FALSE))
+  expect_gte(result$summary$warn, 1L)
+  expect_equal(result$summary$fail, 0L)   # auth failure is warn, not fail
+})
+
+test_that("ops_setup() auth ok but no project selected → summary$pass for auth, warning message", {
+  local_mocked_bindings(
+    .ops_check_dx   = function() list(ok = TRUE, path = "/usr/bin/dx", version = "0.350.0"),
+    .ops_check_auth = function() list(ok = TRUE, logged_in = TRUE,
+                                      user = "testuser", project = NA_character_),
+    .package = "ukbflow"
+  )
+  result <- suppressMessages(ops_setup(check_deps = FALSE, verbose = FALSE))
+  expect_gte(result$summary$pass, 2L)   # dx + auth both pass
+})
+
+test_that("ops_setup() summary pass + warn + fail sum matches checked items", {
+  local_mocked_bindings(
+    .ops_check_dx   = function() list(ok = TRUE, path = "/usr/bin/dx", version = "0.350.0"),
+    .ops_check_auth = function() list(ok = TRUE, logged_in = TRUE,
+                                      user = "testuser", project = "project-abc123"),
+    .package = "ukbflow"
+  )
+  result <- suppressMessages(ops_setup(check_deps = FALSE, verbose = FALSE))
+  s <- result$summary
+  # With check_deps=FALSE: dx (pass) + auth (pass) = 2 items checked
+  expect_equal(s$pass + s$warn + s$fail, 2L)
 })
 
 
@@ -616,4 +688,210 @@ test_that("ops_withdraw() verbose=FALSE produces no messages", {
   wfile <- withr::local_tempfile(fileext = ".csv")
   writeLines("9999999", wfile)
   expect_no_message(ops_withdraw(dt, file = wfile, verbose = FALSE))
+})
+
+
+# ===========================================================================
+# ops_snapshot() — check_na = FALSE
+# ===========================================================================
+
+test_that("ops_snapshot() check_na=FALSE sets n_na_cols to NA", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt  <- suppressMessages(ops_toy(n = 50, seed = 1))
+  row <- suppressMessages(
+    ops_snapshot(dt, label = "nochk", verbose = FALSE, check_na = FALSE)
+  )
+  expect_true(is.na(row$n_na_cols))
+})
+
+
+# ===========================================================================
+# ops_snapshot_cols() — input validation and expected use
+# ===========================================================================
+
+test_that("ops_snapshot_cols() aborts on non-string label", {
+  expect_error(ops_snapshot_cols(123), "label")
+})
+
+test_that("ops_snapshot_cols() aborts when label not found in cache", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  expect_error(ops_snapshot_cols("nonexistent"), "nonexistent")
+})
+
+test_that("ops_snapshot_cols() returns a character vector", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  cols <- ops_snapshot_cols("raw")
+  expect_type(cols, "character")
+  expect_gt(length(cols), 0L)
+})
+
+test_that("ops_snapshot_cols() always excludes built-in safe col eid", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  expect_false("eid" %in% ops_snapshot_cols("raw"))
+})
+
+test_that("ops_snapshot_cols() keep excludes additional columns", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  cols <- ops_snapshot_cols("raw", keep = "p31")
+  expect_false("p31" %in% cols)
+})
+
+test_that("ops_snapshot_cols() keep=NULL returns all non-protected columns", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  cols_no_keep   <- ops_snapshot_cols("raw")
+  cols_with_keep <- ops_snapshot_cols("raw", keep = "p31")
+  expect_gt(length(cols_no_keep), length(cols_with_keep))
+})
+
+
+# ===========================================================================
+# ops_snapshot_diff() — input validation and expected use
+# ===========================================================================
+
+test_that("ops_snapshot_diff() aborts on non-string label1", {
+  expect_error(suppressMessages(ops_snapshot_diff(123, "b")), "label1")
+})
+
+test_that("ops_snapshot_diff() aborts on non-string label2", {
+  expect_error(suppressMessages(ops_snapshot_diff("a", 123)), "label2")
+})
+
+test_that("ops_snapshot_diff() aborts when label not found in cache", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  expect_error(suppressMessages(ops_snapshot_diff("raw", "derived")), "raw")
+})
+
+test_that("ops_snapshot_diff() returns list with added and removed", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt1 <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt1, label = "before", verbose = FALSE))
+  dt2 <- data.table::copy(dt1)
+  dt2[, derived_col := 1L]
+  dt2[, p31 := NULL]
+  suppressMessages(ops_snapshot(dt2, label = "after", verbose = FALSE))
+  result <- suppressMessages(ops_snapshot_diff("before", "after"))
+  expect_true("derived_col" %in% result$added)
+  expect_true("p31" %in% result$removed)
+})
+
+test_that("ops_snapshot_diff() reports empty vectors when snapshots are identical", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "s1", verbose = FALSE))
+  suppressMessages(ops_snapshot(dt, label = "s2", verbose = FALSE))
+  result <- suppressMessages(ops_snapshot_diff("s1", "s2"))
+  expect_equal(length(result$added),   0L)
+  expect_equal(length(result$removed), 0L)
+})
+
+
+# ===========================================================================
+# ops_snapshot_remove() — input validation and expected use
+# ===========================================================================
+
+test_that("ops_snapshot_remove() aborts on non-data.frame input", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  expect_error(ops_snapshot_remove("not a df", from = "raw"), "data.frame")
+})
+
+test_that("ops_snapshot_remove() aborts on non-string from", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  expect_error(ops_snapshot_remove(dt, from = 123), "from")
+})
+
+test_that("ops_snapshot_remove() returns a data.table", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  dt2 <- data.table::copy(dt)
+  dt2[, derived_col := 1L]
+  result <- suppressMessages(ops_snapshot_remove(dt2, from = "raw", verbose = FALSE))
+  expect_true(data.table::is.data.table(result))
+})
+
+test_that("ops_snapshot_remove() drops raw columns and retains derived columns", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  dt2 <- data.table::copy(dt)
+  dt2[, derived_col := 1L]
+  result <- suppressMessages(ops_snapshot_remove(dt2, from = "raw", verbose = FALSE))
+  expect_true("derived_col" %in% names(result))
+  expect_false("p31" %in% names(result))
+})
+
+test_that("ops_snapshot_remove() always protects eid", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  result <- suppressMessages(ops_snapshot_remove(
+    data.table::copy(dt), from = "raw", verbose = FALSE
+  ))
+  expect_true("eid" %in% names(result))
+})
+
+test_that("ops_snapshot_remove() keep protects additional columns", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  result <- suppressMessages(ops_snapshot_remove(
+    data.table::copy(dt), from = "raw", keep = "p31", verbose = FALSE
+  ))
+  expect_true("p31" %in% names(result))
+})
+
+test_that("ops_snapshot_remove() accepts data.frame input and returns data.table without modifying original", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  df <- as.data.frame(suppressMessages(ops_toy(n = 50, seed = 1)))
+  suppressMessages(ops_snapshot(df, label = "raw", verbose = FALSE))
+  result <- suppressMessages(ops_snapshot_remove(df, from = "raw", verbose = FALSE))
+  expect_true(data.table::is.data.table(result))
+  expect_false(data.table::is.data.table(df))
+})
+
+
+# ===========================================================================
+# ops_set_safe_cols() — input validation and expected use
+# ===========================================================================
+
+test_that("ops_set_safe_cols() aborts on non-character cols", {
+  expect_error(ops_set_safe_cols(cols = 123), "cols")
+})
+
+test_that("ops_set_safe_cols() aborts on invalid reset", {
+  expect_error(ops_set_safe_cols(reset = "yes"), "reset")
+})
+
+test_that("ops_set_safe_cols() registered cols are protected in ops_snapshot_cols()", {
+  suppressMessages(ops_set_safe_cols(reset = TRUE))
+  suppressMessages(ops_set_safe_cols(cols = "my_safe_col"))
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- data.table::data.table(eid = 1L, my_safe_col = 1L, other_col = 1L)
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  cols <- ops_snapshot_cols("raw")
+  expect_false("my_safe_col" %in% cols)
+  expect_true("other_col"  %in% cols)
+  suppressMessages(ops_set_safe_cols(reset = TRUE))
+})
+
+test_that("ops_set_safe_cols() reset clears registered cols", {
+  suppressMessages(ops_set_safe_cols(cols = "tmp_col"))
+  suppressMessages(ops_set_safe_cols(reset = TRUE))
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- data.table::data.table(eid = 1L, tmp_col = 1L)
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  cols <- ops_snapshot_cols("raw")
+  expect_true("tmp_col" %in% cols)
 })
