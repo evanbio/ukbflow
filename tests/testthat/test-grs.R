@@ -209,6 +209,18 @@ test_that("grs_validate() aborts when no GRS columns auto-detected", {
   expect_error(grs_validate(dt, outcome_col = "outcome"), "No GRS")
 })
 
+test_that("grs_validate() aborts when grs_cols are non-numeric", {
+  dt <- data.table::data.table(
+    IID     = 1:10,
+    GRS_x   = as.character(rnorm(10)),
+    outcome = rbinom(10, 1, 0.3)
+  )
+  expect_error(
+    grs_validate(dt, grs_cols = "GRS_x", outcome_col = "outcome"),
+    "numeric"
+  )
+})
+
 test_that("grs_validate() returns a list with 4 named elements (logistic)", {
   dt  <- .fake_grs_dt()
   res <- suppressWarnings(
@@ -266,4 +278,101 @@ test_that("grs_validate() does not modify the user's original data", {
                  outcome_col = "outcome")
   )
   expect_equal(dt, orig)
+})
+
+
+# ===========================================================================
+# grs_bgen2pgen() — argument validation (no RAP submission)
+# ===========================================================================
+
+test_that("grs_bgen2pgen() aborts when chr contains out-of-range values", {
+  expect_error(grs_bgen2pgen(chr = 0),  "between 1 and 22")
+  expect_error(grs_bgen2pgen(chr = 23), "between 1 and 22")
+})
+
+test_that("grs_bgen2pgen() aborts when chr contains NA", {
+  expect_error(grs_bgen2pgen(chr = NA_integer_), "between 1 and 22")
+})
+
+test_that("grs_bgen2pgen() aborts when maf is out of range", {
+  expect_error(grs_bgen2pgen(chr = 22, maf = 0),    "maf")
+  expect_error(grs_bgen2pgen(chr = 22, maf = 0.5),  "maf")
+  expect_error(grs_bgen2pgen(chr = 22, maf = -0.1), "maf")
+})
+
+test_that("grs_bgen2pgen() aborts when maf is not a scalar", {
+  expect_error(grs_bgen2pgen(chr = 22, maf = c(0.01, 0.05)), "maf")
+})
+
+test_that("grs_bgen2pgen() aborts on invalid instance value", {
+  expect_error(grs_bgen2pgen(chr = 22, instance = "xlarge"), "arg")
+})
+
+test_that("grs_bgen2pgen() aborts on invalid priority value", {
+  expect_error(grs_bgen2pgen(chr = 22, priority = "medium"), "arg")
+})
+
+test_that("grs_bgen2pgen() warns when standard instance used for chr 1-16", {
+  # Validation happens before RAP check; expect a warning (not error) about storage
+  # The function will then abort on missing RAP project — suppress that downstream error
+  expect_warning(
+    tryCatch(
+      grs_bgen2pgen(chr = 1, instance = "standard"),
+      error = function(e) NULL
+    ),
+    "storage|mem2_ssd1|large"
+  )
+})
+
+
+# ===========================================================================
+# grs_score() — argument validation (no RAP submission)
+# ===========================================================================
+
+test_that("grs_score() aborts when file is not a character vector", {
+  expect_error(grs_score(file = 123L), "character")
+})
+
+test_that("grs_score() aborts when file entries are unnamed", {
+  expect_error(grs_score(file = c("weights.txt")), "named")
+})
+
+test_that("grs_score() aborts when file has partially missing names", {
+  expect_error(grs_score(file = c(grs_a = "a.txt", "b.txt")), "named")
+})
+
+test_that("grs_score() aborts on duplicate names in file", {
+  expect_error(
+    grs_score(file = c(grs_a = "a.txt", grs_a = "b.txt")),
+    "[Dd]uplicate"
+  )
+})
+
+test_that("grs_score() aborts when local weight file does not exist", {
+  expect_error(
+    grs_score(file = c(grs_a = "/no/such/weights.txt")),
+    "not found"
+  )
+})
+
+test_that("grs_score() aborts when maf is out of range", {
+  withr::local_tempfile(fileext = ".txt") |> (function(f) {
+    file.create(f)
+    expect_error(grs_score(file = c(grs_a = f), maf = 0),   "maf")
+    expect_error(grs_score(file = c(grs_a = f), maf = 0.5), "maf")
+  })()
+})
+
+test_that("grs_score() aborts on invalid instance value", {
+  withr::local_tempfile(fileext = ".txt") |> (function(f) {
+    file.create(f)
+    expect_error(grs_score(file = c(grs_a = f), instance = "mega"), "arg")
+  })()
+})
+
+test_that("grs_score() aborts on invalid priority value", {
+  withr::local_tempfile(fileext = ".txt") |> (function(f) {
+    file.create(f)
+    expect_error(grs_score(file = c(grs_a = f), priority = "urgent"), "arg")
+  })()
 })
