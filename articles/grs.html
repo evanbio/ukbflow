@@ -255,13 +255,12 @@ plink2-compatible space-delimited output.</p>
 <span><span class="co">#&gt; ✔ Weights file passed checks: 312 SNPs ready for UKB RAP.</span></span>
 <span><span class="co">#&gt; ✔ Saved: 'weights_clean.txt'</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># On RAP (JupyterLab / RStudio) -- use /mnt/project/ paths directly</span></span>
+<code class="sourceCode R"><span><span class="co"># On RAP (RStudio) -- use /mnt/project/ paths directly</span></span>
 <span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_check.html">grs_check</a></span><span class="op">(</span></span>
 <span>  file <span class="op">=</span> <span class="st">"/mnt/project/weights/weights.csv"</span>,</span>
 <span>  dest <span class="op">=</span> <span class="st">"/mnt/project/weights/weights_clean.txt"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>The function returns the validated <code>data.table</code> invisibly,
-which can be passed directly to downstream functions.</p>
+<p>The validated weights are also returned invisibly for inspection.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -271,8 +270,8 @@ which can be passed directly to downstream functions.</p>
 <code><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen()</a></code> submits one Swiss Army Knife job per
 chromosome to convert BGEN files to the faster PGEN format with a MAF
 filter applied via plink2.</p>
-<p>This function is called from your local machine or RAP JupyterLab –
-the heavy lifting runs entirely in the cloud.</p>
+<p>This function is called from your local machine or RAP RStudio – the
+heavy lifting runs entirely in the cloud.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Test on the smallest chromosome first</span></span>
 <span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">22</span>, priority <span class="op">=</span> <span class="st">"high"</span><span class="op">)</span></span>
@@ -286,9 +285,9 @@ the heavy lifting runs entirely in the cloud.</p>
 <span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span>
 <span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Monitor progress</span></span>
+<span><span class="co"># Monitor progress (job_wait() takes one job ID at a time)</span></span>
 <span><span class="fu"><a href="../reference/job_ls.html">job_ls</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_small</span>, <span class="va">ids_large</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">id</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_small</span>, <span class="va">ids_large</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Instance types:</strong></p>
 <table class="table">
 <thead><tr class="header">
@@ -387,7 +386,7 @@ scores all 22 chromosomes and saves a single CSV to RAP.</p>
 <span><span class="co">#&gt; ✔ 2/2 job(s) submitted. Monitor with job_ls().</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span></span></code></pre></div>
-<p>When running from RAP JupyterLab with weights already at the project
+<p>When running from RAP RStudio with weights already at the project
 root, the upload step is skipped automatically:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># On RAP: weights already at /mnt/project/grs_a_weights.txt</span></span>
@@ -511,8 +510,9 @@ analyses for each GRS:</p>
 <tr class="odd">
 <td><code>per_sd</code></td>
 <td>
-<code>GRS</code>, <code>model</code>, <code>OR</code>,
-<code>CI_lower</code>, <code>CI_upper</code>, <code>p_value</code>
+<code>exposure</code>, <code>term</code>, <code>model</code>,
+<code>OR</code>, <code>CI_lower</code>, <code>CI_upper</code>,
+<code>p_value</code>
 </td>
 <td>same with <code>HR</code>
 </td>
@@ -563,7 +563,7 @@ analyses for each GRS:</p>
 <span><span class="co"># 2. Convert BGEN -&gt; PGEN on RAP (submit jobs)</span></span>
 <span><span class="va">ids_std</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span>, maf <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span><span class="va">ids_lrg</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>,  maf <span class="op">=</span> <span class="fl">0.01</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_std</span>, <span class="va">ids_lrg</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">id</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_std</span>, <span class="va">ids_lrg</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 3. Score GRS on RAP (submit jobs)</span></span>
 <span><span class="va">score_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_score.html">grs_score</a></span><span class="op">(</span></span>
@@ -576,10 +576,11 @@ analyses for each GRS:</p>
 <span><span class="co"># 4. Download score CSV from RAP</span></span>
 <span><span class="fu"><a href="../reference/fetch_file.html">fetch_file</a></span><span class="op">(</span><span class="st">"/grs/GRS_a_scores.csv"</span>, dest <span class="op">=</span> <span class="st">"GRS_a_scores.csv"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 5. Merge into cohort and standardise</span></span>
-<span><span class="va">scores</span>  <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"GRS_a_scores.csv"</span><span class="op">)</span></span>
-<span><span class="va">cohort</span>  <span class="op">&lt;-</span> <span class="va">scores</span><span class="op">[</span><span class="va">cohort</span>, on <span class="op">=</span> <span class="st">"IID"</span><span class="op">]</span></span>
-<span><span class="va">cohort</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_standardize.html">grs_standardize</a></span><span class="op">(</span><span class="va">cohort</span>, grs_cols <span class="op">=</span> <span class="st">"GRS_a"</span><span class="op">)</span></span>
+<span><span class="co"># 5. Merge into analysis dataset and standardise</span></span>
+<span><span class="co"># cohort: your analysis data.table with IID and phenotype columns</span></span>
+<span><span class="va">scores</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"GRS_a_scores.csv"</span><span class="op">)</span>   <span class="co"># columns: IID, GRS_a</span></span>
+<span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="va">scores</span><span class="op">[</span><span class="va">cohort</span>, on <span class="op">=</span> <span class="st">"IID"</span><span class="op">]</span>               <span class="co"># right-join: keep all cohort rows</span></span>
+<span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_standardize.html">grs_standardize</a></span><span class="op">(</span><span class="va">cohort</span>, grs_cols <span class="op">=</span> <span class="st">"GRS_a"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 6. Validate</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_validate.html">grs_validate</a></span><span class="op">(</span></span>

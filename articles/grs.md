@@ -62,15 +62,14 @@ w <- grs_check("weights.csv", dest = "weights_clean.txt")
 ```
 
 ``` r
-# On RAP (JupyterLab / RStudio) -- use /mnt/project/ paths directly
+# On RAP (RStudio) -- use /mnt/project/ paths directly
 w <- grs_check(
   file = "/mnt/project/weights/weights.csv",
   dest = "/mnt/project/weights/weights_clean.txt"
 )
 ```
 
-The function returns the validated `data.table` invisibly, which can be
-passed directly to downstream functions.
+The validated weights are also returned invisibly for inspection.
 
 ------------------------------------------------------------------------
 
@@ -81,7 +80,7 @@ UKB imputed genotype data is stored in BGEN format on RAP.
 submits one Swiss Army Knife job per chromosome to convert BGEN files to
 the faster PGEN format with a MAF filter applied via plink2.
 
-This function is called from your local machine or RAP JupyterLab – the
+This function is called from your local machine or RAP RStudio – the
 heavy lifting runs entirely in the cloud.
 
 ``` r
@@ -99,9 +98,9 @@ ids <- grs_bgen2pgen(chr = 22, priority = "high")
 ids_small <- grs_bgen2pgen(chr = 17:22)
 ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 
-# Monitor progress
+# Monitor progress (job_wait() takes one job ID at a time)
 job_ls()
-job_wait(c(ids_small, ids_large))
+for (id in c(ids_small, ids_large)) job_wait(id)
 ```
 
 **Instance types:**
@@ -155,8 +154,8 @@ ids <- grs_score(
 job_wait(ids)
 ```
 
-When running from RAP JupyterLab with weights already at the project
-root, the upload step is skipped automatically:
+When running from RAP RStudio with weights already at the project root,
+the upload step is skipped automatically:
 
 ``` r
 # On RAP: weights already at /mnt/project/grs_a_weights.txt
@@ -255,12 +254,12 @@ res$discrimination  # C-index with 95% CI
 
 **Return value:** a named list with four `data.table` elements.
 
-| Element          | Columns (logistic)                                      | Columns (Cox)                            |
-|------------------|---------------------------------------------------------|------------------------------------------|
-| `per_sd`         | `GRS`, `model`, `OR`, `CI_lower`, `CI_upper`, `p_value` | same with `HR`                           |
-| `high_vs_low`    | same as `per_sd`                                        | same with `HR`                           |
-| `trend`          | `exposure`, `model`, `p_trend`                          | same                                     |
-| `discrimination` | `GRS`, `AUC`, `CI_lower`, `CI_upper`                    | `GRS`, `C_index`, `CI_lower`, `CI_upper` |
+| Element          | Columns (logistic)                                                   | Columns (Cox)                            |
+|------------------|----------------------------------------------------------------------|------------------------------------------|
+| `per_sd`         | `exposure`, `term`, `model`, `OR`, `CI_lower`, `CI_upper`, `p_value` | same with `HR`                           |
+| `high_vs_low`    | same as `per_sd`                                                     | same with `HR`                           |
+| `trend`          | `exposure`, `model`, `p_trend`                                       | same                                     |
+| `discrimination` | `GRS`, `AUC`, `CI_lower`, `CI_upper`                                 | `GRS`, `C_index`, `CI_lower`, `CI_upper` |
 
 > AUC calculation requires the `pROC` package. Install with
 > `install.packages("pROC")` if needed.
@@ -278,7 +277,7 @@ grs_check("weights.csv", dest = "weights_clean.txt")
 # 2. Convert BGEN -> PGEN on RAP (submit jobs)
 ids_std  <- grs_bgen2pgen(chr = 17:22, maf = 0.01)
 ids_lrg  <- grs_bgen2pgen(chr = 1:16,  maf = 0.01, instance = "large")
-job_wait(c(ids_std, ids_lrg))
+for (id in c(ids_std, ids_lrg)) job_wait(id)
 
 # 3. Score GRS on RAP (submit jobs)
 score_ids <- grs_score(
@@ -291,10 +290,11 @@ job_wait(score_ids)
 # 4. Download score CSV from RAP
 fetch_file("/grs/GRS_a_scores.csv", dest = "GRS_a_scores.csv")
 
-# 5. Merge into cohort and standardise
-scores  <- data.table::fread("GRS_a_scores.csv")
-cohort  <- scores[cohort, on = "IID"]
-cohort  <- grs_standardize(cohort, grs_cols = "GRS_a")
+# 5. Merge into analysis dataset and standardise
+# cohort: your analysis data.table with IID and phenotype columns
+scores <- data.table::fread("GRS_a_scores.csv")   # columns: IID, GRS_a
+cohort <- scores[cohort, on = "IID"]               # right-join: keep all cohort rows
+cohort <- grs_standardize(cohort, grs_cols = "GRS_a")
 
 # 6. Validate
 res <- grs_validate(

@@ -33,7 +33,7 @@ grs_validate(
 
   Character vector of GRS column names to validate. If `NULL` (default),
   all columns whose names contain `"grs"` (case-insensitive) are
-  selected automatically.
+  selected automatically. All specified columns must be numeric.
 
 - outcome_col:
 
