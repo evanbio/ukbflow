@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -177,8 +177,9 @@ minimal post-processing:</p>
 </tr>
 </tbody>
 </table>
-<p>Both functions save all formats in a single call and return the
-plot/table object invisibly for further customisation.</p>
+<p>When <code>save = TRUE</code>, both functions write all supported
+formats in a single call and return the plot/table object invisibly for
+further customisation.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -207,7 +208,7 @@ inserted automatically.</p>
 <span>  est       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="fl">1.52</span>, <span class="fl">1.43</span><span class="op">)</span>,</span>
 <span>  lower     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="fl">1.18</span>, <span class="fl">1.11</span><span class="op">)</span>,</span>
 <span>  upper     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="fl">1.96</span>, <span class="fl">1.85</span><span class="op">)</span>,</span>
-<span>  ci_column <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  indent    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>,   <span class="fl">1L</span>,   <span class="fl">1L</span><span class="op">)</span>,</span>
 <span>  p_cols    <span class="op">=</span> <span class="st">"p_value"</span>,</span>
 <span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">3.0</span><span class="op">)</span></span>
@@ -243,7 +244,7 @@ reshaped directly into the format expected by
 <span>  est       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">HR</span><span class="op">)</span>,</span>
 <span>  lower     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_lower</span><span class="op">)</span>,</span>
 <span>  upper     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_upper</span><span class="op">)</span>,</span>
-<span>  ci_column <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  indent    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>,   <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  p_cols    <span class="op">=</span> <span class="st">"p_value"</span>,</span>
 <span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">2.5</span><span class="op">)</span>,</span>
@@ -259,7 +260,7 @@ reshaped directly into the format expected by
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est       <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
-<span>  ci_column <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  ci_col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey50"</span>, <span class="st">"steelblue"</span>, <span class="st">"steelblue"</span><span class="op">)</span>,  <span class="co"># per-row colours</span></span>
 <span>  ci_sizes  <span class="op">=</span> <span class="fl">0.5</span>,       <span class="co"># point size</span></span>
 <span>  ci_Theight <span class="op">=</span> <span class="fl">0.15</span>,     <span class="co"># cap height</span></span>
@@ -272,7 +273,7 @@ reshaped directly into the format expected by
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est        <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
-<span>  ci_column  <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column  <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  indent     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>, <span class="fl">1L</span>, <span class="fl">1L</span><span class="op">)</span>,        <span class="co"># parent + 2 sub-rows</span></span>
 <span>  bold_label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># explicit control (overrides indent default)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -284,29 +285,56 @@ reshaped directly into the format expected by
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data        <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est         <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
-<span>  ci_column   <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column   <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  p_cols      <span class="op">=</span> <span class="st">"p_value"</span>,</span>
 <span>  p_digits    <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  bold_p      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  p_threshold <span class="op">=</span> <span class="fl">0.05</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><strong>Background and borders</strong></p>
+<p><strong>Column headers and alignment</strong></p>
+<p><code>header</code> renames all columns in the <em>final</em>
+rendered table. The final table always has <code>ncol(data) + 2</code>
+columns: the original columns, plus the <code>gap_ci</code> graphic
+column and the auto-generated <code>OR (95% CI)</code> text column. Pass
+<code>""</code> for the gap column position.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># data has 3 columns → final table has 5 columns (original 3 + gap_ci + OR label)</span></span>
+<span><span class="co"># Layout with ci_column = 3L: item | Cases/N | gap_ci | OR (95% CI) | p_value</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  est       <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  header    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Comparison"</span>, <span class="st">"Cases / N"</span>, <span class="st">""</span>, <span class="st">"HR (95% CI)"</span>, <span class="st">"P-value"</span><span class="op">)</span></span>
+<span>  <span class="co">#             col 1          col 2        gap  OR label       col 5</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code>align</code> controls per-column text alignment across all
+<code>ncol(data) + 2</code> columns: <code>-1</code> = left,
+<code>0</code> = centre, <code>1</code> = right. <code>NULL</code>
+(default) left-aligns column 1 and centres the rest.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  est       <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
+<span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  align     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="fl">0L</span>, <span class="fl">0L</span>, <span class="fl">1L</span><span class="op">)</span>   <span class="co"># label left | Cases/N centre | gap | OR centre | p right</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>Background and borders</strong></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est        <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
-<span>  ci_column  <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column  <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  background <span class="op">=</span> <span class="st">"zebra"</span>,       <span class="co"># "zebra" | "bold_label" | "none"</span></span>
 <span>  bg_col     <span class="op">=</span> <span class="st">"#F0F0F0"</span>,     <span class="co"># shading colour</span></span>
 <span>  border     <span class="op">=</span> <span class="st">"three_line"</span>,  <span class="co"># "three_line" | "none"</span></span>
 <span>  border_width <span class="op">=</span> <span class="fl">3</span>            <span class="co"># scalar or length-3 vector (top / mid / bottom)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Layout and saving</strong></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data        <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est         <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
-<span>  ci_column   <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ci_column   <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  row_height  <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># auto (8 / 12 / 10 / 15 mm); or scalar/vector</span></span>
 <span>  col_width   <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># auto (rounds up to nearest 5 mm)</span></span>
 <span>  save        <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -330,7 +358,7 @@ object invisibly; display with <code>plot(p)</code> or
 <div class="section level3">
 <h3 id="minimal-example-1">Minimal example<a class="anchor" aria-label="anchor" href="#minimal-example-1"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ddsjoberg/gtsummary" class="external-link">gtsummary</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">trial</span><span class="op">)</span>   <span class="co"># built-in gtsummary dataset</span></span>
 <span></span>
@@ -344,12 +372,13 @@ object invisibly; display with <code>plot(p)</code> or
 <div class="section level3">
 <h3 id="with-smd-custom-labels-and-export">With SMD, custom labels, and export<a class="anchor" aria-label="anchor" href="#with-smd-custom-labels-and-export"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data    <span class="op">=</span> <span class="va">trial</span>,</span>
 <span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"marker"</span>, <span class="st">"grade"</span>, <span class="st">"stage"</span><span class="op">)</span>,</span>
 <span>  strata  <span class="op">=</span> <span class="st">"trt"</span>,</span>
 <span>  label   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">age</span> <span class="op">~</span> <span class="st">"Age (years)"</span>, <span class="va">marker</span> <span class="op">~</span> <span class="st">"Marker level (ng/mL)"</span><span class="op">)</span>,</span>
+<span>  add_p   <span class="op">=</span> <span class="cn">TRUE</span>,    <span class="co"># Wilcoxon / chi-squared p-values; formatted as &lt;0.001</span></span>
 <span>  add_smd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overall <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  dest    <span class="op">=</span> <span class="st">"results/table1"</span>,</span>
@@ -364,7 +393,7 @@ object invisibly; display with <code>plot(p)</code> or
 <h3 id="key-parameters-1">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters-1"></a>
 </h3>
 <p><strong>Variable types and statistics</strong></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">cohort</span>,</span>
 <span>  vars      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"bmi"</span>, <span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
@@ -382,7 +411,7 @@ object invisibly; display with <code>plot(p)</code> or
 <p>The SMD column summarises covariate balance between groups: -
 Continuous variables: Cohen’s <em>d</em> (pooled-SD formula) -
 Categorical variables: RMSD of group proportions</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data    <span class="op">=</span> <span class="va">cohort</span>,</span>
 <span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"bmi"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
@@ -394,12 +423,12 @@ Categorical variables: RMSD of group proportions</p>
 <p>Use <code>exclude_labels</code> to remove specific level rows from
 the rendered table (e.g. a redundant reference category or an “Unknown”
 level):</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data           <span class="op">=</span> <span class="va">cohort</span>,</span>
 <span>  vars           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
 <span>  strata         <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  exclude_labels <span class="op">=</span> <span class="st">"Unknown"</span>,</span>
+<span>  exclude_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown"</span>, <span class="st">"Prefer not to answer"</span><span class="op">)</span>,  <span class="co"># multiple values accepted</span></span>
 <span>  save           <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Export formats</strong></p>
@@ -463,7 +492,7 @@ Issues</a></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -472,7 +501,7 @@ Issues</a></li>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

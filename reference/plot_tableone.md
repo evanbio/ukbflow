@@ -81,15 +81,15 @@ plot_tableone(
 
 - add_p:
 
-  Logical. Add a p-value column. Default `TRUE`; silently disabled if
-  `strata` is `NULL`.
+  Logical. Add a p-value column. Default `TRUE`; disabled with a warning
+  if `strata` is `NULL`.
 
 - add_smd:
 
   Logical. Add a standardised mean difference (SMD) column. Continuous
   variables use Cohen's *d*; categorical variables use root-mean-square
   deviation (RMSD) of group proportions. SMD is shown only on label
-  rows. Default `FALSE`; silently disabled if `strata` is `NULL`.
+  rows. Default `FALSE`; disabled with a warning if `strata` is `NULL`.
 
 - overall:
 
@@ -125,7 +125,7 @@ plot_tableone(
 
 - save:
 
-  Logical. Export the table to files. Default `TRUE`.
+  Logical. Export the table to files. Default `FALSE`.
 
 - dest:
 

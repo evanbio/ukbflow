@@ -6,7 +6,8 @@
 Analysis Platform (RAP)](https://ukbiobank.dnanexus.com). It covers the
 full midstream-to-downstream pipeline — from phenotype derivation and
 association analysis to publication-ready figures and genetic risk
-scoring — entirely within the RAP cloud environment.
+scoring — designed for RAP-native UKB workflows, with local simulated
+data for development and testing.
 
 ## Installation
 
@@ -16,30 +17,33 @@ pak::pkg_install("evanbio/ukbflow")
 
 ## A Quick Taste
 
-### Authenticate and extract data
+### Load data
 
 ``` r
 library(ukbflow)
 
-auth_login()
-auth_select_project("project-XXXXXXXXXXXX")
+df <- ops_toy()   # synthetic UKB-like cohort, no RAP connection needed
 
-df <- extract_pheno(c(31, 21022, 53, 20116)) |>
-  decode_values() |>
-  decode_names()
+# On RAP, replace with:
+# auth_login()
+# auth_select_project("project-XXXXXXXXXXXX")
+# df <- extract_pheno(c(31, 21022, 53, 20116)) |>
+#   decode_values() |>
+#   decode_names()
 ```
 
 ### Derive a disease phenotype
 
 ``` r
 df <- df |>
-  derive_missing() |>
-  derive_selfreport(name = "outcome", regex = "diabetes", field = "non_cancer") |>
-  derive_icd10(name = "outcome", icd10 = "E11", source = "hes") |>
-  derive_case(name = "outcome") |>                 # → outcome_status, outcome_date
-  derive_followup(name         = "outcome",
-                  event_col    = "outcome_date",
-                  baseline_col = "p53_i0",         # date_of_attending_assessment_centre_i0
+  derive_missing() |>                                               # recode "Prefer not to answer" → NA
+  derive_selfreport(name = "t2dm", regex = "diabetes",           # T2DM self-report
+                    field = "noncancer") |>
+  derive_icd10(name = "t2dm", icd10 = "E11", source = "hes") |> # T2DM from HES
+  derive_case(name = "t2dm") |>                                  # → t2dm_status, t2dm_date
+  derive_followup(name         = "t2dm",
+                  event_col    = "t2dm_date",
+                  baseline_col = "p53_i0",                          # assessment centre date
                   censor_date  = as.Date("2022-06-01"))
 ```
 
@@ -48,10 +52,11 @@ df <- df |>
 ``` r
 res <- assoc_coxph(
   data         = df,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure_status",
-  covariates   = c("age_at_recruitment", "sex", "smoking_status_i0")
+  outcome_coll  = "t2dm_status",
+  time_col     = "t2dm_followup_years",
+  exposure_col = "p21001_i0",   # BMI (continuous)
+  covariates   = c("p21022",    # age_at_recruitment
+                   "p31")       # sex
 )
 ```
 
@@ -65,14 +70,16 @@ plot_forest(
   est       = res_df$HR,
   lower     = res_df$CI_lower,
   upper     = res_df$CI_upper,
-  ci_column = 2L
+  ci_column = 7L   # res_df has 6 cols before HR; CI graphic goes here
 )
 
 # Table 1
 plot_tableone(
-  data   = df,
-  vars   = c("age_at_recruitment", "sex", "smoking_status_i0"),
-  strata = "outcome_status"
+  data   = as.data.frame(df),
+  vars   = c("p21022",     # age_at_recruitment
+             "p31",        # sex
+             "p21001_i0"), # bmi
+  strata = "t2dm_status"
 )
 ```
 

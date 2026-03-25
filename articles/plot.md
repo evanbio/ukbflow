@@ -10,8 +10,9 @@ post-processing:
 | [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)     | Forest plot (PNG / PDF / JPG / TIFF) | Regression results from `assoc_*()` |
 | [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md) | Table 1 (DOCX / HTML / PDF / PNG)    | Baseline characteristics            |
 
-Both functions save all formats in a single call and return the
-plot/table object invisibly for further customisation.
+When `save = TRUE`, both functions write all supported formats in a
+single call and return the plot/table object invisibly for further
+customisation.
 
 ------------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ p <- plot_forest(
   est       = c(NA,   1.52, 1.43),
   lower     = c(NA,   1.18, 1.11),
   upper     = c(NA,   1.96, 1.85),
-  ci_column = 2L,
+  ci_column = 3L,
   indent    = c(0L,   1L,   1L),
   p_cols    = "p_value",
   xlim      = c(0.5,  3.0)
@@ -76,7 +77,7 @@ p <- plot_forest(
   est       = c(NA,   res$HR),
   lower     = c(NA,   res$CI_lower),
   upper     = c(NA,   res$CI_upper),
-  ci_column = 2L,
+  ci_column = 3L,
   indent    = c(0L,   rep(1L, nrow(res))),
   p_cols    = "p_value",
   xlim      = c(0.5,  2.5),
@@ -93,7 +94,7 @@ p <- plot_forest(
 p <- plot_forest(
   data      = df,
   est       = est, lower = lower, upper = upper,
-  ci_column = 2L,
+  ci_column = 3L,
   ci_col    = c("grey50", "steelblue", "steelblue"),  # per-row colours
   ci_sizes  = 0.5,       # point size
   ci_Theight = 0.15,     # cap height
@@ -109,7 +110,7 @@ p <- plot_forest(
 p <- plot_forest(
   data       = df,
   est        = est, lower = lower, upper = upper,
-  ci_column  = 2L,
+  ci_column  = 3L,
   indent     = c(0L, 1L, 1L),        # parent + 2 sub-rows
   bold_label = c(TRUE, FALSE, FALSE)  # explicit control (overrides indent default)
 )
@@ -124,11 +125,43 @@ p <- plot_forest(
 p <- plot_forest(
   data        = df,
   est         = est, lower = lower, upper = upper,
-  ci_column   = 2L,
+  ci_column   = 3L,
   p_cols      = "p_value",
   p_digits    = 3L,
   bold_p      = TRUE,
   p_threshold = 0.05
+)
+```
+
+**Column headers and alignment**
+
+`header` renames all columns in the *final* rendered table. The final
+table always has `ncol(data) + 2` columns: the original columns, plus
+the `gap_ci` graphic column and the auto-generated `OR (95% CI)` text
+column. Pass `""` for the gap column position.
+
+``` r
+# data has 3 columns → final table has 5 columns (original 3 + gap_ci + OR label)
+# Layout with ci_column = 3L: item | Cases/N | gap_ci | OR (95% CI) | p_value
+p <- plot_forest(
+  data      = df,
+  est       = est, lower = lower, upper = upper,
+  ci_column = 3L,
+  header    = c("Comparison", "Cases / N", "", "HR (95% CI)", "P-value")
+  #             col 1          col 2        gap  OR label       col 5
+)
+```
+
+`align` controls per-column text alignment across all `ncol(data) + 2`
+columns: `-1` = left, `0` = centre, `1` = right. `NULL` (default)
+left-aligns column 1 and centres the rest.
+
+``` r
+p <- plot_forest(
+  data      = df,
+  est       = est, lower = lower, upper = upper,
+  ci_column = 3L,
+  align     = c(-1L, 0L, 0L, 0L, 1L)   # label left | Cases/N centre | gap | OR centre | p right
 )
 ```
 
@@ -138,7 +171,7 @@ p <- plot_forest(
 p <- plot_forest(
   data       = df,
   est        = est, lower = lower, upper = upper,
-  ci_column  = 2L,
+  ci_column  = 3L,
   background = "zebra",       # "zebra" | "bold_label" | "none"
   bg_col     = "#F0F0F0",     # shading colour
   border     = "three_line",  # "three_line" | "none"
@@ -152,7 +185,7 @@ p <- plot_forest(
 p <- plot_forest(
   data        = df,
   est         = est, lower = lower, upper = upper,
-  ci_column   = 2L,
+  ci_column   = 3L,
   row_height  = NULL,   # auto (8 / 12 / 10 / 15 mm); or scalar/vector
   col_width   = NULL,   # auto (rounds up to nearest 5 mm)
   save        = TRUE,
@@ -192,6 +225,7 @@ plot_tableone(
   vars    = c("age", "marker", "grade", "stage"),
   strata  = "trt",
   label   = list(age ~ "Age (years)", marker ~ "Marker level (ng/mL)"),
+  add_p   = TRUE,    # Wilcoxon / chi-squared p-values; formatted as <0.001
   add_smd = TRUE,
   overall = TRUE,
   dest    = "results/table1",
@@ -249,7 +283,7 @@ plot_tableone(
   data           = cohort,
   vars           = c("sex", "smoking_status_i0"),
   strata         = "outcome_status",
-  exclude_labels = "Unknown",
+  exclude_labels = c("Unknown", "Prefer not to answer"),  # multiple values accepted
   save           = FALSE
 )
 ```

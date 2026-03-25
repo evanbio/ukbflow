@@ -69,8 +69,9 @@ plot_forest(
 
 - ci_column:
 
-  Integer. Column position (in the final rendered table) where the
-  gap/CI graphic is placed. Must be \\\ge 2\\. Default: `2L`.
+  Integer. Column position in the final rendered table where the gap/CI
+  graphic is placed. Must be between `2` and `ncol(data) + 1`
+  (inclusive). Default: `2L`.
 
 - ref_line:
 
@@ -79,12 +80,13 @@ plot_forest(
 
 - xlim:
 
-  Numeric vector of length 2. X-axis limits. `NULL` = auto.
+  Numeric vector of length 2. X-axis limits. `NULL` (default) uses
+  `c(0, 2)`.
 
 - ticks_at:
 
-  Numeric vector. Tick positions. `NULL` = 5 evenly spaced ticks when
-  `xlim` is supplied, otherwise auto.
+  Numeric vector. Tick positions. `NULL` (default) = 5 evenly spaced
+  ticks across `xlim`.
 
 - arrow_lab:
 
@@ -93,10 +95,10 @@ plot_forest(
 
 - header:
 
-  Character vector (length = final column count). Column header labels
-  displayed in the table. `NULL` (default) = use column names from
-  `data` plus `"gap_ci"` and `"OR (95% CI)"` for the two auto-inserted
-  columns. Pass `""` for the gap column position.
+  Character vector of length `ncol(data) + 2`. Column header labels for
+  the final rendered table (original columns + gap_ci + OR label).
+  `NULL` (default) = use column names from `data` plus `"gap_ci"` and
+  `"OR (95% CI)"`. Pass `""` for the gap column position.
 
 - indent:
 
@@ -154,11 +156,9 @@ plot_forest(
 
 - align:
 
-  Integer vector. Alignment per column: `-1` left, `0` centre, `1`
-  right. May be length = `ncol(data)` (original) or length = final
-  column count (original + 2 inserted); the former is auto-padded with
-  `0` for the two inserted columns. `NULL` = auto (column 1 left, all
-  others centre).
+  Integer vector of length `ncol(data) + 2`. Alignment per column: `-1`
+  left, `0` centre, `1` right. Must cover all final columns (original +
+  gap_ci + OR label). `NULL` = auto (column 1 left, all others centre).
 
 - background:
 

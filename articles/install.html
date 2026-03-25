@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -198,7 +198,7 @@ statistics, plots, reports) may be exported.</p>
 </h2>
 <ul>
 <li>
-<strong>R Version</strong>: &gt;= 4.1.0</li>
+<strong>R Version</strong>: &gt;= 4.1</li>
 <li>
 <strong>Operating Systems</strong>: Windows, macOS, Linux</li>
 <li>
@@ -254,6 +254,18 @@ robust error handling (used by auth and job functions)</li>
 <li>
 <strong>forestploter</strong> — Forest plot generation</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="optional-dependencies">Optional Dependencies<a class="anchor" aria-label="anchor" href="#optional-dependencies"></a>
+</h3>
+<p>These packages are not installed automatically. Install them only if
+you need the corresponding features:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># PDF export from plot_tableone() (requires Chrome / Chromium)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pagedown"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># PNG export from plot_tableone()</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"webshot2"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -263,9 +275,9 @@ robust error handling (used by auth and job functions)</li>
 <p>The <code>auth_*</code> and <code>job_*</code> functions rely on the
 <code>dx</code> command-line tool from <a href="https://documentation.dnanexus.com/downloads" class="external-link">dxpy</a>. Required
 only when running locally.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span></code></pre></div>
 <p>Verify:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="ex">dx</span> <span class="at">--version</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">dx</span> <span class="at">--version</span></span></code></pre></div>
 <blockquote>
 <p>Skip this step if you are running entirely within the RAP RStudio
 environment.</p>
@@ -281,12 +293,12 @@ environment.</p>
 <p>Obtain your API token from the DNAnexus platform under
 <strong>Account Settings &gt; API Tokens</strong>. Store it in your
 <code>.Renviron</code> file (never in your script):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">edit_r_environ</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Add the following line, then save and restart R:</span></span>
 <span><span class="co"># DX_API_TOKEN=your_token_here</span></span></code></pre></div>
 <p>Then authenticate:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/auth_login.html">auth_login</a></span><span class="op">(</span><span class="op">)</span>                                 <span class="co"># reads DX_API_TOKEN automatically</span></span>
@@ -303,7 +315,7 @@ authentication modes, see <code><a href="../articles/auth.html">vignette("auth")
 </h3>
 <p>Authentication is automatic inside the RAP environment. Verify the
 session with:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/auth_status.html">auth_status</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># confirms user and active project</span></span></code></pre></div>
@@ -313,11 +325,11 @@ session with:</p>
 <div class="section level2">
 <h2 id="verify-installation">Verify Installation<a class="anchor" aria-label="anchor" href="#verify-installation"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"ukbflow"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] '0.3.0'</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/ops_setup.html">ops_setup</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># checks R version, dxpy, DX_API_TOKEN, and key package versions</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -326,13 +338,13 @@ session with:</p>
 <div class="section level3">
 <h3 id="from-github-1">From GitHub<a class="anchor" aria-label="anchor" href="#from-github-1"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span>, force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="from-cran-once-available">From CRAN <em>(once available)</em><a class="anchor" aria-label="anchor" href="#from-cran-once-available"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages</a></span><span class="op">(</span><span class="st">"ukbflow"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -346,9 +358,9 @@ session with:</p>
 </h3>
 <p><strong>Solution</strong>: Ensure dxpy is installed and on your
 PATH:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">which</span> dx   <span class="co"># macOS/Linux</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="ex">where</span> dx   <span class="co"># Windows</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">which</span> dx   <span class="co"># macOS/Linux</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="ex">where</span> dx   <span class="co"># Windows</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="token-expired-or-session-lost">Token expired or session lost<a class="anchor" aria-label="anchor" href="#token-expired-or-session-lost"></a>
@@ -356,7 +368,7 @@ PATH:</p>
 <p>DNAnexus API tokens have a limited validity period. If authentication
 fails, generate a new token from the DNAnexus platform and log in
 again:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_login.html">auth_login</a></span><span class="op">(</span><span class="st">"your_new_token_here"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -369,7 +381,7 @@ packages that require compilation.</p>
 <h3 id="network-firewall-issues">Network / Firewall issues<a class="anchor" aria-label="anchor" href="#network-firewall-issues"></a>
 </h3>
 <p><strong>Solution</strong>: Configure a proxy before installing:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>http_proxy  <span class="op">=</span> <span class="st">"http://your-proxy:port"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>https_proxy <span class="op">=</span> <span class="st">"https://your-proxy:port"</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -378,7 +390,7 @@ packages that require compilation.</p>
 <div class="section level2">
 <h2 id="uninstall">Uninstall<a class="anchor" aria-label="anchor" href="#uninstall"></a>
 </h2>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/remove.packages.html" class="external-link">remove.packages</a></span><span class="op">(</span><span class="st">"ukbflow"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -400,7 +412,8 @@ packages that require compilation.</p>
 </h2>
 <p>After installation:</p>
 <ol style="list-style-type: decimal">
-<li>Read the <a href="get-started.html">Getting Started</a> guide</li>
+<li>Read the <a href="https://evanbio.github.io/ukbflow/articles/get-started.html">Getting
+Started</a> guide</li>
 <li>Browse the <a href="https://evanbio.github.io/ukbflow/reference/">Function
 Reference</a>
 </li>
@@ -413,7 +426,7 @@ Reference</a>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -422,7 +435,7 @@ Reference</a>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

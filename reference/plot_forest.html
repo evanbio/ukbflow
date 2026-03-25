@@ -73,7 +73,7 @@ declared via p_cols are formatted in-place."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -187,9 +187,9 @@ in <code>p_cols</code> (must be numeric). Column order is preserved.</p></dd>
 
 
 <dt id="arg-ci-column">ci_column<a class="anchor" aria-label="anchor" href="#arg-ci-column"></a></dt>
-<dd><p>Integer. Column position (in the final rendered table)
-where the gap/CI graphic is placed. Must be \(\ge 2\).
-Default: <code>2L</code>.</p></dd>
+<dd><p>Integer. Column position in the final rendered table where
+the gap/CI graphic is placed. Must be between <code>2</code> and
+<code>ncol(data) + 1</code> (inclusive). Default: <code>2L</code>.</p></dd>
 
 
 <dt id="arg-ref-line">ref_line<a class="anchor" aria-label="anchor" href="#arg-ref-line"></a></dt>
@@ -198,12 +198,13 @@ Use <code>0</code> for beta coefficients.</p></dd>
 
 
 <dt id="arg-xlim">xlim<a class="anchor" aria-label="anchor" href="#arg-xlim"></a></dt>
-<dd><p>Numeric vector of length 2. X-axis limits. <code>NULL</code> = auto.</p></dd>
+<dd><p>Numeric vector of length 2. X-axis limits. <code>NULL</code> (default)
+uses <code>c(0, 2)</code>.</p></dd>
 
 
 <dt id="arg-ticks-at">ticks_at<a class="anchor" aria-label="anchor" href="#arg-ticks-at"></a></dt>
-<dd><p>Numeric vector. Tick positions. <code>NULL</code> = 5 evenly
-spaced ticks when <code>xlim</code> is supplied, otherwise auto.</p></dd>
+<dd><p>Numeric vector. Tick positions. <code>NULL</code> (default) = 5
+evenly spaced ticks across <code>xlim</code>.</p></dd>
 
 
 <dt id="arg-arrow-lab">arrow_lab<a class="anchor" aria-label="anchor" href="#arg-arrow-lab"></a></dt>
@@ -212,10 +213,11 @@ Default: <code>c("Lower risk", "Higher risk")</code>. <code>NULL</code> = none.<
 
 
 <dt id="arg-header">header<a class="anchor" aria-label="anchor" href="#arg-header"></a></dt>
-<dd><p>Character vector (length = final column count). Column header
-labels displayed in the table. <code>NULL</code> (default) = use column names
-from <code>data</code> plus <code>"gap_ci"</code> and <code>"OR (95% CI)"</code> for the
-two auto-inserted columns. Pass <code>""</code> for the gap column position.</p></dd>
+<dd><p>Character vector of length <code>ncol(data) + 2</code>. Column
+header labels for the final rendered table (original columns + gap_ci +
+OR label). <code>NULL</code> (default) = use column names from <code>data</code> plus
+<code>"gap_ci"</code> and <code>"OR (95% CI)"</code>. Pass <code>""</code> for the gap
+column position.</p></dd>
 
 
 <dt id="arg-indent">indent<a class="anchor" aria-label="anchor" href="#arg-indent"></a></dt>
@@ -278,10 +280,9 @@ Default: <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
-<dd><p>Integer vector. Alignment per column: <code>-1</code> left,
-<code>0</code> centre, <code>1</code> right. May be length = <code>ncol(data)</code>
-(original) or length = final column count (original + 2 inserted);
-the former is auto-padded with <code>0</code> for the two inserted columns.
+<dd><p>Integer vector of length <code>ncol(data) + 2</code>. Alignment per
+column: <code>-1</code> left, <code>0</code> centre, <code>1</code> right. Must cover all
+final columns (original + gap_ci + OR label).
 <code>NULL</code> = auto (column 1 left, all others centre).</p></dd>
 
 
@@ -379,7 +380,7 @@ Display with <code><a href="https://rdrr.io/r/graphics/plot.default.html" class=
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -388,7 +389,7 @@ Display with <code><a href="https://rdrr.io/r/graphics/plot.default.html" class=
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

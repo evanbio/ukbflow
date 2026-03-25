@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,8 +154,9 @@
 analysis on the <a href="https://ukbiobank.dnanexus.com" class="external-link">Research
 Analysis Platform (RAP)</a>. It covers the full midstream-to-downstream
 pipeline — from phenotype derivation and association analysis to
-publication-ready figures and genetic risk scoring — entirely within the
-RAP cloud environment.</p>
+publication-ready figures and genetic risk scoring — designed for
+RAP-native UKB workflows, with local simulated data for development and
+testing.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -167,30 +168,33 @@ RAP cloud environment.</p>
 <h2 id="a-quick-taste">A Quick Taste<a class="anchor" aria-label="anchor" href="#a-quick-taste"></a>
 </h2>
 <div class="section level3">
-<h3 id="authenticate-and-extract-data">Authenticate and extract data<a class="anchor" aria-label="anchor" href="#authenticate-and-extract-data"></a>
+<h3 id="load-data">Load data<a class="anchor" aria-label="anchor" href="#load-data"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/auth_login.html">auth_login</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/auth_select_project.html">auth_select_project</a></span><span class="op">(</span><span class="st">"project-XXXXXXXXXXXX"</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># synthetic UKB-like cohort, no RAP connection needed</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_pheno.html">extract_pheno</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span>, <span class="fl">21022</span>, <span class="fl">53</span>, <span class="fl">20116</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/decode_values.html">decode_values</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/decode_names.html">decode_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># On RAP, replace with:</span></span>
+<span><span class="co"># auth_login()</span></span>
+<span><span class="co"># auth_select_project("project-XXXXXXXXXXXX")</span></span>
+<span><span class="co"># df &lt;- extract_pheno(c(31, 21022, 53, 20116)) |&gt;</span></span>
+<span><span class="co">#   decode_values() |&gt;</span></span>
+<span><span class="co">#   decode_names()</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="derive-a-disease-phenotype">Derive a disease phenotype<a class="anchor" aria-label="anchor" href="#derive-a-disease-phenotype"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, regex <span class="op">=</span> <span class="st">"diabetes"</span>, field <span class="op">=</span> <span class="st">"non_cancer"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, source <span class="op">=</span> <span class="st">"hes"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"outcome"</span><span class="op">)</span> <span class="op">|&gt;</span>                 <span class="co"># → outcome_status, outcome_date</span></span>
-<span>  <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span>name         <span class="op">=</span> <span class="st">"outcome"</span>,</span>
-<span>                  event_col    <span class="op">=</span> <span class="st">"outcome_date"</span>,</span>
-<span>                  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,         <span class="co"># date_of_attending_assessment_centre_i0</span></span>
+<span>  <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>                                               <span class="co"># recode "Prefer not to answer" → NA</span></span>
+<span>  <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"t2dm"</span>, regex <span class="op">=</span> <span class="st">"diabetes"</span>,           <span class="co"># T2DM self-report</span></span>
+<span>                    field <span class="op">=</span> <span class="st">"noncancer"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"t2dm"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, source <span class="op">=</span> <span class="st">"hes"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># T2DM from HES</span></span>
+<span>  <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"t2dm"</span><span class="op">)</span> <span class="op">|&gt;</span>                                  <span class="co"># → t2dm_status, t2dm_date</span></span>
+<span>  <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span>name         <span class="op">=</span> <span class="st">"t2dm"</span>,</span>
+<span>                  event_col    <span class="op">=</span> <span class="st">"t2dm_date"</span>,</span>
+<span>                  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,                          <span class="co"># assessment centre date</span></span>
 <span>                  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-06-01"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -199,10 +203,11 @@ RAP cloud environment.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
 <span>  data         <span class="op">=</span> <span class="va">df</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure_status"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span>  outcome_coll  <span class="op">=</span> <span class="st">"t2dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"t2dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p21001_i0"</span>,   <span class="co"># BMI (continuous)</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>,    <span class="co"># age_at_recruitment</span></span>
+<span>                   <span class="st">"p31"</span><span class="op">)</span>       <span class="co"># sex</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -216,14 +221,16 @@ RAP cloud environment.</p>
 <span>  est       <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">HR</span>,</span>
 <span>  lower     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_lower</span>,</span>
 <span>  upper     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_upper</span>,</span>
-<span>  ci_column <span class="op">=</span> <span class="fl">2L</span></span>
+<span>  ci_column <span class="op">=</span> <span class="fl">7L</span>   <span class="co"># res_df has 6 cols before HR; CI graphic goes here</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Table 1</span></span>
 <span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
-<span>  data   <span class="op">=</span> <span class="va">df</span>,</span>
-<span>  vars   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
-<span>  strata <span class="op">=</span> <span class="st">"outcome_status"</span></span>
+<span>  data   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>,</span>
+<span>  vars   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>,     <span class="co"># age_at_recruitment</span></span>
+<span>             <span class="st">"p31"</span>,        <span class="co"># sex</span></span>
+<span>             <span class="st">"p21001_i0"</span><span class="op">)</span>, <span class="co"># bmi</span></span>
+<span>  strata <span class="op">=</span> <span class="st">"t2dm_status"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -362,7 +369,7 @@ site</a></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -371,7 +378,7 @@ site</a></li>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

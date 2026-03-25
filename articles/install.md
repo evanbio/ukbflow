@@ -44,7 +44,7 @@ pak::pkg_install("evanbio/ukbflow")
 
 ## System Requirements
 
-- **R Version**: \>= 4.1.0
+- **R Version**: \>= 4.1
 - **Operating Systems**: Windows, macOS, Linux
 - **dxpy**: Required for local → RAP authentication and job submission
   (see below)
@@ -75,6 +75,19 @@ pak::pkg_install("evanbio/ukbflow")
 ### Visualization Dependencies
 
 - **forestploter** — Forest plot generation
+
+### Optional Dependencies
+
+These packages are not installed automatically. Install them only if you
+need the corresponding features:
+
+``` r
+# PDF export from plot_tableone() (requires Chrome / Chromium)
+install.packages("pagedown")
+
+# PNG export from plot_tableone()
+install.packages("webshot2")
+```
 
 ------------------------------------------------------------------------
 
@@ -147,7 +160,7 @@ auth_status()  # confirms user and active project
 library(ukbflow)
 
 packageVersion("ukbflow")
-#> [1] '0.3.0'
+ops_setup()   # checks R version, dxpy, DX_API_TOKEN, and key package versions
 ```
 
 ------------------------------------------------------------------------
@@ -226,7 +239,7 @@ remove.packages("ukbflow")
 After installation:
 
 1.  Read the [Getting
-    Started](https://evanbio.github.io/ukbflow/articles/get-started.md)
+    Started](https://evanbio.github.io/ukbflow/articles/get-started.html)
     guide
 2.  Browse the [Function
     Reference](https://evanbio.github.io/ukbflow/reference/)

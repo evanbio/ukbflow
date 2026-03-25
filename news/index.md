@@ -1,5 +1,43 @@
 # Changelog
 
+## ukbflow 0.3.1
+
+*Released: March 25, 2026*
+
+### Bug Fixes
+
+- [`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md)
+  — coerce date columns to `IDate` before
+  [`pmin()`](https://rdrr.io/r/base/Extremes.html) to avoid type
+  mismatch
+- `install.Rmd` — corrected vignette cross-references
+
+### Improvements
+
+- All modules hardened with consistent `.assert_*()` input validation
+  helpers
+- All
+  [`cli::cli_abort()`](https://cli.r-lib.org/reference/cli_abort.html)
+  calls now use `call = NULL` for cleaner error messages
+- [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
+  — auto-coerce `data.table` input to `data.frame`
+
+### Documentation
+
+- Man pages updated across all modules (auth, fetch, extract, job,
+  decode, derive, ops, grs, assoc, plot)
+- All vignettes reviewed and corrected (output format, param contracts,
+  example accuracy)
+- `get-started.Rmd` and `README` updated for accuracy
+- pkgdown reference index and vignette menu completed
+
+### Tests
+
+- Test suites overhauled for all modules: added input validation
+  coverage, integration-style stubs, and edge cases
+
+------------------------------------------------------------------------
+
 ## ukbflow 0.3.0
 
 *Released: March 13, 2026*

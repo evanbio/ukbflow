@@ -56,7 +56,7 @@ We first handle non-informative missing codes (e.g. “Do not know”,
 
 ``` r
 data <- derive_missing(data)
-#> ✔ derive_missing: replaced 279633 values across 3 columns (action = "na").
+#> ✔ derive_missing: replaced 279650 values across 3 columns (action = "na").
 ```
 
 Next, convert categorical columns to factors with
@@ -198,7 +198,7 @@ data <- derive_followup(
 )
 #> ✔ derive_followup (lung):
 #> ℹ   lung_followup_end: 500000 / 500000 non-missing
-#> ℹ   lung_followup_years: mean=13.51, median=14.06, range=[-20.87, 16.83]
+#> ℹ   lung_followup_years: mean=13.71, median=14.09, range=[0, 16.83]
 ```
 
 ## 5 Exposure Definition
@@ -227,8 +227,8 @@ ops_snapshot(data, label = "raw")
 #> ── snapshot: raw ────────────────────────────────────────────────────────────
 #>   rows      500,000
 #>   cols           89
-#>   NA cols        58
-#>   size       295.2 MB
+#>   NA cols        59
+#>   size       293 MB
 ```
 
 Exclude participants with prevalent lung cancer (diagnosed at or before
@@ -240,8 +240,8 @@ ops_snapshot(data, label = "after excluding prevalent cases")
 #> ── snapshot: after excluding prevalent cases ─────────────────────────────────
 #>   rows      494,944  (-5,056)
 #>   cols           89  (= 0)
-#>   NA cols        58  (= 0)
-#>   size       292.3 MB  (-2.96 MB)
+#>   NA cols        58  (-1)
+#>   size       290.1 MB  (-2.95 MB)
 ```
 
 Exclude participants with missing values in the exposure or any
@@ -270,7 +270,7 @@ ops_snapshot(data, label = "after excluding missing covariates")
 #>   rows      465,937  (-29,007)
 #>   cols           89  (= 0)
 #>   NA cols        55  (-3)
-#>   size       275.4 MB  (-16.87 MB)
+#>   size       273.3 MB  (-16.75 MB)
 ```
 
 Review the full exclusion history.
@@ -279,9 +279,9 @@ Review the full exclusion history.
 ops_snapshot()
 #> ── ops_snapshot history ─────────────────────────────────────────────────────
 #>    idx                              label timestamp   nrow  ncol n_na_cols size_mb
-#>  1:  1                                raw  22:02:13 500000    89        58  295.23
-#>  2:  2    after excluding prevalent cases  22:03:20 494944    89        58  292.27
-#>  3:  3 after excluding missing covariates  22:23:17 465937    89        55  275.40
+#>  1:  1                                raw  15:35:24 500000    89        59  293.03
+#>  2:  2    after excluding prevalent cases  15:35:51 494944    89        58  290.08
+#>  3:  3 after excluding missing covariates  15:36:18 465937    89        55  273.33
 ```
 
 Before running the association analysis, we take a quick look at the
@@ -338,11 +338,11 @@ res <- assoc_coxph(
 #> ℹ outcome_col lung_status: logical detected, converting TRUE/FALSE -> 1/0
 #> ── assoc_coxph ──────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 3 models = 3 Cox regressions
-#> ℹ Input cohort: 465937 participants
+#> ℹ Input cohort: 465937 participants (n/n_events/person_years reflect each model's actual analysis set)
 #> ── smoking_ever ─────────────────────────────────────────────────────────────
-#>   ✔ Unadjusted             | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.848
-#>   ✔ Age and sex adjusted   | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.852
-#>   ✔ Fully adjusted         | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.844
+#>   ✔ Unadjusted             | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.834
+#>   ✔ Age and sex adjusted   | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.838
+#>   ✔ Fully adjusted         | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.829
 #> ✔ Done: 3 result rows across 1 exposure and 3 models.
 ```
 
@@ -359,14 +359,14 @@ We first inspect the result table returned by
 print(res)
 #>        exposure             term                model      n n_events person_years        HR  CI_lower
 #>          <char>           <char>                <ord>  <int>    <num>        <num>     <num>     <num>
-#>  1: smoking_ever smoking_everEver           Unadjusted 465937     3827      6387605 0.9938122 0.9326190
-#>  2: smoking_ever smoking_everEver Age and sex adjusted 465937     3827      6387605 0.9939863 0.9327822
-#>  3: smoking_ever smoking_everEver       Fully adjusted 465937     3827      6387605 0.9936359 0.9324516
+#>  1: smoking_ever smoking_everEver           Unadjusted 465937     3827      6388195 0.9932076 0.9320517
+#>  2: smoking_ever smoking_everEver Age and sex adjusted 465937     3827      6388195 0.9933735 0.9322072
+#>  3: smoking_ever smoking_everEver       Fully adjusted 465937     3827      6388195 0.9930029 0.9318576
 #>     CI_upper   p_value         HR_label
 #>        <num>     <num>           <char>
-#>  1: 1.059020 0.8481892 0.99 (0.93-1.06)
-#>  2: 1.059206 0.8524236 0.99 (0.93-1.06)
-#>  3: 1.058835 0.8439116 0.99 (0.93-1.06)
+#>  1: 1.058376 0.8335146 0.99 (0.93-1.06)
+#>  2: 1.058553 0.8375372 0.99 (0.93-1.06)
+#>  3: 1.058160 0.8285626 0.99 (0.93-1.06)
 
 class(res)
 #> [1] "data.table" "data.frame"
@@ -409,7 +409,7 @@ p2 <- plot_forest(
   est        = res_df$HR,
   lower      = res_df$CI_lower,
   upper      = res_df$CI_upper,
-  ci_column  = 3L,
+  ci_column  = 4L,
   p_cols     = "p_value",
   ref_line   = 1,
   xlim       = c(0, 2.0),
@@ -431,7 +431,7 @@ res_pub <- rbind(
 )
 
 p3 <- plot_forest(
-  data       = res_pub[, c("model", "HR_label", "p_value")],
+  data       = res_pub[, c("model", "p_value")],
   est        = res_pub$HR,
   lower      = res_pub$CI_lower,
   upper      = res_pub$CI_upper,
@@ -441,7 +441,8 @@ p3 <- plot_forest(
   xlim       = c(0, 2.0),
   ticks_at   = c(0, 0.5, 1.0, 1.5, 2.0),
   indent     = c(0L, 1L, 1L, 1L),
-  bold_label = c(TRUE, FALSE, FALSE, FALSE)
+  bold_label = c(TRUE, FALSE, FALSE, FALSE),
+  header     = c("Model", "", "HR (95% CI)", "P value")
 )
 
 plot(p3)
@@ -467,7 +468,7 @@ show a demo — for more advanced usage see
 
 ``` r
 t1 <- plot_tableone(
-  data    = data,
+  data    = as.data.frame(data),
   vars    = c("p21022", "p31", "bmi_cat", "tdi_cat", "p1558_i0"),
   strata  = "smoking_ever",
   label   = list(
@@ -516,16 +517,37 @@ sessionInfo()
 #> Platform: x86_64-w64-mingw32/x64
 #> Running under: Windows 11 x64 (build 26200)
 #>
+#> Matrix products: default
+#>   LAPACK version 3.12.1
+#>
+#> locale:
+#> [1] LC_COLLATE=Chinese (Simplified)_China.utf8  LC_CTYPE=Chinese (Simplified)_China.utf8
+#> [3] LC_MONETARY=Chinese (Simplified)_China.utf8 LC_NUMERIC=C
+#> [5] LC_TIME=Chinese (Simplified)_China.utf8
+#>
+#> time zone: Asia/Shanghai
+#> tzcode source: internal
+#>
 #> attached base packages:
 #> [1] stats     graphics  grDevices utils     datasets  methods   base
 #>
 #> other attached packages:
-#> [1] ukbflow_0.1.0  testthat_3.2.3
+#> [1] ukbflow_0.3.0  testthat_3.2.3
 #>
 #> loaded via a namespace (and not attached):
-#> [1] gt_1.0.0           gtsummary_2.4.0    survival_3.8-3
-#> [4] forestploter_1.1.3 data.table_1.17.0  cli_3.6.4
-#> [7] dplyr_1.1.4.9000   rlang_1.1.6        ...
+#>  [1] gt_1.0.0            sass_0.4.10         tidyr_1.3.1         generics_0.1.4      gtsummary_2.4.0
+#>  [6] xml2_1.3.8          lattice_0.22-7      digest_0.6.37       magrittr_2.0.3      evaluate_1.0.5
+#> [11] grid_4.5.1          cards_0.7.0         pkgload_1.4.0       fastmap_1.2.0       rprojroot_2.1.1
+#> [16] jsonlite_2.0.0      Matrix_1.7-3        processx_3.8.6      pkgbuild_1.4.8      sessioninfo_1.2.3
+#> [21] backports_1.5.0     cardx_0.3.0         brio_1.1.5          survival_3.8-3      ps_1.9.1
+#> [26] gridExtra_2.3       purrr_1.0.4         cli_3.6.4           forestploter_1.1.3  rlang_1.1.6
+#> [31] litedown_0.7        commonmark_2.0.0    ellipsis_0.3.2      splines_4.5.1       remotes_2.5.0
+#> [36] withr_3.0.2         cachem_1.1.0        devtools_2.4.5.9000 tools_4.5.1         memoise_2.0.1
+#> [41] dplyr_1.1.4.9000    broom_1.0.10        curl_7.0.0          vctrs_0.6.5         R6_2.6.1
+#> [46] lifecycle_1.0.4     fs_1.6.6            usethis_3.2.1       pkgconfig_2.0.3     desc_1.4.3
+#> [51] pillar_1.11.1       gtable_0.3.6        data.table_1.17.0   glue_1.8.0          xfun_0.52
+#> [56] tibble_3.2.1        tidyselect_1.2.1    rstudioapi_0.17.1   knitr_1.50          htmltools_0.5.8.1
+#> [61] rmarkdown_2.29      compiler_4.5.1      markdown_2.0
 ```
 
 ## 10 References

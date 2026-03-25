@@ -67,7 +67,7 @@ theming, and automatic export to four formats."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -195,14 +195,14 @@ E.g. <code>list(age ~ 1)</code>.</p></dd>
 
 <dt id="arg-add-p">add_p<a class="anchor" aria-label="anchor" href="#arg-add-p"></a></dt>
 <dd><p>Logical. Add a p-value column. Default <code>TRUE</code>;
-silently disabled if <code>strata</code> is <code>NULL</code>.</p></dd>
+disabled with a warning if <code>strata</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-add-smd">add_smd<a class="anchor" aria-label="anchor" href="#arg-add-smd"></a></dt>
 <dd><p>Logical. Add a standardised mean difference (SMD) column.
 Continuous variables use Cohen's <em>d</em>; categorical variables use
 root-mean-square deviation (RMSD) of group proportions. SMD is shown
-only on label rows. Default <code>FALSE</code>; silently disabled if
+only on label rows. Default <code>FALSE</code>; disabled with a warning if
 <code>strata</code> is <code>NULL</code>.</p></dd>
 
 
@@ -244,7 +244,7 @@ Default <code>8</code>.</p></dd>
 
 
 <dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
-<dd><p>Logical. Export the table to files. Default <code>TRUE</code>.</p></dd>
+<dd><p>Logical. Export the table to files. Default <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-dest">dest<a class="anchor" aria-label="anchor" href="#arg-dest"></a></dt>
@@ -318,7 +318,7 @@ and <strong>png</strong>.</p></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -327,7 +327,7 @@ and <strong>png</strong>.</p></li>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

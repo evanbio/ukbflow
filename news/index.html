@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,6 +105,37 @@
       <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.1" id="ukbflow-031">ukbflow 0.3.1<a class="anchor" aria-label="anchor" href="#ukbflow-031"></a></h2>
+<p><em>Released: March 25, 2026</em></p>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-1">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-1"></a></h3>
+<ul><li>
+<code><a href="../reference/derive_followup.html">derive_followup()</a></code> — coerce date columns to <code>IDate</code> before <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin()</a></code> to avoid type mismatch</li>
+<li>
+<code>install.Rmd</code> — corrected vignette cross-references</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-0-3-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-3-1"></a></h3>
+<ul><li>All modules hardened with consistent <code>.assert_*()</code> input validation helpers</li>
+<li>All <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_abort()</a></code> calls now use <code>call = NULL</code> for cleaner error messages</li>
+<li>
+<code><a href="../reference/plot_tableone.html">plot_tableone()</a></code> — auto-coerce <code>data.table</code> input to <code>data.frame</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-1"></a></h3>
+<ul><li>Man pages updated across all modules (auth, fetch, extract, job, decode, derive, ops, grs, assoc, plot)</li>
+<li>All vignettes reviewed and corrected (output format, param contracts, example accuracy)</li>
+<li>
+<code>get-started.Rmd</code> and <code>README</code> updated for accuracy</li>
+<li>pkgdown reference index and vignette menu completed</li>
+</ul></div>
+<div class="section level3">
+<h3 id="tests-0-3-1">Tests<a class="anchor" aria-label="anchor" href="#tests-0-3-1"></a></h3>
+<ul><li>Test suites overhauled for all modules: added input validation coverage, integration-style stubs, and edge cases</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="ukbflow-030">ukbflow 0.3.0<a class="anchor" aria-label="anchor" href="#ukbflow-030"></a></h2>
 <p><em>Released: March 13, 2026</em></p>
@@ -308,7 +339,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Yibin Zhou. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>
@@ -317,7 +348,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.0</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>
