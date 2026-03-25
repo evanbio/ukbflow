@@ -4,13 +4,15 @@ the specified association model (coxph, logistic, or
 linear) within each subgroup. Unlike assoc_coxph and
 its siblings, there is no automatic age-and-sex-adjusted model: at the
 subgroup level the variable that defines the stratum would have zero
-variance, making the auto-detected adjustment meaningless. Instead, two
+variance, making the auto-detected adjustment meaningless. Accordingly,
+this function does not accept a base argument. Instead, two
 models are available:"><meta property="og:description" content="Stratifies the dataset by a single grouping variable (by) and runs
 the specified association model (coxph, logistic, or
 linear) within each subgroup. Unlike assoc_coxph and
 its siblings, there is no automatic age-and-sex-adjusted model: at the
 subgroup level the variable that defines the stratum would have zero
-variance, making the auto-detected adjustment meaningless. Instead, two
+variance, making the auto-detected adjustment meaningless. Accordingly,
+this function does not accept a base argument. Instead, two
 models are available:"><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
@@ -124,7 +126,8 @@ the specified association model (<code>coxph</code>, <code>logistic</code>, or
 <code>linear</code>) within each subgroup. Unlike <code><a href="assoc_coxph.html">assoc_coxph</a></code> and
 its siblings, there is no automatic age-and-sex-adjusted model: at the
 subgroup level the variable that defines the stratum would have zero
-variance, making the auto-detected adjustment meaningless. Instead, two
+variance, making the auto-detected adjustment meaningless. Accordingly,
+this function does not accept a <code>base</code> argument. Instead, two
 models are available:</p>
     </div>
 
@@ -178,7 +181,12 @@ models are available:</p>
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
 <dd><p>(character) Single stratification variable name. Its unique
-non-NA values (or factor levels, in order) define the subgroups.</p></dd>
+non-NA values (or factor levels, in order) define the subgroups.
+Should be a categorical or binary variable with a small number of
+levels (e.g. sex, smoking status). Continuous variables are technically
+permitted and the interaction LRT will still run, but per-unique-value
+subgrouping is rarely meaningful in practice — use a pre-categorised
+version (e.g. via <code><a href="derive_cut.html">derive_cut</a></code>) instead.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>

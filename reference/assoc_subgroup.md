@@ -6,8 +6,9 @@ each subgroup. Unlike
 [`assoc_coxph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)
 and its siblings, there is no automatic age-and-sex-adjusted model: at
 the subgroup level the variable that defines the stratum would have zero
-variance, making the auto-detected adjustment meaningless. Instead, two
-models are available:
+variance, making the auto-detected adjustment meaningless. Accordingly,
+this function does not accept a `base` argument. Instead, two models are
+available:
 
 ## Usage
 
@@ -59,7 +60,14 @@ assoc_sub(
 - by:
 
   (character) Single stratification variable name. Its unique non-NA
-  values (or factor levels, in order) define the subgroups.
+  values (or factor levels, in order) define the subgroups. Should be a
+  categorical or binary variable with a small number of levels (e.g.
+  sex, smoking status). Continuous variables are technically permitted
+  and the interaction LRT will still run, but per-unique-value
+  subgrouping is rarely meaningful in practice — use a pre-categorised
+  version (e.g. via
+  [`derive_cut`](https://evanbio.github.io/ukbflow/reference/derive_cut.md))
+  instead.
 
 - method:
 

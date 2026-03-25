@@ -132,7 +132,7 @@ model combination:
 
 - `SHR_label`:
 
-  Formatted string, e.g. `"1.23 (1.05--1.44)"`.
+  Formatted string, e.g. `"1.23 (1.05-1.44)"`.
 
 ## Details
 
@@ -153,7 +153,7 @@ your dataset:
   `compete_col` is the name of a separate 0/1 column for the competing
   event. `outcome_col` is a 0/1 column for the primary event. When both
   are 1 for the same participant, the primary event takes priority.
-  Example: `outcome_col = "cscc_status"`,
+  Example: `outcome_col = "copd_status"`,
   `compete_col = "death_status"`.
 
 Internally both modes are converted to a three-level factor

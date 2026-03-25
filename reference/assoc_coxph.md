@@ -103,11 +103,12 @@ model combination, and the following columns:
 
 - `n_events`:
 
-  Total number of events in the dataset.
+  Number of events in the model's analysis set (after `NA` removal).
 
 - `person_years`:
 
-  Total person-years of follow-up (rounded).
+  Total person-years of follow-up in the model's analysis set (rounded,
+  after `NA` removal).
 
 - `HR`:
 

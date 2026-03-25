@@ -15,6 +15,7 @@ publication tables.
 | [`assoc_subgroup()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)   | [`assoc_sub()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)   | Stratified analysis + LRT interaction | HR / OR / beta           |
 | [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)         | [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)       | Dose-response trend                   | HR / OR / beta + p_trend |
 | [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)   | Fine-Gray competing risks             | SHR                      |
+| [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)             | —                                                                                | Cox lag sensitivity analysis          | HR                       |
 
 > **Prerequisite**: the analysis dataset should already contain derived
 > case status, follow-up time, and covariates produced by the `derive_*`
@@ -36,11 +37,13 @@ without requiring manual formula construction:
 | **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When both columns are found   |
 | **Fully adjusted**       | User-supplied `covariates`                        | When `covariates` is non-NULL |
 
-Age and sex columns are located automatically via the UKB field cache
-(populated by
-[`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)).
-Set `base = FALSE` to skip the first two models and run only the Fully
-adjusted model.
+Age and sex columns are located automatically by scanning the dataset’s
+column names for standard UKB naming patterns (`p21022_*` for age at
+recruitment, `p31_*` for sex). As a fallback, any column starting with
+`"age"` or named `"sex"` is also recognised. No prerequisite pipeline
+step is required — the detection works on any data.frame whose columns
+follow UKB or ukbflow naming conventions. Set `base = FALSE` to skip the
+first two models and run only the Fully adjusted model.
 
 ------------------------------------------------------------------------
 
@@ -81,18 +84,24 @@ res <- assoc_coxph(
 
 Output columns:
 
-| Column                 | Description                                                          |
-|------------------------|----------------------------------------------------------------------|
-| `exposure`             | Exposure variable name                                               |
-| `term`                 | Coefficient name from `coxph`                                        |
-| `model`                | Ordered factor: Unadjusted \< Age and sex adjusted \< Fully adjusted |
-| `n`                    | Participants in model (after NA removal)                             |
-| `n_events`             | Events in model                                                      |
-| `person_years`         | Total person-years (rounded)                                         |
-| `HR`                   | Hazard ratio                                                         |
-| `CI_lower`, `CI_upper` | Confidence interval bounds                                           |
-| `p_value`              | Wald test p-value                                                    |
-| `HR_label`             | Formatted string, e.g. `"1.43 (1.28-1.60)"`                          |
+| Column         | Description                                                          |
+|----------------|----------------------------------------------------------------------|
+| `exposure`     | Exposure variable name                                               |
+| `term`         | Coefficient name from `coxph`                                        |
+| `model`        | Ordered factor: Unadjusted \< Age and sex adjusted \< Fully adjusted |
+| `n`            | Participants in model (after NA removal)                             |
+| `n_events`     | Events in model                                                      |
+| `person_years` | Total person-years (rounded)                                         |
+| `HR`           | Hazard ratio                                                         |
+
+> `n`, `n_events`, and `person_years` all reflect the model-specific
+> complete-case analysis set — participants with any missing value
+> across outcome, time, exposure, or covariates are dropped before
+> fitting. These counts therefore differ between models (e.g. Fully
+> adjusted typically has fewer participants than Unadjusted). \|
+> `CI_lower`, `CI_upper` \| Confidence interval bounds \| \| `p_value`
+> \| Wald test p-value \| \| `HR_label` \| Formatted string,
+> e.g. `"1.43 (1.28-1.60)"` \|
 
 ------------------------------------------------------------------------
 
@@ -145,10 +154,13 @@ res <- assoc_linear(
 )
 ```
 
-> Passing a binary (0/1) column as `outcome_col` triggers a warning
-> suggesting
+> **Common mistake**: passing a binary (0/1) or logical column as
+> `outcome_col` is permitted (linear probability model) but triggers a
+> warning. Use
 > [`assoc_logistic()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md)
-> instead.
+> for binary outcomes — linear regression on a 0/1 outcome produces
+> unbounded predictions and is rarely appropriate in epidemiological
+> analyses.
 
 ------------------------------------------------------------------------
 
@@ -214,7 +226,13 @@ in addition to the standard effect estimate columns.
 
 > **Note**: the `by` variable is automatically excluded from the
 > subgroup models. Do not include it in `covariates` — a collinearity
-> warning is issued if you do.
+> warning is issued if you do. Subgroup analysis is most interpretable
+> when `by` has a small number of levels (e.g. sex, smoking status);
+> continuous variables are technically permitted but per-unique-value
+> subgrouping is rarely meaningful in practice — use a pre-categorised
+> version (e.g. via
+> [`derive_cut()`](https://evanbio.github.io/ukbflow/reference/derive_cut.md))
+> instead.
 
 ------------------------------------------------------------------------
 
@@ -264,7 +282,10 @@ res <- assoc_trend(
 
 The output contains a reference row (`HR = 1.00 (ref)`) followed by
 non-reference rows, with `HR_per_score`, `HR_per_score_label`, and
-`p_trend` appended as shared columns.
+`p_trend` appended as shared columns. These trend columns carry the same
+value across every row within the same exposure × model combination —
+including the reference row — so the full result table remains
+self-contained and easy to filter or export.
 
 ------------------------------------------------------------------------
 
@@ -339,6 +360,40 @@ data.table::fwrite(res, "assoc_results.csv")
 
 ------------------------------------------------------------------------
 
+## Step 8: Lag Sensitivity Analysis
+
+[`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
+re-runs the same Cox models at one or more lag periods to assess whether
+associations are driven by early events (reverse causation or detection
+bias). For each lag, participants whose follow-up time is less than
+`lag_years` are excluded; follow-up is kept on its original scale.
+
+``` r
+res <- assoc_lag(
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "outcome_followup_years",
+  exposure_col = "exposure",
+  lag_years    = c(0, 1, 2),   # 0 = full cohort reference
+  covariates   = c("tdi", "smoking_status_i0")
+)
+```
+
+Setting `lag_years = 0` (or including `0` in the vector) runs the model
+on the full unfiltered cohort, providing a reference row against which
+lagged results can be compared.
+
+Output adds two columns to the standard
+[`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)
+result:
+
+| Column       | Description                                            |
+|--------------|--------------------------------------------------------|
+| `lag_years`  | Lag period applied (numeric, same units as `time_col`) |
+| `n_excluded` | Participants excluded because follow-up \< `lag_years` |
+
+------------------------------------------------------------------------
+
 ## Getting Help
 
 - [`?assoc_coxph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md),
@@ -347,7 +402,8 @@ data.table::fwrite(res, "assoc_results.csv")
 - [`?assoc_coxph_zph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md),
   [`?assoc_subgroup`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md),
   [`?assoc_trend`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md),
-  [`?assoc_competing`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
+  [`?assoc_competing`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md),
+  [`?assoc_lag`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
 - [`vignette("derive-survival")`](https://evanbio.github.io/ukbflow/articles/derive-survival.md)
   — follow-up time and event derivation
 - [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md)

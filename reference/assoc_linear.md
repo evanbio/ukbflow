@@ -111,9 +111,11 @@ model combination, and columns:
 - **Fully adjusted** - the covariates supplied via the `covariates`
   argument. Only run when `covariates` is non-NULL.
 
-**Outcome**: must be a continuous numeric variable. Passing a binary
-(0/1) or logical column will trigger a warning, as logistic regression
-is more appropriate in that case.
+**Outcome**: intended for continuous numeric variables. Passing a binary
+(0/1) or logical column is permitted (linear probability model) but will
+trigger a warning recommending
+[`assoc_logistic`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md)
+instead.
 
 **CI method**: based on the t-distribution via
 [`confint.lm()`](https://rdrr.io/r/stats/confint.html), which is exact

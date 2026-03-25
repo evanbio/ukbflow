@@ -213,9 +213,9 @@ data via UKB field IDs (21022 and 31). Skipped with a warning if either
 column cannot be found.</p></li>
 <li><p><strong>Fully adjusted</strong> - the covariates supplied via the
 <code>covariates</code> argument. Only run when <code>covariates</code> is non-NULL.</p></li>
-</ul><p><strong>Outcome</strong>: must be a continuous numeric variable. Passing a binary
-(0/1) or logical column will trigger a warning, as logistic regression is
-more appropriate in that case.</p>
+</ul><p><strong>Outcome</strong>: intended for continuous numeric variables. Passing a
+binary (0/1) or logical column is permitted (linear probability model) but
+will trigger a warning recommending <code><a href="assoc_logistic.html">assoc_logistic</a></code> instead.</p>
 <p><strong>CI method</strong>: based on the t-distribution via <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint.lm()</a></code>,
 which is exact under the normal linear model assumption. There is no
 <code>ci_method</code> argument (unlike <code><a href="assoc_logistic.html">assoc_logistic</a></code>) as profile

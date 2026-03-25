@@ -209,6 +209,12 @@ forest plots and publication tables.</p>
 <td>Fine-Gray competing risks</td>
 <td>SHR</td>
 </tr>
+<tr class="even">
+<td><code><a href="../reference/assoc_lag.html">assoc_lag()</a></code></td>
+<td>—</td>
+<td>Cox lag sensitivity analysis</td>
+<td>HR</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
@@ -254,10 +260,14 @@ levels without requiring manual formula construction:</p>
 </tr>
 </tbody>
 </table>
-<p>Age and sex columns are located automatically via the UKB field cache
-(populated by <code><a href="../reference/extract_pheno.html">extract_pheno()</a></code>). Set
-<code>base = FALSE</code> to skip the first two models and run only the
-Fully adjusted model.</p>
+<p>Age and sex columns are located automatically by scanning the
+dataset’s column names for standard UKB naming patterns
+(<code>p21022_*</code> for age at recruitment, <code>p31_*</code> for
+sex). As a fallback, any column starting with <code>"age"</code> or
+named <code>"sex"</code> is also recognised. No prerequisite pipeline
+step is required — the detection works on any data.frame whose columns
+follow UKB or ukbflow naming conventions. Set <code>base = FALSE</code>
+to skip the first two models and run only the Fully adjusted model.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -332,23 +342,19 @@ adjusted</td>
 <td><code>HR</code></td>
 <td>Hazard ratio</td>
 </tr>
-<tr class="even">
-<td>
-<code>CI_lower</code>, <code>CI_upper</code>
-</td>
-<td>Confidence interval bounds</td>
-</tr>
-<tr class="odd">
-<td><code>p_value</code></td>
-<td>Wald test p-value</td>
-</tr>
-<tr class="even">
-<td><code>HR_label</code></td>
-<td>Formatted string, e.g. <code>"1.43 (1.28-1.60)"</code>
-</td>
-</tr>
 </tbody>
 </table>
+<blockquote>
+<p><code>n</code>, <code>n_events</code>, and <code>person_years</code>
+all reflect the model-specific complete-case analysis set — participants
+with any missing value across outcome, time, exposure, or covariates are
+dropped before fitting. These counts therefore differ between models
+(e.g. Fully adjusted typically has fewer participants than Unadjusted).
+| <code>CI_lower</code>, <code>CI_upper</code> | Confidence interval
+bounds | | <code>p_value</code> | Wald test p-value | |
+<code>HR_label</code> | Formatted string,
+e.g. <code>"1.43 (1.28-1.60)"</code> |</p>
+</blockquote>
 <hr>
 </div>
 <div class="section level2">
@@ -392,8 +398,11 @@ support downstream meta-analysis.</p>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"alcohol_freq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <blockquote>
-<p>Passing a binary (0/1) column as <code>outcome_col</code> triggers a
-warning suggesting <code><a href="../reference/assoc_logistic.html">assoc_logistic()</a></code> instead.</p>
+<p><strong>Common mistake</strong>: passing a binary (0/1) or logical
+column as <code>outcome_col</code> is permitted (linear probability
+model) but triggers a warning. Use <code><a href="../reference/assoc_logistic.html">assoc_logistic()</a></code> for
+binary outcomes — linear regression on a 0/1 outcome produces unbounded
+predictions and is rarely appropriate in epidemiological analyses.</p>
 </blockquote>
 <hr>
 </div>
@@ -453,8 +462,12 @@ to the standard effect estimate columns.</p>
 <blockquote>
 <p><strong>Note</strong>: the <code>by</code> variable is automatically
 excluded from the subgroup models. Do not include it in
-<code>covariates</code> — a collinearity warning is issued if you
-do.</p>
+<code>covariates</code> — a collinearity warning is issued if you do.
+Subgroup analysis is most interpretable when <code>by</code> has a small
+number of levels (e.g. sex, smoking status); continuous variables are
+technically permitted but per-unique-value subgrouping is rarely
+meaningful in practice — use a pre-categorised version (e.g. via
+<code><a href="../reference/derive_cut.html">derive_cut()</a></code>) instead.</p>
 </blockquote>
 <hr>
 </div>
@@ -498,7 +511,10 @@ units:</p>
 <p>The output contains a reference row (<code>HR = 1.00 (ref)</code>)
 followed by non-reference rows, with <code>HR_per_score</code>,
 <code>HR_per_score_label</code>, and <code>p_trend</code> appended as
-shared columns.</p>
+shared columns. These trend columns carry the same value across every
+row within the same exposure × model combination — including the
+reference row — so the full result table remains self-contained and easy
+to filter or export.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -564,6 +580,49 @@ into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
 <hr>
 </div>
 <div class="section level2">
+<h2 id="step-8-lag-sensitivity-analysis">Step 8: Lag Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#step-8-lag-sensitivity-analysis"></a>
+</h2>
+<p><code><a href="../reference/assoc_lag.html">assoc_lag()</a></code> re-runs the same Cox models at one or more
+lag periods to assess whether associations are driven by early events
+(reverse causation or detection bias). For each lag, participants whose
+follow-up time is less than <code>lag_years</code> are excluded;
+follow-up is kept on its original scale.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_lag.html">assoc_lag</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
+<span>  lag_years    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,   <span class="co"># 0 = full cohort reference</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Setting <code>lag_years = 0</code> (or including <code>0</code> in
+the vector) runs the model on the full unfiltered cohort, providing a
+reference row against which lagged results can be compared.</p>
+<p>Output adds two columns to the standard <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code>
+result:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Column</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>lag_years</code></td>
+<td>Lag period applied (numeric, same units as
+<code>time_col</code>)</td>
+</tr>
+<tr class="even">
+<td><code>n_excluded</code></td>
+<td>Participants excluded because follow-up &lt;
+<code>lag_years</code>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
 <ul>
@@ -573,7 +632,8 @@ into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
 </li>
 <li>
 <code><a href="../reference/assoc_coxph_zph.html">?assoc_coxph_zph</a></code>, <code><a href="../reference/assoc_subgroup.html">?assoc_subgroup</a></code>,
-<code><a href="../reference/assoc_trend.html">?assoc_trend</a></code>, <code><a href="../reference/assoc_competing.html">?assoc_competing</a></code>
+<code><a href="../reference/assoc_trend.html">?assoc_trend</a></code>, <code><a href="../reference/assoc_competing.html">?assoc_competing</a></code>,
+<code><a href="../reference/assoc_lag.html">?assoc_lag</a></code>
 </li>
 <li>
 <code><a href="../articles/derive-survival.html">vignette("derive-survival")</a></code> — follow-up time and event
