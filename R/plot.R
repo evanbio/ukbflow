@@ -18,9 +18,9 @@
 #' @param est Numeric vector. Point estimates (\code{NA} = no CI drawn).
 #' @param lower Numeric vector. Lower CI bounds (same length as \code{est}).
 #' @param upper Numeric vector. Upper CI bounds (same length as \code{est}).
-#' @param ci_column Integer. Column position (in the final rendered table)
-#'   where the gap/CI graphic is placed. Must be \eqn{\ge 2}.
-#'   Default: \code{2L}.
+#' @param ci_column Integer. Column position in the final rendered table where
+#'   the gap/CI graphic is placed. Must be between \code{2} and
+#'   \code{ncol(data) + 1} (inclusive). Default: \code{2L}.
 #' @param ref_line Numeric. Reference line. Default: \code{1} (HR/OR).
 #'   Use \code{0} for beta coefficients.
 #' @param xlim Numeric vector of length 2. X-axis limits. \code{NULL} = auto.
@@ -28,10 +28,11 @@
 #'   spaced ticks when \code{xlim} is supplied, otherwise auto.
 #' @param arrow_lab Character vector of length 2. Directional labels.
 #'   Default: \code{c("Lower risk", "Higher risk")}. \code{NULL} = none.
-#' @param header Character vector (length = final column count). Column header
-#'   labels displayed in the table. \code{NULL} (default) = use column names
-#'   from \code{data} plus \code{"gap_ci"} and \code{"OR (95\% CI)"} for the
-#'   two auto-inserted columns. Pass \code{""} for the gap column position.
+#' @param header Character vector of length \code{ncol(data) + 2}. Column
+#'   header labels for the final rendered table (original columns + gap_ci +
+#'   OR label). \code{NULL} (default) = use column names from \code{data} plus
+#'   \code{"gap_ci"} and \code{"OR (95\% CI)"}. Pass \code{""} for the gap
+#'   column position.
 #' @param indent Integer vector (length = \code{nrow(data)}). Indentation
 #'   level of the label column: each unit adds two leading spaces.
 #'   Default: all zeros.
@@ -58,10 +59,9 @@
 #'   Default: \code{TRUE}.
 #' @param p_threshold Numeric. P-value threshold for bolding when
 #'   \code{bold_p = TRUE}. Default: \code{0.05}.
-#' @param align Integer vector. Alignment per column: \code{-1} left,
-#'   \code{0} centre, \code{1} right. May be length = \code{ncol(data)}
-#'   (original) or length = final column count (original + 2 inserted);
-#'   the former is auto-padded with \code{0} for the two inserted columns.
+#' @param align Integer vector of length \code{ncol(data) + 2}. Alignment per
+#'   column: \code{-1} left, \code{0} centre, \code{1} right. Must cover all
+#'   final columns (original + gap_ci + OR label).
 #'   \code{NULL} = auto (column 1 left, all others centre).
 #' @param background Character. Row background style: \code{"zebra"},
 #'   \code{"bold_label"} (shade rows where \code{bold_label = TRUE}),
@@ -152,36 +152,37 @@ plot_forest <- function(data,
                         save_height = NULL,
                         theme       = "default") {
 
-  # ---------------------------------------------------------------------------
-  # 1. Validate inputs
-  # ---------------------------------------------------------------------------
-  n <- nrow(data)
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame.", call = NULL)
-  if (length(est)   != n) cli::cli_abort("{.arg est} must have length {n}.", call = NULL)
-  if (length(lower) != n) cli::cli_abort("{.arg lower} must have length {n}.", call = NULL)
-  if (length(upper) != n) cli::cli_abort("{.arg upper} must have length {n}.", call = NULL)
-  if (!is.null(indent)     && length(indent)     != n)
-    cli::cli_abort("{.arg indent} must have length {n}.", call = NULL)
-  if (!is.null(bold_label) && length(bold_label) != n)
-    cli::cli_abort("{.arg bold_label} must have length {n}.", call = NULL)
-  if (length(ci_col) > 1L  && length(ci_col) != n)
-    cli::cli_abort("{.arg ci_col} must be scalar or length {n}.", call = NULL)
-  if (!is.null(p_cols) && !all(p_cols %in% names(data)))
-    cli::cli_abort("{.arg p_cols} must be column names present in {.arg data}.", call = NULL)
-  if (!is.logical(bold_p) || (length(bold_p) != 1L && length(bold_p) != n))
-    cli::cli_abort("{.arg bold_p} must be TRUE, FALSE, or a logical vector of length {n}.", call = NULL)
+  # Validate inputs
+  .assert_data_frame(data)
+  n        <- nrow(data)
+  nc_orig  <- ncol(data)
+  nc_final <- nc_orig + 2L   # gap_ci + OR label always inserted
 
-  # ---------------------------------------------------------------------------
-  # 2. Defaults
-  # ---------------------------------------------------------------------------
+  .assert_length_n(est,   n)
+  .assert_length_n(lower, n)
+  .assert_length_n(upper, n)
+  if (!is.null(indent))     .assert_length_n(indent,     n)
+  if (!is.null(bold_label)) .assert_length_n(bold_label, n)
+  if (length(ci_col) > 1L)  .assert_length_n(ci_col,     n)
+  .assert_has_cols(data, p_cols)
+  .assert_logical(bold_p)
+  if (length(bold_p) == 1L) bold_p <- rep(bold_p, n)
+  .assert_length_n(bold_p, n)
+
+  if (ci_column < 2L || ci_column > nc_orig + 1L)
+    cli::cli_abort(
+      "{.arg ci_column} must be between 2 and {nc_orig + 1L} (ncol(data) + 1).",
+      call = NULL
+    )
+  if (!is.null(header)) .assert_length_n(header, nc_final)
+  if (!is.null(align))  .assert_length_n(align,  nc_final)
+
+  # Defaults
   if (is.null(indent)) indent <- rep(0L, n)
   # bold_label default: bold parent rows (indent == 0), leave sub-rows plain
   if (is.null(bold_label)) bold_label <- indent == 0L
 
-  # ---------------------------------------------------------------------------
-  # 3. Pre-process data
-  # ---------------------------------------------------------------------------
+  # Pre-process data
   out        <- .fp_build_data(data, est, lower, upper, indent,
                                p_cols, p_digits, ci_digits, ci_sep, ci_column)
   data_r     <- out$data
@@ -189,43 +190,10 @@ plot_forest <- function(data,
   p_numeric  <- out$p_numeric
 
   nr <- nrow(data_r)
-  nc <- ncol(data_r)
 
-  # ---------------------------------------------------------------------------
-  # 4. Apply header (rename columns → forestploter uses col names as headers)
-  # ---------------------------------------------------------------------------
-  if (!is.null(header)) {
-    if (length(header) != nc)
-      cli::cli_abort(
-        c("{.arg header} length ({length(header)}) must equal final column count ({nc}).",
-          "i" = "Final table has {nc} column(s): {nc - 2L} original + gap_ci + OR label.",
-          "i" = "Pass {.val \"\"} for the gap column position."),
-        call = NULL
-      )
-    names(data_r) <- header
-  }
+  if (!is.null(header)) names(data_r) <- header
 
-  # ---------------------------------------------------------------------------
-  # 5. Validate / auto-pad align to final column count
-  # ---------------------------------------------------------------------------
-  if (!is.null(align)) {
-    n_orig <- ncol(data)
-    if (length(align) == n_orig) {
-      # User passed align based on original data columns → insert 0s for the
-      # two auto-inserted columns (gap_ci at ci_column, OR label at ci_column+1)
-      align <- append(align, c(0L, 0L), after = ci_column - 1L)
-    } else if (length(align) != nc) {
-      cli::cli_abort(
-        c("{.arg align} has length {length(align)}, expected {n_orig} (original cols) or {nc} (final cols).",
-          "i" = "Original data has {n_orig} column(s); after inserting gap_ci and OR label the table has {nc} column(s)."),
-        call = NULL
-      )
-    }
-  }
-
-  # ---------------------------------------------------------------------------
-  # 6. Build base plot
-  # ---------------------------------------------------------------------------
+  # Build base plot
   if (!is.null(xlim) && is.null(ticks_at))
     ticks_at <- seq(xlim[1L], xlim[2L], length.out = 5L)
 
@@ -243,23 +211,19 @@ plot_forest <- function(data,
     theme     = .fp_theme(theme, ci_Theight = ci_Theight)
   )
 
-  # ---------------------------------------------------------------------------
-  # 7. Post-processing
-  # ---------------------------------------------------------------------------
-  p <- .fp_align(p, nc, align)
+  # Post-processing
+  p <- .fp_align(p, nc_final, align)
   p <- .fp_bold_label(p, bold_label)
 
   if (!is.null(p_cols))
     p <- .fp_bold_p(p, p_cols, p_col_idxs, p_numeric, bold_p, p_threshold, nr)
 
   p <- .fp_ci_colors(p, ci_col, ci_column, est, nr)
-  p <- .fp_background(p, nr, nc, background, bold_label, bg_col)
+  p <- .fp_background(p, nr, nc_final, background, bold_label, bg_col)
   p <- .fp_borders(p, nr, border, border_width)
   p <- .fp_layout(p, row_height, col_width)
 
-  # ---------------------------------------------------------------------------
-  # 8. Save (optional)
-  # ---------------------------------------------------------------------------
+  # Save
   if (isTRUE(save)) {
     if (is.null(dest))
       cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.", call = NULL)
@@ -306,11 +270,11 @@ plot_forest <- function(data,
 #' @param missing Character. Display of missing counts:
 #'   \code{"no"} (default), \code{"ifany"}, or \code{"always"}.
 #' @param add_p Logical. Add a p-value column. Default \code{TRUE};
-#'   silently disabled if \code{strata} is \code{NULL}.
+#'   disabled with a warning if \code{strata} is \code{NULL}.
 #' @param add_smd Logical. Add a standardised mean difference (SMD) column.
 #'   Continuous variables use Cohen's \emph{d}; categorical variables use
 #'   root-mean-square deviation (RMSD) of group proportions. SMD is shown
-#'   only on label rows. Default \code{FALSE}; silently disabled if
+#'   only on label rows. Default \code{FALSE}; disabled with a warning if
 #'   \code{strata} is \code{NULL}.
 #' @param overall Logical. Add an Overall column when \code{strata} is set.
 #'   Default \code{FALSE}.
@@ -328,7 +292,7 @@ plot_forest <- function(data,
 #'   Default \code{100}.
 #' @param row_height Integer. Data row padding (top + bottom) in pixels.
 #'   Default \code{8}.
-#' @param save Logical. Export the table to files. Default \code{TRUE}.
+#' @param save Logical. Export the table to files. Default \code{FALSE}.
 #' @param dest Character or \code{NULL}. File path without extension.
 #'   When \code{save = TRUE}, four files are written:
 #'   \code{<dest>.docx}, \code{<dest>.html}, \code{<dest>.pdf},
@@ -400,25 +364,14 @@ plot_tableone <- function(
     pdf_width      = NULL,
     pdf_height     = NULL
 ) {
-  # ---------------------------------------------------------------------------
-  # 1. Validate inputs
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data))
-    cli::cli_abort("{.arg data} must be a data.frame.", call = NULL)
-  if (!all(vars %in% names(data)))
-    cli::cli_abort(
-      "All {.arg vars} must be column names in {.arg data}. Missing: {.val {setdiff(vars, names(data))}}.",
-      call = NULL
-    )
-  if (!is.null(strata) && !strata %in% names(data))
-    cli::cli_abort(
-      "{.arg strata} ({.val {strata}}) is not a column in {.arg data}.",
-      call = NULL
-    )
+  # Validate inputs
+  .assert_data_frame(data)
+  .assert_has_cols(data, vars)
+  .assert_has_cols(data, strata)
+  if (!is.null(exclude_labels)) .assert_character(exclude_labels)
   if (isTRUE(save) && is.null(dest))
     cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.", call = NULL)
 
-  # Silently disable p / SMD when no strata
   if (isTRUE(add_p) && is.null(strata)) {
     cli::cli_warn("{.arg add_p} requires {.arg strata}; disabling.")
     add_p <- FALSE
@@ -428,15 +381,11 @@ plot_tableone <- function(
     add_smd <- FALSE
   }
 
-  # ---------------------------------------------------------------------------
-  # 2. Build tbl_summary (bold_labels always applied inside)
-  # ---------------------------------------------------------------------------
+  # Build tbl_summary
   tbl <- .t1_build_tbl(data, vars, strata, type, label, statistic,
                         digits, percent, missing)
 
-  # ---------------------------------------------------------------------------
-  # 3. Optional columns
-  # ---------------------------------------------------------------------------
+  # Optional columns
   if (isTRUE(overall) && !is.null(strata))
     tbl <- gtsummary::add_overall(tbl)
 
@@ -446,25 +395,19 @@ plot_tableone <- function(
   if (isTRUE(add_smd))
     tbl <- .t1_add_smd(tbl, data, vars, strata)
 
-  # ---------------------------------------------------------------------------
-  # 4. Exclude rows
-  # ---------------------------------------------------------------------------
+  # Exclude rows
   if (!is.null(exclude_labels))
     tbl <- gtsummary::modify_table_body(
       tbl,
       ~ dplyr::filter(.x, !.data$label %in% exclude_labels)
     )
 
-  # ---------------------------------------------------------------------------
-  # 5. Convert to gt and apply theme
-  # ---------------------------------------------------------------------------
+  # Convert to gt and apply theme
   gt_tbl <- gtsummary::as_gt(tbl)
   gt_tbl <- .t1_apply_theme(gt_tbl, tbl, theme, label_width, stat_width,
                               pvalue_width, row_height)
 
-  # ---------------------------------------------------------------------------
-  # 6. Save
-  # ---------------------------------------------------------------------------
+  # Save
   if (isTRUE(save))
     .t1_save(gt_tbl, dest, png_scale, pdf_width, pdf_height)
 

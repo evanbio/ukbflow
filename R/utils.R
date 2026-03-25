@@ -173,6 +173,18 @@
 }
 
 
+#' Assert that an argument is a logical vector
+#'
+#' @keywords internal
+#' @noRd
+.assert_logical <- function(x, arg = deparse(substitute(x))) {
+  if (!is.logical(x)) {
+    cli::cli_abort("{.arg {arg}} must be a logical vector.", call = NULL)
+  }
+  invisible(x)
+}
+
+
 #' Assert that an argument is a single non-NA logical (flag)
 #'
 #' @keywords internal
@@ -225,6 +237,18 @@
   if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
       !is.finite(x) || x <= 0 || x >= 1) {
     cli::cli_abort("{.arg {arg}} must be a single number strictly between 0 and 1.", call = NULL)
+  }
+  invisible(x)
+}
+
+
+#' Assert that a vector has the expected length
+#'
+#' @keywords internal
+#' @noRd
+.assert_length_n <- function(x, n, arg = deparse(substitute(x))) {
+  if (length(x) != n) {
+    cli::cli_abort("{.arg {arg}} must have length {n}.", call = NULL)
   }
   invisible(x)
 }

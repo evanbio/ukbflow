@@ -7,9 +7,11 @@
 # Theme
 # -----------------------------------------------------------------------------
 
-# Build forest theme. theme must be a recognised preset string.
-# Invalid values silently fall back to "default".
+# Build forest theme. theme must be a recognised preset string or a
+# forest_theme object. Unrecognised strings warn and fall back to "default".
 .fp_theme <- function(theme, ci_Theight = 0.2) {
+  if (inherits(theme, "forest_theme")) return(theme)
+
   presets <- list(
     default = list(
       base_size    = 12,
@@ -172,11 +174,7 @@
     pv      <- p_numeric[[p_cols[j]]]
     col_idx <- p_col_idxs[j]
 
-    bold_rows <- if (isTRUE(bold_p)) {
-      which(!is.na(pv) & pv < p_threshold)
-    } else {
-      which(as.logical(bold_p) & !is.na(pv))
-    }
+    bold_rows <- which(bold_p & !is.na(pv) & pv < p_threshold)
 
     for (r in bold_rows) {
       p <- forestploter::edit_plot(p, row = r, col = col_idx, which = "text",
@@ -274,9 +272,6 @@
 .fp_layout <- function(p, row_height, col_width) {
   # --- heights ---
   nh      <- length(p$heights)
-  default_h <- round(grid::convertHeight(p$heights, "mm", valueOnly = TRUE), 1)
-  cli::cli_inform("Heights default (mm): {paste(default_h, collapse = ', ')}")
-
   if (!is.null(row_height)) {
     # scalar or vector supplied by user
     if (length(row_height) == 1L) row_height <- rep(row_height, nh)
@@ -292,13 +287,9 @@
     p$heights[nh] <- grid::unit(15, "mm")
   }
 
-  adj_h <- round(grid::convertHeight(p$heights, "mm", valueOnly = TRUE), 1)
-  cli::cli_inform("Heights adjusted (mm): {paste(adj_h, collapse = ', ')}")
-
   # --- widths ---
   nw        <- length(p$widths)
   default_w <- round(grid::convertWidth(p$widths, "mm", valueOnly = TRUE), 1)
-  cli::cli_inform("Widths default (mm): {paste(default_w, collapse = ', ')}")
 
   if (!is.null(col_width)) {
     if (length(col_width) == 1L) col_width <- rep(col_width, nw)
@@ -312,9 +303,6 @@
       p$widths[i] <- grid::unit(new, "mm")
     }
   }
-
-  adj_w <- round(grid::convertWidth(p$widths, "mm", valueOnly = TRUE), 1)
-  cli::cli_inform("Widths adjusted (mm): {paste(adj_w, collapse = ', ')}")
 
   p
 }
