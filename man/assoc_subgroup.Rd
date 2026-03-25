@@ -40,7 +40,12 @@ assoc_sub(
 \item{exposure_col}{(character) One or more exposure variable names.}
 
 \item{by}{(character) Single stratification variable name. Its unique
-non-NA values (or factor levels, in order) define the subgroups.}
+non-NA values (or factor levels, in order) define the subgroups.
+Should be a categorical or binary variable with a small number of
+levels (e.g. sex, smoking status). Continuous variables are technically
+permitted and the interaction LRT will still run, but per-unique-value
+subgrouping is rarely meaningful in practice — use a pre-categorised
+version (e.g. via \code{\link{derive_cut}}) instead.}
 
 \item{method}{(character) Regression method: \code{"coxph"} (default),
 \code{"logistic"}, or \code{"linear"}.}
@@ -83,7 +88,8 @@ the specified association model (\code{coxph}, \code{logistic}, or
 \code{linear}) within each subgroup. Unlike \code{\link{assoc_coxph}} and
 its siblings, there is no automatic age-and-sex-adjusted model: at the
 subgroup level the variable that defines the stratum would have zero
-variance, making the auto-detected adjustment meaningless. Instead, two
+variance, making the auto-detected adjustment meaningless. Accordingly,
+this function does not accept a \code{base} argument. Instead, two
 models are available:
 }
 \details{

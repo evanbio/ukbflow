@@ -75,9 +75,9 @@ available here (\strong{Unadjusted}, \strong{Age and sex adjusted},
 \dontrun{
 assoc_lag(
   data         = ukb_df,
-  outcome_col  = "cscc_status",
+  outcome_col  = "copd_status",
   time_col     = "followup_years",
-  exposure_col = "ad_tf",
+  exposure_col = "t2d_tf",
   lag_years    = c(0, 1, 2),
   covariates   = c("tdi", "smoking")
 )

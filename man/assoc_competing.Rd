@@ -76,7 +76,7 @@ A \code{data.table} with one row per exposure \eqn{\times} term
 \item{\code{CI_lower}}{Lower CI bound.}
 \item{\code{CI_upper}}{Upper CI bound.}
 \item{\code{p_value}}{Robust z-test p-value from weighted Cox.}
-\item{\code{SHR_label}}{Formatted string, e.g. \code{"1.23 (1.05--1.44)"}.}
+\item{\code{SHR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 }
 }
 \description{
@@ -102,7 +102,7 @@ censored. Example: UKB \code{censoring_type} where 1 = event, 2 = death
 \code{compete_col} is the name of a separate 0/1 column for the
 competing event. \code{outcome_col} is a 0/1 column for the primary
 event. When both are 1 for the same participant, the primary event takes
-priority. Example: \code{outcome_col = "cscc_status"},
+priority. Example: \code{outcome_col = "copd_status"},
 \code{compete_col = "death_status"}.
 }
 }

@@ -70,8 +70,10 @@ for numeric/binary exposures).}
 \code{Age and sex adjusted} < \code{Fully adjusted}.}
 \item{\code{n}}{Number of participants included in the model (after
 \code{NA} removal).}
-\item{\code{n_events}}{Total number of events in the dataset.}
-\item{\code{person_years}}{Total person-years of follow-up (rounded).}
+\item{\code{n_events}}{Number of events in the model's analysis set
+(after \code{NA} removal).}
+\item{\code{person_years}}{Total person-years of follow-up in the
+model's analysis set (rounded, after \code{NA} removal).}
 \item{\code{HR}}{Hazard ratio (point estimate).}
 \item{\code{CI_lower}}{Lower bound of the confidence interval.}
 \item{\code{CI_upper}}{Upper bound of the confidence interval.}

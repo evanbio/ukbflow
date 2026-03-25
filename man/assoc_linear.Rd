@@ -71,9 +71,9 @@ column cannot be found.
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
 
-\strong{Outcome}: must be a continuous numeric variable. Passing a binary
-(0/1) or logical column will trigger a warning, as logistic regression is
-more appropriate in that case.
+\strong{Outcome}: intended for continuous numeric variables. Passing a
+binary (0/1) or logical column is permitted (linear probability model) but
+will trigger a warning recommending \code{\link{assoc_logistic}} instead.
 
 \strong{CI method}: based on the t-distribution via \code{confint.lm()},
 which is exact under the normal linear model assumption. There is no
