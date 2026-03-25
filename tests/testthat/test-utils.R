@@ -449,3 +449,126 @@ test_that(".assert_flag() error message includes argument name", {
   my_flag <- "bad"
   expect_error(ukbflow:::.assert_flag(my_flag), "my_flag")
 })
+
+
+# ===========================================================================
+# .assert_file_exists()
+# ===========================================================================
+
+test_that(".assert_file_exists() accepts an existing file", {
+  tmp <- tempfile()
+  writeLines("x", tmp)
+  on.exit(unlink(tmp))
+  expect_invisible(ukbflow:::.assert_file_exists(tmp))
+})
+
+test_that(".assert_file_exists() returns path invisibly", {
+  tmp <- tempfile()
+  writeLines("x", tmp)
+  on.exit(unlink(tmp))
+  result <- ukbflow:::.assert_file_exists(tmp)
+  expect_equal(result, tmp)
+})
+
+test_that(".assert_file_exists() rejects a non-existent path", {
+  expect_error(
+    ukbflow:::.assert_file_exists("/no/such/file.csv"),
+    "not found|File"
+  )
+})
+
+test_that(".assert_file_exists() error message includes the path", {
+  expect_error(
+    ukbflow:::.assert_file_exists("/no/such/file.csv"),
+    "/no/such/file.csv"
+  )
+})
+
+
+# ===========================================================================
+# .assert_not_null_if_false()
+# ===========================================================================
+
+test_that(".assert_not_null_if_false() passes when flag is TRUE and value is NULL", {
+  expect_invisible(ukbflow:::.assert_not_null_if_false(TRUE, NULL))
+})
+
+test_that(".assert_not_null_if_false() passes when flag is FALSE and value is non-NULL", {
+  expect_invisible(ukbflow:::.assert_not_null_if_false(FALSE, "covariates"))
+})
+
+test_that(".assert_not_null_if_false() returns value invisibly", {
+  result <- ukbflow:::.assert_not_null_if_false(FALSE, "covariates")
+  expect_equal(result, "covariates")
+})
+
+test_that(".assert_not_null_if_false() aborts when flag is FALSE and value is NULL", {
+  expect_error(
+    ukbflow:::.assert_not_null_if_false(FALSE, NULL),
+    "must be supplied"
+  )
+})
+
+test_that(".assert_not_null_if_false() error message includes flag and value names", {
+  use_base <- FALSE
+  covariates <- NULL
+  expect_error(
+    ukbflow:::.assert_not_null_if_false(use_base, covariates),
+    "use_base"
+  )
+  expect_error(
+    ukbflow:::.assert_not_null_if_false(use_base, covariates),
+    "covariates"
+  )
+})
+
+
+# ===========================================================================
+# .assert_proportion()
+# ===========================================================================
+
+test_that(".assert_proportion() accepts a valid proportion", {
+  expect_invisible(ukbflow:::.assert_proportion(0.05))
+})
+
+test_that(".assert_proportion() returns value invisibly", {
+  result <- ukbflow:::.assert_proportion(0.5)
+  expect_equal(result, 0.5)
+})
+
+test_that(".assert_proportion() rejects 0 (boundary, not strictly > 0)", {
+  expect_error(ukbflow:::.assert_proportion(0), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects 1 (boundary, not strictly < 1)", {
+  expect_error(ukbflow:::.assert_proportion(1), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects negative value", {
+  expect_error(ukbflow:::.assert_proportion(-0.1), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects value > 1", {
+  expect_error(ukbflow:::.assert_proportion(1.5), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects NA", {
+  expect_error(ukbflow:::.assert_proportion(NA_real_), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects Inf", {
+  expect_error(ukbflow:::.assert_proportion(Inf), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects character input", {
+  expect_error(ukbflow:::.assert_proportion("0.05"), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() rejects length > 1 vector", {
+  expect_error(ukbflow:::.assert_proportion(c(0.1, 0.2)), "strictly between 0 and 1")
+})
+
+test_that(".assert_proportion() error message includes the argument name", {
+  bad_p <- 1.5
+  expect_error(ukbflow:::.assert_proportion(bad_p), "bad_p")
+})
