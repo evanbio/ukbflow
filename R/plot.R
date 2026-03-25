@@ -23,9 +23,10 @@
 #'   \code{ncol(data) + 1} (inclusive). Default: \code{2L}.
 #' @param ref_line Numeric. Reference line. Default: \code{1} (HR/OR).
 #'   Use \code{0} for beta coefficients.
-#' @param xlim Numeric vector of length 2. X-axis limits. \code{NULL} = auto.
-#' @param ticks_at Numeric vector. Tick positions. \code{NULL} = 5 evenly
-#'   spaced ticks when \code{xlim} is supplied, otherwise auto.
+#' @param xlim Numeric vector of length 2. X-axis limits. \code{NULL} (default)
+#'   uses \code{c(0, 2)}.
+#' @param ticks_at Numeric vector. Tick positions. \code{NULL} (default) = 5
+#'   evenly spaced ticks across \code{xlim}.
 #' @param arrow_lab Character vector of length 2. Directional labels.
 #'   Default: \code{c("Lower risk", "Higher risk")}. \code{NULL} = none.
 #' @param header Character vector of length \code{ncol(data) + 2}. Column
@@ -194,7 +195,8 @@ plot_forest <- function(data,
   if (!is.null(header)) names(data_r) <- header
 
   # Build base plot
-  if (!is.null(xlim) && is.null(ticks_at))
+  if (is.null(xlim)) xlim <- c(0, 2)
+  if (is.null(ticks_at))
     ticks_at <- seq(xlim[1L], xlim[2L], length.out = 5L)
 
   p <- forestploter::forest(
@@ -364,28 +366,30 @@ plot_tableone <- function(
     pdf_width      = NULL,
     pdf_height     = NULL
 ) {
-  # Validate inputs
+
+  # Validate
   .assert_data_frame(data)
+  data <- as.data.frame(data)
   .assert_has_cols(data, vars)
   .assert_has_cols(data, strata)
+
   if (!is.null(exclude_labels)) .assert_character(exclude_labels)
-  if (isTRUE(save) && is.null(dest))
-    cli::cli_abort("{.arg dest} must be provided when {.arg save = TRUE}.", call = NULL)
+  .assert_not_null_if_true(save, dest)
 
   if (isTRUE(add_p) && is.null(strata)) {
     cli::cli_warn("{.arg add_p} requires {.arg strata}; disabling.")
     add_p <- FALSE
   }
+
   if (isTRUE(add_smd) && is.null(strata)) {
     cli::cli_warn("{.arg add_smd} requires {.arg strata}; disabling.")
     add_smd <- FALSE
   }
 
-  # Build tbl_summary
+  # Build
   tbl <- .t1_build_tbl(data, vars, strata, type, label, statistic,
                         digits, percent, missing)
 
-  # Optional columns
   if (isTRUE(overall) && !is.null(strata))
     tbl <- gtsummary::add_overall(tbl)
 
@@ -395,14 +399,13 @@ plot_tableone <- function(
   if (isTRUE(add_smd))
     tbl <- .t1_add_smd(tbl, data, vars, strata)
 
-  # Exclude rows
   if (!is.null(exclude_labels))
     tbl <- gtsummary::modify_table_body(
       tbl,
       ~ dplyr::filter(.x, !.data$label %in% exclude_labels)
     )
 
-  # Convert to gt and apply theme
+  # Render
   gt_tbl <- gtsummary::as_gt(tbl)
   gt_tbl <- .t1_apply_theme(gt_tbl, tbl, theme, label_width, stat_width,
                               pvalue_width, row_height)

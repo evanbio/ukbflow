@@ -229,6 +229,26 @@
 }
 
 
+#' Assert that a value is non-NULL when a flag is TRUE
+#'
+#' Commonly used to enforce "when \code{save = TRUE}, \code{dest} must
+#' be supplied" contracts.
+#'
+#' @keywords internal
+#' @noRd
+.assert_not_null_if_true <- function(flag, value,
+                                     flag_name  = deparse(substitute(flag)),
+                                     value_name = deparse(substitute(value))) {
+  if (isTRUE(flag) && is.null(value)) {
+    cli::cli_abort(
+      "When {.arg {flag_name}} = TRUE, {.arg {value_name}} must be supplied.",
+      call = NULL
+    )
+  }
+  invisible(value)
+}
+
+
 #' Assert that an argument is a numeric scalar strictly between 0 and 1
 #'
 #' @keywords internal

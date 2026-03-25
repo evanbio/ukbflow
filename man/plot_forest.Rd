@@ -58,10 +58,11 @@ the gap/CI graphic is placed. Must be between \code{2} and
 \item{ref_line}{Numeric. Reference line. Default: \code{1} (HR/OR).
 Use \code{0} for beta coefficients.}
 
-\item{xlim}{Numeric vector of length 2. X-axis limits. \code{NULL} = auto.}
+\item{xlim}{Numeric vector of length 2. X-axis limits. \code{NULL} (default)
+uses \code{c(0, 2)}.}
 
-\item{ticks_at}{Numeric vector. Tick positions. \code{NULL} = 5 evenly
-spaced ticks when \code{xlim} is supplied, otherwise auto.}
+\item{ticks_at}{Numeric vector. Tick positions. \code{NULL} (default) = 5
+evenly spaced ticks across \code{xlim}.}
 
 \item{arrow_lab}{Character vector of length 2. Directional labels.
 Default: \code{c("Lower risk", "Higher risk")}. \code{NULL} = none.}
