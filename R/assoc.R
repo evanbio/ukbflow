@@ -64,8 +64,10 @@
 #'       \code{Age and sex adjusted} < \code{Fully adjusted}.}
 #'     \item{\code{n}}{Number of participants included in the model (after
 #'       \code{NA} removal).}
-#'     \item{\code{n_events}}{Total number of events in the dataset.}
-#'     \item{\code{person_years}}{Total person-years of follow-up (rounded).}
+#'     \item{\code{n_events}}{Number of events in the model's analysis set
+#'       (after \code{NA} removal).}
+#'     \item{\code{person_years}}{Total person-years of follow-up in the
+#'       model's analysis set (rounded, after \code{NA} removal).}
 #'     \item{\code{HR}}{Hazard ratio (point estimate).}
 #'     \item{\code{CI_lower}}{Lower bound of the confidence interval.}
 #'     \item{\code{CI_upper}}{Upper bound of the confidence interval.}
@@ -116,47 +118,22 @@ assoc_coxph <- function(data,
                          strata      = NULL,
                          conf_level  = 0.95) {
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
-  all_cols <- names(data)
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates, strata))
+  .assert_flag(base)
 
-  missing_cols <- setdiff(
-    c(outcome_col, time_col, exposure_col, covariates, strata),
-    all_cols
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_not_null_if_false(base, covariates)
 
-  if (!base && is.null(covariates)) {
-    cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
-      call = NULL
-    )
-  }
+  .assert_proportion(conf_level)
 
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
-
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy: normalise outcome + logical exposures
-  # ---------------------------------------------------------------------------
+  # Prepare working copy: normalise outcome + logical exposures
   dt <- data.table::copy(data.table::as.data.table(data))
 
   dt[, .ukb_event := .normalise_event(dt[[outcome_col]], outcome_col)]
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list: name -> covariates vector (NULL = crude)
-  # ---------------------------------------------------------------------------
+  # Build model list: name -> covariates vector (NULL = crude)
   model_list <- list()
 
   if (base) {
@@ -187,9 +164,7 @@ assoc_coxph <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure x each model
-  # ---------------------------------------------------------------------------
+  # Run models: each exposure x each model
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
@@ -234,9 +209,7 @@ assoc_coxph <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
@@ -345,46 +318,22 @@ assoc_logistic <- function(data,
 
   ci_method <- match.arg(ci_method)
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, exposure_col, covariates))
+  .assert_flag(base)
 
-  missing_cols <- setdiff(
-    c(outcome_col, exposure_col, covariates),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_not_null_if_false(base, covariates)
 
-  if (!base && is.null(covariates)) {
-    cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
-      call = NULL
-    )
-  }
+  .assert_proportion(conf_level)
 
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
-
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy
-  # ---------------------------------------------------------------------------
+  # Prepare working copy
   dt <- data.table::copy(data.table::as.data.table(data))
 
   dt[, .ukb_event := .normalise_event(dt[[outcome_col]], outcome_col)]
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list
-  # ---------------------------------------------------------------------------
+  # Build model list
   model_list <- list()
 
   if (base) {
@@ -412,9 +361,7 @@ assoc_logistic <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure x each model
-  # ---------------------------------------------------------------------------
+  # Run models: each exposure x each model
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
@@ -457,9 +404,7 @@ assoc_logistic <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
@@ -498,9 +443,9 @@ assoc_logit <- assoc_logistic
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
 #'
-#' \strong{Outcome}: must be a continuous numeric variable. Passing a binary
-#' (0/1) or logical column will trigger a warning, as logistic regression is
-#' more appropriate in that case.
+#' \strong{Outcome}: intended for continuous numeric variables. Passing a
+#' binary (0/1) or logical column is permitted (linear probability model) but
+#' will trigger a warning recommending \code{\link{assoc_logistic}} instead.
 #'
 #' \strong{CI method}: based on the t-distribution via \code{confint.lm()},
 #' which is exact under the normal linear model assumption. There is no
@@ -562,34 +507,14 @@ assoc_linear <- function(data,
                           base       = TRUE,
                           conf_level = 0.95) {
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, exposure_col, covariates))
+  .assert_flag(base)
 
-  missing_cols <- setdiff(
-    c(outcome_col, exposure_col, covariates),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_not_null_if_false(base, covariates)
 
-  if (!base && is.null(covariates)) {
-    cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
-      call = NULL
-    )
-  }
-
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
+  .assert_proportion(conf_level)
 
   # Warn if outcome looks binary - logistic regression is more appropriate
   outcome_vec <- data[[outcome_col]]
@@ -608,15 +533,11 @@ assoc_linear <- function(data,
     )
   }
 
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy: normalise logical exposures only
-  # ---------------------------------------------------------------------------
+  # Prepare working copy: normalise logical exposures only
   dt <- data.table::copy(data.table::as.data.table(data))
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list
-  # ---------------------------------------------------------------------------
+  # Build model list
   model_list <- list()
 
   if (base) {
@@ -644,9 +565,7 @@ assoc_linear <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Run models: each exposure x each model
-  # ---------------------------------------------------------------------------
+  # Run models: each exposure x each model
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
@@ -689,9 +608,7 @@ assoc_linear <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
@@ -778,41 +695,19 @@ assoc_coxph_zph <- function(data,
                               base       = TRUE,
                               strata     = NULL) {
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates, strata))
+  .assert_flag(base)
 
-  missing_cols <- setdiff(
-    c(outcome_col, time_col, exposure_col, covariates, strata),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_not_null_if_false(base, covariates)
 
-  if (!base && is.null(covariates)) {
-    cli::cli_abort(
-      "When {.arg base = FALSE}, {.arg covariates} must be supplied.",
-      call = NULL
-    )
-  }
-
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy
-  # ---------------------------------------------------------------------------
+  # Prepare working copy
   dt <- data.table::copy(data.table::as.data.table(data))
   dt[, .ukb_event := .normalise_event(dt[[outcome_col]], outcome_col)]
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list (identical logic to assoc_coxph)
-  # ---------------------------------------------------------------------------
+  # Build model list (identical logic to assoc_coxph)
   model_list <- list()
 
   if (base) {
@@ -840,9 +735,7 @@ assoc_coxph_zph <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Run zph tests: each exposure x each model
-  # ---------------------------------------------------------------------------
+  # Run zph tests: each exposure x each model
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
@@ -886,9 +779,7 @@ assoc_coxph_zph <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), results))
 
   if (nrow(out) == 0L) {
@@ -926,7 +817,8 @@ assoc_zph <- assoc_coxph_zph
 #' \code{linear}) within each subgroup. Unlike \code{\link{assoc_coxph}} and
 #' its siblings, there is no automatic age-and-sex-adjusted model: at the
 #' subgroup level the variable that defines the stratum would have zero
-#' variance, making the auto-detected adjustment meaningless. Instead, two
+#' variance, making the auto-detected adjustment meaningless. Accordingly,
+#' this function does not accept a \code{base} argument. Instead, two
 #' models are available:
 #'
 #' \itemize{
@@ -950,6 +842,11 @@ assoc_zph <- assoc_coxph_zph
 #' @param exposure_col (character) One or more exposure variable names.
 #' @param by (character) Single stratification variable name. Its unique
 #'   non-NA values (or factor levels, in order) define the subgroups.
+#'   Should be a categorical or binary variable with a small number of
+#'   levels (e.g. sex, smoking status). Continuous variables are technically
+#'   permitted and the interaction LRT will still run, but per-unique-value
+#'   subgrouping is rarely meaningful in practice — use a pre-categorised
+#'   version (e.g. via \code{\link{derive_cut}}) instead.
 #' @param method (character) Regression method: \code{"coxph"} (default),
 #'   \code{"logistic"}, or \code{"linear"}.
 #' @param covariates (character or NULL) Covariate column names for the Fully
@@ -1019,32 +916,16 @@ assoc_subgroup <- function(data,
 
   method <- match.arg(method)
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
-  if (!is.character(by) || length(by) != 1L) {
-    cli::cli_abort("{.arg by} must be a single character string.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_scalar_string(by)
+  .assert_flag(interaction)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, by, covariates))
+
   if (method == "coxph" && is.null(time_col)) {
     cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.", call = NULL)
   }
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
-
-  missing_cols <- setdiff(
-    c(outcome_col, time_col, exposure_col, by, covariates),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_proportion(conf_level)
 
   # Warn if by is also listed as a covariate (collinearity within subgroups)
   if (!is.null(covariates) && by %in% covariates) {
@@ -1053,9 +934,7 @@ assoc_subgroup <- function(data,
     )
   }
 
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy: normalise outcome + logical exposures
-  # ---------------------------------------------------------------------------
+  # Prepare working copy: normalise outcome + logical exposures
   dt <- data.table::copy(data.table::as.data.table(data))
 
   if (method %in% c("coxph", "logistic")) {
@@ -1063,18 +942,14 @@ assoc_subgroup <- function(data,
   }
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list (no age/sex auto-detection at subgroup level)
-  # ---------------------------------------------------------------------------
+  # Build model list (no age/sex auto-detection at subgroup level)
   model_list <- list()
   model_list["Unadjusted"] <- list(NULL)
   if (!is.null(covariates) && length(covariates) > 0L) {
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Subgroup levels (preserve factor order; sort otherwise)
-  # ---------------------------------------------------------------------------
+  # Subgroup levels (preserve factor order; sort otherwise)
   by_vec    <- dt[[by]]
   levels_by <- if (is.factor(by_vec)) {
     levels(by_vec)
@@ -1091,9 +966,7 @@ assoc_subgroup <- function(data,
     "{n_exposures} exposure{?s} x {n_models} model{?s} x {n_levels} subgroup{?s} ({.field {by}})"
   )
 
-  # ---------------------------------------------------------------------------
-  # 4. Interaction LRT on full data (one p-value per exposure x model)
-  # ---------------------------------------------------------------------------
+  # Interaction LRT on full data (one p-value per exposure x model)
   interaction_dt <- NULL
   if (interaction) {
     cli::cli_alert_info(
@@ -1130,9 +1003,7 @@ assoc_subgroup <- function(data,
     interaction_dt <- data.table::rbindlist(inter_rows)
   }
 
-  # ---------------------------------------------------------------------------
-  # 5. Subgroup loop: filter -> run models -> collect results
-  # ---------------------------------------------------------------------------
+  # Subgroup loop: filter -> run models -> collect results
   all_results <- vector("list", n_levels * n_exposures * n_models)
   idx <- 1L
 
@@ -1211,9 +1082,7 @@ assoc_subgroup <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 6. Combine and finalise
-  # ---------------------------------------------------------------------------
+  # Combine and finalise
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results))
 
   if (nrow(out) == 0L) {
@@ -1374,32 +1243,16 @@ assoc_trend <- function(data,
 
   method <- match.arg(method)
 
-  # ---------------------------------------------------------------------------
-  # 0. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_flag(base)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates))
+
   if (method == "coxph" && is.null(time_col)) {
     cli::cli_abort("{.arg time_col} is required when {.arg method = 'coxph'}.", call = NULL)
   }
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
-  if (!base && is.null(covariates)) {
-    cli::cli_abort("When {.arg base = FALSE}, {.arg covariates} must be supplied.", call = NULL)
-  }
-
-  missing_cols <- setdiff(
-    c(outcome_col, time_col, exposure_col, covariates),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  .assert_proportion(conf_level)
+  .assert_not_null_if_false(base, covariates)
 
   # All exposures must be factors
   non_factor <- exposure_col[!vapply(exposure_col,
@@ -1435,9 +1288,7 @@ assoc_trend <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 1. Prepare working copy
-  # ---------------------------------------------------------------------------
+  # Prepare working copy
   dt <- data.table::copy(data.table::as.data.table(data))
 
   if (method %in% c("coxph", "logistic")) {
@@ -1456,9 +1307,7 @@ assoc_trend <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 2. Build model list (same logic as assoc_coxph)
-  # ---------------------------------------------------------------------------
+  # Build model list (same logic as assoc_coxph)
   model_list <- list()
 
   if (base) {
@@ -1486,9 +1335,7 @@ assoc_trend <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 3. Run analyses: each exposure x each model
-  # ---------------------------------------------------------------------------
+  # Run analyses: each exposure x each model
   n_models    <- length(model_list)
   n_exposures <- length(exposure_col)
 
@@ -1675,9 +1522,7 @@ assoc_trend <- function(data,
     dt[, .ukb_trend_score := NULL]
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {
@@ -1737,7 +1582,7 @@ assoc_tr <- assoc_trend
 #'     \code{compete_col} is the name of a separate 0/1 column for the
 #'     competing event. \code{outcome_col} is a 0/1 column for the primary
 #'     event. When both are 1 for the same participant, the primary event takes
-#'     priority. Example: \code{outcome_col = "cscc_status"},
+#'     priority. Example: \code{outcome_col = "copd_status"},
 #'     \code{compete_col = "death_status"}.
 #'   }
 #' }
@@ -1788,7 +1633,7 @@ assoc_tr <- assoc_trend
 #'     \item{\code{CI_lower}}{Lower CI bound.}
 #'     \item{\code{CI_upper}}{Upper CI bound.}
 #'     \item{\code{p_value}}{Robust z-test p-value from weighted Cox.}
-#'     \item{\code{SHR_label}}{Formatted string, e.g. \code{"1.23 (1.05--1.44)"}.}
+#'     \item{\code{SHR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 #'   }
 #'
 #' @importFrom survival finegray coxph Surv
@@ -1828,32 +1673,18 @@ assoc_competing <- function(data,
                              base        = TRUE,
                              conf_level  = 0.95) {
 
-  # ---------------------------------------------------------------------------
-  # 1. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, compete_col, covariates))
+  .assert_flag(base)
 
-  dt <- data.table::as.data.table(data)
+  .assert_proportion(conf_level)
 
-  req_cols <- c(outcome_col, time_col, exposure_col, compete_col, covariates)
-  missing_cols <- setdiff(req_cols, names(dt))
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort("Column{?s} not found in data: {.field {missing_cols}}", call = NULL)
-  }
-
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
-
-  # Normalise logical exposures → integer (avoids "ad_tfTRUE" term names)
-  dt <- data.table::copy(dt)
+  # Normalise logical exposures → integer (avoids "t2d_tfTRUE" term names)
+  dt <- data.table::copy(data.table::as.data.table(data))
   .normalise_logical_exposures(dt, exposure_col)
 
-  # ---------------------------------------------------------------------------
-  # 2. Build .fg_status: factor(censor / event / compete)
-  # ---------------------------------------------------------------------------
+  # Build .fg_status: factor(censor / event / compete)
   if (is.null(compete_col)) {
     # Mode A: single multi-value column
     raw <- dt[[outcome_col]]
@@ -1887,37 +1718,34 @@ assoc_competing <- function(data,
     "Events: {n_event_total}, Competing: {n_compete_total}, Censored: {sum(dt$.fg_status == 'censor', na.rm=TRUE)}"
   )
 
-  # ---------------------------------------------------------------------------
-  # 3. Build model list (Unadjusted / Age and sex adjusted / Fully adjusted)
-  # ---------------------------------------------------------------------------
-  base_covs <- NULL
+  # Build model list (Unadjusted / Age and sex adjusted / Fully adjusted)
+  models <- list(list(label = "Unadjusted", covs = NULL))
+
   if (isTRUE(base)) {
     age_col <- .detect_age_col(dt)
     sex_col <- .detect_sex_col(dt)
-    if (is.null(age_col)) {
+
+    if (is.null(age_col) || is.null(sex_col)) {
       cli::cli_alert_warning(
-        "Age column not detected -- Age and sex adjusted model may be incomplete."
+        paste0(
+          "Age and sex adjusted model skipped: ",
+          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
+          if (is.null(age_col) && is.null(sex_col)) " and " else "",
+          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
+          "."
+        )
       )
+    } else {
+      models <- c(models, list(list(label = "Age and sex adjusted",
+                                    covs  = c(age_col, sex_col))))
     }
-    if (is.null(sex_col)) {
-      cli::cli_alert_warning(
-        "Sex column not detected -- Age and sex adjusted model may be incomplete."
-      )
-    }
-    base_covs <- c(age_col, sex_col)  # c() drops NULLs automatically
   }
 
-  models <- list(list(label = "Unadjusted", covs = NULL))
-  if (length(base_covs) > 0L) {
-    models <- c(models, list(list(label = "Age and sex adjusted", covs = base_covs)))
-  }
   if (!is.null(covariates)) {
     models <- c(models, list(list(label = "Fully adjusted", covs = covariates)))
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Loop over exposures x models
-  # ---------------------------------------------------------------------------
+  # Loop over exposures x models
   all_results <- list()
 
   for (exp in exposure_col) {
@@ -1937,9 +1765,7 @@ assoc_competing <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 5. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {
@@ -2021,9 +1847,9 @@ assoc_fg <- assoc_competing
 #' \dontrun{
 #' assoc_lag(
 #'   data         = ukb_df,
-#'   outcome_col  = "cscc_status",
+#'   outcome_col  = "copd_status",
 #'   time_col     = "followup_years",
-#'   exposure_col = "ad_tf",
+#'   exposure_col = "t2d_tf",
 #'   lag_years    = c(0, 1, 2),
 #'   covariates   = c("tdi", "smoking")
 #' )
@@ -2038,46 +1864,28 @@ assoc_lag <- function(data,
                        strata     = NULL,
                        conf_level = 0.95) {
 
-  # ---------------------------------------------------------------------------
-  # 1. Input validation
-  # ---------------------------------------------------------------------------
-  if (!is.data.frame(data)) {
-    cli::cli_abort("{.arg data} must be a data.frame or data.table.", call = NULL)
-  }
-
-  missing_cols <- setdiff(
-    c(outcome_col, time_col, exposure_col, covariates, strata),
-    names(data)
-  )
-  if (length(missing_cols) > 0L) {
-    cli::cli_abort(
-      "Column{?s} not found in {.arg data}: {.field {missing_cols}}",
-      call = NULL
-    )
-  }
+  # Input validation
+  .assert_data_frame(data)
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates, strata))
+  .assert_flag(base)
+  .assert_not_null_if_false(base, covariates)
 
   if (!is.numeric(lag_years) || any(lag_years < 0)) {
     cli::cli_abort("{.arg lag_years} must be a non-negative numeric vector.", call = NULL)
   }
 
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    cli::cli_abort("{.arg conf_level} must be a number between 0 and 1.", call = NULL)
-  }
+  .assert_proportion(conf_level)
 
   lag_years <- sort(unique(lag_years))
 
-  # ---------------------------------------------------------------------------
-  # 2. Prepare full working copy
-  # ---------------------------------------------------------------------------
+  # Prepare full working copy
   dt <- data.table::copy(data.table::as.data.table(data))
   dt[, .ukb_event := .normalise_event(dt[[outcome_col]], outcome_col)]
   .normalise_logical_exposures(dt, exposure_col)
 
   n_full <- nrow(dt)
 
-  # ---------------------------------------------------------------------------
-  # 3. Build model list (same logic as assoc_coxph)
-  # ---------------------------------------------------------------------------
+  # Build model list (same logic as assoc_coxph)
   model_list <- list()
 
   if (base) {
@@ -2105,9 +1913,7 @@ assoc_lag <- function(data,
     model_list[["Fully adjusted"]] <- covariates
   }
 
-  # ---------------------------------------------------------------------------
-  # 4. Loop: lag x exposure x model
-  # ---------------------------------------------------------------------------
+  # Loop: lag x exposure x model
   cli::cli_h1("assoc_lag")
   cli::cli_alert_info(
     "{length(lag_years)} lag period{?s} x {length(exposure_col)} exposure{?s} x {length(model_list)} model{?s}"
@@ -2157,9 +1963,7 @@ assoc_lag <- function(data,
     }
   }
 
-  # ---------------------------------------------------------------------------
-  # 5. Combine and return
-  # ---------------------------------------------------------------------------
+  # Combine and return
   out <- data.table::rbindlist(Filter(Negate(is.null), all_results), fill = TRUE)
 
   if (nrow(out) == 0L) {

@@ -197,6 +197,39 @@
 }
 
 
+#' Assert that a value is non-NULL when a flag is FALSE
+#'
+#' Commonly used to enforce "when \code{base = FALSE}, \code{covariates} must
+#' be supplied" contracts.
+#'
+#' @keywords internal
+#' @noRd
+.assert_not_null_if_false <- function(flag, value,
+                                      flag_name  = deparse(substitute(flag)),
+                                      value_name = deparse(substitute(value))) {
+  if (!isTRUE(flag) && is.null(value)) {
+    cli::cli_abort(
+      "When {.arg {flag_name}} = FALSE, {.arg {value_name}} must be supplied.",
+      call = NULL
+    )
+  }
+  invisible(value)
+}
+
+
+#' Assert that an argument is a numeric scalar strictly between 0 and 1
+#'
+#' @keywords internal
+#' @noRd
+.assert_proportion <- function(x, arg = deparse(substitute(x))) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) ||
+      !is.finite(x) || x <= 0 || x >= 1) {
+    cli::cli_abort("{.arg {arg}} must be a single number strictly between 0 and 1.", call = NULL)
+  }
+  invisible(x)
+}
+
+
 #' Assert that required columns are present in a data.frame
 #'
 #' Reports all missing columns in a single error rather than stopping at the
