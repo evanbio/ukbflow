@@ -58,12 +58,12 @@ E.g. \code{list(age ~ 1)}.}
 \code{"no"} (default), \code{"ifany"}, or \code{"always"}.}
 
 \item{add_p}{Logical. Add a p-value column. Default \code{TRUE};
-silently disabled if \code{strata} is \code{NULL}.}
+disabled with a warning if \code{strata} is \code{NULL}.}
 
 \item{add_smd}{Logical. Add a standardised mean difference (SMD) column.
 Continuous variables use Cohen's \emph{d}; categorical variables use
 root-mean-square deviation (RMSD) of group proportions. SMD is shown
-only on label rows. Default \code{FALSE}; silently disabled if
+only on label rows. Default \code{FALSE}; disabled with a warning if
 \code{strata} is \code{NULL}.}
 
 \item{overall}{Logical. Add an Overall column when \code{strata} is set.
@@ -89,7 +89,7 @@ Default \code{100}.}
 \item{row_height}{Integer. Data row padding (top + bottom) in pixels.
 Default \code{8}.}
 
-\item{save}{Logical. Export the table to files. Default \code{TRUE}.}
+\item{save}{Logical. Export the table to files. Default \code{FALSE}.}
 
 \item{dest}{Character or \code{NULL}. File path without extension.
 When \code{save = TRUE}, four files are written:

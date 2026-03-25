@@ -51,9 +51,9 @@ in \code{p_cols} (must be numeric). Column order is preserved.}
 
 \item{upper}{Numeric vector. Upper CI bounds (same length as \code{est}).}
 
-\item{ci_column}{Integer. Column position (in the final rendered table)
-where the gap/CI graphic is placed. Must be \eqn{\ge 2}.
-Default: \code{2L}.}
+\item{ci_column}{Integer. Column position in the final rendered table where
+the gap/CI graphic is placed. Must be between \code{2} and
+\code{ncol(data) + 1} (inclusive). Default: \code{2L}.}
 
 \item{ref_line}{Numeric. Reference line. Default: \code{1} (HR/OR).
 Use \code{0} for beta coefficients.}
@@ -66,10 +66,11 @@ spaced ticks when \code{xlim} is supplied, otherwise auto.}
 \item{arrow_lab}{Character vector of length 2. Directional labels.
 Default: \code{c("Lower risk", "Higher risk")}. \code{NULL} = none.}
 
-\item{header}{Character vector (length = final column count). Column header
-labels displayed in the table. \code{NULL} (default) = use column names
-from \code{data} plus \code{"gap_ci"} and \code{"OR (95\% CI)"} for the
-two auto-inserted columns. Pass \code{""} for the gap column position.}
+\item{header}{Character vector of length \code{ncol(data) + 2}. Column
+header labels for the final rendered table (original columns + gap_ci +
+OR label). \code{NULL} (default) = use column names from \code{data} plus
+\code{"gap_ci"} and \code{"OR (95\% CI)"}. Pass \code{""} for the gap
+column position.}
 
 \item{indent}{Integer vector (length = \code{nrow(data)}). Indentation
 level of the label column: each unit adds two leading spaces.
@@ -108,10 +109,9 @@ Default: \code{TRUE}.}
 \item{p_threshold}{Numeric. P-value threshold for bolding when
 \code{bold_p = TRUE}. Default: \code{0.05}.}
 
-\item{align}{Integer vector. Alignment per column: \code{-1} left,
-\code{0} centre, \code{1} right. May be length = \code{ncol(data)}
-(original) or length = final column count (original + 2 inserted);
-the former is auto-padded with \code{0} for the two inserted columns.
+\item{align}{Integer vector of length \code{ncol(data) + 2}. Alignment per
+column: \code{-1} left, \code{0} centre, \code{1} right. Must cover all
+final columns (original + gap_ci + OR label).
 \code{NULL} = auto (column 1 left, all others centre).}
 
 \item{background}{Character. Row background style: \code{"zebra"},
