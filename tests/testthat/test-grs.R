@@ -313,8 +313,11 @@ test_that("grs_bgen2pgen() aborts on invalid priority value", {
 })
 
 test_that("grs_bgen2pgen() warns when standard instance used for chr 1-16", {
-  # Validation happens before RAP check; expect a warning (not error) about storage
-  # The function will then abort on missing RAP project — suppress that downstream error
+  # Mock project check so the test never reaches dx run, regardless of auth state
+  local_mocked_bindings(
+    .dx_get_project_id = function() NA_character_,
+    .package = "ukbflow"
+  )
   expect_warning(
     tryCatch(
       grs_bgen2pgen(chr = 1, instance = "standard"),
