@@ -62,9 +62,9 @@ template:
       <meta name="author" content="Evan Zhou">
 
       <!-- Enhanced Favicon -->
-      <link rel="icon" type="image/png" sizes="32x32" href="man/figures/logo.png">
-      <link rel="icon" type="image/png" sizes="16x16" href="man/figures/logo.png">
-      <link rel="apple-touch-icon" sizes="180x180" href="man/figures/logo.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png">
+      <link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png">
 
       <!-- Enhanced CSS for professional appearance -->
       <style>
@@ -194,11 +194,11 @@ home:
 # ==============================================================================
 
 authors:
-  Evan Zhou:
+  Yibin Zhou:
     href: https://github.com/evanbio
     html: >
-      <img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Evan Zhou" />
-      Evan Zhou
+      <img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou" />
+      Yibin Zhou
     roles: [aut, cre]
     email: evanzhou.bio@gmail.com
 
@@ -227,7 +227,7 @@ navbar:
 
   components:
     version:
-      text: "0.3.0"
+      text: "0.3.1"
       href: news/index.html
 
     install:
@@ -413,6 +413,8 @@ reference:
 
 news:
   releases:
+  - text: "Version 0.3.1 (March 2026)"
+    href: https://github.com/evanbio/ukbflow/releases/tag/v0.3.1
   - text: "Version 0.3.0 (March 2026)"
     href: https://github.com/evanbio/ukbflow/releases/tag/v0.3.0
   - text: "Version 0.2.0 - ops_* Series (March 2026)"
@@ -434,7 +436,7 @@ footer:
   components:
     package_info: |
       <div class="text-muted">
-        <strong>ukbflow v0.3.0</strong><br>
+        <strong>ukbflow v0.3.1</strong><br>
         <small>Last updated: March 2026</small>
       </div>
 
