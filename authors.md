@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/evanbio/ukbflow/blob/v0.3.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/evanbio/ukbflow/blob/main/DESCRIPTION)
 
 Zhou Y (2026). *ukbflow: Streamlined Workflow for UK Biobank Data
 Extraction, Analysis, and Visualization*. R package version 0.3.1,
