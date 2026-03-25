@@ -241,6 +241,103 @@ test_that("plot_forest() with p_cols bold_p = FALSE skips bolding", {
   )
 })
 
+test_that("plot_forest() works with bold_p as per-row logical vector", {
+  df <- data.frame(
+    item    = c("Group", "Crude", "Adjusted"),
+    p_value = c(NA_real_, 0.001, 0.220),
+    stringsAsFactors = FALSE
+  )
+  tmp <- .open_pdf_device()
+  on.exit(.close_pdf_device(tmp), add = TRUE)
+
+  expect_no_error(
+    suppressMessages(
+      plot_forest(
+        data   = df,
+        est    = c(NA, 1.52, 1.43),
+        lower  = c(NA, 1.18, 1.11),
+        upper  = c(NA, 1.96, 1.85),
+        p_cols = "p_value",
+        bold_p = c(FALSE, TRUE, FALSE)
+      )
+    )
+  )
+})
+
+test_that("plot_forest() works with arrow_lab = NULL", {
+  df  <- .fake_forest_df()
+  tmp <- .open_pdf_device()
+  on.exit(.close_pdf_device(tmp), add = TRUE)
+
+  expect_no_error(
+    suppressMessages(
+      plot_forest(
+        data      = df,
+        est       = c(NA, 1.52, 1.43),
+        lower     = c(NA, 1.18, 1.11),
+        upper     = c(NA, 1.96, 1.85),
+        arrow_lab = NULL
+      )
+    )
+  )
+})
+
+test_that("plot_forest() works with custom col_width scalar", {
+  df  <- .fake_forest_df()
+  tmp <- .open_pdf_device()
+  on.exit(.close_pdf_device(tmp), add = TRUE)
+
+  expect_no_error(
+    suppressMessages(
+      plot_forest(
+        data      = df,
+        est       = c(NA, 1.52, 1.43),
+        lower     = c(NA, 1.18, 1.11),
+        upper     = c(NA, 1.96, 1.85),
+        col_width = 30
+      )
+    )
+  )
+})
+
+test_that("plot_forest() accepts header of final column count (ncol + 2)", {
+  # Final table: item | gap_ci | OR (95% CI) | cases_n  → 4 columns
+  df  <- .fake_forest_df()
+  tmp <- .open_pdf_device()
+  on.exit(.close_pdf_device(tmp), add = TRUE)
+
+  expect_no_error(
+    suppressMessages(
+      plot_forest(
+        data   = df,
+        est    = c(NA, 1.52, 1.43),
+        lower  = c(NA, 1.18, 1.11),
+        upper  = c(NA, 1.96, 1.85),
+        header = c("Exposure", "", "HR (95% CI)", "Cases/N")
+      )
+    )
+  )
+})
+
+test_that("plot_forest() warns on unknown theme and falls back to default", {
+  df  <- .fake_forest_df()
+  tmp <- .open_pdf_device()
+  on.exit(.close_pdf_device(tmp), add = TRUE)
+
+  expect_warning(
+    suppressMessages(
+      plot_forest(
+        data  = df,
+        est   = c(NA, 1.52, 1.43),
+        lower = c(NA, 1.18, 1.11),
+        upper = c(NA, 1.96, 1.85),
+        theme = "nonexistent_theme"
+      )
+    ),
+    "Unknown theme"
+  )
+})
+
 
 # ===========================================================================
 # plot_tableone() — end-to-end
@@ -370,4 +467,61 @@ test_that("plot_tableone() with all options combined does not error", {
       )
     ))
   )
+})
+
+test_that("plot_tableone() works with percent = 'row'", {
+  df  <- .fake_t1_df()
+  expect_no_error(
+    suppressMessages(suppressWarnings(
+      plot_tableone(
+        df,
+        vars    = c("sex"),
+        strata  = "trt",
+        percent = "row",
+        save    = FALSE
+      )
+    ))
+  )
+})
+
+test_that("plot_tableone() works with missing = 'always'", {
+  df      <- .fake_t1_df()
+  df$age[sample(nrow(df), 5)] <- NA
+  expect_no_error(
+    suppressMessages(suppressWarnings(
+      plot_tableone(
+        df,
+        vars    = c("age", "bmi"),
+        strata  = "trt",
+        missing = "always",
+        save    = FALSE
+      )
+    ))
+  )
+})
+
+
+# ===========================================================================
+# plot_tableone() — save branch smoke test
+# ===========================================================================
+
+test_that("plot_tableone() save = TRUE writes an HTML file", {
+  df   <- .fake_t1_df()
+  base <- tempfile()
+  on.exit(
+    unlink(paste0(base, c(".docx", ".html", ".pdf", ".png")), force = TRUE),
+    add = TRUE
+  )
+
+  suppressMessages(suppressWarnings(
+    plot_tableone(
+      df,
+      vars   = c("age", "sex"),
+      strata = "trt",
+      save   = TRUE,
+      dest   = base
+    )
+  ))
+
+  expect_true(file.exists(paste0(base, ".html")))
 })

@@ -418,6 +418,80 @@ test_that(".assert_has_cols() error message includes the data argument name", {
 
 
 # ===========================================================================
+# .assert_logical()
+# ===========================================================================
+
+test_that(".assert_logical() accepts TRUE", {
+  expect_invisible(ukbflow:::.assert_logical(TRUE))
+})
+
+test_that(".assert_logical() accepts FALSE", {
+  expect_invisible(ukbflow:::.assert_logical(FALSE))
+})
+
+test_that(".assert_logical() accepts a logical vector", {
+  expect_invisible(ukbflow:::.assert_logical(c(TRUE, FALSE, TRUE)))
+})
+
+test_that(".assert_logical() accepts logical(0)", {
+  expect_invisible(ukbflow:::.assert_logical(logical(0)))
+})
+
+test_that(".assert_logical() rejects character input", {
+  expect_error(ukbflow:::.assert_logical("yes"), "logical")
+})
+
+test_that(".assert_logical() rejects numeric input", {
+  expect_error(ukbflow:::.assert_logical(1L), "logical")
+})
+
+test_that(".assert_logical() rejects NULL", {
+  expect_error(ukbflow:::.assert_logical(NULL), "logical")
+})
+
+test_that(".assert_logical() error message includes the argument name", {
+  bad_flag <- "yes"
+  expect_error(ukbflow:::.assert_logical(bad_flag), "bad_flag")
+})
+
+
+# ===========================================================================
+# .assert_length_n()
+# ===========================================================================
+
+test_that(".assert_length_n() accepts vector of correct length", {
+  expect_invisible(ukbflow:::.assert_length_n(c(1, 2, 3), 3L))
+})
+
+test_that(".assert_length_n() returns input invisibly", {
+  x      <- c("a", "b")
+  result <- ukbflow:::.assert_length_n(x, 2L)
+  expect_identical(result, x)
+})
+
+test_that(".assert_length_n() accepts length-1 vector when n = 1", {
+  expect_invisible(ukbflow:::.assert_length_n("only", 1L))
+})
+
+test_that(".assert_length_n() accepts empty vector when n = 0", {
+  expect_invisible(ukbflow:::.assert_length_n(character(0), 0L))
+})
+
+test_that(".assert_length_n() rejects vector that is too short", {
+  expect_error(ukbflow:::.assert_length_n(c(1, 2), 3L), "length 3")
+})
+
+test_that(".assert_length_n() rejects vector that is too long", {
+  expect_error(ukbflow:::.assert_length_n(c(1, 2, 3, 4), 3L), "length 3")
+})
+
+test_that(".assert_length_n() error message includes the argument name", {
+  bad_vec <- c(1, 2)
+  expect_error(ukbflow:::.assert_length_n(bad_vec, 5L), "bad_vec")
+})
+
+
+# ===========================================================================
 # .assert_flag()
 # ===========================================================================
 

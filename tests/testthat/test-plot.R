@@ -98,7 +98,7 @@ test_that("plot_forest() aborts when ci_col is wrong vector length", {
                 lower  = c(NA, 1.18, 1.11),
                 upper  = c(NA, 1.96, 1.85),
                 ci_col = c("black", "red")),     # length 2, need 1 or 3
-    "scalar or length"
+    "length"
   )
 })
 
@@ -110,7 +110,7 @@ test_that("plot_forest() aborts when p_cols not in data", {
                 lower  = c(NA, 1.18, 1.11),
                 upper  = c(NA, 1.96, 1.85),
                 p_cols = "nonexistent"),
-    "p_cols"
+    "nonexistent"
   )
 })
 
@@ -123,6 +123,66 @@ test_that("plot_forest() aborts when save=TRUE and dest=NULL", {
                 upper = c(NA, 1.96, 1.85),
                 save  = TRUE, dest = NULL),
     "dest"
+  )
+})
+
+test_that("plot_forest() aborts when bold_p is not logical", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est    = c(NA, 1.52, 1.43),
+                lower  = c(NA, 1.18, 1.11),
+                upper  = c(NA, 1.96, 1.85),
+                bold_p = "yes"),
+    "logical"
+  )
+})
+
+test_that("plot_forest() aborts when ci_column < 2", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est       = c(NA, 1.52, 1.43),
+                lower     = c(NA, 1.18, 1.11),
+                upper     = c(NA, 1.96, 1.85),
+                ci_column = 1L),
+    "ci_column"
+  )
+})
+
+test_that("plot_forest() aborts when ci_column > ncol(data) + 1", {
+  df <- .fake_forest_df()   # 2 cols
+  expect_error(
+    plot_forest(df,
+                est       = c(NA, 1.52, 1.43),
+                lower     = c(NA, 1.18, 1.11),
+                upper     = c(NA, 1.96, 1.85),
+                ci_column = 4L),  # max allowed = 3
+    "ci_column"
+  )
+})
+
+test_that("plot_forest() aborts when header length != ncol(data) + 2", {
+  df <- .fake_forest_df()   # 2 orig cols → nc_final = 4
+  expect_error(
+    plot_forest(df,
+                est    = c(NA, 1.52, 1.43),
+                lower  = c(NA, 1.18, 1.11),
+                upper  = c(NA, 1.96, 1.85),
+                header = c("Label", "Gap")),  # need 4
+    "length"
+  )
+})
+
+test_that("plot_forest() aborts when align length != ncol(data) + 2", {
+  df <- .fake_forest_df()   # nc_final = 4
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, 1.52, 1.43),
+                lower = c(NA, 1.18, 1.11),
+                upper = c(NA, 1.96, 1.85),
+                align = c(-1L, 0L)),  # need 4
+    "length"
   )
 })
 
@@ -252,7 +312,7 @@ test_that("plot_tableone() aborts when vars not in data", {
   df <- .fake_t1_df()
   expect_error(
     plot_tableone(df, vars = "nonexistent", save = FALSE),
-    "Missing"
+    "missing"
   )
 })
 
@@ -260,7 +320,7 @@ test_that("plot_tableone() aborts when strata not in data", {
   df <- .fake_t1_df()
   expect_error(
     plot_tableone(df, vars = "age", strata = "missing_col", save = FALSE),
-    "strata"
+    "missing_col"
   )
 })
 
@@ -290,6 +350,15 @@ test_that("plot_tableone() warns and disables add_smd when strata=NULL", {
     plot_tableone(df, vars = "age", strata = NULL,
                   add_p = FALSE, add_smd = TRUE, save = FALSE),
     "add_smd"
+  )
+})
+
+test_that("plot_tableone() aborts when exclude_labels is not character", {
+  df <- .fake_t1_df()
+  expect_error(
+    plot_tableone(df, vars = "age", strata = "trt",
+                  exclude_labels = 1L, save = FALSE),
+    "character"
   )
 })
 
