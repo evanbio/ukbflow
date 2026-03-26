@@ -2,9 +2,9 @@
 
 Captures a lightweight summary of a data.frame at a given pipeline stage
 and stores it in the session cache. Subsequent calls automatically
-compute deltas (Δ) against the previous snapshot, making it easy to
-track how data changes through `derive_*`, `assoc_*`, and other
-processing steps.
+compute deltas against the previous snapshot, making it easy to track
+how data changes through `derive_*`, `assoc_*`, and other processing
+steps.
 
 ## Usage
 

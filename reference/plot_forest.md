@@ -226,7 +226,6 @@ A forestploter plot object (gtable), returned invisibly. Display with
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 df <- data.frame(
   item      = c("Exposure vs. control", "Unadjusted", "Fully adjusted"),
   `Cases/N` = c("", "89/4521", "89/4521"),
@@ -246,5 +245,4 @@ p <- plot_forest(
   xlim       = c(0.5, 3.0)
 )
 plot(p)
-} # }
 ```

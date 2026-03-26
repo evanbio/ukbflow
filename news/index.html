@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,9 +102,31 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/v0.3.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.2" id="ukbflow-032">ukbflow 0.3.2<a class="anchor" aria-label="anchor" href="#ukbflow-032"></a></h2>
+<p><em>Released: March 26, 2026</em></p>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-2">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-2"></a></h3>
+<ul><li>
+<code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code> — removed Unicode character <code>Δ</code> from documentation to fix LaTeX PDF manual build on CRAN</li>
+<li>
+<code>test-plot.R</code> — added <code>skip_on_cran()</code> to <code><a href="../reference/plot_tableone.html">plot_tableone()</a></code> rendering tests that caused a 20-minute hang on Windows CRAN</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-0-3-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-3-2"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_forest.html">plot_forest()</a></code> and <code><a href="../reference/plot_tableone.html">plot_tableone()</a></code> examples are now fully runnable (removed <code>\dontrun{}</code> wrapper; <code>save = FALSE</code> throughout)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-2"></a></h3>
+<ul><li>
+<code>README.md</code> — updated Codecov badge URL; fixed <code>CONTRIBUTING.md</code> and <code>README_zh.md</code> links to full GitHub URLs</li>
+<li>Added <code>inst/WORDLIST</code> with <code>Biobank</code> to suppress false-positive spelling NOTE on CRAN</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.1" id="ukbflow-031">ukbflow 0.3.1<a class="anchor" aria-label="anchor" href="#ukbflow-031"></a></h2>
 <p><em>Released: March 25, 2026</em></p>
@@ -348,7 +370,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.1</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.2</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>
