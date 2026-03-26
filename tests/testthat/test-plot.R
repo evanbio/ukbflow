@@ -334,6 +334,7 @@ test_that("plot_tableone() aborts when save=TRUE and dest=NULL", {
 })
 
 test_that("plot_tableone() warns and disables add_p when strata=NULL", {
+  skip_on_cran()
   df <- .fake_t1_df()
   # cli::cli_warn() produces a warning, not a message
   expect_warning(
@@ -343,6 +344,7 @@ test_that("plot_tableone() warns and disables add_p when strata=NULL", {
 })
 
 test_that("plot_tableone() warns and disables add_smd when strata=NULL", {
+  skip_on_cran()
   df <- .fake_t1_df()
   # cli::cli_warn() produces a warning, not a message.
   # Disable add_p to avoid a second unrelated warning leaking out.

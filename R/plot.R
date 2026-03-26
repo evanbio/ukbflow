@@ -98,7 +98,6 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' df <- data.frame(
 #'   item      = c("Exposure vs. control", "Unadjusted", "Fully adjusted"),
 #'   `Cases/N` = c("", "89/4521", "89/4521"),
@@ -118,7 +117,6 @@
 #'   xlim       = c(0.5, 3.0)
 #' )
 #' plot(p)
-#' }
 plot_forest <- function(data,
                         est,
                         lower,
@@ -309,6 +307,7 @@ plot_forest <- function(data,
 #'
 #' @return A \pkg{gt} table object, returned invisibly.
 #'
+#' @importFrom broom tidy
 #' @importFrom gtsummary tbl_summary bold_labels add_overall add_p bold_p
 #'   modify_header modify_table_body modify_table_styling as_gt style_pvalue
 #' @importFrom gt gtsave tab_options tab_style opt_css
@@ -317,7 +316,6 @@ plot_forest <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' library(gtsummary)
 #' data(trial)
 #'
@@ -337,10 +335,8 @@ plot_forest <- function(data,
 #'   label          = list(age ~ "Age (years)", marker ~ "Marker level"),
 #'   add_smd        = TRUE,
 #'   exclude_labels = "Unknown",
-#'   dest           = "table1",
-#'   save           = TRUE
+#'   save           = FALSE
 #' )
-#' }
 plot_tableone <- function(
     data,
     vars,

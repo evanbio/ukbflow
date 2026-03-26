@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Provides tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
+Provides a streamlined workflow for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Includes tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
 }
 \seealso{
 Useful links:

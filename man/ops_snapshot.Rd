@@ -38,7 +38,7 @@ history data.table invisibly.
 \description{
 Captures a lightweight summary of a data.frame at a given pipeline stage
 and stores it in the session cache. Subsequent calls automatically compute
-deltas (Δ) against the previous snapshot, making it easy to track how data
+deltas against the previous snapshot, making it easy to track how data
 changes through \verb{derive_*}, \verb{assoc_*}, and other processing steps.
 }
 \examples{

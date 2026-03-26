@@ -127,7 +127,6 @@ and \strong{png}.
 }
 }
 \examples{
-\dontrun{
 library(gtsummary)
 data(trial)
 
@@ -147,8 +146,6 @@ plot_tableone(
   label          = list(age ~ "Age (years)", marker ~ "Marker level"),
   add_smd        = TRUE,
   exclude_labels = "Unknown",
-  dest           = "table1",
-  save           = TRUE
+  save           = FALSE
 )
-}
 }

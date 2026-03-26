@@ -1,8 +1,21 @@
-## CRAN Comments for ukbflow 0.3.1
+## CRAN Comments for ukbflow 0.3.2
 
-Submission - Initial Release
+Resubmission — addressing issues from the v0.3.1 pre-test check.
 
-This is the first submission of ukbflow to CRAN.
+## Changes since v0.3.1
+
+- Removed Unicode character `Δ` from `ops_snapshot()` documentation to fix
+  LaTeX PDF manual build (WARNING + ERROR on Debian)
+- Added `inst/WORDLIST` with `Biobank` to resolve spelling NOTE in DESCRIPTION
+- Updated Codecov badge URL in README.md (301 → `app.codecov.io`)
+- Replaced relative file URIs (`CONTRIBUTING.md`, `README_zh.md`) in README.md
+  with full GitHub URLs
+- Added `skip_on_cran()` to two `plot_tableone()` rendering tests that caused
+  a 20-minute hang on Windows CRAN
+- Freed `plot_forest()` and `plot_tableone()` examples from `\dontrun{}`
+  (all examples use `save = FALSE`)
+- Moved `broom` usage from undeclared to `@importFrom broom tidy` in
+  `plot_tableone()` to resolve Imports NOTE
 
 ## Test environments
 
@@ -13,15 +26,10 @@ This is the first submission of ukbflow to CRAN.
 
 ## R CMD check results
 
-Duration: 6m 27.7s
+Duration: 6m 54.6s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 ## Downstream dependencies
 
 There are currently no downstream dependencies for this package.
-
-## Quality Assurance
-
-- Test suite: All tests passing
-- Platform compatibility: Verified on Windows, macOS, and Linux

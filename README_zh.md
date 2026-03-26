@@ -7,14 +7,14 @@
 ### *面向 UK Biobank 的 RAP 原生 R 分析工作流*
 
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
-[![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://codecov.io/gh/evanbio/ukbflow?branch=main)
+[![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [📚 文档](https://evanbio.github.io/ukbflow/) •
 [🚀 快速开始](https://evanbio.github.io/ukbflow/articles/get-started.html) •
 [💬 问题反馈](https://github.com/evanbio/ukbflow/issues) •
-[🤝 贡献指南](CONTRIBUTING.md)
+[🤝 贡献指南](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)
 
 **语言：** [English](README.md) | 简体中文
 
@@ -219,7 +219,7 @@ pip install dxpy
 
 ## 贡献
 
-欢迎提交 Bug 报告、功能建议和 PR，详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+欢迎提交 Bug 报告、功能建议和 PR，详见 [CONTRIBUTING.md](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)。
 
 ---
 
