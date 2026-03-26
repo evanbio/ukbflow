@@ -164,7 +164,6 @@ inserted automatically at \code{ci_column}. Numeric p-value columns
 declared via \code{p_cols} are formatted in-place.
 }
 \examples{
-\dontrun{
 df <- data.frame(
   item      = c("Exposure vs. control", "Unadjusted", "Fully adjusted"),
   `Cases/N` = c("", "89/4521", "89/4521"),
@@ -184,5 +183,4 @@ p <- plot_forest(
   xlim       = c(0.5, 3.0)
 )
 plot(p)
-}
 }

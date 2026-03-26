@@ -1,3 +1,23 @@
+# ukbflow 0.3.2
+
+*Released: March 26, 2026*
+
+## Bug Fixes
+
+- `ops_snapshot()` — removed Unicode character `Δ` from documentation to fix LaTeX PDF manual build on CRAN
+- `test-plot.R` — added `skip_on_cran()` to `plot_tableone()` rendering tests that caused a 20-minute hang on Windows CRAN
+
+## Improvements
+
+- `plot_forest()` and `plot_tableone()` examples are now fully runnable (removed `\dontrun{}` wrapper; `save = FALSE` throughout)
+
+## Documentation
+
+- `README.md` — updated Codecov badge URL; fixed `CONTRIBUTING.md` and `README_zh.md` links to full GitHub URLs
+- Added `inst/WORDLIST` with `Biobank` to suppress false-positive spelling NOTE on CRAN
+
+---
+
 # ukbflow 0.3.1
 
 *Released: March 25, 2026*

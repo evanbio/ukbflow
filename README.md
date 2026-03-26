@@ -7,16 +7,16 @@
 ### *RAP-Native R Workflow for UK Biobank Analysis*
 
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
-[![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://codecov.io/gh/evanbio/ukbflow?branch=main)
+[![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [📚 Documentation](https://evanbio.github.io/ukbflow/) •
 [🚀 Get Started](https://evanbio.github.io/ukbflow/articles/get-started.html) •
 [💬 Issues](https://github.com/evanbio/ukbflow/issues) •
-[🤝 Contributing](CONTRIBUTING.md)
+[🤝 Contributing](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)
 
-**Languages:** English | [简体中文](README_zh.md)
+**Languages:** English | [简体中文](https://github.com/evanbio/ukbflow/blob/main/README_zh.md)
 
 </div>
 
@@ -219,7 +219,7 @@ Full vignettes and function reference:
 
 ## Contributing
 
-Bug reports, feature requests, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports, feature requests, and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md).
 
 ---
 
