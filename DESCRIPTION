@@ -42,5 +42,5 @@ Suggests:
     mockery,
     webshot2,
     withr
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 Config/testthat/edition: 3
