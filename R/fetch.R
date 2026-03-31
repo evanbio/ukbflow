@@ -105,15 +105,15 @@ fetch_url <- function(path, duration = "1d") {
 }
 
 
-#' Download a remote RAP file or folder to local disk
+#' Download a file from RAP project storage
 #'
-#' Downloads one file or all files within a folder from the DNAnexus Research
-#' Analysis Platform. Single files are downloaded sequentially; folders are
-#' downloaded in parallel using \code{curl::multi_download()}.
+#' Downloads one file or all files within a folder from RAP project storage
+#' to the current directory or a specified destination within the RAP
+#' environment. This function must be called from within RAP.
 #'
 #' @param path (character) Remote file or folder path.
-#' @param dest_dir (character) Local destination directory. Created
-#'   automatically if it does not exist. Default: \code{"."}.
+#' @param dest_dir (character) Destination directory. Created automatically
+#'   if it does not exist.
 #' @param overwrite (logical) Overwrite existing local files. Default:
 #'   \code{FALSE}.
 #' @param resume (logical) Resume an interrupted download. Useful for large
@@ -134,14 +134,9 @@ fetch_url <- function(path, duration = "1d") {
 #' # Resume an interrupted download
 #' fetch_file("results/summary_stats.csv", dest_dir = "data/", resume = TRUE)
 #' }
-fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
+fetch_file <- function(path, dest_dir, overwrite = FALSE,
                        resume = FALSE, verbose = TRUE) {
-  if (!.is_on_rap())
-    cli::cli_abort(
-      c("fetch_file() can only be called from within the UKB Research Analysis Platform (RAP).",
-        "i" = "Individual-level UKB data must remain within the RAP environment."),
-      call = NULL
-    )
+  .assert_on_rap()
 
   if (!dir.exists(dest_dir)) {
     dir.create(dest_dir, recursive = TRUE)
@@ -176,14 +171,14 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
 }
 
 
-#' Download all UKB Showcase metadata files
+#' Download the Showcase metadata folder
 #'
 #' Downloads the entire \code{Showcase metadata/} folder from the DNAnexus
 #' Research Analysis Platform to a local directory. This includes
 #' \code{field.tsv}, \code{encoding.tsv}, and all associated encoding tables.
 #'
-#' @param dest_dir (character) Local destination directory. Created
-#'   automatically if it does not exist. Default: \code{"data/metadata/"}.
+#' @param dest_dir (character) Destination directory. Created automatically
+#'   if it does not exist.
 #' @param overwrite (logical) Overwrite existing local files. Default:
 #'   \code{FALSE}.
 #' @param resume (logical) Resume interrupted downloads. Default: \code{FALSE}.
@@ -194,10 +189,10 @@ fetch_file <- function(path, dest_dir = ".", overwrite = FALSE,
 #'
 #' @examples
 #' \dontrun{
-#' fetch_metadata()
-#' fetch_metadata(dest_dir = "metadata/", overwrite = TRUE)
+#' fetch_metadata(dest_dir = "metadata")
+#' fetch_metadata(dest_dir = "metadata", overwrite = TRUE)
 #' }
-fetch_metadata <- function(dest_dir = "data/metadata/", overwrite = FALSE,
+fetch_metadata <- function(dest_dir, overwrite = FALSE,
                            resume = FALSE, verbose = TRUE) {
   fetch_file("Showcase metadata/", dest_dir = dest_dir,
              overwrite = overwrite, resume = resume, verbose = verbose)
@@ -210,8 +205,8 @@ fetch_metadata <- function(dest_dir = "data/metadata/", overwrite = FALSE,
 #' DNAnexus Research Analysis Platform. This file contains the complete UKB
 #' data dictionary: field IDs, titles, value types, and encoding references.
 #'
-#' @param dest_dir (character) Local destination directory. Created
-#'   automatically if it does not exist. Default: \code{"data/metadata/"}.
+#' @param dest_dir (character) Destination directory. Created automatically
+#'   if it does not exist.
 #' @param overwrite (logical) Overwrite existing local file. Default:
 #'   \code{FALSE}.
 #' @param resume (logical) Resume an interrupted download. Default:
@@ -223,10 +218,10 @@ fetch_metadata <- function(dest_dir = "data/metadata/", overwrite = FALSE,
 #'
 #' @examples
 #' \dontrun{
-#' fetch_field()
-#' fetch_field(dest_dir = "metadata/", overwrite = TRUE)
+#' fetch_field(dest_dir = "metadata")
+#' fetch_field(dest_dir = "metadata", overwrite = TRUE)
 #' }
-fetch_field <- function(dest_dir = "data/metadata/", overwrite = FALSE,
+fetch_field <- function(dest_dir, overwrite = FALSE,
                         resume = FALSE, verbose = TRUE) {
   fetch_file("Showcase metadata/field.tsv", dest_dir = dest_dir,
              overwrite = overwrite, resume = resume, verbose = verbose)
@@ -257,7 +252,7 @@ fetch_field <- function(dest_dir = "data/metadata/", overwrite = FALSE,
 #' @examples
 #' \dontrun{
 #' fetch_tree()
-#' fetch_tree("Bulk/", max_depth = 3)
+#' fetch_tree("Bulk/", max_depth = 2)
 #' fetch_tree(verbose = FALSE)
 #' }
 fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {

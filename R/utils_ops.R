@@ -261,6 +261,174 @@
 }
 
 
+#' Generate analysis-ready toy dataset for assoc_* functions
+#'
+#' Returns a pre-derived participant-level table with covariates already
+#' converted to factors, BMI/TDI binned, and two disease outcomes (DM and HTN)
+#' with internally consistent status / date / timing / followup columns.
+#'
+#' @param n (integer) Number of participants.
+#' @return A data.table ready for \code{assoc_*} functions.
+#' @keywords internal
+#' @noRd
+.ops_toy_association <- function(n) {
+
+  censor_date  <- as.Date("2022-10-31")
+  disease_span <- as.integer(censor_date - as.Date("1990-01-01"))
+
+  # ── 1. Identity ──────────────────────────────────────────────────────────────
+  eid <- seq(10000001L, by = 1L, length.out = n)
+
+  # ── 2. Demographics ──────────────────────────────────────────────────────────
+  p31 <- factor(
+    sample(c("Female", "Male"), n, replace = TRUE, prob = c(0.54, 0.46)),
+    levels = c("Female", "Male")
+  )
+
+  baseline_days <- as.integer(as.Date("2010-12-31") - as.Date("2006-01-01"))
+  p53_i0 <- data.table::as.IDate(
+    as.Date("2006-01-01") + sample(0L:baseline_days, n, replace = TRUE)
+  )
+
+  p21022 <- sample(40L:70L, n, replace = TRUE)
+
+  # ── 3. Covariates ─────────────────────────────────────────────────────────────
+  # BMI + derived category (same breaks as derive_cut examples)
+  p21001_i0 <- round(pmax(12, pmin(65, rnorm(n, mean = 26.2, sd = 5.5))), 2L)
+  bmi_cat <- cut(p21001_i0,
+    breaks = c(-Inf, 18.5, 25, 30, Inf),
+    labels = c("Underweight", "Normal", "Overweight", "Obese"),
+    right  = FALSE
+  )
+
+  # Smoking (~3% NA for realism, no "Prefer not to answer" in analysis-ready data)
+  p20116_i0 <- factor(
+    sample(c("Never", "Previous", "Current", NA_character_),
+           n, replace = TRUE, prob = c(0.52, 0.31, 0.14, 0.03)),
+    levels = c("Never", "Previous", "Current")
+  )
+
+  # Alcohol
+  p1558_i0 <- factor(sample(
+    c("Daily or almost daily", "Three or four times a week",
+      "Once or twice a week",  "One to three times a month",
+      "Special occasions only", "Never", NA_character_),
+    n, replace = TRUE, prob = c(0.08, 0.21, 0.28, 0.17, 0.14, 0.09, 0.03)
+  ))
+
+  # Ethnicity
+  p21000_i0 <- factor(sample(
+    c("White", "Asian", "Black", "Mixed", "Other"),
+    n, replace = TRUE, prob = c(0.87, 0.06, 0.02, 0.02, 0.03)
+  ))
+
+  # TDI + derived quartile category (tdi_cat derived from p22189 in this dataset)
+  p22189  <- round(pmax(-7, pmin(12, rnorm(n, mean = -1.3, sd = 3.2))), 2L)
+  tdi_q   <- stats::quantile(p22189, probs = c(0.25, 0.5, 0.75))
+  tdi_cat <- cut(p22189,
+    breaks = c(-Inf, tdi_q[[1L]], tdi_q[[2L]], tdi_q[[3L]], Inf),
+    labels = c("Q1 (least deprived)", "Q2", "Q3", "Q4 (most deprived)"),
+    right  = TRUE
+  )
+
+  # Assessment centre
+  p54_i0 <- factor(sample(
+    c("Leeds", "Manchester", "Edinburgh", "Bristol", "Birmingham",
+      "Oxford", "Newcastle", "Nottingham", "Liverpool", "Sheffield"),
+    n, replace = TRUE
+  ))
+
+  # ── 4. Genetic PCs ────────────────────────────────────────────────────────────
+  pc_mat  <- matrix(round(rnorm(n * 10L), 6L), nrow = n)
+  pc_cols <- stats::setNames(
+    as.data.frame(pc_mat), paste0("p22009_a", 1:10)
+  )
+
+  # ── 5. GRS (continuous exposure example) ─────────────────────────────────────
+  grs_bmi <- round(rnorm(n, mean = 0.82, sd = 2.5), 6L)
+
+  # ── 6. Disease outcomes ───────────────────────────────────────────────────────
+  # Helper: generate one disease outcome with internally consistent columns.
+  # Reason: status / date / timing / followup must be derived sequentially —
+  # they cannot be generated independently without breaking their relationships.
+  .make_outcome <- function(pct_case) {
+
+    has_disease <- runif(n) < pct_case
+
+    # Disease date: only for cases, uniformly between 1990-01-01 and censor_date
+    d_date <- rep(as.Date(NA), n)
+    d_date[has_disease] <- as.Date("1990-01-01") +
+      sample(0L:disease_span, sum(has_disease), replace = TRUE)
+    d_date <- data.table::as.IDate(d_date)
+
+    # Timing: compare disease date to individual baseline
+    timing <- integer(n)
+    timing[!has_disease]                                     <- 0L
+    timing[has_disease & !is.na(d_date) & d_date <= p53_i0] <- 1L  # prevalent
+    timing[has_disease & !is.na(d_date) & d_date >  p53_i0] <- 2L  # incident
+    timing[has_disease &  is.na(d_date)]                     <- NA_integer_
+
+    # Follow-up end: incident → disease date; all others → censor_date
+    followup_end <- rep(data.table::as.IDate(censor_date), n)
+    incident     <- !is.na(timing) & timing == 2L
+    followup_end[incident] <- d_date[incident]
+
+    # Follow-up years: (followup_end - baseline) / 365.25; NA for prevalent
+    followup_years <- as.numeric(followup_end - p53_i0) / 365.25
+    followup_years[!is.na(timing) & timing == 1L] <- NA_real_
+
+    list(
+      status         = has_disease,
+      date           = d_date,
+      timing         = timing,
+      followup_end   = followup_end,
+      followup_years = round(followup_years, 4L)
+    )
+  }
+
+  dm  <- .make_outcome(0.12)   # ~12% type 2 diabetes
+  htn <- .make_outcome(0.28)   # ~28% hypertension
+
+  # ── Assemble ──────────────────────────────────────────────────────────────────
+  dt <- data.table::data.table(
+    eid       = eid,
+    p31       = p31,
+    p53_i0    = p53_i0,
+    p21022    = p21022,
+    p21001_i0 = p21001_i0,
+    bmi_cat   = bmi_cat,
+    p20116_i0 = p20116_i0,
+    p1558_i0  = p1558_i0,
+    p21000_i0 = p21000_i0,
+    p22189    = p22189,
+    tdi_cat   = tdi_cat,
+    p54_i0    = p54_i0
+  )
+
+  dt <- cbind(dt, data.table::as.data.table(pc_cols))
+
+  dt[, grs_bmi := grs_bmi]
+
+  dt[, `:=`(
+    dm_status         = dm$status,
+    dm_date           = dm$date,
+    dm_timing         = dm$timing,
+    dm_followup_end   = dm$followup_end,
+    dm_followup_years = dm$followup_years
+  )]
+
+  dt[, `:=`(
+    htn_status         = htn$status,
+    htn_date           = htn$date,
+    htn_timing         = htn$timing,
+    htn_followup_end   = htn$followup_end,
+    htn_followup_years = htn$followup_years
+  )]
+
+  dt
+}
+
+
 #' Generate toy forest plot data (assoc_coxph-style results table)
 #'
 #' @param n (integer) Number of exposures. Default 8L.
