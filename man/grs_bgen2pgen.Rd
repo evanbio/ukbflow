@@ -6,7 +6,7 @@
 \usage{
 grs_bgen2pgen(
   chr = 1:22,
-  dest = "/pgen/",
+  dest = NULL,
   maf = 0.01,
   instance = "standard",
   priority = "low"
@@ -15,8 +15,8 @@ grs_bgen2pgen(
 \arguments{
 \item{chr}{Integer vector. Chromosomes to process. Default: \code{1:22}.}
 
-\item{dest}{Character scalar. RAP destination path for output PGEN files.
-Default: \code{"/pgen/"}.}
+\item{dest}{Character scalar. RAP destination path for output PGEN files
+(e.g. \code{"/pgen/"}). Must be specified explicitly.}
 
 \item{maf}{Numeric scalar. Minor allele frequency filter passed to plink2
 \code{--maf}. Variants with MAF below this threshold are excluded.
@@ -62,13 +62,13 @@ standard storage is insufficient.}
 \examples{
 \dontrun{
 # Test with chr22 first (smallest chromosome)
-ids <- grs_bgen2pgen(chr = 22, priority = "high")
+ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
 
 # Small chromosomes - standard instance
-ids_small <- grs_bgen2pgen(chr = 15:22)
+ids_small <- grs_bgen2pgen(chr = 15:22, dest = "/pgen/")
 
 # Large chromosomes - upgrade instance to handle storage
-ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
+ids_large <- grs_bgen2pgen(chr = 1:16, dest = "/pgen/", instance = "large")
 
 # Monitor
 job_ls()

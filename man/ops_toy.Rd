@@ -9,13 +9,19 @@ ops_toy(scenario = "cohort", n = 1000L, seed = 42L)
 \arguments{
 \item{scenario}{(character) Data structure to generate:
 \itemize{
-\item \code{"cohort"}: wide participant-level table for the full
-\verb{derive_*} → \verb{assoc_*} → \verb{plot_*} pipeline.
+\item \code{"cohort"}: wide participant-level table with raw UKB field columns for
+the full \verb{derive_*} → \verb{assoc_*} → \verb{plot_*} pipeline.
+\item \code{"association"}: analysis-ready table with covariates already as factors,
+BMI/TDI binned, and two pre-derived disease outcomes (\verb{dm_*}, \verb{htn_*})
+including status, date, timing, and follow-up columns. Use this for
+\verb{assoc_*} examples and testing without running the derive pipeline.
 \item \code{"forest"}: association results table matching \code{assoc_coxph()} output,
 for testing \code{plot_forest()}. \code{n} = number of exposures (default 8).
 }}
 
-\item{n}{(integer) Number of participants. Default \code{1000L}.}
+\item{n}{(integer) Number of participants (or exposures for \code{"forest"}).
+Default \code{1000L} for \code{"cohort"}, \code{2000L} for \code{"association"}, \code{8L} for
+\code{"forest"}.}
 
 \item{seed}{(integer or NULL) Random seed for reproducibility. Pass \code{NULL}
 for a different dataset on every call. Default \code{42L}.}
@@ -51,17 +57,45 @@ Includes the following column groups:
 \item \strong{Messy columns}: \code{messy_allna}, \code{messy_empty}, \code{messy_label}
 }
 }
+
+\subsection{scenario = "association"}{
+
+Analysis-ready table. All derive inputs (raw arrays, HES JSON, registry
+fields) are omitted; derive outputs are pre-computed with internally
+consistent relationships:
+\itemize{
+\item \strong{Demographics}: \code{eid}, \code{p31} (factor), \code{p53_i0} (IDate), \code{p21022}
+\item \strong{Covariates}: \code{p21001_i0}, \code{bmi_cat} (factor, derived from \code{p21001_i0}),
+\code{p20116_i0} (factor), \code{p1558_i0} (factor), \code{p21000_i0} (factor),
+\code{p22189}, \code{tdi_cat} (factor, derived from \code{p22189} quartiles), \code{p54_i0}
+(factor)
+\item \strong{Genetic PCs}: \code{p22009_a1} – \code{p22009_a10}
+\item \strong{GRS}: \code{grs_bmi} (continuous exposure)
+\item \strong{DM outcome}: \code{dm_status}, \code{dm_date}, \code{dm_timing}, \code{dm_followup_end},
+\code{dm_followup_years} (type 2 diabetes, ~12\% prevalence)
+\item \strong{HTN outcome}: \code{htn_status}, \code{htn_date}, \code{htn_timing},
+\code{htn_followup_end}, \code{htn_followup_years} (hypertension, ~28\% prevalence)
+}
+
+Internal relationships guaranteed:
+\itemize{
+\item \code{bmi_cat} is cut from \code{p21001_i0} (breaks 18.5 / 25 / 30)
+\item \code{tdi_cat} is cut from \code{p22189} quartiles
+\item \code{dm_date} is \code{NA} iff \code{dm_status = FALSE}
+\item \code{dm_timing}: 0 = no disease, 1 = prevalent, 2 = incident, \code{NA} = no date
+\item \code{dm_followup_years} is \code{NA} for prevalent cases (\code{dm_timing == 1})
+}
+}
 }
 \examples{
-\dontrun{
-dt <- ops_toy()
-dt <- ops_toy(n = 500, seed = 1)
-
-# Dynamic dataset (different every call)
-dt <- ops_toy(seed = NULL)
-
-# Feed directly into derive pipeline
-dt <- ops_toy()
+# cohort: raw UKB-style columns, feed into derive pipeline
+dt <- ops_toy(n = 100)
 dt <- derive_missing(dt)
-}
+
+# association: analysis-ready, feed directly into assoc_* functions
+dt <- ops_toy(scenario = "association", n = 500)
+dt <- dt[dm_timing != 1L]   # exclude prevalent cases
+
+# forest: results table for plot_forest()
+dt <- ops_toy(scenario = "forest")
 }

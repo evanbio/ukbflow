@@ -44,16 +44,10 @@ Call once per timing variable needed (e.g. once for the combined case,
 once per individual source).
 }
 \examples{
-\dontrun{
-# Combined case timing (uses outcome_status + outcome_date from derive_case)
-df <- derive_timing(df, name = "outcome", baseline_col = "date_baseline")
-# → outcome_timing
-
-# Individual source timing
-df <- derive_timing(df, name = "outcome_icd10",
-                    status_col   = "outcome_icd10",
-                    date_col     = "outcome_icd10_date",
-                    baseline_col = "date_baseline")
-# → outcome_icd10_timing
-}
+dt <- ops_toy(n = 100)
+derive_hes(dt, name = "htn", icd10 = "I10")
+derive_timing(dt, name = "htn_hes",
+              status_col   = "htn_hes",
+              date_col     = "htn_hes_date",
+              baseline_col = "p53_i0")
 }

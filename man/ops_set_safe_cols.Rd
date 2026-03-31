@@ -22,8 +22,6 @@ build a drop vector, in addition to the built-in protected columns
 (\code{"eid"}, \code{"sex"}, \code{"age"}, \code{"age_at_recruitment"}).
 }
 \examples{
-\dontrun{
 ops_set_safe_cols(c("date_baseline", "townsend_index"))
 ops_set_safe_cols(reset = TRUE)  # clear user-registered safe cols
-}
 }

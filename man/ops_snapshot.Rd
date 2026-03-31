@@ -42,8 +42,7 @@ deltas against the previous snapshot, making it easy to track how data
 changes through \verb{derive_*}, \verb{assoc_*}, and other processing steps.
 }
 \examples{
-\dontrun{
-dt <- ops_toy()
+dt <- ops_toy(n = 100)
 ops_snapshot(dt, label = "raw")
 
 dt <- derive_missing(dt)
@@ -54,5 +53,4 @@ ops_snapshot()
 
 # Reset history
 ops_snapshot(reset = TRUE)
-}
 }

@@ -56,16 +56,12 @@ point to the same memory. If you need to preserve the original, pass
 \code{data.table::copy(data)} instead.
 }
 \examples{
-\dontrun{
-df <- extract_pheno(c(31, 20116, 2080)) |>
-  decode_values() |>
-  decode_names() |>
-  derive_missing()                          # "Do not know" -> NA
+dt <- ops_toy(n = 100)
+derive_missing(dt)
 
 # Retain informative non-response as a model category
-df <- derive_missing(df, action = "unknown")  # "Prefer not to answer" -> "Unknown"
+derive_missing(dt, action = "unknown")
 
 # Add a custom label
-df <- derive_missing(df, extra_labels = "Not applicable")
-}
+derive_missing(dt, extra_labels = "Not applicable")
 }

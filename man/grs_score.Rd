@@ -6,8 +6,8 @@
 \usage{
 grs_score(
   file,
-  pgen_dir = "/mnt/project/pgen",
-  dest = "/grs/",
+  pgen_dir = NULL,
+  dest = NULL,
   maf = 0.01,
   instance = "standard",
   priority = "low"
@@ -18,11 +18,11 @@ grs_score(
 the GRS identifiers (output column = \code{GRS_<name>}).
 Example: \code{c(grs_a = "weights_a.txt")}.}
 
-\item{pgen_dir}{Character scalar. Path to PGEN files on RAP.
-Default: \code{"/mnt/project/pgen"}.}
+\item{pgen_dir}{Character scalar. Path to PGEN files on RAP
+(e.g. \code{"/mnt/project/pgen"}). Must be specified explicitly.}
 
-\item{dest}{Character scalar. RAP destination path for output CSV files.
-Default: \code{"/grs/"}.}
+\item{dest}{Character scalar. RAP destination path for output CSV files
+(e.g. \code{"/grs/"}). Must be specified explicitly.}
 
 \item{maf}{Numeric scalar. MAF filter threshold used when locating PGEN
 files. Must match the value used in \code{\link{grs_bgen2pgen}}.
@@ -70,6 +70,7 @@ ids <- grs_score(
     grs_a = "weights/grs_a_weights.txt",
     grs_b = "weights/grs_b_weights.txt"
   ),
+  pgen_dir = "/mnt/project/pgen",
   dest     = "/grs/",
   priority = "high"
 )

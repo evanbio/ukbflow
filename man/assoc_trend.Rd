@@ -118,31 +118,35 @@ included by default (\code{base = TRUE}); a Fully adjusted model is added
 when \code{covariates} is non-NULL.
 }
 \examples{
-\dontrun{
-# Create an ordered factor exposure with 3 levels
-cohort[, exposure_cat := factor(exposure_source,
-                                 levels = c(0, 1, 2),
-                                 labels = c("None", "Mild", "Severe"))]
+dt <- ops_toy(scenario = "association")
+dt <- dt[dm_timing != 1L]
 
-# Trend analysis: default scores 0, 1, 2
+# Trend across BMI categories (default integer scores 0, 1, 2, 3)
 res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure_cat",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "bmi_cat",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "sex", "tdi", "smoking")
+  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0")
 )
 
-# Custom scores (e.g. median value per category)
+# Custom scores reflecting approximate median BMI per category
 res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure_cat",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "bmi_cat",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "sex", "tdi"),
-  scores       = c(0, 5, 14)
+  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
+  scores       = c(17, 22, 27, 35)
 )
-}
+
+# Logistic trend (no time_col needed)
+res <- assoc_trend(
+  data         = dt,
+  outcome_col  = "dm_status",
+  exposure_col = "bmi_cat",
+  method       = "logistic"
+)
 }

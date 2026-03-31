@@ -49,13 +49,12 @@ when binning multiple variables.
 \code{data.table::copy(data)} to preserve the original.
 }
 \examples{
-\dontrun{
-df <- derive_cut(df, col = "age_at_recruitment", n = 3)
-# → adds age_at_recruitment_tri with groups Q1 / Q2 / Q3
+dt <- ops_toy(n = 100)
+derive_cut(dt, col = "p21001_i0", n = 3)
 
-df <- derive_cut(df, col = "age_at_recruitment", n = 3,
-                 breaks = c(50, 60),
-                 labels = c("<50", "50-59", "60+"),
-                 name   = "age_group")
-}
+# Custom breaks and labels
+derive_cut(dt, col = "p21001_i0", n = 3,
+           breaks = c(25, 30),
+           labels = c("<25", "25-30", "30+"),
+           name   = "bmi_group")
 }

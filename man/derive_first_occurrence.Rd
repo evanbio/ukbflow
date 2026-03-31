@@ -53,14 +53,6 @@ to override auto-detection.
 The returned object and the original variable point to the same memory.
 }
 \examples{
-\dontrun{
-# Look up the First Occurrence field ID for your disease in the UKB Field Finder
-df <- derive_first_occurrence(df, name = "disease", field = 131000L)
-# → df$disease_fo        logical
-# → df$disease_fo_date   IDate
-
-# Supply col directly when the column name is already known
-df <- derive_first_occurrence(df, name = "disease", field = 131000L,
-                              col = "p131000")
-}
+dt <- ops_toy(n = 100)
+derive_first_occurrence(dt, name = "outcome", field = 131742L, col = "p131742")
 }
