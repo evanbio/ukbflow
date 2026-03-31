@@ -16,7 +16,14 @@
 #'
 #' @examples
 #' \dontrun{
+#' # Supply token directly
 #' auth_login(token = "your_token_here")
+#'
+#' # Or store token in ~/.Renviron (recommended):
+#' # usethis::edit_r_environ()
+#' # Add: DX_API_TOKEN=your_token_here
+#' # Save and restart R, then call:
+#' auth_login()
 #' }
 auth_login <- function(token = NULL) {
   if (is.null(token)) {
@@ -83,7 +90,9 @@ auth_status <- function() {
 
 #' Logout from DNAnexus
 #'
-#' Clears the local DNAnexus authentication token and session.
+#' Invalidates the current DNAnexus session on the remote platform. The local
+#' token file is not removed but becomes invalid. A new token must be generated
+#' from the DNAnexus platform before calling [auth_login()] again.
 #'
 #' @return Invisible TRUE on success.
 #' @export

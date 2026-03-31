@@ -117,13 +117,7 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 #' }
 extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
 
-  if (!.is_on_rap()) {
-    cli::cli_abort(
-      c("extract_pheno() must be run inside the RAP environment.",
-        "i" = "For large-scale extraction, use extract_batch() instead."),
-      call = NULL
-    )
-  }
+  .assert_on_rap()
 
   field_id <- .assert_integer_ids(field_id)
 

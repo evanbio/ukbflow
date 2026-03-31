@@ -44,18 +44,14 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- extract_pheno(c(31, 20116, 2080)) |>
-#'   decode_values() |>
-#'   decode_names() |>
-#'   derive_missing()                          # "Do not know" -> NA
+#' dt <- ops_toy(n = 100)
+#' derive_missing(dt)
 #'
 #' # Retain informative non-response as a model category
-#' df <- derive_missing(df, action = "unknown")  # "Prefer not to answer" -> "Unknown"
+#' derive_missing(dt, action = "unknown")
 #'
 #' # Add a custom label
-#' df <- derive_missing(df, extra_labels = "Not applicable")
-#' }
+#' derive_missing(dt, extra_labels = "Not applicable")
 derive_missing <- function(data,
                            cols         = tidyselect::everything(),
                            action       = c("na", "unknown"),
@@ -152,19 +148,17 @@ derive_missing <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- extract_pheno(c(31, 20116, 738, 874)) |>
-#'   decode_values() |>
-#'   decode_names() |>
-#'   derive_missing() |>
-#'   derive_covariate(
-#'     as_numeric = "duration_of_walks_i0",
-#'     as_factor  = c("sex", "smoking_status_i0"),
-#'     factor_levels = list(
-#'       smoking_status_i0 = c("Never", "Previous", "Current")
-#'     )
+#' dt <- ops_toy(n = 100)
+#' dt <- derive_missing(dt)
+#' # messy_label is a character column with numeric-looking values ("-1", "999")
+#' # mixed with non-parseable strings — demonstrates coercion and NA warnings
+#' derive_covariate(dt,
+#'   as_numeric = "messy_label",
+#'   as_factor  = c("p31", "p20116_i0"),
+#'   factor_levels = list(
+#'     p20116_i0 = c("Never", "Previous", "Current")
 #'   )
-#' }
+#' )
 derive_covariate <- function(data,
                              as_numeric    = NULL,
                              as_factor     = NULL,
@@ -274,15 +268,14 @@ derive_covariate <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- derive_cut(df, col = "age_at_recruitment", n = 3)
-#' # → adds age_at_recruitment_tri with groups Q1 / Q2 / Q3
+#' dt <- ops_toy(n = 100)
+#' derive_cut(dt, col = "p21001_i0", n = 3)
 #'
-#' df <- derive_cut(df, col = "age_at_recruitment", n = 3,
-#'                  breaks = c(50, 60),
-#'                  labels = c("<50", "50-59", "60+"),
-#'                  name   = "age_group")
-#' }
+#' # Custom breaks and labels
+#' derive_cut(dt, col = "p21001_i0", n = 3,
+#'            breaks = c(25, 30),
+#'            labels = c("<25", "25-30", "30+"),
+#'            name   = "bmi_group")
 derive_cut <- function(data,
                        col,
                        n,
@@ -412,15 +405,11 @@ derive_cut <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- extract_pheno(c(20002, 20008, 53)) |>
-#'   derive_selfreport(name = "disease", regex = "your disease label",
-#'                     field = "noncancer")
-#'
-#' df <- derive_selfreport(df, name = "outcome",
-#'                         regex = "your cancer label",
-#'                         field = "cancer")
-#' }
+#' dt <- ops_toy(n = 100)
+#' # disease_cols / date_cols / visit_cols can be omitted — auto-detected from
+#' # column names matching p20002_* / p20008_* / p53_* respectively
+#' derive_selfreport(dt, name = "htn", regex = "hypertension",
+#'                   field = "noncancer")
 derive_selfreport <- function(data,
                               name,
                               regex,
@@ -630,16 +619,8 @@ derive_selfreport <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Look up the First Occurrence field ID for your disease in the UKB Field Finder
-#' df <- derive_first_occurrence(df, name = "disease", field = 131000L)
-#' # → df$disease_fo        logical
-#' # → df$disease_fo_date   IDate
-#'
-#' # Supply col directly when the column name is already known
-#' df <- derive_first_occurrence(df, name = "disease", field = 131000L,
-#'                               col = "p131000")
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_first_occurrence(dt, name = "outcome", field = 131742L, col = "p131742")
 derive_first_occurrence <- function(data, name, field, col = NULL) {
 
   .assert_data_frame(data)
@@ -721,13 +702,10 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- derive_hes(df, name = "disease", icd10 = "E11")
-#' df <- derive_hes(df, name = "disease",
-#'                  icd10 = c("J440", "J441"), match = "exact")
-#' df <- derive_hes(df, name = "disease",
-#'                  icd10 = "^(E10|E11)", match = "regex")
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_hes(dt, name = "htn",      icd10 = "I10")
+#' derive_hes(dt, name = "diabetes", icd10 = c("E10", "E11"))
+#' derive_hes(dt, name = "asthma",   icd10 = "^J4", match = "regex")
 derive_hes <- function(data,
                        name,
                        icd10,
@@ -930,25 +908,9 @@ derive_hes <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # ICD-10 only - no histology/behaviour filter
-#' df <- derive_cancer_registry(df, name = "outcome", icd10 = "^C50")
-#'
-#' # With histology and behaviour filters (malignant)
-#' df <- derive_cancer_registry(
-#'   df, name = "outcome_invasive",
-#'   icd10     = "^C44",
-#'   histology = c(8070, 8071, 8072),
-#'   behaviour = 3L
-#' )
-#'
-#' # In situ (behaviour = 2)
-#' df <- derive_cancer_registry(
-#'   df, name = "outcome_insitu",
-#'   icd10     = "^C44",
-#'   behaviour = 2L
-#' )
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_cancer_registry(dt, name = "skin",     icd10 = "^C44")
+#' derive_cancer_registry(dt, name = "invasive", icd10 = "^C", behaviour = 3L)
 derive_cancer_registry <- function(data,
                                    name,
                                    icd10     = NULL,
@@ -1115,11 +1077,9 @@ derive_cancer_registry <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- derive_death_registry(df, name = "disease", icd10 = "E11")
-#' df <- derive_death_registry(df, name = "disease",
-#'                             icd10 = c("J440", "J441"), match = "exact")
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_death_registry(dt, name = "mi",   icd10 = "I21")
+#' derive_death_registry(dt, name = "lung", icd10 = "C34")
 derive_death_registry <- function(data,
                                   name,
                                   icd10,
@@ -1326,24 +1286,15 @@ derive_death_registry <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Non-cancer disease: HES + death + First Occurrence
-#' df <- derive_icd10(df, name = "disease", icd10 = "E11",
-#'                    source   = c("hes", "death", "first_occurrence"),
-#'                    fo_field = 131666L)
+#' dt <- ops_toy(n = 100)
+#' derive_icd10(dt, name = "htn",
+#'              icd10  = "I10",
+#'              source = c("hes", "death"))
 #'
-#' # COPD: HES + death only, exact 4-digit codes
-#' df <- derive_icd10(df, name = "disease",
-#'                    icd10  = c("J440", "J441"),
-#'                    source = c("hes", "death"),
-#'                    match  = "exact")
-#'
-#' # Cancer outcome: HES + cancer registry + death
-#' df <- derive_icd10(df, name = "outcome",
-#'                    icd10  = "^C50",
-#'                    match  = "regex",
-#'                    source = c("hes", "death", "cancer_registry"))
-#' }
+#' derive_icd10(dt, name = "mi",
+#'              icd10  = "I21",
+#'              source = c("hes", "death", "first_occurrence"),
+#'              fo_col = "p131742")
 derive_icd10 <- function(data,
                          name,
                          icd10,
@@ -1496,15 +1447,14 @@ derive_icd10 <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Default: looks for disease_icd10, disease_selfreport, and their date columns
-#' df <- derive_case(df, name = "disease")
-#'
-#' # Explicit column names
-#' df <- derive_case(df, name = "disease",
-#'                   icd10_col      = "disease_icd10",
-#'                   selfreport_col = "disease_selfreport_noncancer")
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_selfreport(dt, name = "htn", regex = "hypertension",
+#'                   field        = "noncancer",
+#'                   disease_cols = paste0("p20002_i0_a", 0:4),
+#'                   date_cols    = paste0("p20008_i0_a", 0:4),
+#'                   visit_cols   = "p53_i0")
+#' derive_icd10(dt, name = "htn", icd10 = "I10", source = c("hes", "death"))
+#' derive_case(dt, name = "htn")
 derive_case <- function(data,
                         name,
                         icd10_col           = NULL,
@@ -1611,15 +1561,9 @@ derive_case <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Process multiple events in one call - auto-detects {name}_date and
-#' # {name}_status for each
-#' df <- derive_age(df,
-#'   name         = c("exposure", "exposure_icd10", "outcome"),
-#'   baseline_col = "date_baseline",
-#'   age_col      = "age_at_recruitment")
-#' # → age_at_exposure, age_at_exposure_icd10, age_at_outcome
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_hes(dt, name = "htn", icd10 = "I10")
+#' derive_age(dt, name = "htn_hes", baseline_col = "p53_i0", age_col = "p21022")
 derive_age <- function(data,
                        name,
                        baseline_col,
@@ -1741,17 +1685,15 @@ derive_age <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' df <- derive_followup(df,
-#'   name         = "outcome",
-#'   event_col    = "outcome_date",
-#'   baseline_col = "date_baseline",
+#' dt <- ops_toy(n = 100)
+#' derive_hes(dt, name = "htn", icd10 = "I10")
+#' derive_followup(dt,
+#'   name         = "htn_hes",
+#'   event_col    = "htn_hes_date",
+#'   baseline_col = "p53_i0",
 #'   censor_date  = as.Date("2022-06-01"),
-#'   death_col    = "date_death",
-#'   lost_col     = "date_lost_followup")
-#' # → df$outcome_followup_end    IDate
-#' # → df$outcome_followup_years  numeric
-#' }
+#'   death_col    = "p40000_i0",
+#'   lost_col     = FALSE)
 derive_followup <- function(data,
                             name,
                             event_col,
@@ -1859,18 +1801,12 @@ derive_followup <- function(data,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Combined case timing (uses outcome_status + outcome_date from derive_case)
-#' df <- derive_timing(df, name = "outcome", baseline_col = "date_baseline")
-#' # → outcome_timing
-#'
-#' # Individual source timing
-#' df <- derive_timing(df, name = "outcome_icd10",
-#'                     status_col   = "outcome_icd10",
-#'                     date_col     = "outcome_icd10_date",
-#'                     baseline_col = "date_baseline")
-#' # → outcome_icd10_timing
-#' }
+#' dt <- ops_toy(n = 100)
+#' derive_hes(dt, name = "htn", icd10 = "I10")
+#' derive_timing(dt, name = "htn_hes",
+#'               status_col   = "htn_hes",
+#'               date_col     = "htn_hes_date",
+#'               baseline_col = "p53_i0")
 derive_timing <- function(data,
                           name,
                           baseline_col,

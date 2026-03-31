@@ -390,7 +390,7 @@ supplied by UKB and removes matching rows from your dataset. Two snapshots
 (`before_withdraw` / `after_withdraw`) are recorded automatically.
 
 ```{r ops-withdraw}
-dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
+dt <- ops_withdraw(dt, file = "withdraw.csv")
 #> ── snapshot: before_withdraw ───────────────────────────────────────────────
 #>   rows      502,492
 #>   ...
