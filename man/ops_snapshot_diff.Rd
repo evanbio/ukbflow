@@ -20,9 +20,11 @@ present in \code{label2} but not \code{label1}) and \code{removed}
 Returns lists of columns added and removed between two recorded snapshots.
 }
 \examples{
-\dontrun{
+dt <- ops_toy(n = 100)
+ops_snapshot(dt, label = "raw")
+dt <- derive_missing(dt)
+ops_snapshot(dt, label = "derived")
 ops_snapshot_diff("raw", "derived")
 # $added   — newly derived columns
 # $removed — columns dropped between snapshots
-}
 }

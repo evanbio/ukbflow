@@ -62,24 +62,26 @@ always included; a fully adjusted model is added when \code{covariates}
 is non-\code{NULL}.
 }
 \examples{
-\dontrun{
-# Logistic (cross-sectional)
-res <- grs_validate(
-  data        = cohort,
-  grs_cols    = c("GRS_a_z", "GRS_b_z"),
-  outcome_col = "outcome"
-)
+dt <- ops_toy(scenario = "association")
+dt <- grs_standardize(dt, grs_cols = c("grs_bmi", "grs_raw"))
 
 # Cox (survival)
 res <- grs_validate(
-  data        = cohort,
-  grs_cols    = c("GRS_a_z", "GRS_b_z"),
-  outcome_col = "outcome",
-  time_col    = "followup_years",
-  covariates  = c("age", "sex", paste0("pc", 1:10))
+  data        = dt,
+  grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+  outcome_col = "dm_status",
+  time_col    = "dm_followup_years"
 )
-
 res$per_sd
 res$discrimination
+
+# Logistic (cross-sectional) — requires pROC
+if (requireNamespace("pROC", quietly = TRUE)) {
+  res_logit <- grs_validate(
+    data        = dt,
+    grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+    outcome_col = "dm_status"
+  )
+  res_logit$discrimination
 }
 }

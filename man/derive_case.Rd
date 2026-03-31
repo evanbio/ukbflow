@@ -53,13 +53,12 @@ sources (\code{IDate}).}
 }
 }
 \examples{
-\dontrun{
-# Default: looks for disease_icd10, disease_selfreport, and their date columns
-df <- derive_case(df, name = "disease")
-
-# Explicit column names
-df <- derive_case(df, name = "disease",
-                  icd10_col      = "disease_icd10",
-                  selfreport_col = "disease_selfreport_noncancer")
-}
+dt <- ops_toy(n = 100)
+derive_selfreport(dt, name = "htn", regex = "hypertension",
+                  field        = "noncancer",
+                  disease_cols = paste0("p20002_i0_a", 0:4),
+                  date_cols    = paste0("p20008_i0_a", 0:4),
+                  visit_cols   = "p53_i0")
+derive_icd10(dt, name = "htn", icd10 = "I10", source = c("hes", "death"))
+derive_case(dt, name = "htn")
 }

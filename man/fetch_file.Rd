@@ -2,21 +2,15 @@
 % Please edit documentation in R/fetch.R
 \name{fetch_file}
 \alias{fetch_file}
-\title{Download a remote RAP file or folder to local disk}
+\title{Download a file from RAP project storage}
 \usage{
-fetch_file(
-  path,
-  dest_dir = ".",
-  overwrite = FALSE,
-  resume = FALSE,
-  verbose = TRUE
-)
+fetch_file(path, dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{path}{(character) Remote file or folder path.}
 
-\item{dest_dir}{(character) Local destination directory. Created
-automatically if it does not exist. Default: \code{"."}.}
+\item{dest_dir}{(character) Destination directory. Created automatically
+if it does not exist.}
 
 \item{overwrite}{(logical) Overwrite existing local files. Default:
 \code{FALSE}.}
@@ -30,9 +24,9 @@ files (e.g. \code{.bed}, \code{.bgen}). Default: \code{FALSE}.}
 Invisibly returns the local file path(s) as a character vector.
 }
 \description{
-Downloads one file or all files within a folder from the DNAnexus Research
-Analysis Platform. Single files are downloaded sequentially; folders are
-downloaded in parallel using \code{curl::multi_download()}.
+Downloads one file or all files within a folder from RAP project storage
+to the current directory or a specified destination within the RAP
+environment. This function must be called from within RAP.
 }
 \examples{
 \dontrun{

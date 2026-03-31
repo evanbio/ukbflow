@@ -51,17 +51,15 @@ you can verify distributions without leaving the pipeline.
 \code{data.table::copy(data)} to preserve the original.
 }
 \examples{
-\dontrun{
-df <- extract_pheno(c(31, 20116, 738, 874)) |>
-  decode_values() |>
-  decode_names() |>
-  derive_missing() |>
-  derive_covariate(
-    as_numeric = "duration_of_walks_i0",
-    as_factor  = c("sex", "smoking_status_i0"),
-    factor_levels = list(
-      smoking_status_i0 = c("Never", "Previous", "Current")
-    )
+dt <- ops_toy(n = 100)
+dt <- derive_missing(dt)
+# messy_label is a character column with numeric-looking values ("-1", "999")
+# mixed with non-parseable strings — demonstrates coercion and NA warnings
+derive_covariate(dt,
+  as_numeric = "messy_label",
+  as_factor  = c("p31", "p20116_i0"),
+  factor_levels = list(
+    p20116_i0 = c("Never", "Previous", "Current")
   )
-}
+)
 }

@@ -4,15 +4,16 @@
 \alias{grs_check}
 \title{Check and export a GRS weights file}
 \usage{
-grs_check(file, dest = "weights.txt")
+grs_check(file, dest = NULL)
 }
 \arguments{
 \item{file}{Character scalar. Path to the input weights file.
 Read via \code{data.table::fread} (format auto-detected; handles
 CSV, TSV, space-delimited, etc.).}
 
-\item{dest}{Character scalar. Output path for the validated,
-space-delimited weights file. Default: \code{"weights.txt"}.}
+\item{dest}{Character scalar or \code{NULL}. Output path for the validated,
+space-delimited weights file. When \code{NULL} (default), no file is
+written and the validated \code{data.table} is returned invisibly only.}
 }
 \value{
 A \code{data.table} with columns \code{snp}, \code{effect_allele},
@@ -42,14 +43,18 @@ Checks performed:
 }
 }
 \examples{
-\dontrun{
-# Local
-w <- grs_check("weights.csv", dest = "weights_clean.txt")
-
-# On RAP (RStudio) - files accessed via /mnt/project/
-w <- grs_check(
-  file = "/mnt/project/weights/weights.csv",
-  dest = "/mnt/project/weights/weights_clean.txt"
+tmp_in <- tempfile(fileext = ".csv")
+weights <- data.frame(
+  snp           = c("rs1234567", "rs2345678", "rs3456789"),
+  effect_allele = c("A", "T", "G"),
+  beta          = c(0.12, -0.05, 0.23)
 )
-}
+write.csv(weights, tmp_in, row.names = FALSE)
+
+w <- grs_check(tmp_in)
+w
+
+# Save validated weights to a file
+tmp_out <- tempfile(fileext = ".txt")
+grs_check(tmp_in, dest = tmp_out)
 }

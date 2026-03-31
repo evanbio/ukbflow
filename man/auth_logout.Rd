@@ -10,7 +10,9 @@ auth_logout()
 Invisible TRUE on success.
 }
 \description{
-Clears the local DNAnexus authentication token and session.
+Invalidates the current DNAnexus session on the remote platform. The local
+token file is not removed but becomes invalid. A new token must be generated
+from the DNAnexus platform before calling \code{\link[=auth_login]{auth_login()}} again.
 }
 \examples{
 \dontrun{

@@ -110,33 +110,42 @@ produces one \code{term} row per model.
 }
 }
 \examples{
-\dontrun{
-# Minimal: crude + age-sex adjusted only
+dt <- ops_toy(scenario = "association")
+dt <- dt[dm_timing != 1L]   # incident analysis only
+
+# Crude + age-sex adjusted (default)
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",   # 0/1 or TRUE/FALSE
-  time_col     = "followup_years",
-  exposure_col = c("exposure", "bmi_category")
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0"
 )
 
-# Add a Fully adjusted model (Model 3)
+# Add Fully adjusted model
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "smoking", "alcohol_freq",
-                   paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
+                   paste0("p22009_a", 1:4))
 )
 
-# Only run the Fully adjusted model (skip Unadjusted + Age-sex)
+# Multiple exposures in one call
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  covariates   = c("age_at_recruitment", "sex", "tdi"),
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = c("p20116_i0", "bmi_cat", "grs_bmi")
+)
+
+# Fully adjusted only (skip Unadjusted + Age-sex)
+res <- assoc_coxph(
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("p21022", "p31", "bmi_cat", "tdi_cat"),
   base         = FALSE
 )
-}
 }
