@@ -165,9 +165,9 @@ Explore and retrieve files from RAP project storage.
   : Get pre-authenticated download URL(s) for a remote RAP file or
   folder
 - [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-  : Download a remote RAP file or folder to local disk
+  : Download a file from RAP project storage
 - [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
-  : Download all UKB Showcase metadata files
+  : Download the Showcase metadata folder
 - [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
   : Download the UKB field dictionary file
 

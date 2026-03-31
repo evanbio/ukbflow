@@ -81,24 +81,32 @@ adjusted model is added when `covariates` is non-`NULL`.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Logistic (cross-sectional)
-res <- grs_validate(
-  data        = cohort,
-  grs_cols    = c("GRS_a_z", "GRS_b_z"),
-  outcome_col = "outcome"
-)
+dt <- ops_toy(scenario = "association")
+#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
+dt <- grs_standardize(dt, grs_cols = c("grs_bmi", "grs_raw"))
+#> Error: Column(s) not found in data: "grs_raw"
 
 # Cox (survival)
 res <- grs_validate(
-  data        = cohort,
-  grs_cols    = c("GRS_a_z", "GRS_b_z"),
-  outcome_col = "outcome",
-  time_col    = "followup_years",
-  covariates  = c("age", "sex", paste0("pc", 1:10))
+  data        = dt,
+  grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+  outcome_col = "dm_status",
+  time_col    = "dm_followup_years"
 )
-
+#> Error: Column(s) not found in data: "grs_bmi_z" and "grs_raw_z"
 res$per_sd
+#> Error: object 'res' not found
 res$discrimination
-} # }
+#> Error: object 'res' not found
+
+# Logistic (cross-sectional) — requires pROC
+if (requireNamespace("pROC", quietly = TRUE)) {
+  res_logit <- grs_validate(
+    data        = dt,
+    grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+    outcome_col = "dm_status"
+  )
+  res_logit$discrimination
+}
+#> Error: Column(s) not found in data: "grs_bmi_z" and "grs_raw_z"
 ```

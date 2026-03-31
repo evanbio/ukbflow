@@ -214,16 +214,67 @@ available here (<strong>Unadjusted</strong>, <strong>Age and sex adjusted</stron
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">assoc_lag</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">ukb_df</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"copd_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"t2d_tf"</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 2000 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Lag sensitivity analysis: 0 = full cohort reference, then 1 and 2 year lags</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_lag</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
 <span class="r-in"><span>  lag_years    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span>,</span></span>
+<span class="r-in"><span>                   <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_lag</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 3 lag periods x 1 exposure x 3 models</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 0 years</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 0 yr): 0 -- remaining: 1864, events: 114</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 1 year</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 1 yr): 7 -- remaining: 1857, events: 107</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 2 years</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 2 yr): 13 -- remaining: 1851, events: 101</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 18 result rows across 3 lag periods, 1 exposure, and 3 models.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Check how many participants were excluded at each lag</span></span></span>
+<span class="r-in"><span><span class="va">res</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">lag_years</span>, <span class="va">n</span>, <span class="va">n_excluded</span>, <span class="va">HR</span>, <span class="va">CI_lower</span>, <span class="va">CI_upper</span>, <span class="va">p_value</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lag_years     n n_excluded        HR  CI_lower CI_upper   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;num&gt; &lt;int&gt;      &lt;int&gt;     &lt;num&gt;     &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:         0  1798          0 1.1045476 0.7435625 1.640784 0.6223846</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:         0  1798          0 0.6889420 0.3703591 1.281570 0.2393668</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:         0  1798          0 1.0946264 0.7366790 1.626498 0.6545337</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         0  1798          0 0.6842045 0.3677853 1.272851 0.2308320</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:         0  1743          0 1.0852617 0.7280619 1.617710 0.6878831</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:         0  1743          0 0.6868077 0.3677241 1.282768 0.2385167</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:         1  1791          7 1.0339525 0.6858267 1.558787 0.8733457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:         1  1791          7 0.6531091 0.3424993 1.245408 0.1958140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:         1  1791          7 1.0251203 0.6797799 1.545900 0.9057732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:         1  1791          7 0.6486161 0.3401191 1.236928 0.1887159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:         1  1736          7 1.0128114 0.6694224 1.532346 0.9519515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:         1  1736          7 0.6481449 0.3385146 1.240986 0.1907098</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:         2  1785         13 0.9864448 0.6456515 1.507119 0.9496782</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:         2  1785         13 0.6147141 0.3133601 1.205876 0.1569461</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:         2  1785         13 0.9779534 0.6399179 1.494556 0.9179455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:         2  1785         13 0.6102537 0.3110646 1.197210 0.1508738</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:         2  1730         13 0.9615926 0.6270081 1.474718 0.8575434</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:         2  1730         13 0.6085264 0.3088433 1.199004 0.1511539</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

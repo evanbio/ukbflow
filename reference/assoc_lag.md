@@ -101,14 +101,65 @@ adjusted**).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-assoc_lag(
-  data         = ukb_df,
-  outcome_col  = "copd_status",
-  time_col     = "followup_years",
-  exposure_col = "t2d_tf",
+dt <- ops_toy(scenario = "association")
+#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L]
+
+# Lag sensitivity analysis: 0 = full cohort reference, then 1 and 2 year lags
+res <- assoc_lag(
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
   lag_years    = c(0, 1, 2),
-  covariates   = c("tdi", "smoking")
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
+                   paste0("p22009_a", 1:4))
 )
-} # }
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_lag ───────────────────────────────────────────────────────────────────
+#> ℹ 3 lag periods x 1 exposure x 3 models
+#> 
+#> ── Lag: 0 years ──
+#> 
+#> ℹ Excluded (time < 0 yr): 0 -- remaining: 1864, events: 114
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ── Lag: 1 year ──
+#> 
+#> ℹ Excluded (time < 1 yr): 7 -- remaining: 1857, events: 107
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ── Lag: 2 years ──
+#> 
+#> ℹ Excluded (time < 2 yr): 13 -- remaining: 1851, events: 101
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔ Done: 18 result rows across 3 lag periods, 1 exposure, and 3 models.
+
+# Check how many participants were excluded at each lag
+res[, .(lag_years, n, n_excluded, HR, CI_lower, CI_upper, p_value)]
+#>     lag_years     n n_excluded        HR  CI_lower CI_upper   p_value
+#>         <num> <int>      <int>     <num>     <num>    <num>     <num>
+#>  1:         0  1798          0 1.1045476 0.7435625 1.640784 0.6223846
+#>  2:         0  1798          0 0.6889420 0.3703591 1.281570 0.2393668
+#>  3:         0  1798          0 1.0946264 0.7366790 1.626498 0.6545337
+#>  4:         0  1798          0 0.6842045 0.3677853 1.272851 0.2308320
+#>  5:         0  1743          0 1.0852617 0.7280619 1.617710 0.6878831
+#>  6:         0  1743          0 0.6868077 0.3677241 1.282768 0.2385167
+#>  7:         1  1791          7 1.0339525 0.6858267 1.558787 0.8733457
+#>  8:         1  1791          7 0.6531091 0.3424993 1.245408 0.1958140
+#>  9:         1  1791          7 1.0251203 0.6797799 1.545900 0.9057732
+#> 10:         1  1791          7 0.6486161 0.3401191 1.236928 0.1887159
+#> 11:         1  1736          7 1.0128114 0.6694224 1.532346 0.9519515
+#> 12:         1  1736          7 0.6481449 0.3385146 1.240986 0.1907098
+#> 13:         2  1785         13 0.9864448 0.6456515 1.507119 0.9496782
+#> 14:         2  1785         13 0.6147141 0.3133601 1.205876 0.1569461
+#> 15:         2  1785         13 0.9779534 0.6399179 1.494556 0.9179455
+#> 16:         2  1785         13 0.6102537 0.3110646 1.197210 0.1508738
+#> 17:         2  1730         13 0.9615926 0.6270081 1.474718 0.8575434
+#> 18:         2  1730         13 0.6085264 0.3088433 1.199004 0.1511539
 ```

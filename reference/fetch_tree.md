@@ -41,7 +41,7 @@ time out. Keep `max_depth` at 2-3 for interactive use.
 ``` r
 if (FALSE) { # \dontrun{
 fetch_tree()
-fetch_tree("Bulk/", max_depth = 3)
+fetch_tree("Bulk/", max_depth = 2)
 fetch_tree(verbose = FALSE)
 } # }
 ```

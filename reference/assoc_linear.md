@@ -130,20 +130,65 @@ downstream meta-analysis and GWAS-style summary statistics.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Minimal: crude + age-sex adjusted
-res <- assoc_linear(
-  data         = cohort,
-  outcome_col  = "bmi",
-  exposure_col = c("exposure", "smoking_pack_years")
-)
+dt <- ops_toy(scenario = "association")
+#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
 
-# With Fully adjusted model
+# Crude + age-sex adjusted (default); outcome is continuous BMI
 res <- assoc_linear(
-  data         = cohort,
-  outcome_col  = "bmi",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "p21001_i0",
+  exposure_col = "p20116_i0"
 )
-} # }
+#> 
+#> ── assoc_linear ────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 2 models = 2 linear regressions
+#> ℹ Input cohort: 2000 participants (n reflects each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Unadjusted | p20116_i0Previous: beta -0.45 (-1.00-0.10), p = 0.109
+#> ✔   Unadjusted | p20116_i0Current: beta 0.08 (-0.64-0.80), p = 0.834
+#> ✔   Age and sex adjusted | p20116_i0Previous: beta -0.44 (-1.00-0.11), p = 0.114
+#> ✔   Age and sex adjusted | p20116_i0Current: beta 0.08 (-0.64-0.80), p = 0.826
+#> ✔ Done: 4 result rows across 1 exposure and 2 models.
+
+# Add Fully adjusted model
+res <- assoc_linear(
+  data         = dt,
+  outcome_col  = "p21001_i0",
+  exposure_col = "p20116_i0",
+  covariates   = c("tdi_cat", "p1558_i0", paste0("p22009_a", 1:4))
+)
+#> 
+#> ── assoc_linear ────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 3 models = 3 linear regressions
+#> ℹ Input cohort: 2000 participants (n reflects each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Unadjusted | p20116_i0Previous: beta -0.45 (-1.00-0.10), p = 0.109
+#> ✔   Unadjusted | p20116_i0Current: beta 0.08 (-0.64-0.80), p = 0.834
+#> ✔   Age and sex adjusted | p20116_i0Previous: beta -0.44 (-1.00-0.11), p = 0.114
+#> ✔   Age and sex adjusted | p20116_i0Current: beta 0.08 (-0.64-0.80), p = 0.826
+#> ✔   Fully adjusted | p20116_i0Previous: beta -0.42 (-0.97-0.14), p = 0.145
+#> ✔   Fully adjusted | p20116_i0Current: beta 0.10 (-0.64-0.84), p = 0.788
+#> ✔ Done: 6 result rows across 1 exposure and 3 models.
+
+# Continuous exposure (GRS → BMI); Fully adjusted only
+res <- assoc_linear(
+  data         = dt,
+  outcome_col  = "p21001_i0",
+  exposure_col = "grs_bmi",
+  covariates   = c("p21022", "p31", "tdi_cat"),
+  base         = FALSE
+)
+#> 
+#> ── assoc_linear ────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model = 1 linear regression
+#> ℹ Input cohort: 2000 participants (n reflects each model's actual analysis set)
+#> 
+#> ── grs_bmi ──
+#> 
+#> ✔   Fully adjusted | grs_bmi: beta 0.03 (-0.07-0.13), p = 0.552
+#> ✔ Done: 1 result row across 1 exposure and 1 model.
 ```

@@ -242,7 +242,7 @@ project structure:</p>
 <span><span class="fu"><a href="../reference/fetch_tree.html">fetch_tree</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Drill into a subfolder</span></span>
-<span><span class="fu"><a href="../reference/fetch_tree.html">fetch_tree</a></span><span class="op">(</span><span class="st">"results/"</span>, max_depth <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/fetch_tree.html">fetch_tree</a></span><span class="op">(</span><span class="st">"results/"</span>, max_depth <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p><strong>Note</strong>: Each level of recursion triggers one API call
 per folder. Keep <code>max_depth</code> at 2–3 for interactive use to
@@ -274,8 +274,8 @@ download.</p>
 <div class="section level3">
 <h3 id="single-file-or-folder">Single file or folder<a class="anchor" aria-label="anchor" href="#single-file-or-folder"></a>
 </h3>
-<p><code><a href="../reference/fetch_file.html">fetch_file()</a></code> downloads a file or an entire folder to a
-local directory.</p>
+<p><code><a href="../reference/fetch_file.html">fetch_file()</a></code> downloads a file or an entire folder to the
+current or a specified directory within the RAP environment.</p>
 <blockquote>
 <p><strong>Note</strong>: <code><a href="../reference/fetch_file.html">fetch_file()</a></code>,
 <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and <code><a href="../reference/fetch_field.html">fetch_field()</a></code> can only
@@ -302,10 +302,10 @@ platform.</p>
 files:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download all Showcase metadata files (field.tsv, encoding.tsv, etc.)</span></span>
-<span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download the field dictionary only</span></span>
-<span><span class="fu"><a href="../reference/fetch_field.html">fetch_field</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/fetch_field.html">fetch_field</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -329,12 +329,9 @@ download-control arguments:</p>
 <tbody>
 <tr class="odd">
 <td><code>dest_dir</code></td>
-<td>
-<code>"."</code> / <code>"data/metadata/"</code>
-</td>
-<td>Local destination directory (created if needed). Default is
-<code>"data/metadata/"</code> for <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code> and
-<code><a href="../reference/fetch_field.html">fetch_field()</a></code>.</td>
+<td>—</td>
+<td>Destination directory (created if needed). Must be specified
+explicitly.</td>
 </tr>
 <tr class="even">
 <td><code>overwrite</code></td>

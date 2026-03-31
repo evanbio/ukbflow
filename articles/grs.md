@@ -85,7 +85,7 @@ heavy lifting runs entirely in the cloud.
 
 ``` r
 # Test on the smallest chromosome first
-ids <- grs_bgen2pgen(chr = 22, priority = "high")
+ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
 #> Uploading 'grs_bgen2pgen_std.R' to RAP ...
 #> ✔ Uploaded: '/grs_bgen2pgen_std.R'
 #> Submitting 1 job(s) -- mem2_ssd1_v2_x4 / priority: high
@@ -95,8 +95,8 @@ ids <- grs_bgen2pgen(chr = 22, priority = "high")
 
 ``` r
 # Full run: small chromosomes on standard, large on upgraded instance
-ids_small <- grs_bgen2pgen(chr = 17:22)
-ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
+ids_small <- grs_bgen2pgen(chr = 17:22, dest = "/pgen/")
+ids_large <- grs_bgen2pgen(chr = 1:16,  dest = "/pgen/", instance = "large")
 
 # Monitor progress (job_wait() takes one job ID at a time)
 job_ls()
@@ -112,13 +112,13 @@ for (id in c(ids_small, ids_large)) job_wait(id)
 
 **Key arguments:**
 
-| Argument   | Default      | Description                         |
-|------------|--------------|-------------------------------------|
-| `chr`      | `1:22`       | Chromosomes to process              |
-| `dest`     | `"/pgen/"`   | RAP output path for PGEN files      |
-| `maf`      | `0.01`       | MAF filter passed to plink2 `--maf` |
-| `instance` | `"standard"` | Instance type preset                |
-| `priority` | `"low"`      | Job priority (`"low"` or `"high"`)  |
+| Argument   | Default      | Description                               |
+|------------|--------------|-------------------------------------------|
+| `chr`      | `1:22`       | Chromosomes to process                    |
+| `dest`     | —            | RAP output path for PGEN files (required) |
+| `maf`      | `0.01`       | MAF filter passed to plink2 `--maf`       |
+| `instance` | `"standard"` | Instance type preset                      |
+| `priority` | `"low"`      | Job priority (`"low"` or `"high"`)        |
 
 > **Storage warning**: chromosomes 1–16 may exceed the 200 GB SSD on
 > `"standard"` instances. Use `instance = "large"` for these.
@@ -134,10 +134,11 @@ Each job scores all 22 chromosomes and saves a single CSV to RAP.
 
 ``` r
 ids <- grs_score(
-  file = c(
+  file     = c(
     grs_a = "weights/grs_a_weights.txt",
     grs_b = "weights/grs_b_weights.txt"
   ),
+  pgen_dir = "/mnt/project/pgen",
   dest     = "/grs/",
   priority = "high"
 )
@@ -160,8 +161,9 @@ the upload step is skipped automatically:
 ``` r
 # On RAP: weights already at /mnt/project/grs_a_weights.txt
 ids <- grs_score(
-  file = c(grs_a = "/mnt/project/grs_a_weights.txt"),
-  dest = "/grs/"
+  file     = c(grs_a = "/mnt/project/grs_a_weights.txt"),
+  pgen_dir = "/mnt/project/pgen",
+  dest     = "/grs/"
 )
 #> ℹ grs_a_weights.txt already at RAP root, skipping upload.
 ```
@@ -275,15 +277,16 @@ library(ukbflow)
 grs_check("weights.csv", dest = "weights_clean.txt")
 
 # 2. Convert BGEN -> PGEN on RAP (submit jobs)
-ids_std  <- grs_bgen2pgen(chr = 17:22, maf = 0.01)
-ids_lrg  <- grs_bgen2pgen(chr = 1:16,  maf = 0.01, instance = "large")
+ids_std  <- grs_bgen2pgen(chr = 17:22, dest = "/pgen/", maf = 0.01)
+ids_lrg  <- grs_bgen2pgen(chr = 1:16,  dest = "/pgen/", maf = 0.01, instance = "large")
 for (id in c(ids_std, ids_lrg)) job_wait(id)
 
 # 3. Score GRS on RAP (submit jobs)
 score_ids <- grs_score(
-  file = c(grs_a = "weights_clean.txt"),
-  maf  = 0.01,   # must match grs_bgen2pgen()
-  dest = "/grs/"
+  file     = c(grs_a = "weights_clean.txt"),
+  pgen_dir = "/mnt/project/pgen",
+  maf      = 0.01,   # must match grs_bgen2pgen()
+  dest     = "/grs/"
 )
 job_wait(score_ids)
 

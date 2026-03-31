@@ -28,9 +28,27 @@ but not `label2`).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+dt <- ops_toy(n = 100)
+#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
+ops_snapshot(dt, label = "raw")
+#> ── snapshot: raw ───────────────────────────────────────────────────────────────
+#> rows 100 (= 0)
+#> cols 75 (= 0)
+#> NA cols 51 (= 0)
+#> size 0.09 MB (= 0)
+#> ────────────────────────────────────────────────────────────────────────────────
+dt <- derive_missing(dt)
+#> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
+ops_snapshot(dt, label = "derived")
+#> ── snapshot: derived ───────────────────────────────────────────────────────────
+#> rows 100 (= 0)
+#> cols 75 (= 0)
+#> NA cols 53 (+2)
+#> size 0.09 MB (= 0)
+#> ────────────────────────────────────────────────────────────────────────────────
 ops_snapshot_diff("raw", "derived")
+#> Columns added (0):
+#> Columns removed (0):
 # $added   — newly derived columns
 # $removed — columns dropped between snapshots
-} # }
 ```

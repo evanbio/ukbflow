@@ -230,23 +230,73 @@ slower but more accurate for small or sparse data.</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Minimal: crude + age-sex adjusted</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_logistic</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 2000 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With Fully adjusted model + profile likelihood CI</span></span></span>
+<span class="r-in"><span><span class="co"># Crude + age-sex adjusted (default)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_logistic</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_logistic</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models = 2 logistic regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 2000 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 0.90 (0.66-1.21), p = 0.478</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 0.83 (0.56-1.25), p = 0.382</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | p20116_i0Previous: OR 0.89 (0.66-1.20), p = 0.447</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | p20116_i0Current: OR 0.83 (0.55-1.25), p = 0.37</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 4 result rows across 1 exposure and 2 models.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Add Fully adjusted model</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_logistic</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span>,</span></span>
+<span class="r-in"><span>                   <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_logistic</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 3 models = 3 logistic regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 2000 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 0.90 (0.66-1.21), p = 0.478</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 0.83 (0.56-1.25), p = 0.382</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | p20116_i0Previous: OR 0.89 (0.66-1.20), p = 0.447</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | p20116_i0Current: OR 0.83 (0.55-1.25), p = 0.37</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Previous: OR 0.89 (0.66-1.21), p = 0.463</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Current: OR 0.84 (0.55-1.27), p = 0.41</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 6 result rows across 1 exposure and 3 models.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Profile likelihood CI (more accurate for small samples)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_logistic</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"grs_bmi"</span>,</span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"bmi_cat"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  ci_method    <span class="op">=</span> <span class="st">"profile"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_logistic</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 3 models = 3 logistic regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 2000 participants | CI method: profile (n/n_cases reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi: OR 1.02 (0.97-1.08), p = 0.381</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi: OR 1.02 (0.97-1.08), p = 0.371</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | grs_bmi: OR 1.03 (0.97-1.08), p = 0.357</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 3 result rows across 1 exposure and 3 models.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

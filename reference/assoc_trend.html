@@ -266,33 +266,108 @@ when <code>covariates</code> is non-NULL.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Create an ordered factor exposure with 3 levels</span></span></span>
-<span class="r-in"><span><span class="va">cohort</span><span class="op">[</span>, <span class="va">exposure_cat</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">exposure_source</span>,</span></span>
-<span class="r-in"><span>                                 levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                                 labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"None"</span>, <span class="st">"Mild"</span>, <span class="st">"Severe"</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 2000 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Trend analysis: default scores 0, 1, 2</span></span></span>
+<span class="r-in"><span><span class="co"># Trend across BMI categories (default integer scores 0, 1, 2, 3)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_trend</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"exposure_cat"</span>,</span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span></span>
 <span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Exposure <span style="color: #00BB00;">bmi_cat</span> is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_trend</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 3 models (categorical + trend model per combination)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Levels: Underweight -&gt; Normal -&gt; Overweight -&gt; Obese | Scores: 0, 1, 2, 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catNormal: HR 0.82 (0.43-1.57), p = 0.552</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catOverweight: HR 0.87 (0.46-1.66), p = 0.671</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catObese: HR 0.72 (0.36-1.44), p = 0.354</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.455</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catNormal: HR 0.83 (0.43-1.59), p = 0.572</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.699</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catObese: HR 0.72 (0.36-1.45), p = 0.361</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.458</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catNormal: HR 0.84 (0.44-1.61), p = 0.601</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.698</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catObese: HR 0.74 (0.37-1.48), p = 0.39</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.474</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 12 result rows across 1 exposure and 3 models.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Custom scores (e.g. median value per category)</span></span></span>
+<span class="r-in"><span><span class="co"># Custom scores reflecting approximate median BMI per category</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_trend</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"exposure_cat"</span>,</span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span></span>
 <span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"tdi"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  scores       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">14</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  scores       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">17</span>, <span class="fl">22</span>, <span class="fl">27</span>, <span class="fl">35</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Exposure <span style="color: #00BB00;">bmi_cat</span> is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_trend</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 3 models (categorical + trend model per combination)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Levels: Underweight -&gt; Normal -&gt; Overweight -&gt; Obese | Scores: 17, 22, 27, 35</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catNormal: HR 0.82 (0.43-1.57), p = 0.552</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catOverweight: HR 0.87 (0.46-1.66), p = 0.671</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catObese: HR 0.72 (0.36-1.44), p = 0.354</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.432</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catNormal: HR 0.83 (0.43-1.59), p = 0.572</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.699</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catObese: HR 0.72 (0.36-1.45), p = 0.361</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.432</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catNormal: HR 0.84 (0.44-1.61), p = 0.601</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.698</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | bmi_catObese: HR 0.74 (0.37-1.48), p = 0.39</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.452</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 12 result rows across 1 exposure and 3 models.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Logistic trend (no time_col needed)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_trend</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span></span>
+<span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"logistic"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Exposure <span style="color: #00BB00;">bmi_cat</span> is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_trend</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models (categorical + trend model per combination)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Levels: Underweight -&gt; Normal -&gt; Overweight -&gt; Obese | Scores: 0, 1, 2, 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catNormal: OR 0.83 (0.42-1.63), p = 0.589</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catOverweight: OR 0.88 (0.45-1.71), p = 0.698</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | bmi_catObese: OR 0.73 (0.36-1.49), p = 0.386</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | trend: OR_per_score = 0.93 (0.76-1.14), p_trend = 0.477</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catNormal: OR 0.84 (0.43-1.65), p = 0.612</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catOverweight: OR 0.89 (0.46-1.74), p = 0.733</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | bmi_catObese: OR 0.73 (0.36-1.51), p = 0.4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | trend: OR_per_score = 0.93 (0.76-1.14), p_trend = 0.489</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 8 result rows across 1 exposure and 2 models.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

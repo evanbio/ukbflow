@@ -24,6 +24,13 @@ Invisible TRUE on success.
 
 ``` r
 if (FALSE) { # \dontrun{
+# Supply token directly
 auth_login(token = "your_token_here")
+
+# Or store token in ~/.Renviron (recommended):
+# usethis::edit_r_environ()
+# Add: DX_API_TOKEN=your_token_here
+# Save and restart R, then call:
+auth_login()
 } # }
 ```

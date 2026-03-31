@@ -223,6 +223,14 @@ contain derived case status, follow-up time, and covariates produced by
 the <code>derive_*</code> functions. See <code><a href="../articles/derive.html">vignette("derive")</a></code>
 and <code><a href="../articles/derive-survival.html">vignette("derive-survival")</a></code>.</p>
 </blockquote>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># ops_toy(scenario = "association") returns a pre-derived analysis-ready table:</span></span>
+<span><span class="co"># covariates already as factors, bmi_cat / tdi_cat binned, and two outcomes</span></span>
+<span><span class="co"># (dm_* and htn_*) with status / date / timing / followup columns in place.</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span>   <span class="co"># incident analysis: exclude prevalent DM cases</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -277,29 +285,23 @@ to skip the first two models and run only the Fully adjusted model.</p>
 outcomes. It accepts logical (<code>TRUE</code>/<code>FALSE</code>) or
 integer (<code>0</code>/<code>1</code>) event indicators and returns one
 row per exposure x term x model combination.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Crude + age-sex adjusted (automatic)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── assoc_coxph ──────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; ℹ 2 exposures x 2 models = 4 Cox regressions</span></span>
-<span><span class="co">#&gt; ── exposure ─────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted       | exposure: HR 1.43 (1.28-1.60), p &lt; 0.001</span></span>
-<span><span class="co">#&gt;   ✔ Age and sex adj  | exposure: HR 1.38 (1.23-1.55), p &lt; 0.001</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Crude + age-sex adjusted (automatic); p21022 and p31 auto-detected</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p20116_i0"</span>, <span class="st">"bmi_cat"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add a Fully adjusted model</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span>,</span>
+<span>                   <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Output columns:</p>
 <table class="table">
@@ -362,20 +364,20 @@ e.g. <code>"1.43 (1.28-1.60)"</code> |</p>
 </h2>
 <p><code><a href="../reference/assoc_logistic.html">assoc_logistic()</a></code> is for binary outcomes without a time
 dimension (e.g. case-control or cross-sectional designs).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_logistic.html">assoc_logistic</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p20116_i0"</span>, <span class="st">"bmi_cat"</span><span class="op">)</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>For sparse data or small samples, use profile likelihood confidence
 intervals:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_logistic.html">assoc_logistic</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"grs_bmi"</span>,</span>
 <span>  ci_method    <span class="op">=</span> <span class="st">"profile"</span>   <span class="co"># slower but more accurate for sparse data</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Output is identical in structure to <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> but
@@ -390,12 +392,13 @@ instead of <code>n_events</code> / <code>person_years</code>.</p>
 <p><code><a href="../reference/assoc_linear.html">assoc_linear()</a></code> is for continuous outcomes
 (e.g. biomarker levels, BMI). The standard error of beta is included to
 support downstream meta-analysis.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_linear.html">assoc_linear</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"bmi"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"smoking_pack_years"</span><span class="op">)</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"alcohol_freq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Continuous outcome (BMI); smoking and GRS as exposures</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_linear.html">assoc_linear</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"p21001_i0"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p20116_i0"</span>, <span class="st">"grs_bmi"</span><span class="op">)</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p><strong>Common mistake</strong>: passing a binary (0/1) or logical
@@ -413,16 +416,14 @@ predictions and is rarely appropriate in epidemiological analyses.</p>
 the PH assumption via Schoenfeld residuals (<code>cox.zph()</code>). Use
 it alongside <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> to validate model
 assumptions.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">zph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph_zph.html">assoc_coxph_zph</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p20116_i0"</span>, <span class="st">"bmi_cat"</span><span class="op">)</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure: chisq = 0.412, p = 0.521 [OK] satisfied</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | bmi_category: chisq = 1.834, p = 0.176 [OK] satisfied</span></span>
 <span></span>
 <span><span class="co"># Identify any violations</span></span>
 <span><span class="va">zph</span><span class="op">[</span><span class="va">ph_satisfied</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">]</span></span></code></pre></div>
@@ -442,20 +443,17 @@ time-varying effects.</p>
 variable and fits the specified model within each subgroup. A likelihood
 ratio test (LRT) for the exposure x subgroup interaction is computed on
 the full dataset and appended as <code>p_interaction</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_subgroup.html">assoc_subgroup</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
-<span>  by           <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Subgroup by sex; p31 is automatically excluded from within-stratum models</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_subgroup.html">assoc_subgroup</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
+<span>  by           <span class="op">=</span> <span class="st">"p31"</span>,</span>
 <span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── assoc_subgroup ───────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; ℹ 1 exposure x 2 models x 2 subgroups (sex)</span></span>
-<span><span class="co">#&gt; ℹ Computing interaction LRT (exposure x sex) on full data ...</span></span>
-<span><span class="co">#&gt;   ℹ Unadjusted | exposure: p_interaction = 0.214</span></span></code></pre></div>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Output columns include <code>subgroup</code>,
 <code>subgroup_level</code>, and <code>p_interaction</code> in addition
 to the standard effect estimate columns.</p>
@@ -477,36 +475,29 @@ meaningful in practice — use a pre-categorised version (e.g. via
 <p><code><a href="../reference/assoc_trend.html">assoc_trend()</a></code> fits categorical and trend models
 simultaneously for each ordered-factor exposure, returning per-category
 estimates alongside a p-value for linear trend.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Create an ordered factor (e.g. from derive_cut())</span></span>
-<span><span class="va">cohort</span><span class="op">[</span>, <span class="va">exposure_cat</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">exposure_score</span>,</span>
-<span>                                 levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>                                 labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Low"</span>, <span class="st">"Medium"</span>, <span class="st">"High"</span><span class="op">)</span>,</span>
-<span>                                 ordered <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_trend.html">assoc_trend</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure_cat"</span>,</span>
-<span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"tdi"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;   ℹ Levels: Low -&gt; Medium -&gt; High | Scores: 0, 1, 2</span></span>
-<span><span class="co">#&gt;   ℹ Unadjusted | exposure_catLow: 1.00 (ref)</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08-1.36), p = 0.001</span></span>
-<span><span class="co">#&gt;   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38-1.72), p &lt; 0.001</span></span>
-<span><span class="co">#&gt;   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14-1.35), p_trend &lt; 0.001</span></span></code></pre></div>
-<p>Supply custom scores when category midpoints carry meaningful
-units:</p>
+<code class="sourceCode R"><span><span class="co"># assoc_trend() requires an ordered factor; make bmi_cat ordered in-place</span></span>
+<span><span class="va">dt</span><span class="op">[</span>, <span class="va">bmi_cat</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">bmi_cat</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">bmi_cat</span><span class="op">)</span>, ordered <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_trend.html">assoc_trend</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure_cat"</span>,</span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span>
 <span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
-<span>  scores       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">14</span><span class="op">)</span>   <span class="co"># e.g. median years per category</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Supply custom scores reflecting approximate median BMI per
+category:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_trend.html">assoc_trend</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span>
+<span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span>
+<span>  scores       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">17</span>, <span class="fl">22</span>, <span class="fl">27</span>, <span class="fl">35</span><span class="op">)</span>   <span class="co"># approximate median BMI per category</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The output contains a reference row (<code>HR = 1.00 (ref)</code>)
 followed by non-reference rows, with <code>HR_per_score</code>,
@@ -527,26 +518,34 @@ a competing event (e.g. death) can preclude the outcome of interest.</p>
 <p>Two input modes are supported:</p>
 <p><strong>Mode A</strong> — a single column encodes all event
 types:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_competing.html">assoc_competing</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"censoring_type"</span>,   <span class="co"># 0 = censored, 1 = event, 2 = competing</span></span>
-<span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Construct a combined event column: 0 = censored, 1 = DM, 2 = HTN (competing)</span></span>
+<span><span class="va">dt_cr</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">htn_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span>   <span class="co"># also exclude prevalent HTN</span></span>
+<span><span class="va">dt_cr</span><span class="op">[</span>, <span class="va">event_type</span> <span class="op">:=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fcase.html" class="external-link">fcase</a></span><span class="op">(</span></span>
+<span>  <span class="va">dm_timing</span>  <span class="op">==</span> <span class="fl">2L</span>, <span class="fl">1L</span>,</span>
+<span>  <span class="va">htn_timing</span> <span class="op">==</span> <span class="fl">2L</span>, <span class="fl">2L</span>,</span>
+<span>  default          <span class="op">=</span> <span class="fl">0L</span></span>
+<span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_competing.html">assoc_competing</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt_cr</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"event_type"</span>,       <span class="co"># 0 = censored, 1 = DM, 2 = HTN</span></span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
 <span>  event_val    <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  compete_val  <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Mode B</strong> — separate 0/1 columns for primary and
 competing events:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_competing.html">assoc_competing</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,   <span class="co"># primary event</span></span>
-<span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span>
-<span>  compete_col  <span class="op">=</span> <span class="st">"death_status"</span>,     <span class="co"># competing event</span></span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt_cr</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,        <span class="co"># primary event</span></span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p20116_i0"</span>, <span class="st">"bmi_cat"</span><span class="op">)</span>,</span>
+<span>  compete_col  <span class="op">=</span> <span class="st">"htn_status"</span>,       <span class="co"># competing event</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Output uses <code>SHR</code> (subdistribution hazard ratio) and
 <code>SHR_label</code> in place of HR, and adds <code>n_compete</code>
@@ -558,19 +557,17 @@ competing events:</p>
 </h2>
 <p>All functions return a <code>data.table</code> that feeds directly
 into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Pass directly to plot_forest()</span></span>
-<span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter to a single model</span></span>
 <span><span class="va">res</span><span class="op">[</span><span class="va">model</span> <span class="op">==</span> <span class="st">"Fully adjusted"</span><span class="op">]</span></span>
@@ -587,14 +584,14 @@ lag periods to assess whether associations are driven by early events
 (reverse causation or detection bias). For each lag, participants whose
 follow-up time is less than <code>lag_years</code> are excluded;
 follow-up is kept on its original scale.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_lag.html">assoc_lag</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
 <span>  lag_years    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,   <span class="co"># 0 = full cohort reference</span></span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Setting <code>lag_years = 0</code> (or including <code>0</code> in
 the vector) runs the model on the full unfiltered cohort, providing a

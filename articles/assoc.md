@@ -24,6 +24,16 @@ publication tables.
 > and
 > [`vignette("derive-survival")`](https://evanbio.github.io/ukbflow/articles/derive-survival.md).
 
+``` r
+library(ukbflow)
+
+# ops_toy(scenario = "association") returns a pre-derived analysis-ready table:
+# covariates already as factors, bmi_cat / tdi_cat binned, and two outcomes
+# (dm_* and htn_*) with status / date / timing / followup columns in place.
+dt <- ops_toy(scenario = "association")
+dt <- dt[dm_timing != 1L]   # incident analysis: exclude prevalent DM cases
+```
+
 ------------------------------------------------------------------------
 
 ## The Three-Model Framework
@@ -55,30 +65,24 @@ is the primary function for time-to-event outcomes. It accepts logical
 row per exposure x term x model combination.
 
 ``` r
-library(ukbflow)
-
-# Crude + age-sex adjusted (automatic)
+# Crude + age-sex adjusted (automatic); p21022 and p31 auto-detected
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = c("exposure", "bmi_category")
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = c("p20116_i0", "bmi_cat")
 )
-#> ── assoc_coxph ──────────────────────────────────────────────────────────────
-#> ℹ 2 exposures x 2 models = 4 Cox regressions
-#> ── exposure ─────────────────────────────────────────────────────────────────
-#>   ✔ Unadjusted       | exposure: HR 1.43 (1.28-1.60), p < 0.001
-#>   ✔ Age and sex adj  | exposure: HR 1.38 (1.23-1.55), p < 0.001
 ```
 
 ``` r
 # Add a Fully adjusted model
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "smoking_status_i0", paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
+                   paste0("p22009_a", 1:10))
 )
 ```
 
@@ -113,10 +117,10 @@ cross-sectional designs).
 
 ``` r
 res <- assoc_logistic(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  exposure_col = c("exposure", "bmi_category"),
-  covariates   = c("tdi", "smoking_status_i0", paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "dm_status",
+  exposure_col = c("p20116_i0", "bmi_cat"),
+  covariates   = c("tdi_cat", "p1558_i0", paste0("p22009_a", 1:10))
 )
 ```
 
@@ -125,9 +129,9 @@ intervals:
 
 ``` r
 res <- assoc_logistic(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  exposure_col = "exposure",
+  data         = dt,
+  outcome_col  = "dm_status",
+  exposure_col = "grs_bmi",
   ci_method    = "profile"   # slower but more accurate for sparse data
 )
 ```
@@ -146,11 +150,12 @@ is for continuous outcomes (e.g. biomarker levels, BMI). The standard
 error of beta is included to support downstream meta-analysis.
 
 ``` r
+# Continuous outcome (BMI); smoking and GRS as exposures
 res <- assoc_linear(
-  data         = cohort,
-  outcome_col  = "bmi",
-  exposure_col = c("exposure", "smoking_pack_years"),
-  covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "p21001_i0",
+  exposure_col = c("p20116_i0", "grs_bmi"),
+  covariates   = c("tdi_cat", "p1558_i0", paste0("p22009_a", 1:10))
 )
 ```
 
@@ -174,14 +179,12 @@ to validate model assumptions.
 
 ``` r
 zph <- assoc_coxph_zph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = c("exposure", "bmi_category"),
-  covariates   = c("tdi", "smoking_status_i0")
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = c("p20116_i0", "bmi_cat"),
+  covariates   = c("tdi_cat", "p1558_i0")
 )
-#>   ✔ Unadjusted | exposure: chisq = 0.412, p = 0.521 [OK] satisfied
-#>   ✔ Unadjusted | bmi_category: chisq = 1.834, p = 0.176 [OK] satisfied
 
 # Identify any violations
 zph[ph_satisfied == FALSE]
@@ -206,19 +209,16 @@ exposure x subgroup interaction is computed on the full dataset and
 appended as `p_interaction`.
 
 ``` r
+# Subgroup by sex; p31 is automatically excluded from within-stratum models
 res <- assoc_subgroup(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure",
-  by           = "sex",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  by           = "p31",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "tdi", "smoking_status_i0")
+  covariates   = c("p21022", "bmi_cat", "tdi_cat")
 )
-#> ── assoc_subgroup ───────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models x 2 subgroups (sex)
-#> ℹ Computing interaction LRT (exposure x sex) on full data ...
-#>   ℹ Unadjusted | exposure: p_interaction = 0.214
 ```
 
 Output columns include `subgroup`, `subgroup_level`, and `p_interaction`
@@ -244,39 +244,32 @@ exposure, returning per-category estimates alongside a p-value for
 linear trend.
 
 ``` r
-# Create an ordered factor (e.g. from derive_cut())
-cohort[, exposure_cat := factor(exposure_score,
-                                 levels = c(0, 1, 2),
-                                 labels = c("Low", "Medium", "High"),
-                                 ordered = TRUE)]
+# assoc_trend() requires an ordered factor; make bmi_cat ordered in-place
+dt[, bmi_cat := factor(bmi_cat, levels = levels(bmi_cat), ordered = TRUE)]
 ```
 
 ``` r
 res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure_cat",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "bmi_cat",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "sex", "tdi")
+  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0")
 )
-#>   ℹ Levels: Low -> Medium -> High | Scores: 0, 1, 2
-#>   ℹ Unadjusted | exposure_catLow: 1.00 (ref)
-#>   ✔ Unadjusted | exposure_catMedium: HR 1.21 (1.08-1.36), p = 0.001
-#>   ✔ Unadjusted | exposure_catHigh:   HR 1.54 (1.38-1.72), p < 0.001
-#>   ℹ Unadjusted | trend: HR_per_score = 1.24 (1.14-1.35), p_trend < 0.001
 ```
 
-Supply custom scores when category midpoints carry meaningful units:
+Supply custom scores reflecting approximate median BMI per category:
 
 ``` r
 res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure_cat",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "bmi_cat",
   method       = "coxph",
-  scores       = c(0, 5, 14)   # e.g. median years per category
+  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
+  scores       = c(17, 22, 27, 35)   # approximate median BMI per category
 )
 ```
 
@@ -302,14 +295,22 @@ Two input modes are supported:
 **Mode A** — a single column encodes all event types:
 
 ``` r
+# Construct a combined event column: 0 = censored, 1 = DM, 2 = HTN (competing)
+dt_cr <- dt[htn_timing != 1L]   # also exclude prevalent HTN
+dt_cr[, event_type := data.table::fcase(
+  dm_timing  == 2L, 1L,
+  htn_timing == 2L, 2L,
+  default          = 0L
+)]
+
 res <- assoc_competing(
-  data         = cohort,
-  outcome_col  = "censoring_type",   # 0 = censored, 1 = event, 2 = competing
-  time_col     = "followup_years",
-  exposure_col = "exposure",
+  data         = dt_cr,
+  outcome_col  = "event_type",       # 0 = censored, 1 = DM, 2 = HTN
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
   event_val    = 1L,
   compete_val  = 2L,
-  covariates   = c("tdi", "smoking_status_i0")
+  covariates   = c("bmi_cat", "tdi_cat")
 )
 ```
 
@@ -317,12 +318,12 @@ res <- assoc_competing(
 
 ``` r
 res <- assoc_competing(
-  data         = cohort,
-  outcome_col  = "outcome_status",   # primary event
-  time_col     = "followup_years",
-  exposure_col = c("exposure", "bmi_category"),
-  compete_col  = "death_status",     # competing event
-  covariates   = c("tdi", "smoking_status_i0")
+  data         = dt_cr,
+  outcome_col  = "dm_status",        # primary event
+  time_col     = "dm_followup_years",
+  exposure_col = c("p20116_i0", "bmi_cat"),
+  compete_col  = "htn_status",       # competing event
+  covariates   = c("tdi_cat", "p1558_i0")
 )
 ```
 
@@ -338,18 +339,16 @@ All functions return a `data.table` that feeds directly into
 [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md):
 
 ``` r
-library(ukbflow)
-
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "smoking_status_i0")
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0")
 )
 
 # Pass directly to plot_forest()
-plot_forest(res)
+plot_forest(as.data.frame(res))
 
 # Filter to a single model
 res[model == "Fully adjusted"]
@@ -370,12 +369,12 @@ bias). For each lag, participants whose follow-up time is less than
 
 ``` r
 res <- assoc_lag(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
   lag_years    = c(0, 1, 2),   # 0 = full cohort reference
-  covariates   = c("tdi", "smoking_status_i0")
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0")
 )
 ```
 

@@ -223,41 +223,45 @@ results<a class="anchor" aria-label="anchor" href="#building-the-input-data-fram
 reshaped directly into the format expected by
 <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
-<span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  time_col     <span class="op">=</span> <span class="st">"outcome_followup_years"</span>,</span>
-<span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span>
-<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"sex"</span>, <span class="st">"tdi"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">dt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span>
+<span><span class="va">dt</span>  <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reshape: one row per model, label column first</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  item    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Exposure"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span>,</span>
+<span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  item    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Smoking status"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  `N`     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">n</span>, <span class="st">" / "</span>, <span class="va">res</span><span class="op">$</span><span class="va">n_events</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  p_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">res</span><span class="op">$</span><span class="va">p_value</span><span class="op">)</span>,</span>
 <span>  check.names <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
-<span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  data      <span class="op">=</span> <span class="va">df2</span>,</span>
 <span>  est       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">HR</span><span class="op">)</span>,</span>
 <span>  lower     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_lower</span><span class="op">)</span>,</span>
 <span>  upper     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_upper</span><span class="op">)</span>,</span>
 <span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  indent    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>,   <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  p_cols    <span class="op">=</span> <span class="st">"p_value"</span>,</span>
-<span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">2.5</span><span class="op">)</span>,</span>
-<span>  save      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dest      <span class="op">=</span> <span class="st">"forest_exposure"</span>   <span class="co"># saves .png / .pdf / .jpg / .tiff</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">2.5</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="key-parameters">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters"></a>
 </h3>
 <p><strong>CI appearance</strong></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># uses df, est, lower, upper from the minimal example above</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est       <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
 <span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
@@ -331,16 +335,17 @@ column and the auto-generated <code>OR (95% CI)</code> text column. Pass
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Layout and saving</strong></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># uses df, est, lower, upper from the minimal example above</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data        <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est         <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
 <span>  ci_column   <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  row_height  <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># auto (8 / 12 / 10 / 15 mm); or scalar/vector</span></span>
 <span>  col_width   <span class="op">=</span> <span class="cn">NULL</span>,   <span class="co"># auto (rounds up to nearest 5 mm)</span></span>
 <span>  save        <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dest        <span class="op">=</span> <span class="st">"results/forest_main"</span>,   <span class="co"># extension ignored; all 4 formats saved</span></span>
-<span>  save_width  <span class="op">=</span> <span class="fl">20</span>,     <span class="co"># cm</span></span>
-<span>  save_height <span class="op">=</span> <span class="cn">NULL</span>    <span class="co"># auto: nrow(data) * 0.9 + 3 cm</span></span>
+<span>  dest        <span class="op">=</span> <span class="st">"forest_main"</span>,   <span class="co"># extension ignored; all 4 formats saved</span></span>
+<span>  save_width  <span class="op">=</span> <span class="fl">20</span>,              <span class="co"># cm</span></span>
+<span>  save_height <span class="op">=</span> <span class="cn">NULL</span>             <span class="co"># auto: nrow(data) * 0.9 + 3 cm</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p>All four formats (PNG, PDF, JPG, TIFF) are written at <strong>300
@@ -381,29 +386,27 @@ object invisibly; display with <code>plot(p)</code> or
 <span>  add_p   <span class="op">=</span> <span class="cn">TRUE</span>,    <span class="co"># Wilcoxon / chi-squared p-values; formatted as &lt;0.001</span></span>
 <span>  add_smd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  overall <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  dest    <span class="op">=</span> <span class="st">"results/table1"</span>,</span>
+<span>  dest    <span class="op">=</span> <span class="st">"table1"</span>,</span>
 <span>  save    <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Saved: results/table1.docx</span></span>
-<span><span class="co">#&gt; ✔ Saved: results/table1.html</span></span>
-<span><span class="co">#&gt; ✔ Saved: results/table1.pdf</span></span>
-<span><span class="co">#&gt; ✔ Saved: results/table1.png</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="key-parameters-1">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters-1"></a>
 </h3>
 <p><strong>Variable types and statistics</strong></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
-<span>  data      <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  vars      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"bmi"</span>, <span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
-<span>  strata    <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  type      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>age_at_recruitment <span class="op">=</span> <span class="st">"continuous2"</span><span class="op">)</span>,   <span class="co"># show median + IQR</span></span>
+<code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
+<span>  data      <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  vars      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p21001_i0"</span>, <span class="st">"p31"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span>
+<span>  strata    <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  type      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>p21022 <span class="op">=</span> <span class="st">"continuous2"</span><span class="op">)</span>,   <span class="co"># show median + IQR</span></span>
 <span>  statistic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://www.danieldsjoberg.com/gtsummary/reference/select_helpers.html" class="external-link">all_continuous</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">~</span> <span class="st">"{mean} ({sd})"</span>,</span>
 <span>    <span class="fu"><a href="https://www.danieldsjoberg.com/gtsummary/reference/select_helpers.html" class="external-link">all_categorical</a></span><span class="op">(</span><span class="op">)</span> <span class="op">~</span> <span class="st">"{n} ({p}%)"</span></span>
 <span>  <span class="op">)</span>,</span>
-<span>  digits    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">age_at_recruitment</span> <span class="op">~</span> <span class="fl">1</span>, <span class="va">bmi</span> <span class="op">~</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  digits    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">p21022</span> <span class="op">~</span> <span class="fl">1</span>, <span class="va">p21001_i0</span> <span class="op">~</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  missing   <span class="op">=</span> <span class="st">"ifany"</span>,   <span class="co"># show missing counts when present</span></span>
 <span>  save      <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -413,9 +416,9 @@ Continuous variables: Cohen’s <em>d</em> (pooled-SD formula) -
 Categorical variables: RMSD of group proportions</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
-<span>  data    <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"bmi"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
-<span>  strata  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p21001_i0"</span>, <span class="st">"p31"</span><span class="op">)</span>,</span>
+<span>  strata  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
 <span>  add_smd <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  save    <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -425,10 +428,10 @@ the rendered table (e.g. a redundant reference category or an “Unknown”
 level):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
-<span>  data           <span class="op">=</span> <span class="va">cohort</span>,</span>
-<span>  vars           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
-<span>  strata         <span class="op">=</span> <span class="st">"outcome_status"</span>,</span>
-<span>  exclude_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unknown"</span>, <span class="st">"Prefer not to answer"</span><span class="op">)</span>,  <span class="co"># multiple values accepted</span></span>
+<span>  data           <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  vars           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p31"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span>
+<span>  strata         <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  exclude_labels <span class="op">=</span> <span class="st">"Never"</span>,   <span class="co"># e.g. remove reference category from display</span></span>
 <span>  save           <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Export formats</strong></p>
