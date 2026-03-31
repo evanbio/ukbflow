@@ -30,8 +30,8 @@ Invisibly returns the updated safe cols vector.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 ops_set_safe_cols(c("date_baseline", "townsend_index"))
-#> ✔ Safe cols registered: "date_baseline" and "townsend_index"
 ops_set_safe_cols(reset = TRUE)  # clear user-registered safe cols
-#> ✔ User-registered safe cols cleared.
+} # }
 ```

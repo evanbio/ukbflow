@@ -79,7 +79,7 @@ prints a tree-like view of the remote project structure:
 fetch_tree()
 
 # Drill into a subfolder
-fetch_tree("results/", max_depth = 2)
+fetch_tree("results/", max_depth = 3)
 ```
 
 > **Note**: Each level of recursion triggers one API call per folder.
@@ -112,8 +112,7 @@ URLs are valid for the specified `duration` (default: `"1d"`).
 ### Single file or folder
 
 [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-downloads a file or an entire folder to the current or a specified
-directory within the RAP environment.
+downloads a file or an entire folder to a local directory.
 
 > **Note**:
 > [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
@@ -145,10 +144,10 @@ Two convenience wrappers are provided for commonly used UKB files:
 
 ``` r
 # Download all Showcase metadata files (field.tsv, encoding.tsv, etc.)
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 
 # Download the field dictionary only
-fetch_field(dest_dir = "data/metadata")
+fetch_field(dest_dir = "data/metadata/")
 ```
 
 ------------------------------------------------------------------------
@@ -162,12 +161,12 @@ are thin wrappers around
 [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
 so all three share the same download-control arguments:
 
-| Argument    | Default | Description                                                              |
-|-------------|---------|--------------------------------------------------------------------------|
-| `dest_dir`  | —       | Destination directory (created if needed). Must be specified explicitly. |
-| `overwrite` | `FALSE` | Overwrite existing local files                                           |
-| `resume`    | `FALSE` | Resume an interrupted download                                           |
-| `verbose`   | `TRUE`  | Show download progress                                                   |
+| Argument    | Default                    | Description                                                                                                                                                                                                                                               |
+|-------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dest_dir`  | `"."` / `"data/metadata/"` | Local destination directory (created if needed). Default is `"data/metadata/"` for [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md) and [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md). |
+| `overwrite` | `FALSE`                    | Overwrite existing local files                                                                                                                                                                                                                            |
+| `resume`    | `FALSE`                    | Resume an interrupted download                                                                                                                                                                                                                            |
+| `verbose`   | `TRUE`                     | Show download progress                                                                                                                                                                                                                                    |
 
 ------------------------------------------------------------------------
 

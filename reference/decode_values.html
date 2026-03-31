@@ -149,7 +149,7 @@ labels. Returns a <code>data.table</code> if the input is a <code>data.table</co
 Analysis Platform:</p><ul><li><p><code>field.tsv</code> - maps field IDs to encoding IDs and value types.</p></li>
 <li><p><code>esimpint.tsv</code> - maps encoding ID + integer code to label.</p></li>
 </ul><p>Download them once with:</p><div class="sourceCode"><pre><code><span></span>
-<span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></code></pre></div><p>Both files are cached in the session after the first read.</p>
+<span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span></code></pre></div><p>Both files are cached in the session after the first read.</p>
 <p><strong>Call order</strong>: use <code>decode_values()</code> <em>before</em>
 <code><a href="decode_names.html">decode_names</a></code>, so that column names still contain the numeric
 field ID needed to look up the encoding.</p>
@@ -159,7 +159,7 @@ field ID needed to look up the encoding.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Download metadata once</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Recommended call order</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="extract_pheno.html">extract_pheno</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span>, <span class="fl">54</span>, <span class="fl">20116</span>, <span class="fl">21000</span><span class="op">)</span><span class="op">)</span></span></span>

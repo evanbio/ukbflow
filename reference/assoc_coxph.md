@@ -157,109 +157,33 @@ internally.
 ## Examples
 
 ``` r
-dt <- ops_toy(scenario = "association")
-#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
-dt <- dt[dm_timing != 1L]   # incident analysis only
-
-# Crude + age-sex adjusted (default)
+if (FALSE) { # \dontrun{
+# Minimal: crude + age-sex adjusted only
 res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0"
+  data         = cohort,
+  outcome_col  = "outcome_status",   # 0/1 or TRUE/FALSE
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category")
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models = 2 Cox regressions
-#> ℹ Input cohort: 1864 participants (n/n_events/person_years reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0Previous: HR 1.10 (0.74-1.64), p = 0.622
-#> ✔   Unadjusted | p20116_i0Current: HR 0.69 (0.37-1.28), p = 0.239
-#> ✔   Age and sex adjusted | p20116_i0Previous: HR 1.09 (0.74-1.63), p = 0.655
-#> ✔   Age and sex adjusted | p20116_i0Current: HR 0.68 (0.37-1.27), p = 0.231
-#> ✔ Done: 4 result rows across 1 exposure and 2 models.
 
-# Add Fully adjusted model
+# Add a Fully adjusted model (Model 3)
 res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  covariates   = c("tdi", "smoking", "alcohol_freq",
+                   paste0("pc", 1:10))
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models = 3 Cox regressions
-#> ℹ Input cohort: 1864 participants (n/n_events/person_years reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0Previous: HR 1.10 (0.74-1.64), p = 0.622
-#> ✔   Unadjusted | p20116_i0Current: HR 0.69 (0.37-1.28), p = 0.239
-#> ✔   Age and sex adjusted | p20116_i0Previous: HR 1.09 (0.74-1.63), p = 0.655
-#> ✔   Age and sex adjusted | p20116_i0Current: HR 0.68 (0.37-1.27), p = 0.231
-#> ✔   Fully adjusted | p20116_i0Previous: HR 1.09 (0.73-1.62), p = 0.688
-#> ✔   Fully adjusted | p20116_i0Current: HR 0.69 (0.37-1.28), p = 0.239
-#> ✔ Done: 6 result rows across 1 exposure and 3 models.
 
-# Multiple exposures in one call
+# Only run the Fully adjusted model (skip Unadjusted + Age-sex)
 res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = c("p20116_i0", "bmi_cat", "grs_bmi")
-)
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
-#> ℹ 3 exposures x 2 models = 6 Cox regressions
-#> ℹ Input cohort: 1864 participants (n/n_events/person_years reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0Previous: HR 1.10 (0.74-1.64), p = 0.622
-#> ✔   Unadjusted | p20116_i0Current: HR 0.69 (0.37-1.28), p = 0.239
-#> ✔   Age and sex adjusted | p20116_i0Previous: HR 1.09 (0.74-1.63), p = 0.655
-#> ✔   Age and sex adjusted | p20116_i0Current: HR 0.68 (0.37-1.27), p = 0.231
-#> 
-#> ── bmi_cat ──
-#> 
-#> ✔   Unadjusted | bmi_catNormal: HR 0.82 (0.43-1.57), p = 0.552
-#> ✔   Unadjusted | bmi_catOverweight: HR 0.87 (0.46-1.66), p = 0.671
-#> ✔   Unadjusted | bmi_catObese: HR 0.72 (0.36-1.44), p = 0.354
-#> ✔   Age and sex adjusted | bmi_catNormal: HR 0.83 (0.43-1.59), p = 0.572
-#> ✔   Age and sex adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.699
-#> ✔   Age and sex adjusted | bmi_catObese: HR 0.72 (0.36-1.45), p = 0.361
-#> 
-#> ── grs_bmi ──
-#> 
-#> ✔   Unadjusted | grs_bmi: HR 1.03 (0.96-1.11), p = 0.386
-#> ✔   Age and sex adjusted | grs_bmi: HR 1.04 (0.96-1.11), p = 0.36
-#> ✔ Done: 12 result rows across 3 exposures and 2 models.
-
-# Fully adjusted only (skip Unadjusted + Age-sex)
-res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  covariates   = c("p21022", "p31", "bmi_cat", "tdi_cat"),
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  covariates   = c("age_at_recruitment", "sex", "tdi"),
   base         = FALSE
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 1 model = 1 Cox regression
-#> ℹ Input cohort: 1864 participants (n/n_events/person_years reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Fully adjusted | p20116_i0Previous: HR 1.09 (0.73-1.61), p = 0.685
-#> ✔   Fully adjusted | p20116_i0Current: HR 0.68 (0.37-1.27), p = 0.228
-#> ✔ Done: 2 result rows across 1 exposure and 1 model.
+} # }
 ```

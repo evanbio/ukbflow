@@ -68,8 +68,14 @@ original variable point to the same memory.
 ## Examples
 
 ``` r
-dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
-derive_first_occurrence(dt, name = "outcome", field = 131742L, col = "p131742")
-#> ✔ derive_first_occurrence (outcome): 5 cases with valid date.
+if (FALSE) { # \dontrun{
+# Look up the First Occurrence field ID for your disease in the UKB Field Finder
+df <- derive_first_occurrence(df, name = "disease", field = 131000L)
+# → df$disease_fo        logical
+# → df$disease_fo_date   IDate
+
+# Supply col directly when the column name is already known
+df <- derive_first_occurrence(df, name = "disease", field = 131000L,
+                              col = "p131000")
+} # }
 ```

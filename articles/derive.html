@@ -150,9 +150,9 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The <code>derive_*</code> functions convert raw UKB columns into
-analysis-ready variables. This vignette covers the disease phenotype
-derivation pipeline:</p>
+<p>The <code>derive_*</code> functions convert raw, decoded UKB columns
+into analysis-ready variables. This vignette covers the disease
+phenotype derivation pipeline:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -223,23 +223,55 @@ derivation pipeline:</p>
 reference</strong> (no copy); <code>data.frame</code> input is converted
 to <code>data.table</code> internally before modification.</p>
 <blockquote>
-<p><strong>In production</strong>, replace <code><a href="../reference/ops_toy.html">ops_toy()</a></code> with
-<code><a href="../reference/extract_batch.html">extract_batch()</a></code> followed by <code><a href="../reference/decode_values.html">decode_values()</a></code>
-and <code><a href="../reference/decode_names.html">decode_names()</a></code>. See <code><a href="../articles/decode.html">vignette("decode")</a></code>.
-Column names below use the RAP raw format
-(<code>p{field}_{instance}_{array}</code>) as returned by
-<code><a href="../reference/ops_toy.html">ops_toy()</a></code> and <code><a href="../reference/extract_batch.html">extract_batch()</a></code> before
-decoding.</p>
+<p><strong>Prerequisite</strong>: data should have been extracted with
+<code><a href="../reference/extract_pheno.html">extract_pheno()</a></code> or <code><a href="../reference/extract_batch.html">extract_batch()</a></code>, then
+decoded with <code><a href="../reference/decode_values.html">decode_values()</a></code> and
+<code><a href="../reference/decode_names.html">decode_names()</a></code>. See <code><a href="../articles/decode.html">vignette("decode")</a></code>.</p>
 </blockquote>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+<h2 id="extracting-the-required-fields">Extracting the Required Fields<a class="anchor" aria-label="anchor" href="#extracting-the-required-fields"></a>
 </h2>
+<p>The field IDs below are standard UKB field identifiers; actual
+availability depends on your project approvals. Include the fields
+relevant to your analysis:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_pheno.html">extract_pheno</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="fl">31</span>,      <span class="co"># sex</span></span>
+<span>  <span class="fl">21022</span>,   <span class="co"># age at recruitment</span></span>
+<span>  <span class="fl">53</span>,      <span class="co"># date of baseline assessment (all visit instances)</span></span>
+<span>  <span class="fl">20116</span>,   <span class="co"># smoking status</span></span>
+<span>  <span class="co"># --- self-reported non-cancer illness ---</span></span>
+<span>  <span class="fl">20002</span>,   <span class="co"># illness codes</span></span>
+<span>  <span class="fl">20008</span>,   <span class="co"># year of diagnosis</span></span>
+<span>  <span class="co"># --- self-reported cancer ---</span></span>
+<span>  <span class="fl">20001</span>,   <span class="co"># cancer codes</span></span>
+<span>  <span class="fl">20006</span>,   <span class="co"># year of cancer diagnosis</span></span>
+<span>  <span class="co"># --- HES inpatient ---</span></span>
+<span>  <span class="fl">41270</span>,   <span class="co"># ICD-10 code array</span></span>
+<span>  <span class="fl">41280</span>,   <span class="co"># diagnosis date array</span></span>
+<span>  <span class="co"># --- cancer registry ---</span></span>
+<span>  <span class="fl">40006</span>,   <span class="co"># ICD-10 type</span></span>
+<span>  <span class="fl">40005</span>,   <span class="co"># date of cancer diagnosis</span></span>
+<span>  <span class="fl">40011</span>,   <span class="co"># histology</span></span>
+<span>  <span class="fl">40012</span>,   <span class="co"># behaviour</span></span>
+<span>  <span class="co"># --- death registry ---</span></span>
+<span>  <span class="fl">40001</span>,   <span class="co"># primary cause of death</span></span>
+<span>  <span class="fl">40002</span>,   <span class="co"># secondary cause of death</span></span>
+<span>  <span class="fl">40000</span>,   <span class="co"># date of death</span></span>
+<span>  <span class="co"># --- censoring / competing events ---</span></span>
+<span>  <span class="fl">191</span>      <span class="co"># date lost to follow-up</span></span>
+<span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/decode_values.html">decode_values</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/decode_names.html">decode_names</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Rename the verbose baseline date column to a shorter study-specific alias.</span></span>
+<span><span class="co"># This is optional but keeps downstream code concise; any name works as long</span></span>
+<span><span class="co"># as you pass the same name to baseline_col throughout.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="st">"date_of_attending_assessment_centre_i0"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"date_baseline"</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -251,11 +283,14 @@ missing data. <code><a href="../reference/derive_missing.html">derive_missing()<
 <code>NA</code> (default) or retains them as <code>"Unknown"</code> for
 modelling.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_missing: replaced 4 219 values across 5 columns (action = "na").</span></span></code></pre></div>
 <blockquote>
 <p><strong>Performance</strong>: <code><a href="../reference/derive_missing.html">derive_missing()</a></code> uses
 <code><a href="https://rdrr.io/pkg/data.table/man/assign.html" class="external-link">data.table::set()</a></code> for in-place replacement — no column
-copies are made regardless of dataset size.</p>
+copies are made regardless of dataset size. Processing 500 000 rows
+typically completes in under a second with negligible memory
+overhead.</p>
 </blockquote>
 <p>To keep non-response as a model category:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -268,20 +303,27 @@ copies are made regardless of dataset size.</p>
 <div class="section level2">
 <h2 id="step-2-prepare-covariates">Step 2: Prepare Covariates<a class="anchor" aria-label="anchor" href="#step-2-prepare-covariates"></a>
 </h2>
-<p><code><a href="../reference/derive_covariate.html">derive_covariate()</a></code> converts categorical columns to
-<code>factor</code> and prints a distribution summary for each.</p>
+<p><code><a href="../reference/derive_covariate.html">derive_covariate()</a></code> converts character-encoded numeric
+columns to <code>numeric</code> and categorical columns to
+<code>factor</code>, printing a distribution summary for each.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_covariate.html">derive_covariate</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
-<span>  as_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"p31"</span>,        <span class="co"># sex</span></span>
-<span>    <span class="st">"p20116_i0"</span>,  <span class="co"># smoking_status_i0</span></span>
-<span>    <span class="st">"p1558_i0"</span>    <span class="co"># alcohol_intake_frequency_i0</span></span>
-<span>  <span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_covariate.html">derive_covariate</a></span><span class="op">(</span><span class="va">df</span>,</span>
+<span>  as_numeric <span class="op">=</span> <span class="st">"body_mass_index_bmi_i0"</span>,</span>
+<span>  as_factor  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"smoking_status_i0"</span><span class="op">)</span>,</span>
 <span>  factor_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    p20116_i0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Never"</span>, <span class="st">"Previous"</span>, <span class="st">"Current"</span><span class="op">)</span></span>
+<span>    smoking_status_i0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Never"</span>, <span class="st">"Previous"</span>, <span class="st">"Current"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── Numeric ──────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   body_mass_index_bmi_i0: mean=27.4, median=26.8, sd=4.9, Q1=24.1, Q3=30.1, NA=0.9% (n=4512)</span></span>
+<span><span class="co">#&gt; ── Factor ───────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   sex [2 levels]</span></span>
+<span><span class="co">#&gt;     Female: n=273 029 (54.4%)</span></span>
+<span><span class="co">#&gt;     Male:   n=229 068 (45.6%)</span></span>
+<span><span class="co">#&gt;   smoking_status_i0 [3 levels]</span></span>
+<span><span class="co">#&gt;     Never:    n=271 400 (54.1%)</span></span>
+<span><span class="co">#&gt;     Previous: n=150 736 (30.0%)</span></span>
+<span><span class="co">#&gt;     Current:  n=79 867 (15.9%)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -290,21 +332,17 @@ copies are made regardless of dataset size.</p>
 <p><code><a href="../reference/derive_cut.html">derive_cut()</a></code> creates a new factor column by binning a
 continuous variable into quantile-based or custom groups.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cut.html">derive_cut</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
-<span>  col    <span class="op">=</span> <span class="st">"p21001_i0"</span>,                              <span class="co"># body_mass_index_bmi_i0</span></span>
-<span>  n      <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.5</span>, <span class="fl">25</span>, <span class="fl">30</span><span class="op">)</span>,</span>
-<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Underweight"</span>, <span class="st">"Normal"</span>, <span class="st">"Overweight"</span>, <span class="st">"Obese"</span><span class="op">)</span>,</span>
-<span>  name   <span class="op">=</span> <span class="st">"bmi_cat"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cut.html">derive_cut</a></span><span class="op">(</span></span>
-<span>  <span class="va">df</span>,</span>
-<span>  col    <span class="op">=</span> <span class="st">"p22189"</span>,                                 <span class="co"># townsend_deprivation_index_at_recruitment</span></span>
-<span>  n      <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Q1 (least deprived)"</span>, <span class="st">"Q2"</span>, <span class="st">"Q3"</span>, <span class="st">"Q4 (most deprived)"</span><span class="op">)</span>,</span>
-<span>  name   <span class="op">=</span> <span class="st">"tdi_cat"</span></span>
+<code class="sourceCode R"><span><span class="co"># Equal-frequency tertiles (automatic breakpoints)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cut.html">derive_cut</a></span><span class="op">(</span><span class="va">df</span>, col <span class="op">=</span> <span class="st">"age_at_recruitment"</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co"># → adds age_at_recruitment_tri with levels Q1 / Q2 / Q3</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Custom breakpoints with meaningful labels</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cut.html">derive_cut</a></span><span class="op">(</span><span class="va">df</span>,</span>
+<span>  col    <span class="op">=</span> <span class="st">"age_at_recruitment"</span>,</span>
+<span>  n      <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">60</span><span class="op">)</span>,</span>
+<span>  labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"&lt;50"</span>, <span class="st">"50–59"</span>, <span class="st">"≥60"</span><span class="op">)</span>,</span>
+<span>  name   <span class="op">=</span> <span class="st">"age_group"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -314,21 +352,22 @@ continuous variable into quantile-based or custom groups.</p>
 <p><code><a href="../reference/derive_selfreport.html">derive_selfreport()</a></code> searches UKB self-reported
 non-cancer illness (field 20002) or cancer (field 20001) columns for a
 disease label matching a regex, then returns binary status and the
-earliest report date. Column detection is automatic from field IDs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Non-cancer: type 2 diabetes (field 20002)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name  <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  regex <span class="op">=</span> <span class="st">"type 2 diabetes"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+earliest report date.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cancer: lung cancer (field 20001)</span></span>
+<code class="sourceCode R"><span><span class="co"># Non-cancer illness example</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name  <span class="op">=</span> <span class="st">"lung_cancer"</span>,</span>
-<span>  regex <span class="op">=</span> <span class="st">"lung cancer"</span>,</span>
+<span>  name  <span class="op">=</span> <span class="st">"disease"</span>,</span>
+<span>  regex <span class="op">=</span> <span class="st">"your disease name|synonym"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_selfreport (disease): 8104 cases, 8104 with date.</span></span>
+<span></span>
+<span><span class="co"># Cancer illness example (field = "cancer")</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span><span class="va">df</span>,</span>
+<span>  name  <span class="op">=</span> <span class="st">"cancer_outcome"</span>,</span>
+<span>  regex <span class="op">=</span> <span class="st">"your cancer name"</span>,</span>
 <span>  field <span class="op">=</span> <span class="st">"cancer"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>This adds two columns per call:</p>
+<p>This adds two columns:</p>
 <table class="table">
 <thead><tr class="header">
 <th>Column</th>
@@ -337,13 +376,13 @@ earliest report date. Column detection is automatic from field IDs.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dm_selfreport</code></td>
+<td><code>disease_selfreport</code></td>
 <td>logical</td>
 <td>
 <code>TRUE</code> if any instance matched</td>
 </tr>
 <tr class="even">
-<td><code>dm_selfreport_date</code></td>
+<td><code>disease_selfreport_date</code></td>
 <td>IDate</td>
 <td>Earliest report date</td>
 </tr>
@@ -358,14 +397,14 @@ earliest report date. Column detection is automatic from field IDs.</p>
 ICD-10 codes (field 41270, stored as a JSON array per participant) and
 matches the earliest corresponding date from field 41280.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Prefix match: codes starting with "I10" (hypertension)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"htn"</span>, icd10 <span class="op">=</span> <span class="st">"I10"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Prefix match: codes starting with "E11" (e.g. E110, E119)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Exact match</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm_hes"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, match <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span></span>
+<span><span class="co"># Exact match: only "E11" itself</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, match <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Regex: E10 and E11 simultaneously</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm_broad"</span>, icd10 <span class="op">=</span> <span class="st">"^E1[01]"</span>, match <span class="op">=</span> <span class="st">"regex"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Regex: full control over the pattern</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, icd10 <span class="op">=</span> <span class="st">"^E1[01]"</span>, match <span class="op">=</span> <span class="st">"regex"</span><span class="op">)</span></span></code></pre></div>
 <p>The <code>match</code> argument controls how codes are compared:</p>
 <table class="table">
 <colgroup>
@@ -402,6 +441,11 @@ matches the earliest corresponding date from field 41280.</p>
 </tr>
 </tbody>
 </table>
+<p><code>match = "regex"</code> accepts full Perl-compatible regular
+expressions, making it straightforward to capture related ICD-10 codes
+across chapters or subcategories in a single call
+(e.g. <code>"^E1[01]"</code> captures both E10 and E11
+simultaneously).</p>
 <hr>
 </div>
 <div class="section level2">
@@ -410,11 +454,17 @@ matches the earliest corresponding date from field 41280.</p>
 <p>UKB First Occurrence fields (p131xxx) record the earliest date a
 condition was observed across <strong>all linked sources</strong> —
 self-report, HES inpatient, GP records, and death registry —
-pre-integrated by UKB. Look up your disease in the <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi" class="external-link">UKB Field
+pre-integrated by UKB. If your disease has a corresponding 131xxx field,
+this is usually the fastest and most comprehensive single-source case
+definition. Look up your disease in the <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi" class="external-link">UKB Field
 Finder</a>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># ops_toy includes p131742 as a representative First Occurrence column</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_first_occurrence.html">derive_first_occurrence</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"htn"</span>, field <span class="op">=</span> <span class="fl">131742L</span>, col <span class="op">=</span> <span class="st">"p131742"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Look up your disease's First Occurrence field ID in the UKB Field Finder,</span></span>
+<span><span class="co"># then replace fo_field_id accordingly.</span></span>
+<span><span class="va">fo_field_id</span> <span class="op">&lt;-</span> <span class="fl">131000L</span>   <span class="co"># &lt;-- replace with your field ID</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_first_occurrence.html">derive_first_occurrence</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, field <span class="op">=</span> <span class="va">fo_field_id</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_first_occurrence (disease): 12043 cases with valid date.</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -424,18 +474,19 @@ Finder</a>.</p>
 ICD-10 field (40006) and optionally filters by histology (field 40011)
 and behaviour (field 40012).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># ICD-10 only</span></span>
+<code class="sourceCode R"><span><span class="co"># ICD-10 only — no histology/behaviour filter</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cancer_registry.html">derive_cancer_registry</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name  <span class="op">=</span> <span class="st">"skin_cancer"</span>,</span>
-<span>  icd10 <span class="op">=</span> <span class="st">"^C44"</span></span>
+<span>  name  <span class="op">=</span> <span class="st">"cancer_outcome"</span>,</span>
+<span>  icd10 <span class="op">=</span> <span class="st">"^C50"</span>   <span class="co"># breast cancer example</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_cancer_registry (cancer_outcome): 2 318 cases.</span></span>
 <span></span>
 <span><span class="co"># With histology and behaviour filters</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_cancer_registry.html">derive_cancer_registry</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name      <span class="op">=</span> <span class="st">"scc"</span>,</span>
+<span>  name      <span class="op">=</span> <span class="st">"cancer_outcome"</span>,</span>
 <span>  icd10     <span class="op">=</span> <span class="st">"^C44"</span>,</span>
-<span>  histology <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8070L</span>, <span class="fl">8071L</span>, <span class="fl">8072L</span><span class="op">)</span>,</span>
-<span>  behaviour <span class="op">=</span> <span class="fl">3L</span>                        <span class="co"># 3 = malignant</span></span>
+<span>  histology <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8070</span>, <span class="fl">8071</span>, <span class="fl">8072</span><span class="op">)</span>,   <span class="co"># specify relevant morphology codes</span></span>
+<span>  behaviour <span class="op">=</span> <span class="fl">3L</span>                      <span class="co"># 3 = malignant</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -445,9 +496,8 @@ and behaviour (field 40012).</p>
 <p><code><a href="../reference/derive_death_registry.html">derive_death_registry()</a></code> searches primary (field 40001)
 and secondary (field 40002) causes of death for ICD-10 codes.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_death_registry.html">derive_death_registry</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"mi"</span>,   icd10 <span class="op">=</span> <span class="st">"I21"</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_death_registry.html">derive_death_registry</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span>,   icd10 <span class="op">=</span> <span class="st">"E11"</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_death_registry.html">derive_death_registry</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"lung"</span>, icd10 <span class="op">=</span> <span class="st">"C34"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_death_registry.html">derive_death_registry</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_death_registry (disease): 312 cases, 312 with date.</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -455,28 +505,32 @@ and secondary (field 40002) causes of death for ICD-10 codes.</p>
 </h2>
 <p><code><a href="../reference/derive_icd10.html">derive_icd10()</a></code> is a high-level wrapper that calls any
 combination of the source-specific functions above and merges their
-outputs into a single status column and earliest date. This is the
-recommended approach for multi-source ascertainment.</p>
+outputs into a single status column and earliest date.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-cancer disease: HES + death + First Occurrence</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name   <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  icd10  <span class="op">=</span> <span class="st">"E11"</span>,</span>
-<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"death"</span>, <span class="st">"first_occurrence"</span><span class="op">)</span>,</span>
-<span>  fo_col <span class="op">=</span> <span class="st">"p131742"</span></span>
+<span>  name     <span class="op">=</span> <span class="st">"disease"</span>,</span>
+<span>  icd10    <span class="op">=</span> <span class="st">"E11"</span>,</span>
+<span>  source   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"death"</span>, <span class="st">"first_occurrence"</span><span class="op">)</span>,</span>
+<span>  fo_field <span class="op">=</span> <span class="va">fo_field_id</span>   <span class="co"># defined above</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_icd10 (disease): 14 287 cases across 3 sources, 14 287 with date.</span></span>
 <span></span>
-<span><span class="co"># Cancer outcome: cancer registry</span></span>
+<span><span class="co"># Cancer outcome: HES + cancer registry + death</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name      <span class="op">=</span> <span class="st">"lung"</span>,</span>
-<span>  icd10     <span class="op">=</span> <span class="st">"^C3[34]"</span>,</span>
-<span>  match     <span class="op">=</span> <span class="st">"regex"</span>,</span>
-<span>  source    <span class="op">=</span> <span class="st">"cancer_registry"</span>,</span>
-<span>  behaviour <span class="op">=</span> <span class="fl">3L</span></span>
+<span>  name   <span class="op">=</span> <span class="st">"cancer_outcome"</span>,</span>
+<span>  icd10  <span class="op">=</span> <span class="st">"^C50"</span>,</span>
+<span>  match  <span class="op">=</span> <span class="st">"regex"</span>,</span>
+<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"death"</span>, <span class="st">"cancer_registry"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Intermediate source columns are retained alongside the combined
 result:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Column</th>
 <th>Type</th>
@@ -484,43 +538,43 @@ result:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dm_icd10</code></td>
+<td><code>disease_icd10</code></td>
 <td>logical</td>
 <td>
 <code>TRUE</code> if positive in any specified source</td>
 </tr>
 <tr class="even">
-<td><code>dm_icd10_date</code></td>
+<td><code>disease_icd10_date</code></td>
 <td>IDate</td>
 <td>Earliest date across all sources</td>
 </tr>
 <tr class="odd">
-<td><code>dm_hes</code></td>
+<td><code>disease_hes</code></td>
 <td>logical</td>
 <td>HES status</td>
 </tr>
 <tr class="even">
-<td><code>dm_hes_date</code></td>
+<td><code>disease_hes_date</code></td>
 <td>IDate</td>
 <td>HES date</td>
 </tr>
 <tr class="odd">
-<td><code>dm_fo</code></td>
+<td><code>disease_fo</code></td>
 <td>logical</td>
 <td>First Occurrence status</td>
 </tr>
 <tr class="even">
-<td><code>dm_fo_date</code></td>
+<td><code>disease_fo_date</code></td>
 <td>IDate</td>
 <td>First Occurrence date</td>
 </tr>
 <tr class="odd">
-<td><code>dm_death</code></td>
+<td><code>disease_death</code></td>
 <td>logical</td>
 <td>Death registry status</td>
 </tr>
 <tr class="even">
-<td><code>dm_death_date</code></td>
+<td><code>disease_death_date</code></td>
 <td>IDate</td>
 <td>Death registry date</td>
 </tr>
@@ -535,9 +589,16 @@ result:</p>
 into a unified case status, with the earliest date across both sources
 taken via <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin()</a></code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"disease"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_case (disease): 15 902 cases, 15 902 with date.</span></span>
+<span><span class="co">#&gt;   Both sources (disease_icd10 &amp; disease_selfreport): 6 218</span></span></code></pre></div>
 <p>Output columns:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>Column</th>
 <th>Type</th>
@@ -545,13 +606,13 @@ taken via <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-l
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dm_status</code></td>
+<td><code>disease_status</code></td>
 <td>logical</td>
 <td>
 <code>TRUE</code> if positive in self-report OR ICD-10</td>
 </tr>
 <tr class="even">
-<td><code>dm_date</code></td>
+<td><code>disease_date</code></td>
 <td>IDate</td>
 <td>
 <strong>Earliest</strong> date across all sources
@@ -560,11 +621,13 @@ taken via <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-l
 </tbody>
 </table>
 <blockquote>
-<p><strong>Why the earliest date matters</strong>: <code>dm_date</code>
-is the direct input to <code><a href="../reference/derive_timing.html">derive_timing()</a></code>,
+<p><strong>Why the earliest date matters</strong>:
+<code>disease_date</code> captures the earliest available date across
+contributing sources, regardless of which source recorded it first.
+Sources that are status-positive but date-missing do not contribute a
+date. This column is the direct input to <code><a href="../reference/derive_timing.html">derive_timing()</a></code>,
 <code><a href="../reference/derive_age.html">derive_age()</a></code>, and <code><a href="../reference/derive_followup.html">derive_followup()</a></code> — it is
-the chronological anchor of every downstream survival analysis. See
-<code><a href="../articles/derive-survival.html">vignette("derive-survival")</a></code>.</p>
+the chronological anchor of every downstream survival analysis.</p>
 </blockquote>
 <hr>
 </div>

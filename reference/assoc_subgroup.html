@@ -264,113 +264,28 @@ uniformly without requiring the user to recode the <code>by</code> variable.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 2000 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Subgroup Cox by sex (interaction test included by default)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Subgroup by sex, coxph, unadjusted only</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_subgroup</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
-<span class="r-in"><span>  by           <span class="op">=</span> <span class="st">"p31"</span>,</span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  by           <span class="op">=</span> <span class="st">"sex"</span>,</span></span>
 <span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"coxph"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_subgroup</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 1 model x 2 subgroups (<span style="color: #00BB00;">p31</span>)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing interaction LRT (exposure x <span style="color: #00BB00;">p31</span>) on full data ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.105</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p31</span><span style="font-weight: bold;"> = Female  (n = 1027)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: HR 1.48 (0.90-2.43), p = 0.125</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: HR 0.95 (0.45-2.00), p = 0.895</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p31</span><span style="font-weight: bold;"> = Male  (n = 837)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: HR 0.63 (0.31-1.27), p = 0.198</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: HR 0.38 (0.12-1.25), p = 0.111</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 4 result rows across 1 exposure, 1 model, 2 subgroups.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Fully adjusted; exclude subgroup variable from covariates</span></span></span>
+<span class="r-in"><span><span class="co"># With Fully adjusted model (exclude 'sex' from covariates)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_subgroup</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
-<span class="r-in"><span>  by           <span class="op">=</span> <span class="st">"p31"</span>,</span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span></span>
+<span class="r-in"><span>  by           <span class="op">=</span> <span class="st">"sex"</span>,</span></span>
 <span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_at_recruitment"</span>, <span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_subgroup</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models x 2 subgroups (<span style="color: #00BB00;">p31</span>)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing interaction LRT (exposure x <span style="color: #00BB00;">p31</span>) on full data ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.105</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.108</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p31</span><span style="font-weight: bold;"> = Female  (n = 1027)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: HR 1.48 (0.90-2.43), p = 0.125</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: HR 0.95 (0.45-2.00), p = 0.895</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Previous: HR 1.45 (0.88-2.40), p = 0.143</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Current: HR 0.93 (0.44-1.96), p = 0.854</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p31</span><span style="font-weight: bold;"> = Male  (n = 837)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: HR 0.63 (0.31-1.27), p = 0.198</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: HR 0.38 (0.12-1.25), p = 0.111</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Previous: HR 0.64 (0.31-1.28), p = 0.206</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Fully adjusted | p20116_i0Current: HR 0.36 (0.11-1.18), p = 0.0921</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 8 result rows across 1 exposure, 2 models, 2 subgroups.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Subgroup logistic by BMI category</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_subgroup</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
-<span class="r-in"><span>  by           <span class="op">=</span> <span class="st">"bmi_cat"</span>,</span></span>
-<span class="r-in"><span>  method       <span class="op">=</span> <span class="st">"logistic"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_subgroup</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 1 model x 4 subgroups (<span style="color: #00BB00;">bmi_cat</span>)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing interaction LRT (exposure x <span style="color: #00BB00;">bmi_cat</span>) on full data ...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.943</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span><span style="font-weight: bold;"> = Underweight  (n = 166)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 0.78 (0.22-2.81), p = 0.708</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 0.50 (0.06-4.32), p = 0.532</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span><span style="font-weight: bold;"> = Normal  (n = 625)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 1.46 (0.72-2.95), p = 0.297</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 1.09 (0.39-3.06), p = 0.863</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span><span style="font-weight: bold;"> = Overweight  (n = 626)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 0.97 (0.48-1.95), p = 0.925</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 0.54 (0.18-1.61), p = 0.267</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">bmi_cat</span><span style="font-weight: bold;"> = Obese  (n = 447)</span> ──</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00;">p20116_i0</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Previous: OR 1.08 (0.44-2.64), p = 0.872</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | p20116_i0Current: OR 0.53 (0.12-2.39), p = 0.408</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 8 result rows across 1 exposure, 1 model, 4 subgroups.</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

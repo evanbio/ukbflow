@@ -41,7 +41,7 @@ Research Analysis Platform:
 
 Download them once with:
 
-    fetch_metadata(dest_dir = "data/metadata")
+    fetch_metadata(dest_dir = "data/metadata/")
 
 Both files are cached in the session after the first read.
 
@@ -55,7 +55,7 @@ up the encoding.
 ``` r
 if (FALSE) { # \dontrun{
 # Download metadata once
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 
 # Recommended call order
 df <- extract_pheno(c(31, 54, 20116, 21000))

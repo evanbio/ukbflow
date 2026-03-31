@@ -271,127 +271,28 @@ age/sex columns are detected.</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 2000 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span> <span class="op">&amp;</span> <span class="va">htn_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span>   <span class="co"># exclude prevalent for both</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Mode B: separate 0/1 columns — dm as primary, htn as competing event</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_competing</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
-<span class="r-in"><span>  compete_col  <span class="op">=</span> <span class="st">"htn_status"</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode B: <span style="color: #00BB00;">dm_status</span> (event) + <span style="color: #00BB00;">htn_status</span> (compete)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Events: 96, Competing: 199, Censored: 1277</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Exposure: <span style="color: #00BB00;">p20116_i0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Unadjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Age and sex adjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Fully adjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 6 result rows across 1 exposure and 3 models.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Mode A: single multi-value column (0 = censored, 1 = dm, 2 = htn)</span></span></span>
-<span class="r-in"><span><span class="va">dt</span><span class="op">[</span>, <span class="va">event_type</span> <span class="op">:=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fcase.html" class="external-link">fcase</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">dm_timing</span>  <span class="op">==</span> <span class="fl">2L</span>, <span class="fl">1L</span>,</span></span>
-<span class="r-in"><span>  <span class="va">htn_timing</span> <span class="op">==</span> <span class="fl">2L</span>, <span class="fl">2L</span>,</span></span>
-<span class="r-in"><span>  default          <span class="op">=</span> <span class="fl">0L</span></span></span>
-<span class="r-in"><span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            eid    p31     p53_i0 p21022 p21001_i0    bmi_cat p20116_i0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;int&gt; &lt;fctr&gt;     &lt;IDat&gt;  &lt;int&gt;     &lt;num&gt;     &lt;fctr&gt;    &lt;fctr&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1: 10000001   Male 2009-10-22     59     29.92 Overweight     Never</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2: 10000003 Female 2008-03-23     63     19.40     Normal     Never</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3: 10000004   Male 2008-07-11     58     26.62 Overweight      &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4: 10000005   Male 2009-11-20     68     31.00      Obese  Previous</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5: 10000006 Female 2008-10-24     56     26.69 Overweight     Never</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568: 10001993 Female 2009-03-11     44     20.01     Normal     Never</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569: 10001994   Male 2006-11-12     59     26.83 Overweight      &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570: 10001995   Male 2009-05-24     66     29.30 Overweight     Never</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571: 10001997 Female 2007-01-15     55     27.35 Overweight  Previous</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572: 10001999 Female 2006-08-06     53     18.91     Normal  Previous</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         p1558_i0 p21000_i0 p22189             tdi_cat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           &lt;fctr&gt;    &lt;fctr&gt;  &lt;num&gt;              &lt;fctr&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1:     Special occasions only     White  -3.41                  Q2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2: One to three times a month     White   3.74  Q4 (most deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3: Three or four times a week     White  -2.89                  Q2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4:     Special occasions only     White   3.01  Q4 (most deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5:       Once or twice a week     White  -4.48 Q1 (least deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568:       Once or twice a week     White  -4.44 Q1 (least deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569:                       &lt;NA&gt;     White  -1.98                  Q2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570: One to three times a month     White  -5.60 Q1 (least deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571:     Special occasions only     White  -0.10                  Q3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572:       Once or twice a week     White  -4.88 Q1 (least deprived)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           p54_i0 p22009_a1 p22009_a2 p22009_a3 p22009_a4 p22009_a5 p22009_a6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;fctr&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1:  Liverpool  0.621740 -0.033538  0.767350 -0.785157  1.489561  0.012842</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2: Manchester  0.607370 -0.763005  0.243056  0.463153 -2.320538 -0.868845</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3: Nottingham  0.807036 -1.156481  0.335599  0.141878  2.048786 -0.547001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4:    Bristol -0.573670  0.227728  0.137995 -1.297519  0.352876 -1.458635</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5:     Oxford  0.944962  0.932773  1.066530  0.346315  0.099671  1.062593</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568:  Liverpool  0.028994  0.458311  1.232060  0.135777 -0.837283 -0.138470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569:  Edinburgh -1.437429  0.480948  0.293574 -0.653266  0.585326  1.562877</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570:  Liverpool -2.030491  1.115307  0.093622 -2.457391  0.566985  0.075256</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571:     Oxford  1.161648 -2.072066 -0.469584  0.564503 -0.532568 -0.289483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572:  Edinburgh -1.040655 -1.771625  0.583996 -1.196393 -0.659005  1.069350</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       p22009_a7 p22009_a8 p22009_a9 p22009_a10   grs_bmi dm_status dm_date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;num&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;    &lt;lgcl&gt;  &lt;IDat&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1:  1.455166  0.529780 -1.220117   0.048976  3.922478     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2:  1.626062 -1.522594 -1.085131  -0.049201  1.531582     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3:  1.247015 -1.062169  2.772582  -0.937789 -3.019188     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4: -1.246419 -1.561089  0.004359   0.566357  6.883045     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5: -1.503327 -0.640098  0.343004   0.081488  0.745111     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568:  0.971321 -0.507438 -2.272432   0.507471 -1.864669     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569: -0.180339 -0.020269  0.845419   0.146726  2.873347     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570: -0.354080  1.217505 -1.628469  -1.782278  2.452643     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571:  0.410814  0.932132 -1.736088  -0.191632 -1.069658     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572:  0.193874  0.463562 -0.499771   0.218048  4.583697     FALSE    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       dm_timing dm_followup_end dm_followup_years htn_status   htn_date</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;int&gt;          &lt;IDat&gt;             &lt;num&gt;     &lt;lgcl&gt;     &lt;IDat&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1:         0      2022-10-31           13.0240      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2:         0      2022-10-31           14.6064      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3:         0      2022-10-31           14.3053      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4:         0      2022-10-31           12.9446      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5:         0      2022-10-31           14.0178      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568:         0      2022-10-31           13.6400      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569:         0      2022-10-31           15.9671       TRUE 2014-03-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570:         0      2022-10-31           13.4374      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571:         0      2022-10-31           15.7919       TRUE 2010-10-20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572:         0      2022-10-31           16.2355      FALSE       &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       htn_timing htn_followup_end htn_followup_years event_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;int&gt;           &lt;IDat&gt;              &lt;num&gt;      &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1:          0       2022-10-31            13.0240          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2:          0       2022-10-31            14.6064          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3:          0       2022-10-31            14.3053          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4:          0       2022-10-31            12.9446          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5:          0       2022-10-31            14.0178          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ---                                                          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1568:          0       2022-10-31            13.6400          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1569:          2       2014-03-01             7.2991          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1570:          0       2022-10-31            13.4374          0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1571:          2       2010-10-20             3.7618          2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1572:          0       2022-10-31            16.2355          0</span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_competing</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"event_type"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Mode A: single multi-value column (0 = censored, 1 = event, 2 = competing)</span></span></span>
+<span class="r-in"><span><span class="fu">assoc_competing</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"censoring_type"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"exposure"</span>,</span></span>
 <span class="r-in"><span>  event_val    <span class="op">=</span> <span class="fl">1L</span>,</span></span>
 <span class="r-in"><span>  compete_val  <span class="op">=</span> <span class="fl">2L</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p22009_a"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode A: <span style="color: #00BB00;">event_type</span> -&gt; event=1, compete=2, rest=censor</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Events: 96, Competing: 199, Censored: 1277</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Exposure: <span style="color: #00BB00;">p20116_i0</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Unadjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Age and sex adjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Model: Fully adjusted</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 6 result rows across 1 exposure and 3 models.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Mode B: separate 0/1 columns for primary and competing events</span></span></span>
+<span class="r-in"><span><span class="fu">assoc_competing</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">cohort</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"outcome_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"bmi_category"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  compete_col  <span class="op">=</span> <span class="st">"death_status"</span>,</span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

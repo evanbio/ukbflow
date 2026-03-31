@@ -215,11 +215,11 @@ unchanged.</p>
 <p>It requires two metadata files from the UKB Showcase. Download them
 once with:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span></code></pre></div>
 <p>Then point <code><a href="../reference/decode_values.html">decode_values()</a></code> to the same directory
 (default matches <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/decode_values.html">decode_values</a></span><span class="op">(</span><span class="va">df</span>, metadata_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/decode_values.html">decode_values</a></span><span class="op">(</span><span class="va">df</span>, metadata_dir <span class="op">=</span> <span class="st">"data/metadata/"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="what-gets-decoded">What gets decoded<a class="anchor" aria-label="anchor" href="#what-gets-decoded"></a>
 </h3>

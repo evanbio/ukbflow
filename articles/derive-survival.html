@@ -186,12 +186,10 @@ data for time-to-event analysis:</p>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Prerequisite</strong>: <code>{name}_status</code> and
-<code>{name}_date</code> must already be present — produced by
-<code><a href="../articles/derive.html">vignette("derive")</a></code>. The examples below assume the full
-disease derivation pipeline has been run on an <code><a href="../reference/ops_toy.html">ops_toy()</a></code>
-dataset, so the baseline date column is <code>p53_i0</code> and age at
-recruitment is <code>p21022</code>.</p>
+<p><strong>Prerequisite</strong>: <code>{name}_status</code>,
+<code>{name}_date</code>, <code>date_baseline</code>, and
+<code>age_at_recruitment</code> must already be present — produced by
+<code><a href="../articles/derive.html">vignette("derive")</a></code>.</p>
 </blockquote>
 <hr>
 </div>
@@ -231,23 +229,20 @@ baseline</td>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Build on the derive pipeline from vignette("derive")</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_covariate.html">derive_covariate</a></span><span class="op">(</span><span class="va">df</span>, as_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p31"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span>, regex <span class="op">=</span> <span class="st">"type 2 diabetes"</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span>, icd10 <span class="op">=</span> <span class="st">"E11"</span>, source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"death"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Uses {name}_status and {name}_date by default</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_timing.html">derive_timing</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span>, baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Uses {name}_status and {name}_date by default</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_timing.html">derive_timing</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"outcome"</span>, baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_timing (outcome_timing):</span></span>
+<span><span class="co">#&gt;   0 (no disease): 484 201</span></span>
+<span><span class="co">#&gt;   1 (prevalent):   11 342</span></span>
+<span><span class="co">#&gt;   2 (incident):     6 554</span></span>
+<span><span class="co">#&gt;   NA (no date):         0</span></span></code></pre></div>
 <p>Supply explicit column names when the defaults do not apply:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_timing.html">derive_timing</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name         <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  status_col   <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
-<span>  date_col     <span class="op">=</span> <span class="st">"dm_date"</span>,</span>
-<span>  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span></span>
+<span>  name         <span class="op">=</span> <span class="st">"outcome_icd10"</span>,</span>
+<span>  status_col   <span class="op">=</span> <span class="st">"outcome_icd10"</span>,</span>
+<span>  date_col     <span class="op">=</span> <span class="st">"outcome_icd10_date"</span>,</span>
+<span>  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Call once per variable needed — for example, once for the combined
 case and once per individual source (HES, self-report, etc.).</p>
@@ -262,22 +257,26 @@ date.</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">age_at_event</mtext><mo>=</mo><mtext mathvariant="normal">age_at_recruitment</mtext><mo>+</mo><mfrac><mrow><mtext mathvariant="normal">event_date</mtext><mo>−</mo><mtext mathvariant="normal">baseline_date</mtext></mrow><mn>365.25</mn></mfrac></mrow><annotation encoding="application/x-tex">\text{age\_at\_event} = \text{age\_at\_recruitment} + \frac{\text{event\_date} - \text{baseline\_date}}{365.25}</annotation></semantics></math></p>
 <p>The divisor 365.25 accounts for leap years, ensuring sub-monthly
 precision in age calculation across the full UKB follow-up window.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Auto-detects {name}_date and {name}_status; produces age_at_{name} column.</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Multiple outcomes in one call — auto-detects {name}_date and {name}_status.</span></span>
+<span><span class="co"># Each name produces its own age_at_{name} column in a single pass.</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_age.html">derive_age</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name         <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,</span>
-<span>  age_col      <span class="op">=</span> <span class="st">"p21022"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  name         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exposure"</span>, <span class="st">"outcome"</span><span class="op">)</span>,</span>
+<span>  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span>,</span>
+<span>  age_col      <span class="op">=</span> <span class="st">"age_at_recruitment"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;   age_at_exposure: n=15 902, median=54.1, range=[40.2, 72.8]</span></span>
+<span><span class="co">#&gt;   age_at_outcome: n=8 104, median=61.7, range=[40.8, 78.3]</span></span>
+<span><span class="co">#&gt; ✔ derive_age: 2 events processed.</span></span></code></pre></div>
 <p>Supply explicit column mappings when names do not follow the default
 <code>{name}_date</code> / <code>{name}_status</code> pattern:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_age.html">derive_age</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name         <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,</span>
-<span>  age_col      <span class="op">=</span> <span class="st">"p21022"</span>,</span>
-<span>  date_cols    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>dm <span class="op">=</span> <span class="st">"dm_date"</span><span class="op">)</span>,</span>
-<span>  status_cols  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>dm <span class="op">=</span> <span class="st">"dm_status"</span><span class="op">)</span></span>
+<span>  name         <span class="op">=</span> <span class="st">"outcome_icd10"</span>,</span>
+<span>  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span>,</span>
+<span>  age_col      <span class="op">=</span> <span class="st">"age_at_recruitment"</span>,</span>
+<span>  date_cols    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>outcome_icd10 <span class="op">=</span> <span class="st">"outcome_icd10_date"</span><span class="op">)</span>,</span>
+<span>  status_cols  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>outcome_icd10 <span class="op">=</span> <span class="st">"outcome_icd10"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -293,15 +292,18 @@ precision in age calculation across the full UKB follow-up window.</p>
 <li>The administrative censoring date</li>
 </ol>
 <p>Follow-up time in years is then derived from the baseline date.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name         <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  event_col    <span class="op">=</span> <span class="st">"dm_date"</span>,</span>
-<span>  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,</span>
-<span>  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-10-31"</span><span class="op">)</span>,   <span class="co"># set to your study's cut-off date</span></span>
-<span>  death_col    <span class="op">=</span> <span class="st">"p40000_i0"</span>,</span>
-<span>  lost_col     <span class="op">=</span> <span class="cn">FALSE</span>                    <span class="co"># not available in ops_toy</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>  name         <span class="op">=</span> <span class="st">"outcome"</span>,</span>
+<span>  event_col    <span class="op">=</span> <span class="st">"outcome_date"</span>,</span>
+<span>  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span>,</span>
+<span>  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-06-01"</span><span class="op">)</span>,   <span class="co"># set to your study's cut-off date</span></span>
+<span>  death_col    <span class="op">=</span> <span class="st">"date_death"</span>,</span>
+<span>  lost_col     <span class="op">=</span> <span class="st">"date_lost_followup"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; ✔ derive_followup (outcome):</span></span>
+<span><span class="co">#&gt;   outcome_followup_end: 502 097 / 502 097 non-missing</span></span>
+<span><span class="co">#&gt;   outcome_followup_years: mean=11.84, median=12.31, range=[0.03, 14.92]</span></span></code></pre></div>
 <p>Output columns:</p>
 <table class="table">
 <thead><tr class="header">
@@ -311,12 +313,12 @@ precision in age calculation across the full UKB follow-up window.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dm_followup_end</code></td>
+<td><code>outcome_followup_end</code></td>
 <td>IDate</td>
 <td>Earliest competing date</td>
 </tr>
 <tr class="even">
-<td><code>dm_followup_years</code></td>
+<td><code>outcome_followup_years</code></td>
 <td>numeric</td>
 <td>Years from baseline to end</td>
 </tr>
@@ -339,12 +341,12 @@ before fitting a Cox model (see the full pipeline example below).</p>
 <code>NULL</code> (default), <code><a href="../reference/derive_followup.html">derive_followup()</a></code> looks them
 up automatically from the field cache (UKB fields 40000 and 191). Pass
 <code>FALSE</code> to explicitly disable a competing event:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_followup.html">derive_followup</a></span><span class="op">(</span><span class="va">df</span>,</span>
-<span>  name         <span class="op">=</span> <span class="st">"dm"</span>,</span>
-<span>  event_col    <span class="op">=</span> <span class="st">"dm_date"</span>,</span>
-<span>  baseline_col <span class="op">=</span> <span class="st">"p53_i0"</span>,</span>
-<span>  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-10-31"</span><span class="op">)</span>,</span>
+<span>  name         <span class="op">=</span> <span class="st">"outcome"</span>,</span>
+<span>  event_col    <span class="op">=</span> <span class="st">"outcome_date"</span>,</span>
+<span>  baseline_col <span class="op">=</span> <span class="st">"date_baseline"</span>,</span>
+<span>  censor_date  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-06-01"</span><span class="op">)</span>,</span>
 <span>  death_col    <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  lost_col     <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -356,44 +358,48 @@ up automatically from the field cache (UKB fields 40000 and 191). Pass
 </h2>
 <p>After completing all three steps, the data contains everything needed
 to fit a Cox proportional hazards model:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Incident analysis: exclude prevalent cases and those with undetermined timing</span></span>
-<span><span class="va">df_incident</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span>
+<span><span class="va">df_incident</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span><span class="va">outcome_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">dm_followup_years</span>, <span class="va">dm_status</span><span class="op">)</span> <span class="op">~</span></span>
-<span>    <span class="va">p20116_i0</span> <span class="op">+</span> <span class="va">p21022</span> <span class="op">+</span> <span class="va">p31</span> <span class="op">+</span> <span class="va">p1558_i0</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">outcome_followup_years</span>, <span class="va">outcome_status</span><span class="op">)</span> <span class="op">~</span></span>
+<span>    <span class="va">exposure_status</span> <span class="op">+</span> <span class="va">age_at_recruitment</span> <span class="op">+</span> <span class="va">sex</span> <span class="op">+</span> <span class="va">smoking_status_i0</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">df_incident</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p>Column roles in the model:</p>
 <table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
 <thead><tr class="header">
 <th>Column</th>
 <th>Role</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>dm_status</code></td>
+<td><code>outcome_status</code></td>
 <td>Event indicator (logical)</td>
 </tr>
 <tr class="even">
-<td><code>dm_followup_years</code></td>
+<td><code>outcome_followup_years</code></td>
 <td>Time variable</td>
 </tr>
 <tr class="odd">
-<td><code>dm_timing</code></td>
+<td><code>outcome_timing</code></td>
 <td>Filter: exclude prevalent (<code>== 1</code>)</td>
 </tr>
 <tr class="even">
-<td><code>age_at_dm</code></td>
+<td><code>age_at_outcome</code></td>
 <td>Age at diagnosis (descriptive / secondary analysis)</td>
 </tr>
 <tr class="odd">
-<td><code>p20116_i0</code></td>
-<td>Exposure of interest (smoking status)</td>
+<td><code>exposure_status</code></td>
+<td>Exposure of interest</td>
 </tr>
 </tbody>
 </table>

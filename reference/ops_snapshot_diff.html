@@ -136,29 +136,11 @@ present in <code>label2</code> but not <code>label1</code>) and <code>removed</c
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
-<span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: raw ───────────────────────────────────────────────────────────────</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 51 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 47 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
-<span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"derived"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: derived ───────────────────────────────────────────────────────────</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 53 (+2)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">ops_snapshot_diff</span><span class="op">(</span><span class="st">"raw"</span>, <span class="st">"derived"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Columns added (0):</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Columns removed (0):</span>
 <span class="r-in"><span><span class="co"># $added   — newly derived columns</span></span></span>
 <span class="r-in"><span><span class="co"># $removed — columns dropped between snapshots</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -407,7 +407,7 @@ matching rows from your dataset. Two snapshots (`before_withdraw` /
 `after_withdraw`) are recorded automatically.
 
 ``` r
-dt <- ops_withdraw(dt, file = "withdraw.csv")
+dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
 #> ── snapshot: before_withdraw ───────────────────────────────────────────────
 #>   rows      502,492
 #>   ...

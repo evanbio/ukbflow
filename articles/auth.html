@@ -280,10 +280,9 @@ persists across sessions.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/auth_logout.html">auth_logout</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ✔ Logged out from DNAnexus.</span></span></code></pre></div>
-<p>Logging out invalidates the current DNAnexus session on the remote
-platform. The local token file is not removed but becomes invalid. A new
-token must be generated from the DNAnexus platform before logging in
-again.</p>
+<p>Logging out clears the local dx session cache. After logout, any
+function that depends on DNAnexus authentication will fail until you log
+in again.</p>
 <hr>
 </div>
 <div class="section level2">

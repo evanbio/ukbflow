@@ -41,24 +41,8 @@ A data.table with withdrawn participants removed.
 ## Examples
 
 ``` r
-dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
-withdraw_file <- tempfile(fileext = ".csv")
-writeLines(as.character(dt$eid[1:5]), withdraw_file)
-dt <- ops_withdraw(dt, file = withdraw_file)
-#> ── snapshot: before_withdraw ───────────────────────────────────────────────────
-#> rows 100 (= 0)
-#> cols 75 (= 0)
-#> NA cols (skipped)
-#> size 0.09 MB (= 0)
-#> ────────────────────────────────────────────────────────────────────────────────
-#> ── snapshot: after_withdraw ────────────────────────────────────────────────────
-#> rows 95 (-5)
-#> cols 75 (= 0)
-#> NA cols (skipped)
-#> size 0.09 MB (= 0)
-#> ────────────────────────────────────────────────────────────────────────────────
-#> ℹ Withdrawal file: file231312676c8f.csv (5 IDs)
-#> ✖ Excluded: 5 participants found in data
-#> ✔ Remaining: 95 participants
+if (FALSE) { # \dontrun{
+dt <- fread("ukb_phenotype.csv")
+dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
+} # }
 ```

@@ -131,71 +131,21 @@ internally.
 ## Examples
 
 ``` r
-dt <- ops_toy(scenario = "association")
-#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
-
-# Crude + age-sex adjusted (default)
+if (FALSE) { # \dontrun{
+# Minimal: crude + age-sex adjusted
 res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0"
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = c("exposure", "bmi_category")
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_logistic ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models = 2 logistic regressions
-#> ℹ Input cohort: 2000 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0Previous: OR 0.90 (0.66-1.21), p = 0.478
-#> ✔   Unadjusted | p20116_i0Current: OR 0.83 (0.56-1.25), p = 0.382
-#> ✔   Age and sex adjusted | p20116_i0Previous: OR 0.89 (0.66-1.20), p = 0.447
-#> ✔   Age and sex adjusted | p20116_i0Current: OR 0.83 (0.55-1.25), p = 0.37
-#> ✔ Done: 4 result rows across 1 exposure and 2 models.
 
-# Add Fully adjusted model
+# With Fully adjusted model + profile likelihood CI
 res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
-)
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_logistic ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models = 3 logistic regressions
-#> ℹ Input cohort: 2000 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0Previous: OR 0.90 (0.66-1.21), p = 0.478
-#> ✔   Unadjusted | p20116_i0Current: OR 0.83 (0.56-1.25), p = 0.382
-#> ✔   Age and sex adjusted | p20116_i0Previous: OR 0.89 (0.66-1.20), p = 0.447
-#> ✔   Age and sex adjusted | p20116_i0Current: OR 0.83 (0.55-1.25), p = 0.37
-#> ✔   Fully adjusted | p20116_i0Previous: OR 0.89 (0.66-1.21), p = 0.463
-#> ✔   Fully adjusted | p20116_i0Current: OR 0.84 (0.55-1.27), p = 0.41
-#> ✔ Done: 6 result rows across 1 exposure and 3 models.
-
-# Profile likelihood CI (more accurate for small samples)
-res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "grs_bmi",
-  covariates   = c("p21022", "p31", "bmi_cat"),
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = "exposure",
+  covariates   = c("tdi", "smoking", paste0("pc", 1:10)),
   ci_method    = "profile"
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_logistic ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models = 3 logistic regressions
-#> ℹ Input cohort: 2000 participants | CI method: profile (n/n_cases reflect each model's actual analysis set)
-#> 
-#> ── grs_bmi ──
-#> 
-#> ✔   Unadjusted | grs_bmi: OR 1.02 (0.97-1.08), p = 0.381
-#> ✔   Age and sex adjusted | grs_bmi: OR 1.02 (0.97-1.08), p = 0.371
-#> ✔   Fully adjusted | grs_bmi: OR 1.03 (0.97-1.08), p = 0.357
-#> ✔ Done: 3 result rows across 1 exposure and 3 models.
+} # }
 ```

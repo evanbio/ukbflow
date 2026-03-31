@@ -53,7 +53,7 @@ It requires two metadata files from the UKB Showcase. Download them once
 with:
 
 ``` r
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 ```
 
 Then point
@@ -62,7 +62,7 @@ to the same directory (default matches
 [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)):
 
 ``` r
-df <- decode_values(df, metadata_dir = "data/metadata")
+df <- decode_values(df, metadata_dir = "data/metadata/")
 ```
 
 ### What gets decoded

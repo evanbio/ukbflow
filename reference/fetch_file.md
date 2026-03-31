@@ -1,13 +1,20 @@
-# Download a file from RAP project storage
+# Download a remote RAP file or folder to local disk
 
-Downloads one file or all files within a folder from RAP project storage
-to the current directory or a specified destination within the RAP
-environment. This function must be called from within RAP.
+Downloads one file or all files within a folder from the DNAnexus
+Research Analysis Platform. Single files are downloaded sequentially;
+folders are downloaded in parallel using
+[`curl::multi_download()`](https://jeroen.r-universe.dev/curl/reference/multi_download.html).
 
 ## Usage
 
 ``` r
-fetch_file(path, dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
+fetch_file(
+  path,
+  dest_dir = ".",
+  overwrite = FALSE,
+  resume = FALSE,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -18,8 +25,8 @@ fetch_file(path, dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
 
 - dest_dir:
 
-  (character) Destination directory. Created automatically if it does
-  not exist.
+  (character) Local destination directory. Created automatically if it
+  does not exist. Default: `"."`.
 
 - overwrite:
 

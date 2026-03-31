@@ -126,21 +126,15 @@ phenotype data on the RAP. Useful for developing and testing <code>derive_*</cod
 
 
 <dl><dt id="arg-scenario">scenario<a class="anchor" aria-label="anchor" href="#arg-scenario"></a></dt>
-<dd><p>(character) Data structure to generate:</p><ul><li><p><code>"cohort"</code>: wide participant-level table with raw UKB field columns for
-the full <code>derive_*</code> → <code>assoc_*</code> → <code>plot_*</code> pipeline.</p></li>
-<li><p><code>"association"</code>: analysis-ready table with covariates already as factors,
-BMI/TDI binned, and two pre-derived disease outcomes (<code>dm_*</code>, <code>htn_*</code>)
-including status, date, timing, and follow-up columns. Use this for
-<code>assoc_*</code> examples and testing without running the derive pipeline.</p></li>
+<dd><p>(character) Data structure to generate:</p><ul><li><p><code>"cohort"</code>: wide participant-level table for the full
+<code>derive_*</code> → <code>assoc_*</code> → <code>plot_*</code> pipeline.</p></li>
 <li><p><code>"forest"</code>: association results table matching <code><a href="assoc_coxph.html">assoc_coxph()</a></code> output,
 for testing <code><a href="plot_forest.html">plot_forest()</a></code>. <code>n</code> = number of exposures (default 8).</p></li>
 </ul></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>(integer) Number of participants (or exposures for <code>"forest"</code>).
-Default <code>1000L</code> for <code>"cohort"</code>, <code>2000L</code> for <code>"association"</code>, <code>8L</code> for
-<code>"forest"</code>.</p></dd>
+<dd><p>(integer) Number of participants. Default <code>1000L</code>.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -175,48 +169,21 @@ columns included in each scenario.</p>
 <li><p><strong>Messy columns</strong>: <code>messy_allna</code>, <code>messy_empty</code>, <code>messy_label</code></p></li>
 </ul></div>
 
-<div class="section">
-<h3 id="scenario-association-">scenario = "association"<a class="anchor" aria-label="anchor" href="#scenario-association-"></a></h3>
-
-
-<p>Analysis-ready table. All derive inputs (raw arrays, HES JSON, registry
-fields) are omitted; derive outputs are pre-computed with internally
-consistent relationships:</p><ul><li><p><strong>Demographics</strong>: <code>eid</code>, <code>p31</code> (factor), <code>p53_i0</code> (IDate), <code>p21022</code></p></li>
-<li><p><strong>Covariates</strong>: <code>p21001_i0</code>, <code>bmi_cat</code> (factor, derived from <code>p21001_i0</code>),
-<code>p20116_i0</code> (factor), <code>p1558_i0</code> (factor), <code>p21000_i0</code> (factor),
-<code>p22189</code>, <code>tdi_cat</code> (factor, derived from <code>p22189</code> quartiles), <code>p54_i0</code>
-(factor)</p></li>
-<li><p><strong>Genetic PCs</strong>: <code>p22009_a1</code> – <code>p22009_a10</code></p></li>
-<li><p><strong>GRS</strong>: <code>grs_bmi</code> (continuous exposure)</p></li>
-<li><p><strong>DM outcome</strong>: <code>dm_status</code>, <code>dm_date</code>, <code>dm_timing</code>, <code>dm_followup_end</code>,
-<code>dm_followup_years</code> (type 2 diabetes, ~12% prevalence)</p></li>
-<li><p><strong>HTN outcome</strong>: <code>htn_status</code>, <code>htn_date</code>, <code>htn_timing</code>,
-<code>htn_followup_end</code>, <code>htn_followup_years</code> (hypertension, ~28% prevalence)</p></li>
-</ul><p>Internal relationships guaranteed:</p><ul><li><p><code>bmi_cat</code> is cut from <code>p21001_i0</code> (breaks 18.5 / 25 / 30)</p></li>
-<li><p><code>tdi_cat</code> is cut from <code>p22189</code> quartiles</p></li>
-<li><p><code>dm_date</code> is <code>NA</code> iff <code>dm_status = FALSE</code></p></li>
-<li><p><code>dm_timing</code>: 0 = no disease, 1 = prevalent, 2 = incident, <code>NA</code> = no date</p></li>
-<li><p><code>dm_followup_years</code> is <code>NA</code> for prevalent cases (<code>dm_timing == 1</code>)</p></li>
-</ul></div>
-
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># cohort: raw UKB-style columns, feed into derive pipeline</span></span></span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">500</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Dynamic dataset (different every call)</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>seed <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Feed directly into derive pipeline</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 47 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># association: analysis-ready, feed directly into assoc_* functions</span></span></span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 500 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span>   <span class="co"># exclude prevalent cases</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># forest: results table for plot_forest()</span></span></span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"forest"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 24 rows | 11 columns | scenario = <span style="color: #0000BB;">"forest"</span> | seed = 42</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

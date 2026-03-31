@@ -156,106 +156,31 @@ non-NULL.
 ## Examples
 
 ``` r
-dt <- ops_toy(scenario = "association")
-#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
-dt <- dt[dm_timing != 1L]
+if (FALSE) { # \dontrun{
+# Create an ordered factor exposure with 3 levels
+cohort[, exposure_cat := factor(exposure_source,
+                                 levels = c(0, 1, 2),
+                                 labels = c("None", "Mild", "Severe"))]
 
-# Trend across BMI categories (default integer scores 0, 1, 2, 3)
+# Trend analysis: default scores 0, 1, 2
 res <- assoc_trend(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "bmi_cat",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure_cat",
   method       = "coxph",
-  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0")
+  covariates   = c("age_at_recruitment", "sex", "tdi", "smoking")
 )
-#> ! Exposure bmi_cat is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models (categorical + trend model per combination)
-#> 
-#> ── bmi_cat ──
-#> 
-#> ℹ Levels: Underweight -> Normal -> Overweight -> Obese | Scores: 0, 1, 2, 3
-#> ℹ   Unadjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Unadjusted | bmi_catNormal: HR 0.82 (0.43-1.57), p = 0.552
-#> ✔   Unadjusted | bmi_catOverweight: HR 0.87 (0.46-1.66), p = 0.671
-#> ✔   Unadjusted | bmi_catObese: HR 0.72 (0.36-1.44), p = 0.354
-#> ℹ   Unadjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.455
-#> ℹ   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Age and sex adjusted | bmi_catNormal: HR 0.83 (0.43-1.59), p = 0.572
-#> ✔   Age and sex adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.699
-#> ✔   Age and sex adjusted | bmi_catObese: HR 0.72 (0.36-1.45), p = 0.361
-#> ℹ   Age and sex adjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.458
-#> ℹ   Fully adjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Fully adjusted | bmi_catNormal: HR 0.84 (0.44-1.61), p = 0.601
-#> ✔   Fully adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.698
-#> ✔   Fully adjusted | bmi_catObese: HR 0.74 (0.37-1.48), p = 0.39
-#> ℹ   Fully adjusted | trend: HR_per_score = 0.93 (0.76-1.13), p_trend = 0.474
-#> ✔ Done: 12 result rows across 1 exposure and 3 models.
 
-# Custom scores reflecting approximate median BMI per category
+# Custom scores (e.g. median value per category)
 res <- assoc_trend(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "bmi_cat",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure_cat",
   method       = "coxph",
-  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
-  scores       = c(17, 22, 27, 35)
+  covariates   = c("age_at_recruitment", "sex", "tdi"),
+  scores       = c(0, 5, 14)
 )
-#> ! Exposure bmi_cat is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models (categorical + trend model per combination)
-#> 
-#> ── bmi_cat ──
-#> 
-#> ℹ Levels: Underweight -> Normal -> Overweight -> Obese | Scores: 17, 22, 27, 35
-#> ℹ   Unadjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Unadjusted | bmi_catNormal: HR 0.82 (0.43-1.57), p = 0.552
-#> ✔   Unadjusted | bmi_catOverweight: HR 0.87 (0.46-1.66), p = 0.671
-#> ✔   Unadjusted | bmi_catObese: HR 0.72 (0.36-1.44), p = 0.354
-#> ℹ   Unadjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.432
-#> ℹ   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Age and sex adjusted | bmi_catNormal: HR 0.83 (0.43-1.59), p = 0.572
-#> ✔   Age and sex adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.699
-#> ✔   Age and sex adjusted | bmi_catObese: HR 0.72 (0.36-1.45), p = 0.361
-#> ℹ   Age and sex adjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.432
-#> ℹ   Fully adjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Fully adjusted | bmi_catNormal: HR 0.84 (0.44-1.61), p = 0.601
-#> ✔   Fully adjusted | bmi_catOverweight: HR 0.88 (0.46-1.68), p = 0.698
-#> ✔   Fully adjusted | bmi_catObese: HR 0.74 (0.37-1.48), p = 0.39
-#> ℹ   Fully adjusted | trend: HR_per_score = 0.99 (0.96-1.02), p_trend = 0.452
-#> ✔ Done: 12 result rows across 1 exposure and 3 models.
-
-# Logistic trend (no time_col needed)
-res <- assoc_trend(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "bmi_cat",
-  method       = "logistic"
-)
-#> ! Exposure bmi_cat is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models (categorical + trend model per combination)
-#> 
-#> ── bmi_cat ──
-#> 
-#> ℹ Levels: Underweight -> Normal -> Overweight -> Obese | Scores: 0, 1, 2, 3
-#> ℹ   Unadjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Unadjusted | bmi_catNormal: OR 0.83 (0.42-1.63), p = 0.589
-#> ✔   Unadjusted | bmi_catOverweight: OR 0.88 (0.45-1.71), p = 0.698
-#> ✔   Unadjusted | bmi_catObese: OR 0.73 (0.36-1.49), p = 0.386
-#> ℹ   Unadjusted | trend: OR_per_score = 0.93 (0.76-1.14), p_trend = 0.477
-#> ℹ   Age and sex adjusted | bmi_catUnderweight: 1.00 (ref)
-#> ✔   Age and sex adjusted | bmi_catNormal: OR 0.84 (0.43-1.65), p = 0.612
-#> ✔   Age and sex adjusted | bmi_catOverweight: OR 0.89 (0.46-1.74), p = 0.733
-#> ✔   Age and sex adjusted | bmi_catObese: OR 0.73 (0.36-1.51), p = 0.4
-#> ℹ   Age and sex adjusted | trend: OR_per_score = 0.93 (0.76-1.14), p_trend = 0.489
-#> ✔ Done: 8 result rows across 1 exposure and 2 models.
+} # }
 ```

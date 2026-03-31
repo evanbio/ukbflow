@@ -119,35 +119,17 @@ overall PH assumption for the whole model.
 ## Examples
 
 ``` r
-dt <- ops_toy(scenario = "association")
-#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
-dt <- dt[dm_timing != 1L]
-
-# Test PH assumption for the same model as assoc_coxph()
+if (FALSE) { # \dontrun{
+# Check PH assumption for same models as assoc_coxph()
 zph <- assoc_coxph_zph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  covariates   = c("tdi", "smoking", paste0("pc", 1:10))
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_coxph_zph ─────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 3 models = 3 PH assumption tests
-#> 
-#> ── p20116_i0 ──
-#> 
-#> ✔   Unadjusted | p20116_i0: chisq = 0.423, p = 0.81 [OK] satisfied
-#> ℹ   Global: chisq = 0.423, p = 0.81
-#> ✔   Age and sex adjusted | p20116_i0: chisq = 0.4, p = 0.819 [OK] satisfied
-#> ℹ   Global: chisq = 2.042, p = 0.728
-#> ✔   Fully adjusted | p20116_i0: chisq = 0.482, p = 0.786 [OK] satisfied
-#> ℹ   Global: chisq = 14.12, p = 0.659
-#> ✔ Done: all 3 terms satisfy the PH assumption.
 
-# Flag any term-level violations
+# Quick check: any violations?
 zph[ph_satisfied == FALSE]
-#> Empty data.table (0 rows and 10 cols): exposure,term,model,chisq,df,p_value...
+} # }
 ```

@@ -150,111 +150,26 @@ requiring the user to recode the `by` variable.
 ## Examples
 
 ``` r
-dt <- ops_toy(scenario = "association")
-#> ✔ ops_toy: 2000 participants | 33 columns | scenario = "association" | seed = 42
-dt <- dt[dm_timing != 1L]
-
-# Subgroup Cox by sex (interaction test included by default)
+if (FALSE) { # \dontrun{
+# Subgroup by sex, coxph, unadjusted only
 res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  by           = "p31",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  by           = "sex",
   method       = "coxph"
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_subgroup ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 1 model x 2 subgroups (p31)
-#> ℹ Computing interaction LRT (exposure x p31) on full data ...
-#> ℹ   Unadjusted | p20116_i0: p_interaction = 0.105
-#> 
-#> ── p31 = Female  (n = 1027) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: HR 1.48 (0.90-2.43), p = 0.125
-#> ✔   Unadjusted | p20116_i0Current: HR 0.95 (0.45-2.00), p = 0.895
-#> 
-#> ── p31 = Male  (n = 837) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: HR 0.63 (0.31-1.27), p = 0.198
-#> ✔   Unadjusted | p20116_i0Current: HR 0.38 (0.12-1.25), p = 0.111
-#> ✔ Done: 4 result rows across 1 exposure, 1 model, 2 subgroups.
 
-# Fully adjusted; exclude subgroup variable from covariates
+# With Fully adjusted model (exclude 'sex' from covariates)
 res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  by           = "p31",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  by           = "sex",
   method       = "coxph",
-  covariates   = c("p21022", "bmi_cat", "tdi_cat")
+  covariates   = c("age_at_recruitment", "tdi", "smoking")
 )
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_subgroup ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models x 2 subgroups (p31)
-#> ℹ Computing interaction LRT (exposure x p31) on full data ...
-#> ℹ   Unadjusted | p20116_i0: p_interaction = 0.105
-#> ℹ   Fully adjusted | p20116_i0: p_interaction = 0.108
-#> 
-#> ── p31 = Female  (n = 1027) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: HR 1.48 (0.90-2.43), p = 0.125
-#> ✔   Unadjusted | p20116_i0Current: HR 0.95 (0.45-2.00), p = 0.895
-#> ✔   Fully adjusted | p20116_i0Previous: HR 1.45 (0.88-2.40), p = 0.143
-#> ✔   Fully adjusted | p20116_i0Current: HR 0.93 (0.44-1.96), p = 0.854
-#> 
-#> ── p31 = Male  (n = 837) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: HR 0.63 (0.31-1.27), p = 0.198
-#> ✔   Unadjusted | p20116_i0Current: HR 0.38 (0.12-1.25), p = 0.111
-#> ✔   Fully adjusted | p20116_i0Previous: HR 0.64 (0.31-1.28), p = 0.206
-#> ✔   Fully adjusted | p20116_i0Current: HR 0.36 (0.11-1.18), p = 0.0921
-#> ✔ Done: 8 result rows across 1 exposure, 2 models, 2 subgroups.
-
-# Subgroup logistic by BMI category
-res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0",
-  by           = "bmi_cat",
-  method       = "logistic"
-)
-#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
-#> 
-#> ── assoc_subgroup ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 1 model x 4 subgroups (bmi_cat)
-#> ℹ Computing interaction LRT (exposure x bmi_cat) on full data ...
-#> ℹ   Unadjusted | p20116_i0: p_interaction = 0.943
-#> 
-#> ── bmi_cat = Underweight  (n = 166) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: OR 0.78 (0.22-2.81), p = 0.708
-#> ✔   Unadjusted | p20116_i0Current: OR 0.50 (0.06-4.32), p = 0.532
-#> 
-#> ── bmi_cat = Normal  (n = 625) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: OR 1.46 (0.72-2.95), p = 0.297
-#> ✔   Unadjusted | p20116_i0Current: OR 1.09 (0.39-3.06), p = 0.863
-#> 
-#> ── bmi_cat = Overweight  (n = 626) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: OR 0.97 (0.48-1.95), p = 0.925
-#> ✔   Unadjusted | p20116_i0Current: OR 0.54 (0.18-1.61), p = 0.267
-#> 
-#> ── bmi_cat = Obese  (n = 447) ──
-#> 
-#> ── p20116_i0 
-#> ✔   Unadjusted | p20116_i0Previous: OR 1.08 (0.44-2.64), p = 0.872
-#> ✔   Unadjusted | p20116_i0Current: OR 0.53 (0.12-2.39), p = 0.408
-#> ✔ Done: 8 result rows across 1 exposure, 1 model, 4 subgroups.
+} # }
 ```
