@@ -59,13 +59,15 @@ censoring date.
 \code{data.table}, new columns are added in-place via \code{:=}.
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_hes(dt, name = "htn", icd10 = "I10")
-derive_followup(dt,
-  name         = "htn_hes",
-  event_col    = "htn_hes_date",
-  baseline_col = "p53_i0",
+\dontrun{
+df <- derive_followup(df,
+  name         = "outcome",
+  event_col    = "outcome_date",
+  baseline_col = "date_baseline",
   censor_date  = as.Date("2022-06-01"),
-  death_col    = "p40000_i0",
-  lost_col     = FALSE)
+  death_col    = "date_death",
+  lost_col     = "date_lost_followup")
+# → df$outcome_followup_end    IDate
+# → df$outcome_followup_years  numeric
+}
 }

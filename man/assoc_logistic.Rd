@@ -88,30 +88,21 @@ slower but more accurate for small or sparse data.
 }
 }
 \examples{
-dt <- ops_toy(scenario = "association")
-
-# Crude + age-sex adjusted (default)
+\dontrun{
+# Minimal: crude + age-sex adjusted
 res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0"
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = c("exposure", "bmi_category")
 )
 
-# Add Fully adjusted model
+# With Fully adjusted model + profile likelihood CI
 res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
-)
-
-# Profile likelihood CI (more accurate for small samples)
-res <- assoc_logistic(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "grs_bmi",
-  covariates   = c("p21022", "p31", "bmi_cat"),
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  exposure_col = "exposure",
+  covariates   = c("tdi", "smoking", paste0("pc", 1:10)),
   ci_method    = "profile"
 )
+}
 }

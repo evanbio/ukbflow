@@ -29,9 +29,8 @@
 #' @param file Character scalar. Path to the input weights file.
 #'   Read via \code{data.table::fread} (format auto-detected; handles
 #'   CSV, TSV, space-delimited, etc.).
-#' @param dest Character scalar or \code{NULL}. Output path for the validated,
-#'   space-delimited weights file. When \code{NULL} (default), no file is
-#'   written and the validated \code{data.table} is returned invisibly only.
+#' @param dest Character scalar. Output path for the validated,
+#'   space-delimited weights file. Default: \code{"weights.txt"}.
 #'
 #' @return A \code{data.table} with columns \code{snp}, \code{effect_allele},
 #'   and \code{beta}, returned invisibly.
@@ -39,21 +38,17 @@
 #' @export
 #'
 #' @examples
-#' tmp_in <- tempfile(fileext = ".csv")
-#' weights <- data.frame(
-#'   snp           = c("rs1234567", "rs2345678", "rs3456789"),
-#'   effect_allele = c("A", "T", "G"),
-#'   beta          = c(0.12, -0.05, 0.23)
+#' \dontrun{
+#' # Local
+#' w <- grs_check("weights.csv", dest = "weights_clean.txt")
+#'
+#' # On RAP (RStudio) - files accessed via /mnt/project/
+#' w <- grs_check(
+#'   file = "/mnt/project/weights/weights.csv",
+#'   dest = "/mnt/project/weights/weights_clean.txt"
 #' )
-#' write.csv(weights, tmp_in, row.names = FALSE)
-#'
-#' w <- grs_check(tmp_in)
-#' w
-#'
-#' # Save validated weights to a file
-#' tmp_out <- tempfile(fileext = ".txt")
-#' grs_check(tmp_in, dest = tmp_out)
-grs_check <- function(file, dest = NULL) {
+#' }
+grs_check <- function(file, dest = "weights.txt") {
 
   # Read
   .assert_file_exists(file)
@@ -132,10 +127,8 @@ grs_check <- function(file, dest = NULL) {
   )
 
   # Write plink2-compatible output (space-delimited, no quotes)
-  if (!is.null(dest)) {
-    data.table::fwrite(w, dest, sep = " ", quote = FALSE)
-    cli::cli_alert_success("Saved: {.path {dest}}")
-  }
+  data.table::fwrite(w, dest, sep = " ", quote = FALSE)
+  cli::cli_alert_success("Saved: {.path {dest}}")
 
   invisible(w)
 }
@@ -168,8 +161,8 @@ grs_check <- function(file, dest = NULL) {
 #' }
 #'
 #' @param chr Integer vector. Chromosomes to process. Default: \code{1:22}.
-#' @param dest Character scalar. RAP destination path for output PGEN files
-#'   (e.g. \code{"/pgen/"}). Must be specified explicitly.
+#' @param dest Character scalar. RAP destination path for output PGEN files.
+#'   Default: \code{"/pgen/"}.
 #' @param maf Numeric scalar. Minor allele frequency filter passed to plink2
 #'   \code{--maf}. Variants with MAF below this threshold are excluded.
 #'   Default: \code{0.01}. Must be in \code{(0, 0.5)}.
@@ -187,19 +180,19 @@ grs_check <- function(file, dest = NULL) {
 #' @examples
 #' \dontrun{
 #' # Test with chr22 first (smallest chromosome)
-#' ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
+#' ids <- grs_bgen2pgen(chr = 22, priority = "high")
 #'
 #' # Small chromosomes - standard instance
-#' ids_small <- grs_bgen2pgen(chr = 15:22, dest = "/pgen/")
+#' ids_small <- grs_bgen2pgen(chr = 15:22)
 #'
 #' # Large chromosomes - upgrade instance to handle storage
-#' ids_large <- grs_bgen2pgen(chr = 1:16, dest = "/pgen/", instance = "large")
+#' ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
 #'
 #' # Monitor
 #' job_ls()
 #' }
 grs_bgen2pgen <- function(chr      = 1:22,
-                           dest     = NULL,
+                           dest     = "/pgen/",
                            maf      = 0.01,
                            instance = "standard",
                            priority = "low") {
@@ -211,9 +204,6 @@ grs_bgen2pgen <- function(chr      = 1:22,
   chr <- as.integer(chr)
   if (any(is.na(chr)) || any(chr < 1L) || any(chr > 22L))
     cli::cli_abort("{.arg chr} must be integers between 1 and 22.", call = NULL)
-
-  if (is.null(dest) || !nzchar(dest))
-    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/pgen/'}}).", call = NULL)
 
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
     cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).", call = NULL)
@@ -339,10 +329,10 @@ grs_bgen2pgen <- function(chr      = 1:22,
 #' @param file Named character vector of local weight file paths. Names become
 #'   the GRS identifiers (output column = \code{GRS_<name>}).
 #'   Example: \code{c(grs_a = "weights_a.txt")}.
-#' @param pgen_dir Character scalar. Path to PGEN files on RAP
-#'   (e.g. \code{"/mnt/project/pgen"}). Must be specified explicitly.
-#' @param dest Character scalar. RAP destination path for output CSV files
-#'   (e.g. \code{"/grs/"}). Must be specified explicitly.
+#' @param pgen_dir Character scalar. Path to PGEN files on RAP.
+#'   Default: \code{"/mnt/project/pgen"}.
+#' @param dest Character scalar. RAP destination path for output CSV files.
+#'   Default: \code{"/grs/"}.
 #' @param maf Numeric scalar. MAF filter threshold used when locating PGEN
 #'   files. Must match the value used in \code{\link{grs_bgen2pgen}}.
 #'   Default: \code{0.01}.
@@ -364,7 +354,6 @@ grs_bgen2pgen <- function(chr      = 1:22,
 #'     grs_a = "weights/grs_a_weights.txt",
 #'     grs_b = "weights/grs_b_weights.txt"
 #'   ),
-#'   pgen_dir = "/mnt/project/pgen",
 #'   dest     = "/grs/",
 #'   priority = "high"
 #' )
@@ -372,8 +361,8 @@ grs_bgen2pgen <- function(chr      = 1:22,
 #' job_ls()
 #' }
 grs_score <- function(file,
-                      pgen_dir = NULL,
-                      dest     = NULL,
+                      pgen_dir = "/mnt/project/pgen",
+                      dest     = "/grs/",
                       maf      = 0.01,
                       instance = "standard",
                       priority = "low") {
@@ -381,12 +370,6 @@ grs_score <- function(file,
   # Validate arguments
   instance <- match.arg(instance, c("standard", "large"))
   priority <- match.arg(priority, c("low", "high"))
-
-  if (is.null(pgen_dir) || !nzchar(pgen_dir))
-    cli::cli_abort("{.arg pgen_dir} must be specified (e.g. {.val {'/mnt/project/pgen'}}).", call = NULL)
-
-  if (is.null(dest) || !nzchar(dest))
-    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/grs/'}}).", call = NULL)
 
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
     cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.", call = NULL)
@@ -663,27 +646,25 @@ grs_zscore <- grs_standardize
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
-#' dt <- grs_standardize(dt, grs_cols = c("grs_bmi", "grs_raw"))
+#' \dontrun{
+#' # Logistic (cross-sectional)
+#' res <- grs_validate(
+#'   data        = cohort,
+#'   grs_cols    = c("GRS_a_z", "GRS_b_z"),
+#'   outcome_col = "outcome"
+#' )
 #'
 #' # Cox (survival)
 #' res <- grs_validate(
-#'   data        = dt,
-#'   grs_cols    = c("grs_bmi_z", "grs_raw_z"),
-#'   outcome_col = "dm_status",
-#'   time_col    = "dm_followup_years"
+#'   data        = cohort,
+#'   grs_cols    = c("GRS_a_z", "GRS_b_z"),
+#'   outcome_col = "outcome",
+#'   time_col    = "followup_years",
+#'   covariates  = c("age", "sex", paste0("pc", 1:10))
 #' )
+#'
 #' res$per_sd
 #' res$discrimination
-#'
-#' # Logistic (cross-sectional) — requires pROC
-#' if (requireNamespace("pROC", quietly = TRUE)) {
-#'   res_logit <- grs_validate(
-#'     data        = dt,
-#'     grs_cols    = c("grs_bmi_z", "grs_raw_z"),
-#'     outcome_col = "dm_status"
-#'   )
-#'   res_logit$discrimination
 #' }
 grs_validate <- function(data,
                          grs_cols    = NULL,

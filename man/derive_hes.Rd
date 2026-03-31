@@ -57,8 +57,11 @@ matching codes (\code{IDate}).  \code{NA} if no date is available.}
 }
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_hes(dt, name = "htn",      icd10 = "I10")
-derive_hes(dt, name = "diabetes", icd10 = c("E10", "E11"))
-derive_hes(dt, name = "asthma",   icd10 = "^J4", match = "regex")
+\dontrun{
+df <- derive_hes(df, name = "disease", icd10 = "E11")
+df <- derive_hes(df, name = "disease",
+                 icd10 = c("J440", "J441"), match = "exact")
+df <- derive_hes(df, name = "disease",
+                 icd10 = "^(E10|E11)", match = "regex")
+}
 }

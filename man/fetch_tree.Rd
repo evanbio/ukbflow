@@ -34,7 +34,7 @@ Keep \code{max_depth} at 2-3 for interactive use.
 \examples{
 \dontrun{
 fetch_tree()
-fetch_tree("Bulk/", max_depth = 2)
+fetch_tree("Bulk/", max_depth = 3)
 fetch_tree(verbose = FALSE)
 }
 }

@@ -83,7 +83,7 @@ The returned data frame has four columns:
 fetch_tree()
 
 # Drill into a subfolder
-fetch_tree("results/", max_depth = 2)
+fetch_tree("results/", max_depth = 3)
 ```
 
 > **Note**: Each level of recursion triggers one API call per folder. Keep `max_depth` at 2–3 for interactive use to avoid long waits on large projects.
@@ -110,7 +110,7 @@ URLs are valid for the specified `duration` (default: `"1d"`).
 
 ### Single file or folder
 
-`fetch_file()` downloads a file or an entire folder to the current or a specified directory within the RAP environment.
+`fetch_file()` downloads a file or an entire folder to a local directory.
 
 > **Note**: `fetch_file()`, `fetch_metadata()`, and `fetch_field()` can only be called from within the RAP environment. Calling them locally will produce an error, as individual-level UKB data must remain on the platform.
 
@@ -133,10 +133,10 @@ Two convenience wrappers are provided for commonly used UKB files:
 
 ```{r fetch-meta}
 # Download all Showcase metadata files (field.tsv, encoding.tsv, etc.)
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 
 # Download the field dictionary only
-fetch_field(dest_dir = "data/metadata")
+fetch_field(dest_dir = "data/metadata/")
 ```
 
 ---
@@ -147,7 +147,7 @@ fetch_field(dest_dir = "data/metadata")
 
 | Argument | Default | Description |
 |---|---|---|
-| `dest_dir` | — | Destination directory (created if needed). Must be specified explicitly. |
+| `dest_dir` | `"."` / `"data/metadata/"` | Local destination directory (created if needed). Default is `"data/metadata/"` for `fetch_metadata()` and `fetch_field()`. |
 | `overwrite` | `FALSE` | Overwrite existing local files |
 | `resume` | `FALSE` | Resume an interrupted download |
 | `verbose` | `TRUE` | Show download progress |

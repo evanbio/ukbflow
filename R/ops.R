@@ -26,11 +26,13 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ops_setup()
 #'
 #' # Programmatic use — check if environment is ready
 #' result <- ops_setup(verbose = FALSE)
 #' result$summary$fail == 0
+#' }
 ops_setup <- function(
     check_dx   = TRUE,
     check_auth = TRUE,
@@ -189,17 +191,11 @@ ops_setup <- function(
 #' (e.g. `p41270`, `p20002_i0_a0`).
 #'
 #' @param scenario (character) Data structure to generate:
-#'   - `"cohort"`: wide participant-level table with raw UKB field columns for
-#'     the full `derive_*` → `assoc_*` → `plot_*` pipeline.
-#'   - `"association"`: analysis-ready table with covariates already as factors,
-#'     BMI/TDI binned, and two pre-derived disease outcomes (`dm_*`, `htn_*`)
-#'     including status, date, timing, and follow-up columns. Use this for
-#'     `assoc_*` examples and testing without running the derive pipeline.
+#'   - `"cohort"`: wide participant-level table for the full
+#'     `derive_*` → `assoc_*` → `plot_*` pipeline.
 #'   - `"forest"`: association results table matching `assoc_coxph()` output,
 #'     for testing `plot_forest()`. `n` = number of exposures (default 8).
-#' @param n (integer) Number of participants (or exposures for `"forest"`).
-#'   Default `1000L` for `"cohort"`, `2000L` for `"association"`, `8L` for
-#'   `"forest"`.
+#' @param n (integer) Number of participants. Default `1000L`.
 #' @param seed (integer or NULL) Random seed for reproducibility. Pass `NULL`
 #'   for a different dataset on every call. Default `42L`.
 #'
@@ -223,69 +219,41 @@ ops_setup <- function(
 #' - **GRS**: `grs_bmi`, `grs_raw`, `grs_finngen`
 #' - **Messy columns**: `messy_allna`, `messy_empty`, `messy_label`
 #'
-#' ## scenario = "association"
-#' Analysis-ready table. All derive inputs (raw arrays, HES JSON, registry
-#' fields) are omitted; derive outputs are pre-computed with internally
-#' consistent relationships:
-#' - **Demographics**: `eid`, `p31` (factor), `p53_i0` (IDate), `p21022`
-#' - **Covariates**: `p21001_i0`, `bmi_cat` (factor, derived from `p21001_i0`),
-#'   `p20116_i0` (factor), `p1558_i0` (factor), `p21000_i0` (factor),
-#'   `p22189`, `tdi_cat` (factor, derived from `p22189` quartiles), `p54_i0`
-#'   (factor)
-#' - **Genetic PCs**: `p22009_a1` – `p22009_a10`
-#' - **GRS**: `grs_bmi` (continuous exposure)
-#' - **DM outcome**: `dm_status`, `dm_date`, `dm_timing`, `dm_followup_end`,
-#'   `dm_followup_years` (type 2 diabetes, ~12% prevalence)
-#' - **HTN outcome**: `htn_status`, `htn_date`, `htn_timing`,
-#'   `htn_followup_end`, `htn_followup_years` (hypertension, ~28% prevalence)
-#'
-#' Internal relationships guaranteed:
-#' - `bmi_cat` is cut from `p21001_i0` (breaks 18.5 / 25 / 30)
-#' - `tdi_cat` is cut from `p22189` quartiles
-#' - `dm_date` is `NA` iff `dm_status = FALSE`
-#' - `dm_timing`: 0 = no disease, 1 = prevalent, 2 = incident, `NA` = no date
-#' - `dm_followup_years` is `NA` for prevalent cases (`dm_timing == 1`)
-#'
 #' @export
 #'
 #' @examples
-#' # cohort: raw UKB-style columns, feed into derive pipeline
-#' dt <- ops_toy(n = 100)
+#' \dontrun{
+#' dt <- ops_toy()
+#' dt <- ops_toy(n = 500, seed = 1)
+#'
+#' # Dynamic dataset (different every call)
+#' dt <- ops_toy(seed = NULL)
+#'
+#' # Feed directly into derive pipeline
+#' dt <- ops_toy()
 #' dt <- derive_missing(dt)
-#'
-#' # association: analysis-ready, feed directly into assoc_* functions
-#' dt <- ops_toy(scenario = "association", n = 500)
-#' dt <- dt[dm_timing != 1L]   # exclude prevalent cases
-#'
-#' # forest: results table for plot_forest()
-#' dt <- ops_toy(scenario = "forest")
+#' }
 ops_toy <- function(
     scenario = "cohort",
     n        = 1000L,
     seed     = 42L
 ) {
-  scenario <- match.arg(scenario, choices = c("cohort", "association", "forest"))
+  scenario <- match.arg(scenario, choices = c("cohort", "forest"))
 
-  # Reason: sensible defaults differ by scenario
-  if (missing(n)) {
-    n <- switch(scenario,
-      cohort      = 1000L,
-      association = 2000L,
-      forest      = 8L
-    )
-  }
+  # Reason: sensible defaults differ by scenario — cohort needs many rows,
+  # forest needs a small number of exposures
+  if (missing(n)) n <- if (scenario == "cohort") 1000L else 8L
   .assert_count_min(n, 1L)
   n <- as.integer(n)
   if (!is.null(seed)) set.seed(as.integer(seed))
 
   dt <- switch(scenario,
-    cohort      = .ops_toy_cohort(n),
-    association = .ops_toy_association(n),
-    forest      = .ops_toy_forest(n)
+    cohort = .ops_toy_cohort(n),
+    forest = .ops_toy_forest(n)
   )
 
   seed_info <- if (!is.null(seed)) paste0(" | seed = ", seed) else ""
-  unit <- if (scenario == "forest") "rows" else "participants"
+  unit <- switch(scenario, cohort = "participants", forest = "rows")
   cli::cli_alert_success(
     "ops_toy: {nrow(dt)} {unit} | {ncol(dt)} columns | scenario = {.val {scenario}}{seed_info}"
   )
@@ -323,7 +291,8 @@ ops_toy <- function(
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
+#' \dontrun{
+#' dt <- ops_toy()
 #'
 #' # Show all columns with any missing value
 #' ops_na(dt)
@@ -334,6 +303,7 @@ ops_toy <- function(
 #' # Programmatic use — retrieve result silently
 #' result <- ops_na(dt, verbose = FALSE)
 #' result[pct_na > 50]
+#' }
 ops_na <- function(data, threshold = 0, verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────
@@ -435,7 +405,8 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
+#' \dontrun{
+#' dt <- ops_toy()
 #' ops_snapshot(dt, label = "raw")
 #'
 #' dt <- derive_missing(dt)
@@ -446,6 +417,7 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 #'
 #' # Reset history
 #' ops_snapshot(reset = TRUE)
+#' }
 ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRUE,
                          check_na = TRUE) {
 
@@ -570,10 +542,10 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
-#' ops_snapshot(dt, label = "raw")
+#' \dontrun{
 #' ops_snapshot_cols("raw")
 #' ops_snapshot_cols("raw", keep = "eid")
+#' }
 ops_snapshot_cols <- function(label, keep = NULL) {
 
   .assert_scalar_string(label)
@@ -607,8 +579,10 @@ ops_snapshot_cols <- function(label, keep = NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ops_set_safe_cols(c("date_baseline", "townsend_index"))
 #' ops_set_safe_cols(reset = TRUE)  # clear user-registered safe cols
+#' }
 ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 
   .assert_flag(reset)
@@ -652,12 +626,13 @@ ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
-#' ops_snapshot(dt, label = "raw")
-#' dt <- derive_missing(dt)
-#' ops_snapshot(dt, label = "derived")
-#' ops_snapshot_diff("raw", "derived")
-#' dt <- ops_snapshot_remove(dt, from = "raw")
+#' \dontrun{
+#' ops_snapshot(data, label = "raw")
+#' # ... derive_* operations ...
+#' ops_snapshot(data, label = "derived")
+#' ops_snapshot_diff("raw", "derived")   # inspect
+#' data <- ops_snapshot_remove(data, from = "raw")  # clean up
+#' }
 ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 
   .assert_data_frame(data)
@@ -704,13 +679,11 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
-#' ops_snapshot(dt, label = "raw")
-#' dt <- derive_missing(dt)
-#' ops_snapshot(dt, label = "derived")
+#' \dontrun{
 #' ops_snapshot_diff("raw", "derived")
 #' # $added   — newly derived columns
 #' # $removed — columns dropped between snapshots
+#' }
 ops_snapshot_diff <- function(label1, label2) {
 
   .assert_scalar_string(label1)
@@ -756,10 +729,10 @@ ops_snapshot_diff <- function(label1, label2) {
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
-#' withdraw_file <- tempfile(fileext = ".csv")
-#' writeLines(as.character(dt$eid[1:5]), withdraw_file)
-#' dt <- ops_withdraw(dt, file = withdraw_file)
+#' \dontrun{
+#' dt <- fread("ukb_phenotype.csv")
+#' dt <- ops_withdraw(dt, file = "w854944_20260310.csv")
+#' }
 ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────

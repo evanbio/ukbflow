@@ -126,7 +126,7 @@ auth_logout()
 #> ✔ Logged out from DNAnexus.
 ```
 
-Logging out invalidates the current DNAnexus session on the remote platform. The local token file is not removed but becomes invalid. A new token must be generated from the DNAnexus platform before logging in again.
+Logging out clears the local dx session cache. After logout, any function that depends on DNAnexus authentication will fail until you log in again.
 
 ---
 

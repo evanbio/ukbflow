@@ -54,13 +54,13 @@ df <- decode_values(df)
 It requires two metadata files from the UKB Showcase. Download them once with:
 
 ```{r fetch-meta}
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 ```
 
 Then point `decode_values()` to the same directory (default matches `fetch_metadata()`):
 
 ```{r decode-values-dir}
-df <- decode_values(df, metadata_dir = "data/metadata")
+df <- decode_values(df, metadata_dir = "data/metadata/")
 ```
 
 ### What gets decoded

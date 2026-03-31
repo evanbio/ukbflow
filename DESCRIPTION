@@ -8,8 +8,7 @@ Description: Provides a streamlined workflow for UK Biobank cloud-based
     analysis on the Research Analysis Platform (RAP). Includes tools for
     phenotype extraction and decoding, variable derivation, survival and
     association analysis, genetic risk score computation, and
-    publication-quality visualization. For details on the UK Biobank
-    resource, see Bycroft et al. (2018) <doi:10.1038/s41586-018-0579-z>.
+    publication-quality visualization.
 License: MIT + file LICENSE
 URL: https://github.com/evanbio/ukbflow, https://evanbio.github.io/ukbflow/
 BugReports: https://github.com/evanbio/ukbflow/issues
@@ -42,5 +41,5 @@ Suggests:
     mockery,
     webshot2,
     withr
-VignetteBuilder: knitr, rmarkdown
+VignetteBuilder: knitr
 Config/testthat/edition: 3

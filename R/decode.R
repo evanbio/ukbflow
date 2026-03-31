@@ -94,7 +94,7 @@ decode_names <- function(data, max_nchar = 60L) {
 #' }
 #' Download them once with:
 #' \preformatted{
-#' fetch_metadata(dest_dir = "data/metadata")
+#' fetch_metadata(dest_dir = "data/metadata/")
 #' }
 #' Both files are cached in the session after the first read.
 #'
@@ -114,7 +114,7 @@ decode_names <- function(data, max_nchar = 60L) {
 #' @examples
 #' \dontrun{
 #' # Download metadata once
-#' fetch_metadata(dest_dir = "data/metadata")
+#' fetch_metadata(dest_dir = "data/metadata/")
 #'
 #' # Recommended call order
 #' df <- extract_pheno(c(31, 54, 20116, 21000))

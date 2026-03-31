@@ -32,7 +32,7 @@ Analysis Platform:
 }
 Download them once with:
 \preformatted{
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 }
 Both files are cached in the session after the first read.
 
@@ -43,7 +43,7 @@ field ID needed to look up the encoding.
 \examples{
 \dontrun{
 # Download metadata once
-fetch_metadata(dest_dir = "data/metadata")
+fetch_metadata(dest_dir = "data/metadata/")
 
 # Recommended call order
 df <- extract_pheno(c(31, 54, 20116, 21000))

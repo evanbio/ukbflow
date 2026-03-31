@@ -37,9 +37,11 @@ packages, or authenticates. Auth failures are reported as warnings, not
 errors, because the check itself does not require a live RAP connection.
 }
 \examples{
+\dontrun{
 ops_setup()
 
 # Programmatic use — check if environment is ready
 result <- ops_setup(verbose = FALSE)
 result$summary$fail == 0
+}
 }

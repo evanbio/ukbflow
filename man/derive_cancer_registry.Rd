@@ -77,7 +77,23 @@ registry record satisfies all supplied filters.}
 }
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_cancer_registry(dt, name = "skin",     icd10 = "^C44")
-derive_cancer_registry(dt, name = "invasive", icd10 = "^C", behaviour = 3L)
+\dontrun{
+# ICD-10 only - no histology/behaviour filter
+df <- derive_cancer_registry(df, name = "outcome", icd10 = "^C50")
+
+# With histology and behaviour filters (malignant)
+df <- derive_cancer_registry(
+  df, name = "outcome_invasive",
+  icd10     = "^C44",
+  histology = c(8070, 8071, 8072),
+  behaviour = 3L
+)
+
+# In situ (behaviour = 2)
+df <- derive_cancer_registry(
+  df, name = "outcome_insitu",
+  icd10     = "^C44",
+  behaviour = 2L
+)
+}
 }

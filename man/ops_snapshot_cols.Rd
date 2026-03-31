@@ -21,8 +21,8 @@ Returns the column names stored by a previous \code{\link{ops_snapshot}}
 call, optionally excluding columns you wish to keep.
 }
 \examples{
-dt <- ops_toy(n = 100)
-ops_snapshot(dt, label = "raw")
+\dontrun{
 ops_snapshot_cols("raw")
 ops_snapshot_cols("raw", keep = "eid")
+}
 }

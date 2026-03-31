@@ -291,12 +291,3 @@
   }
   invisible(data)
 }
-
-
-#' @keywords internal
-#' @noRd
-.assert_on_rap <- function() {
-  if (!.is_on_rap())
-    cli::cli_abort("This function must be run inside the RAP environment.", call = NULL)
-  invisible(TRUE)
-}

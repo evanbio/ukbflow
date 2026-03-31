@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Provides a streamlined workflow for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Includes tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization. For details on the UK Biobank resource, see Bycroft et al. (2018) \doi{10.1038/s41586-018-0579-z}.
+Provides a streamlined workflow for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Includes tools for phenotype extraction and decoding, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
 }
 \seealso{
 Useful links:

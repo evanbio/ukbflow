@@ -58,7 +58,13 @@ non-\code{NA} date are treated as cases.
 \strong{data.table pass-by-reference}: new columns are added in-place.
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_hes(dt, name = "htn", icd10 = "I10")
-derive_age(dt, name = "htn_hes", baseline_col = "p53_i0", age_col = "p21022")
+\dontrun{
+# Process multiple events in one call - auto-detects {name}_date and
+# {name}_status for each
+df <- derive_age(df,
+  name         = c("exposure", "exposure_icd10", "outcome"),
+  baseline_col = "date_baseline",
+  age_col      = "age_at_recruitment")
+# → age_at_exposure, age_at_exposure_icd10, age_at_outcome
+}
 }

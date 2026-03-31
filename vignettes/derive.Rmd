@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-The `derive_*` functions convert raw UKB columns into analysis-ready variables.
-This vignette covers the disease phenotype derivation pipeline:
+The `derive_*` functions convert raw, decoded UKB columns into analysis-ready
+variables. This vignette covers the disease phenotype derivation pipeline:
 
 | Step | Function(s) | Purpose |
 |---|---|---|
@@ -37,19 +37,53 @@ All functions accept a `data.frame` or `data.table` and return a `data.table`.
 For `data.table` input, new columns are added **by reference** (no copy);
 `data.frame` input is converted to `data.table` internally before modification.
 
-> **In production**, replace `ops_toy()` with `extract_batch()` followed by
-> `decode_values()` and `decode_names()`. See `vignette("decode")`.
-> Column names below use the RAP raw format (`p{field}_{instance}_{array}`)
-> as returned by `ops_toy()` and `extract_batch()` before decoding.
+> **Prerequisite**: data should have been extracted with `extract_pheno()` or
+> `extract_batch()`, then decoded with `decode_values()` and `decode_names()`.
+> See `vignette("decode")`.
 
 ---
 
-## Setup
+## Extracting the Required Fields
 
-```{r load-data}
+The field IDs below are standard UKB field identifiers; actual availability
+depends on your project approvals. Include the fields relevant to your analysis:
+
+```{r extract}
 library(ukbflow)
 
-df <- ops_toy(n = 500)
+df <- extract_pheno(c(
+  31,      # sex
+  21022,   # age at recruitment
+  53,      # date of baseline assessment (all visit instances)
+  20116,   # smoking status
+  # --- self-reported non-cancer illness ---
+  20002,   # illness codes
+  20008,   # year of diagnosis
+  # --- self-reported cancer ---
+  20001,   # cancer codes
+  20006,   # year of cancer diagnosis
+  # --- HES inpatient ---
+  41270,   # ICD-10 code array
+  41280,   # diagnosis date array
+  # --- cancer registry ---
+  40006,   # ICD-10 type
+  40005,   # date of cancer diagnosis
+  40011,   # histology
+  40012,   # behaviour
+  # --- death registry ---
+  40001,   # primary cause of death
+  40002,   # secondary cause of death
+  40000,   # date of death
+  # --- censoring / competing events ---
+  191      # date lost to follow-up
+)) |>
+  decode_values() |>
+  decode_names()
+
+# Rename the verbose baseline date column to a shorter study-specific alias.
+# This is optional but keeps downstream code concise; any name works as long
+# as you pass the same name to baseline_col throughout.
+names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"
 ```
 
 ---
@@ -62,10 +96,13 @@ these to `NA` (default) or retains them as `"Unknown"` for modelling.
 
 ```{r derive-missing}
 df <- derive_missing(df)
+#> ✔ derive_missing: replaced 4 219 values across 5 columns (action = "na").
 ```
 
 > **Performance**: `derive_missing()` uses `data.table::set()` for in-place
 > replacement — no column copies are made regardless of dataset size.
+> Processing 500 000 rows typically completes in under a second with
+> negligible memory overhead.
 
 To keep non-response as a model category:
 
@@ -83,21 +120,27 @@ df <- derive_missing(df, extra_labels = "Not applicable")
 
 ## Step 2: Prepare Covariates
 
-`derive_covariate()` converts categorical columns to `factor` and prints a
-distribution summary for each.
+`derive_covariate()` converts character-encoded numeric columns to `numeric`
+and categorical columns to `factor`, printing a distribution summary for each.
 
 ```{r derive-covariate}
-df <- derive_covariate(
-  df,
-  as_factor = c(
-    "p31",        # sex
-    "p20116_i0",  # smoking_status_i0
-    "p1558_i0"    # alcohol_intake_frequency_i0
-  ),
+df <- derive_covariate(df,
+  as_numeric = "body_mass_index_bmi_i0",
+  as_factor  = c("sex", "smoking_status_i0"),
   factor_levels = list(
-    p20116_i0 = c("Never", "Previous", "Current")
+    smoking_status_i0 = c("Never", "Previous", "Current")
   )
 )
+#> ── Numeric ──────────────────────────────────────────────────────────────────
+#>   body_mass_index_bmi_i0: mean=27.4, median=26.8, sd=4.9, Q1=24.1, Q3=30.1, NA=0.9% (n=4512)
+#> ── Factor ───────────────────────────────────────────────────────────────────
+#>   sex [2 levels]
+#>     Female: n=273 029 (54.4%)
+#>     Male:   n=229 068 (45.6%)
+#>   smoking_status_i0 [3 levels]
+#>     Never:    n=271 400 (54.1%)
+#>     Previous: n=150 736 (30.0%)
+#>     Current:  n=79 867 (15.9%)
 ```
 
 ---
@@ -107,22 +150,20 @@ df <- derive_covariate(
 `derive_cut()` creates a new factor column by binning a continuous variable
 into quantile-based or custom groups.
 
-```{r derive-cut}
-df <- derive_cut(
-  df,
-  col    = "p21001_i0",                              # body_mass_index_bmi_i0
-  n      = 4,
-  breaks = c(18.5, 25, 30),
-  labels = c("Underweight", "Normal", "Overweight", "Obese"),
-  name   = "bmi_cat"
-)
+```{r derive-cut-quantile}
+# Equal-frequency tertiles (automatic breakpoints)
+df <- derive_cut(df, col = "age_at_recruitment", n = 3)
+# → adds age_at_recruitment_tri with levels Q1 / Q2 / Q3
+```
 
-df <- derive_cut(
-  df,
-  col    = "p22189",                                 # townsend_deprivation_index_at_recruitment
-  n      = 4,
-  labels = c("Q1 (least deprived)", "Q2", "Q3", "Q4 (most deprived)"),
-  name   = "tdi_cat"
+```{r derive-cut-custom}
+# Custom breakpoints with meaningful labels
+df <- derive_cut(df,
+  col    = "age_at_recruitment",
+  n      = 3,
+  breaks = c(50, 60),
+  labels = c("<50", "50–59", "≥60"),
+  name   = "age_group"
 )
 ```
 
@@ -132,32 +173,30 @@ df <- derive_cut(
 
 `derive_selfreport()` searches UKB self-reported non-cancer illness (field
 20002) or cancer (field 20001) columns for a disease label matching a regex,
-then returns binary status and the earliest report date. Column detection
-is automatic from field IDs.
+then returns binary status and the earliest report date.
 
 ```{r derive-selfreport}
-# Non-cancer: type 2 diabetes (field 20002)
+# Non-cancer illness example
 df <- derive_selfreport(df,
-  name  = "dm",
-  regex = "type 2 diabetes"
+  name  = "disease",
+  regex = "your disease name|synonym"
 )
-```
+#> ✔ derive_selfreport (disease): 8104 cases, 8104 with date.
 
-```{r derive-selfreport-cancer}
-# Cancer: lung cancer (field 20001)
+# Cancer illness example (field = "cancer")
 df <- derive_selfreport(df,
-  name  = "lung_cancer",
-  regex = "lung cancer",
+  name  = "cancer_outcome",
+  regex = "your cancer name",
   field = "cancer"
 )
 ```
 
-This adds two columns per call:
+This adds two columns:
 
 | Column | Type | Description |
 |---|---|---|
-| `dm_selfreport` | logical | `TRUE` if any instance matched |
-| `dm_selfreport_date` | IDate | Earliest report date |
+| `disease_selfreport` | logical | `TRUE` if any instance matched |
+| `disease_selfreport_date` | IDate | Earliest report date |
 
 ---
 
@@ -168,14 +207,14 @@ This adds two columns per call:
 corresponding date from field 41280.
 
 ```{r derive-hes}
-# Prefix match: codes starting with "I10" (hypertension)
-df <- derive_hes(df, name = "htn", icd10 = "I10")
+# Prefix match: codes starting with "E11" (e.g. E110, E119)
+df <- derive_hes(df, name = "disease", icd10 = "E11")
 
-# Exact match
-df <- derive_hes(df, name = "dm_hes", icd10 = "E11", match = "exact")
+# Exact match: only "E11" itself
+df <- derive_hes(df, name = "disease", icd10 = "E11", match = "exact")
 
-# Regex: E10 and E11 simultaneously
-df <- derive_hes(df, name = "dm_broad", icd10 = "^E1[01]", match = "regex")
+# Regex: full control over the pattern
+df <- derive_hes(df, name = "disease", icd10 = "^E1[01]", match = "regex")
 ```
 
 The `match` argument controls how codes are compared:
@@ -186,18 +225,28 @@ The `match` argument controls how codes are compared:
 | `"exact"` | Full 3- or 4-digit match | `"E11"` matches only `"E11"` |
 | `"regex"` | Full regular expression | `"^E1[01]"` |
 
+`match = "regex"` accepts full Perl-compatible regular expressions, making it
+straightforward to capture related ICD-10 codes across chapters or subcategories
+in a single call (e.g. `"^E1[01]"` captures both E10 and E11 simultaneously).
+
 ---
 
 ## Step 6: First Occurrence Fields
 
 UKB First Occurrence fields (p131xxx) record the earliest date a condition
 was observed across **all linked sources** — self-report, HES inpatient, GP
-records, and death registry — pre-integrated by UKB. Look up your disease in the
+records, and death registry — pre-integrated by UKB. If your disease has a
+corresponding 131xxx field, this is usually the fastest and most comprehensive
+single-source case definition. Look up your disease in the
 [UKB Field Finder](https://biobank.ndph.ox.ac.uk/showcase/search.cgi).
 
 ```{r derive-fo}
-# ops_toy includes p131742 as a representative First Occurrence column
-df <- derive_first_occurrence(df, name = "htn", field = 131742L, col = "p131742")
+# Look up your disease's First Occurrence field ID in the UKB Field Finder,
+# then replace fo_field_id accordingly.
+fo_field_id <- 131000L   # <-- replace with your field ID
+
+df <- derive_first_occurrence(df, name = "disease", field = fo_field_id)
+#> ✔ derive_first_occurrence (disease): 12043 cases with valid date.
 ```
 
 ---
@@ -208,18 +257,19 @@ df <- derive_first_occurrence(df, name = "htn", field = 131742L, col = "p131742"
 and optionally filters by histology (field 40011) and behaviour (field 40012).
 
 ```{r derive-cancer}
-# ICD-10 only
+# ICD-10 only — no histology/behaviour filter
 df <- derive_cancer_registry(df,
-  name  = "skin_cancer",
-  icd10 = "^C44"
+  name  = "cancer_outcome",
+  icd10 = "^C50"   # breast cancer example
 )
+#> ✔ derive_cancer_registry (cancer_outcome): 2 318 cases.
 
 # With histology and behaviour filters
 df <- derive_cancer_registry(df,
-  name      = "scc",
+  name      = "cancer_outcome",
   icd10     = "^C44",
-  histology = c(8070L, 8071L, 8072L),
-  behaviour = 3L                        # 3 = malignant
+  histology = c(8070, 8071, 8072),   # specify relevant morphology codes
+  behaviour = 3L                      # 3 = malignant
 )
 ```
 
@@ -231,9 +281,8 @@ df <- derive_cancer_registry(df,
 40002) causes of death for ICD-10 codes.
 
 ```{r derive-death}
-df <- derive_death_registry(df, name = "mi",   icd10 = "I21")
-df <- derive_death_registry(df, name = "dm",   icd10 = "E11")
-df <- derive_death_registry(df, name = "lung", icd10 = "C34")
+df <- derive_death_registry(df, name = "disease", icd10 = "E11")
+#> ✔ derive_death_registry (disease): 312 cases, 312 with date.
 ```
 
 ---
@@ -242,25 +291,24 @@ df <- derive_death_registry(df, name = "lung", icd10 = "C34")
 
 `derive_icd10()` is a high-level wrapper that calls any combination of the
 source-specific functions above and merges their outputs into a single status
-column and earliest date. This is the recommended approach for multi-source
-ascertainment.
+column and earliest date.
 
 ```{r derive-icd10}
 # Non-cancer disease: HES + death + First Occurrence
 df <- derive_icd10(df,
-  name   = "dm",
-  icd10  = "E11",
-  source = c("hes", "death", "first_occurrence"),
-  fo_col = "p131742"
+  name     = "disease",
+  icd10    = "E11",
+  source   = c("hes", "death", "first_occurrence"),
+  fo_field = fo_field_id   # defined above
 )
+#> ✔ derive_icd10 (disease): 14 287 cases across 3 sources, 14 287 with date.
 
-# Cancer outcome: cancer registry
+# Cancer outcome: HES + cancer registry + death
 df <- derive_icd10(df,
-  name      = "lung",
-  icd10     = "^C3[34]",
-  match     = "regex",
-  source    = "cancer_registry",
-  behaviour = 3L
+  name   = "cancer_outcome",
+  icd10  = "^C50",
+  match  = "regex",
+  source = c("hes", "death", "cancer_registry")
 )
 ```
 
@@ -268,14 +316,14 @@ Intermediate source columns are retained alongside the combined result:
 
 | Column | Type | Description |
 |---|---|---|
-| `dm_icd10` | logical | `TRUE` if positive in any specified source |
-| `dm_icd10_date` | IDate | Earliest date across all sources |
-| `dm_hes` | logical | HES status |
-| `dm_hes_date` | IDate | HES date |
-| `dm_fo` | logical | First Occurrence status |
-| `dm_fo_date` | IDate | First Occurrence date |
-| `dm_death` | logical | Death registry status |
-| `dm_death_date` | IDate | Death registry date |
+| `disease_icd10` | logical | `TRUE` if positive in any specified source |
+| `disease_icd10_date` | IDate | Earliest date across all sources |
+| `disease_hes` | logical | HES status |
+| `disease_hes_date` | IDate | HES date |
+| `disease_fo` | logical | First Occurrence status |
+| `disease_fo_date` | IDate | First Occurrence date |
+| `disease_death` | logical | Death registry status |
+| `disease_death_date` | IDate | Death registry date |
 
 ---
 
@@ -285,20 +333,24 @@ Intermediate source columns are retained alongside the combined result:
 status, with the earliest date across both sources taken via `pmin()`.
 
 ```{r derive-case}
-df <- derive_case(df, name = "dm")
+df <- derive_case(df, name = "disease")
+#> ✔ derive_case (disease): 15 902 cases, 15 902 with date.
+#>   Both sources (disease_icd10 & disease_selfreport): 6 218
 ```
 
 Output columns:
 
 | Column | Type | Description |
 |---|---|---|
-| `dm_status` | logical | `TRUE` if positive in self-report OR ICD-10 |
-| `dm_date` | IDate | **Earliest** date across all sources (`pmin`) |
+| `disease_status` | logical | `TRUE` if positive in self-report OR ICD-10 |
+| `disease_date` | IDate | **Earliest** date across all sources (`pmin`) |
 
-> **Why the earliest date matters**: `dm_date` is the direct input to
-> `derive_timing()`, `derive_age()`, and `derive_followup()` — it is the
-> chronological anchor of every downstream survival analysis.
-> See `vignette("derive-survival")`.
+> **Why the earliest date matters**: `disease_date` captures the earliest
+> available date across contributing sources, regardless of which source
+> recorded it first. Sources that are status-positive but date-missing do not
+> contribute a date. This column is the direct input to `derive_timing()`,
+> `derive_age()`, and `derive_followup()` — it is the chronological anchor of
+> every downstream survival analysis.
 
 ---
 

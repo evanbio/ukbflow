@@ -62,7 +62,9 @@ not onset date.}
 }
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_death_registry(dt, name = "mi",   icd10 = "I21")
-derive_death_registry(dt, name = "lung", icd10 = "C34")
+\dontrun{
+df <- derive_death_registry(df, name = "disease", icd10 = "E11")
+df <- derive_death_registry(df, name = "disease",
+                            icd10 = c("J440", "J441"), match = "exact")
+}
 }

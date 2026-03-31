@@ -37,7 +37,8 @@ This means \code{n_na} and \code{pct_na} reflect \emph{effective} missingness, n
 \code{""}).
 }
 \examples{
-dt <- ops_toy(n = 100)
+\dontrun{
+dt <- ops_toy()
 
 # Show all columns with any missing value
 ops_na(dt)
@@ -48,4 +49,5 @@ ops_na(dt, threshold = 10)
 # Programmatic use — retrieve result silently
 result <- ops_na(dt, verbose = FALSE)
 result[pct_na > 50]
+}
 }

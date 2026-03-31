@@ -4,11 +4,16 @@
 \alias{fetch_field}
 \title{Download the UKB field dictionary file}
 \usage{
-fetch_field(dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
+fetch_field(
+  dest_dir = "data/metadata/",
+  overwrite = FALSE,
+  resume = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{dest_dir}{(character) Destination directory. Created automatically
-if it does not exist.}
+\item{dest_dir}{(character) Local destination directory. Created
+automatically if it does not exist. Default: \code{"data/metadata/"}.}
 
 \item{overwrite}{(logical) Overwrite existing local file. Default:
 \code{FALSE}.}
@@ -28,7 +33,7 @@ data dictionary: field IDs, titles, value types, and encoding references.
 }
 \examples{
 \dontrun{
-fetch_field(dest_dir = "metadata")
-fetch_field(dest_dir = "metadata", overwrite = TRUE)
+fetch_field()
+fetch_field(dest_dir = "metadata/", overwrite = TRUE)
 }
 }

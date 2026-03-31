@@ -114,13 +114,22 @@ selected sources (\code{IDate}).}
 }
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_icd10(dt, name = "htn",
-             icd10  = "I10",
-             source = c("hes", "death"))
+\dontrun{
+# Non-cancer disease: HES + death + First Occurrence
+df <- derive_icd10(df, name = "disease", icd10 = "E11",
+                   source   = c("hes", "death", "first_occurrence"),
+                   fo_field = 131666L)
 
-derive_icd10(dt, name = "mi",
-             icd10  = "I21",
-             source = c("hes", "death", "first_occurrence"),
-             fo_col = "p131742")
+# COPD: HES + death only, exact 4-digit codes
+df <- derive_icd10(df, name = "disease",
+                   icd10  = c("J440", "J441"),
+                   source = c("hes", "death"),
+                   match  = "exact")
+
+# Cancer outcome: HES + cancer registry + death
+df <- derive_icd10(df, name = "outcome",
+                   icd10  = "^C50",
+                   match  = "regex",
+                   source = c("hes", "death", "cancer_registry"))
+}
 }

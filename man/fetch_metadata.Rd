@@ -2,13 +2,18 @@
 % Please edit documentation in R/fetch.R
 \name{fetch_metadata}
 \alias{fetch_metadata}
-\title{Download the Showcase metadata folder}
+\title{Download all UKB Showcase metadata files}
 \usage{
-fetch_metadata(dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
+fetch_metadata(
+  dest_dir = "data/metadata/",
+  overwrite = FALSE,
+  resume = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{dest_dir}{(character) Destination directory. Created automatically
-if it does not exist.}
+\item{dest_dir}{(character) Local destination directory. Created
+automatically if it does not exist. Default: \code{"data/metadata/"}.}
 
 \item{overwrite}{(logical) Overwrite existing local files. Default:
 \code{FALSE}.}
@@ -27,7 +32,7 @@ Research Analysis Platform to a local directory. This includes
 }
 \examples{
 \dontrun{
-fetch_metadata(dest_dir = "metadata")
-fetch_metadata(dest_dir = "metadata", overwrite = TRUE)
+fetch_metadata()
+fetch_metadata(dest_dir = "metadata/", overwrite = TRUE)
 }
 }

@@ -174,7 +174,13 @@ job_path <- function(job_id) {
 #' df <- job_result(job_id)
 #' }
 job_result <- function(job_id) {
-  .assert_on_rap()
+  if (!.is_on_rap()) {
+    cli::cli_abort(
+      c("{.fn job_result} must be run inside the RAP environment.",
+        "i" = "To get the file path, use {.fn job_path} instead."),
+      call = NULL
+    )
+  }
 
   .assert_job_id(job_id)
 

@@ -108,36 +108,26 @@ Wald because it handles factor, binary, and continuous \code{by} variables
 uniformly without requiring the user to recode the \code{by} variable.
 }
 \examples{
-dt <- ops_toy(scenario = "association")
-dt <- dt[dm_timing != 1L]
-
-# Subgroup Cox by sex (interaction test included by default)
+\dontrun{
+# Subgroup by sex, coxph, unadjusted only
 res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  by           = "p31",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = c("exposure", "bmi_category"),
+  by           = "sex",
   method       = "coxph"
 )
 
-# Fully adjusted; exclude subgroup variable from covariates
+# With Fully adjusted model (exclude 'sex' from covariates)
 res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  by           = "p31",
+  data         = cohort,
+  outcome_col  = "outcome_status",
+  time_col     = "followup_years",
+  exposure_col = "exposure",
+  by           = "sex",
   method       = "coxph",
-  covariates   = c("p21022", "bmi_cat", "tdi_cat")
+  covariates   = c("age_at_recruitment", "tdi", "smoking")
 )
-
-# Subgroup logistic by BMI category
-res <- assoc_subgroup(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "p20116_i0",
-  by           = "bmi_cat",
-  method       = "logistic"
-)
+}
 }
