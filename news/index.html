@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,6 +105,32 @@
       <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.3" id="ukbflow-033">ukbflow 0.3.3<a class="anchor" aria-label="anchor" href="#ukbflow-033"></a></h2>
+<p><em>Released: April 2026</em></p>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-3">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-3"></a></h3>
+<ul><li>
+<code><a href="../reference/grs_validate.html">grs_validate()</a></code> — added <code>skip_if_not_installed("pROC")</code> guard to all logistic-path tests so the suite passes cleanly when <code>pROC</code> is absent</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-0-3-3">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-3-3"></a></h3>
+<ul><li>Removed hardcoded default paths across all modules; examples refactored to use <code><a href="../reference/ops_toy.html">ops_toy()</a></code> data where possible — runnable examples unwrapped, long-running examples (&gt;5s) wrapped in <code>\donttest{}</code>, network-dependent examples remain in <code>\dontrun{}</code>
+</li>
+<li>
+<code>VignetteBuilder</code> field corrected in <code>DESCRIPTION</code>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="ci-0-3-3">CI<a class="anchor" aria-label="anchor" href="#ci-0-3-3"></a></h3>
+<ul><li>R CMD check split into four targeted workflows: <code>dev</code> (3 jobs), <code>main</code> (6 jobs), <code>release</code> (8 jobs, <code>--as-cran</code>), and <code>weekly</code> (scheduled every Saturday 21:00 CST, full CRAN-like matrix)</li>
+<li>Added <code>_R_CHECK_DEPENDS_ONLY_</code> matrix to verify Suggests packages are correctly declared</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-3-3">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-3"></a></h3>
+<ul><li>Rd files regenerated across all modules after example and parameter updates</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.2" id="ukbflow-032">ukbflow 0.3.2<a class="anchor" aria-label="anchor" href="#ukbflow-032"></a></h2>
 <p><em>Released: March 26, 2026</em></p>
@@ -370,7 +396,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.2</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

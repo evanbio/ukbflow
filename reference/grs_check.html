@@ -65,7 +65,7 @@ plink2-compatible space-delimited output ready for upload to UKB RAP."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,7 +171,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">weights</span>, <span class="va">tmp_in</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu">grs_check</span><span class="op">(</span><span class="va">tmp_in</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpzXW62h/file22ef29783d24.csv</span>: 3 rows, 3 columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpjJZvuZ/file231e17272411.csv</span>: 3 rows, 3 columns.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No NA values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No duplicate SNPs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All SNP IDs match rs[0-9]+ format.</span>
@@ -193,7 +193,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-in"><span><span class="co"># Save validated weights to a file</span></span></span>
 <span class="r-in"><span><span class="va">tmp_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">grs_check</span><span class="op">(</span><span class="va">tmp_in</span>, dest <span class="op">=</span> <span class="va">tmp_out</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpzXW62h/file22ef29783d24.csv</span>: 3 rows, 3 columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpjJZvuZ/file231e17272411.csv</span>: 3 rows, 3 columns.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No NA values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No duplicate SNPs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All SNP IDs match rs[0-9]+ format.</span>
@@ -205,7 +205,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Negative : 1 (33.3%)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Zero : 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Weights file passed checks: <span style="font-weight: bold;">3 SNPs</span> ready for UKB RAP.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Saved: <span style="color: #0000BB;">/tmp/RtmpzXW62h/file22ef6992d61b.txt</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Saved: <span style="color: #0000BB;">/tmp/RtmpjJZvuZ/file231e35cf9f35.txt</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -222,7 +222,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.2</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: March 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

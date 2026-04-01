@@ -1,5 +1,40 @@
 # Changelog
 
+## ukbflow 0.3.3
+
+*Released: April 2026*
+
+### Bug Fixes
+
+- [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md)
+  — added `skip_if_not_installed("pROC")` guard to all logistic-path
+  tests so the suite passes cleanly when `pROC` is absent
+
+### Improvements
+
+- Removed hardcoded default paths across all modules; examples
+  refactored to use
+  [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+  data where possible — runnable examples unwrapped, long-running
+  examples (\>5s) wrapped in `\donttest{}`, network-dependent examples
+  remain in `\dontrun{}`
+- `VignetteBuilder` field corrected in `DESCRIPTION`
+
+### CI
+
+- R CMD check split into four targeted workflows: `dev` (3 jobs), `main`
+  (6 jobs), `release` (8 jobs, `--as-cran`), and `weekly` (scheduled
+  every Saturday 21:00 CST, full CRAN-like matrix)
+- Added `_R_CHECK_DEPENDS_ONLY_` matrix to verify Suggests packages are
+  correctly declared
+
+### Documentation
+
+- Rd files regenerated across all modules after example and parameter
+  updates
+
+------------------------------------------------------------------------
+
 ## ukbflow 0.3.2
 
 *Released: March 26, 2026*
