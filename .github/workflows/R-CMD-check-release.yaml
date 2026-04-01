@@ -49,7 +49,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          args: 'c("--as-cran")'
+          args: 'c("--as-cran", "--no-manual")'
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
 
   R-CMD-check-depends-only:
@@ -89,5 +89,5 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          args: 'c("--as-cran")'
+          args: 'c("--as-cran", "--no-manual")'
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
