@@ -1,29 +1,15 @@
-## CRAN Comments for ukbflow 0.3.2
+## CRAN Comments for ukbflow 0.3.3
 
-Second resubmission — fixing the remaining invalid file URI flagged by CRAN.
+## Changes since v0.3.2
 
-- Fixed residual relative URI `CONTRIBUTING.md` in the Contributing section of
-  README.md (line 222); replaced with full GitHub URL. The badge-row link
-  (line 17) had already been converted in the previous submission.
-
----
-
-First resubmission — addressing issues from the v0.3.1 pre-test check.
-
-## Changes since v0.3.1
-
-- Removed Unicode character `Δ` from `ops_snapshot()` documentation to fix
-  LaTeX PDF manual build (WARNING + ERROR on Debian)
-- Added `inst/WORDLIST` with `Biobank` to resolve spelling NOTE in DESCRIPTION
-- Updated Codecov badge URL in README.md (301 → `app.codecov.io`)
-- Replaced relative file URIs (`CONTRIBUTING.md`, `README_zh.md`) in README.md
-  with full GitHub URLs
-- Added `skip_on_cran()` to two `plot_tableone()` rendering tests that caused
-  a 20-minute hang on Windows CRAN
-- Freed `plot_forest()` and `plot_tableone()` examples from `\dontrun{}`
-  (all examples use `save = FALSE`)
-- Moved `broom` usage from undeclared to `@importFrom broom tidy` in
-  `plot_tableone()` to resolve Imports NOTE
+- Added `skip_if_not_installed("pROC")` guard to all `grs_validate()` logistic
+  tests to ensure the suite passes cleanly when `pROC` is absent
+- Removed hardcoded default paths across all modules; examples refactored to
+  use `ops_toy()` data where possible — runnable examples unwrapped,
+  long-running examples (>5s) wrapped in `\donttest{}`, network-dependent
+  examples remain in `\dontrun{}`
+- Corrected `VignetteBuilder` field in `DESCRIPTION`
+- Rd files regenerated after example and parameter updates
 
 ## Test environments
 

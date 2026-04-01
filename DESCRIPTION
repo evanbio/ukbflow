@@ -1,6 +1,6 @@
 Package: ukbflow
 Title: Streamlined Workflow for UK Biobank Data Extraction, Analysis, and Visualization
-Version: 0.3.2
+Version: 0.3.3
 Authors@R:
     person("Yibin", "Zhou", email = "evanzhou.bio@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0009-4600-8175"))
