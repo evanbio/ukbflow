@@ -120,32 +120,17 @@ age/sex columns are detected.
 }
 }
 \examples{
-dt <- ops_toy(scenario = "association")
-dt <- dt[dm_timing != 1L & htn_timing != 1L]   # exclude prevalent for both
+\donttest{
+dt <- ops_toy(scenario = "association", n = 500)
+dt <- dt[dm_timing != 1L & htn_timing != 1L]
 
-# Mode B: separate 0/1 columns — dm as primary, htn as competing event
 res <- assoc_competing(
   data         = dt,
   outcome_col  = "dm_status",
   time_col     = "dm_followup_years",
   exposure_col = "p20116_i0",
   compete_col  = "htn_status",
-  covariates   = c("bmi_cat", "tdi_cat", paste0("p22009_a", 1:4))
+  covariates   = c("bmi_cat", "tdi_cat")
 )
-
-# Mode A: single multi-value column (0 = censored, 1 = dm, 2 = htn)
-dt[, event_type := data.table::fcase(
-  dm_timing  == 2L, 1L,
-  htn_timing == 2L, 2L,
-  default          = 0L
-)]
-res <- assoc_competing(
-  data         = dt,
-  outcome_col  = "event_type",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0",
-  event_val    = 1L,
-  compete_val  = 2L,
-  covariates   = c("bmi_cat", "tdi_cat", paste0("p22009_a", 1:4))
-)
+}
 }

@@ -1,6 +1,7 @@
 # =============================================================================
 # test-fetch.R — Unit tests for fetch_ series (mock-based, no network required)
 # =============================================================================
+.skip_if_no_mockery()
 
 # Helper: build a fake .dx_run() result
 .fake_dx <- function(stdout = "", stderr = "", status = 0) {
@@ -202,13 +203,17 @@ test_that("fetch_file() calls .dx_download_file for a single file", {
 
 test_that("fetch_file() returns character(0) for empty folder", {
   local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = TRUE, is_file = FALSE, exists = TRUE, stdout = ""))
   mockery::stub(fetch_file, "fetch_ls",
                 function(...) data.frame(name = character(0), type = character(0),
                                          size = character(0),
                                          modified = as.POSIXct(character(0)),
                                          stringsAsFactors = FALSE))
-  result <- suppressMessages(fetch_file("empty/"))
-  expect_equal(result, character(0))
+  withr::with_tempdir({
+    result <- suppressMessages(fetch_file("empty/", dest_dir = "."))
+    expect_equal(result, character(0))
+  })
 })
 
 test_that("fetch_file() creates dest_dir if it does not exist", {

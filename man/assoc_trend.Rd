@@ -118,35 +118,16 @@ included by default (\code{base = TRUE}); a Fully adjusted model is added
 when \code{covariates} is non-NULL.
 }
 \examples{
-dt <- ops_toy(scenario = "association")
+dt <- ops_toy(scenario = "association", n = 500)
 dt <- dt[dm_timing != 1L]
 
-# Trend across BMI categories (default integer scores 0, 1, 2, 3)
 res <- assoc_trend(
   data         = dt,
   outcome_col  = "dm_status",
   time_col     = "dm_followup_years",
   exposure_col = "bmi_cat",
   method       = "coxph",
-  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0")
-)
-
-# Custom scores reflecting approximate median BMI per category
-res <- assoc_trend(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "bmi_cat",
-  method       = "coxph",
-  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
-  scores       = c(17, 22, 27, 35)
-)
-
-# Logistic trend (no time_col needed)
-res <- assoc_trend(
-  data         = dt,
-  outcome_col  = "dm_status",
-  exposure_col = "bmi_cat",
-  method       = "logistic"
+  covariates   = c("tdi_cat", "p20116_i0"),
+  base         = FALSE
 )
 }

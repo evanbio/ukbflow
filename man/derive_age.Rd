@@ -58,7 +58,6 @@ non-\code{NA} date are treated as cases.
 \strong{data.table pass-by-reference}: new columns are added in-place.
 }
 \examples{
-dt <- ops_toy(n = 100)
-derive_hes(dt, name = "htn", icd10 = "I10")
-derive_age(dt, name = "htn_hes", baseline_col = "p53_i0", age_col = "p21022")
+dt <- ops_toy(scenario = "association", n = 100)
+derive_age(dt, name = "dm", baseline_col = "p53_i0", age_col = "p21022")
 }

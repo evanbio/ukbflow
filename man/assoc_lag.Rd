@@ -72,20 +72,17 @@ available here (\strong{Unadjusted}, \strong{Age and sex adjusted},
 \strong{Fully adjusted}).
 }
 \examples{
-dt <- ops_toy(scenario = "association")
+dt <- ops_toy(scenario = "association", n = 500)
 dt <- dt[dm_timing != 1L]
 
-# Lag sensitivity analysis: 0 = full cohort reference, then 1 and 2 year lags
 res <- assoc_lag(
   data         = dt,
   outcome_col  = "dm_status",
   time_col     = "dm_followup_years",
   exposure_col = "p20116_i0",
   lag_years    = c(0, 1, 2),
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
-
-# Check how many participants were excluded at each lag
 res[, .(lag_years, n, n_excluded, HR, CI_lower, CI_upper, p_value)]
 }

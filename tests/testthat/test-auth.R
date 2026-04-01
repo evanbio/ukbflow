@@ -1,6 +1,7 @@
 # =============================================================================
 # test-auth.R — Unit tests for auth_ series (mock-based, no network required)
 # =============================================================================
+.skip_if_no_mockery()
 
 # Helper: build a fake .dx_run() result
 .fake_dx <- function(stdout = "", stderr = "", status = 0) {

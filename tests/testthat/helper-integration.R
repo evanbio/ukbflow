@@ -36,3 +36,15 @@
     testthat::skip("Not running on RAP — requires the RAP environment.")
   }
 }
+
+
+#' Skip if mockery is not installed
+#'
+#' Used at the top of test files that rely on \code{mockery::stub()}.
+#' Ensures graceful skipping when the package is unavailable (e.g. during
+#' \code{_R_CHECK_DEPENDS_ONLY_} checks).
+#'
+#' @keywords internal
+.skip_if_no_mockery <- function() {
+  testthat::skip_if_not_installed("mockery")
+}

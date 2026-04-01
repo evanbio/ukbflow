@@ -110,33 +110,16 @@ produces one \code{term} row per model.
 }
 }
 \examples{
-dt <- ops_toy(scenario = "association")
-dt <- dt[dm_timing != 1L]   # incident analysis only
+dt <- ops_toy(scenario = "association", n = 500)
+dt <- dt[dm_timing != 1L]
 
-# Crude + age-sex adjusted (default)
-res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0"
-)
-
-# Add Fully adjusted model
 res <- assoc_coxph(
   data         = dt,
   outcome_col  = "dm_status",
   time_col     = "dm_followup_years",
   exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
-)
-
-# Multiple exposures in one call
-res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = c("p20116_i0", "bmi_cat", "grs_bmi")
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
 
 # Fully adjusted only (skip Unadjusted + Age-sex)

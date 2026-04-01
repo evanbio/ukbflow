@@ -44,10 +44,12 @@ Call once per timing variable needed (e.g. once for the combined case,
 once per individual source).
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_hes(dt, name = "htn", icd10 = "I10")
 derive_timing(dt, name = "htn_hes",
               status_col   = "htn_hes",
               date_col     = "htn_hes_date",
               baseline_col = "p53_i0")
+}
 }

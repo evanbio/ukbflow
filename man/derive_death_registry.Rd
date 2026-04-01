@@ -62,7 +62,9 @@ not onset date.}
 }
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_death_registry(dt, name = "mi",   icd10 = "I21")
 derive_death_registry(dt, name = "lung", icd10 = "C34")
+}
 }

@@ -59,6 +59,7 @@ censoring date.
 \code{data.table}, new columns are added in-place via \code{:=}.
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_hes(dt, name = "htn", icd10 = "I10")
 derive_followup(dt,
@@ -68,4 +69,5 @@ derive_followup(dt,
   censor_date  = as.Date("2022-06-01"),
   death_col    = "p40000_i0",
   lost_col     = FALSE)
+}
 }

@@ -34,7 +34,13 @@ First resubmission — addressing issues from the v0.3.1 pre-test check.
 
 ## R CMD check results
 
-Duration: 6m 54.6s
+Duration: 6m 33.6s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+
+## R CMD check results (DEPENDS_ONLY — Suggests packages absent)
+
+Duration: 3m 45.9s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 

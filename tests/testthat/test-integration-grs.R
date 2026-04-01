@@ -137,6 +137,7 @@ DT_Z <- suppressMessages(
 # =============================================================================
 
 test_that("grs_validate() logistic runs without error on ops_toy n=2000", {
+  skip_if_not_installed("pROC")
   expect_no_error(suppressWarnings(suppressMessages(
     grs_validate(DT_Z,
                  grs_cols    = c("GRS_a_z", "GRS_b_z"),
@@ -145,6 +146,7 @@ test_that("grs_validate() logistic runs without error on ops_toy n=2000", {
 })
 
 test_that("grs_validate() logistic per_sd has positive OR and valid CI", {
+  skip_if_not_installed("pROC")
   res <- suppressWarnings(suppressMessages(
     grs_validate(DT_Z,
                  grs_cols    = c("GRS_a_z", "GRS_b_z"),
@@ -156,6 +158,7 @@ test_that("grs_validate() logistic per_sd has positive OR and valid CI", {
 })
 
 test_that("grs_validate() logistic high_vs_low contains only High rows", {
+  skip_if_not_installed("pROC")
   res <- suppressWarnings(suppressMessages(
     grs_validate(DT_Z,
                  grs_cols    = c("GRS_a_z", "GRS_b_z"),
@@ -176,6 +179,7 @@ test_that("grs_validate() logistic AUC is in [0.5, 1] with real GRS signal", {
 })
 
 test_that("grs_validate() logistic with covariates adds fully adjusted model", {
+  skip_if_not_installed("pROC")
   res <- suppressWarnings(suppressMessages(
     grs_validate(DT_Z,
                  grs_cols    = "GRS_a_z",

@@ -10,26 +10,26 @@
 # ===========================================================================
 
 test_that("fetch_ls() returns a data.frame with correct columns", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- fetch_ls()
   expect_s3_class(result, "data.frame")
   expect_named(result, c("name", "type", "size", "modified"))
 })
 
 test_that("fetch_ls() returns at least one entry at project root", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- fetch_ls()
   expect_gt(nrow(result), 0)
 })
 
 test_that("fetch_ls() type column contains only 'file' or 'folder'", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- fetch_ls()
   expect_true(all(result$type %in% c("file", "folder")))
 })
 
 test_that("fetch_ls() filter by type = 'folder' returns only folders", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- fetch_ls(type = "folder")
   expect_true(all(result$type == "folder"))
 })
@@ -39,13 +39,13 @@ test_that("fetch_ls() filter by type = 'folder' returns only folders", {
 # ===========================================================================
 
 test_that("fetch_tree() returns a character vector invisibly", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- suppressMessages(fetch_tree(max_depth = 1, verbose = FALSE))
   expect_type(result, "character")
 })
 
 test_that("fetch_tree() output lines contain entry names", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- suppressMessages(fetch_tree(max_depth = 1, verbose = FALSE))
   expect_true(length(result) > 0)
   expect_true(any(grepl("\\+--", result)))
@@ -56,7 +56,7 @@ test_that("fetch_tree() output lines contain entry names", {
 # ===========================================================================
 
 test_that("fetch_url() returns a named character vector for a single file", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- fetch_url("Showcase metadata/field.tsv")
   expect_type(result, "character")
   expect_length(result, 1)
@@ -65,7 +65,7 @@ test_that("fetch_url() returns a named character vector for a single file", {
 })
 
 test_that("fetch_url() URL is accessible (HTTP 200)", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   url <- fetch_url("Showcase metadata/field.tsv")[[1]]
   response <- tryCatch(
     suppressWarnings(readLines(url, n = 1, warn = FALSE)),

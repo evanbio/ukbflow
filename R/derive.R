@@ -405,11 +405,13 @@ derive_cut <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' # disease_cols / date_cols / visit_cols can be omitted — auto-detected from
 #' # column names matching p20002_* / p20008_* / p53_* respectively
 #' derive_selfreport(dt, name = "htn", regex = "hypertension",
 #'                   field = "noncancer")
+#' }
 derive_selfreport <- function(data,
                               name,
                               regex,
@@ -702,10 +704,12 @@ derive_first_occurrence <- function(data, name, field, col = NULL) {
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_hes(dt, name = "htn",      icd10 = "I10")
 #' derive_hes(dt, name = "diabetes", icd10 = c("E10", "E11"))
 #' derive_hes(dt, name = "asthma",   icd10 = "^J4", match = "regex")
+#' }
 derive_hes <- function(data,
                        name,
                        icd10,
@@ -908,9 +912,11 @@ derive_hes <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_cancer_registry(dt, name = "skin",     icd10 = "^C44")
 #' derive_cancer_registry(dt, name = "invasive", icd10 = "^C", behaviour = 3L)
+#' }
 derive_cancer_registry <- function(data,
                                    name,
                                    icd10     = NULL,
@@ -1077,9 +1083,11 @@ derive_cancer_registry <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_death_registry(dt, name = "mi",   icd10 = "I21")
 #' derive_death_registry(dt, name = "lung", icd10 = "C34")
+#' }
 derive_death_registry <- function(data,
                                   name,
                                   icd10,
@@ -1286,15 +1294,16 @@ derive_death_registry <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_icd10(dt, name = "htn",
 #'              icd10  = "I10",
 #'              source = c("hes", "death"))
-#'
 #' derive_icd10(dt, name = "mi",
 #'              icd10  = "I21",
 #'              source = c("hes", "death", "first_occurrence"),
 #'              fo_col = "p131742")
+#' }
 derive_icd10 <- function(data,
                          name,
                          icd10,
@@ -1447,6 +1456,7 @@ derive_icd10 <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_selfreport(dt, name = "htn", regex = "hypertension",
 #'                   field        = "noncancer",
@@ -1455,6 +1465,7 @@ derive_icd10 <- function(data,
 #'                   visit_cols   = "p53_i0")
 #' derive_icd10(dt, name = "htn", icd10 = "I10", source = c("hes", "death"))
 #' derive_case(dt, name = "htn")
+#' }
 derive_case <- function(data,
                         name,
                         icd10_col           = NULL,
@@ -1561,9 +1572,8 @@ derive_case <- function(data,
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(n = 100)
-#' derive_hes(dt, name = "htn", icd10 = "I10")
-#' derive_age(dt, name = "htn_hes", baseline_col = "p53_i0", age_col = "p21022")
+#' dt <- ops_toy(scenario = "association", n = 100)
+#' derive_age(dt, name = "dm", baseline_col = "p53_i0", age_col = "p21022")
 derive_age <- function(data,
                        name,
                        baseline_col,
@@ -1685,6 +1695,7 @@ derive_age <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_hes(dt, name = "htn", icd10 = "I10")
 #' derive_followup(dt,
@@ -1694,6 +1705,7 @@ derive_age <- function(data,
 #'   censor_date  = as.Date("2022-06-01"),
 #'   death_col    = "p40000_i0",
 #'   lost_col     = FALSE)
+#' }
 derive_followup <- function(data,
                             name,
                             event_col,
@@ -1801,12 +1813,14 @@ derive_followup <- function(data,
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' dt <- ops_toy(n = 100)
 #' derive_hes(dt, name = "htn", icd10 = "I10")
 #' derive_timing(dt, name = "htn_hes",
 #'               status_col   = "htn_hes",
 #'               date_col     = "htn_hes_date",
 #'               baseline_col = "p53_i0")
+#' }
 derive_timing <- function(data,
                           name,
                           baseline_col,

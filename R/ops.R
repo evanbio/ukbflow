@@ -26,10 +26,9 @@
 #' @export
 #'
 #' @examples
-#' ops_setup()
+#' ops_setup(check_dx = FALSE, check_auth = FALSE)
 #'
-#' # Programmatic use — check if environment is ready
-#' result <- ops_setup(verbose = FALSE)
+#' result <- ops_setup(check_dx = FALSE, check_auth = FALSE, verbose = FALSE)
 #' result$summary$fail == 0
 ops_setup <- function(
     check_dx   = TRUE,

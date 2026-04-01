@@ -72,19 +72,16 @@ satisfied for that term. The global test (\code{global_p}) reflects the
 overall PH assumption for the whole model.
 }
 \examples{
-dt <- ops_toy(scenario = "association")
+dt <- ops_toy(scenario = "association", n = 500)
 dt <- dt[dm_timing != 1L]
 
-# Test PH assumption for the same model as assoc_coxph()
 zph <- assoc_coxph_zph(
   data         = dt,
   outcome_col  = "dm_status",
   time_col     = "dm_followup_years",
   exposure_col = "p20116_i0",
-  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-                   paste0("p22009_a", 1:4))
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
-
-# Flag any term-level violations
 zph[ph_satisfied == FALSE]
 }

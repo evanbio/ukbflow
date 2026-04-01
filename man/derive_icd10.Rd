@@ -114,13 +114,14 @@ selected sources (\code{IDate}).}
 }
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_icd10(dt, name = "htn",
              icd10  = "I10",
              source = c("hes", "death"))
-
 derive_icd10(dt, name = "mi",
              icd10  = "I21",
              source = c("hes", "death", "first_occurrence"),
              fo_col = "p131742")
+}
 }

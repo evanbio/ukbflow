@@ -16,39 +16,39 @@ JOB_FAILED <- "job-J6YB4jjJ0QQ3fVJ0yPqG3b1K"   # failed, CRLF error
 # ===========================================================================
 
 test_that("job_ls() returns a data.frame with correct columns", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_ls(n = 5)
   expect_s3_class(result, "data.frame")
   expect_named(result, c("job_id", "name", "state", "created", "runtime"))
 })
 
 test_that("job_ls() returns at least one job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_ls(n = 5)
   expect_gt(nrow(result), 0)
 })
 
 test_that("job_ls() job_id values follow job-XXXX format", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_ls(n = 5)
   expect_true(all(grepl("^job-", result$job_id)))
 })
 
 test_that("job_ls() state column contains only valid states", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   valid_states <- c("idle", "runnable", "running", "done", "failed", "terminated")
   result <- job_ls(n = 20)
   expect_true(all(result$state %in% valid_states))
 })
 
 test_that("job_ls() created column is POSIXct", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_ls(n = 5)
   expect_s3_class(result$created, "POSIXct")
 })
 
 test_that("job_ls() state filter returns only matching rows", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_ls(n = 20, state = "done")
   if (nrow(result) > 0) {
     expect_true(all(result$state == "done"))
@@ -63,26 +63,26 @@ test_that("job_ls() state filter returns only matching rows", {
 # ===========================================================================
 
 test_that("job_status() returns 'done' for known done job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_status(JOB_DONE)
   expect_equal(result[[1]], "done")
 })
 
 test_that("job_status() returns named character with job_id as name", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_status(JOB_DONE)
   expect_type(result, "character")
   expect_equal(names(result), JOB_DONE)
 })
 
 test_that("job_status() returns 'failed' for known failed job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_status(JOB_FAILED)
   expect_equal(result[[1]], "failed")
 })
 
 test_that("job_status() attaches failure_message for failed job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_status(JOB_FAILED)
   expect_false(is.null(attr(result, "failure_message")))
   expect_true(nzchar(attr(result, "failure_message")))
@@ -94,13 +94,13 @@ test_that("job_status() attaches failure_message for failed job", {
 # ===========================================================================
 
 test_that("job_wait() returns 'done' immediately for already-done job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- suppressMessages(job_wait(JOB_DONE, verbose = FALSE))
   expect_equal(result, "done")
 })
 
 test_that("job_wait() stops with error message for known failed job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   expect_error(
     suppressMessages(job_wait(JOB_FAILED, verbose = FALSE)),
     "failed"
@@ -114,7 +114,7 @@ test_that("job_wait() stops with error message for known failed job", {
 
 test_that("job_path() returns a /mnt/project/ path for known done job", {
   skip("job_path() requires real RAP environment with valid job ID")
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   result <- job_path(JOB_DONE)
   expect_type(result, "character")
   expect_true(startsWith(result, "/mnt/project/"))
@@ -122,7 +122,7 @@ test_that("job_path() returns a /mnt/project/ path for known done job", {
 })
 
 test_that("job_path() stops for known failed job", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   expect_error(suppressMessages(job_path(JOB_FAILED)), "not 'done'")
 })
 

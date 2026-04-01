@@ -80,33 +80,16 @@
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
-#' dt <- dt[dm_timing != 1L]   # incident analysis only
+#' dt <- ops_toy(scenario = "association", n = 500)
+#' dt <- dt[dm_timing != 1L]
 #'
-#' # Crude + age-sex adjusted (default)
-#' res <- assoc_coxph(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   time_col     = "dm_followup_years",
-#'   exposure_col = "p20116_i0"
-#' )
-#'
-#' # Add Fully adjusted model
 #' res <- assoc_coxph(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   time_col     = "dm_followup_years",
 #'   exposure_col = "p20116_i0",
-#'   covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-#'                    paste0("p22009_a", 1:4))
-#' )
-#'
-#' # Multiple exposures in one call
-#' res <- assoc_coxph(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   time_col     = "dm_followup_years",
-#'   exposure_col = c("p20116_i0", "bmi_cat", "grs_bmi")
+#'   covariates   = c("bmi_cat", "tdi_cat"),
+#'   base         = FALSE
 #' )
 #'
 #' # Fully adjusted only (skip Unadjusted + Age-sex)
@@ -300,31 +283,14 @@ assoc_cox <- assoc_coxph
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #'
-#' # Crude + age-sex adjusted (default)
-#' res <- assoc_logistic(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   exposure_col = "p20116_i0"
-#' )
-#'
-#' # Add Fully adjusted model
 #' res <- assoc_logistic(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   exposure_col = "p20116_i0",
-#'   covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-#'                    paste0("p22009_a", 1:4))
-#' )
-#'
-#' # Profile likelihood CI (more accurate for small samples)
-#' res <- assoc_logistic(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   exposure_col = "grs_bmi",
-#'   covariates   = c("p21022", "p31", "bmi_cat"),
-#'   ci_method    = "profile"
+#'   covariates   = c("bmi_cat", "tdi_cat"),
+#'   base         = FALSE
 #' )
 assoc_logistic <- function(data,
                             outcome_col,
@@ -502,29 +468,13 @@ assoc_logit <- assoc_logistic
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #'
-#' # Crude + age-sex adjusted (default); outcome is continuous BMI
-#' res <- assoc_linear(
-#'   data         = dt,
-#'   outcome_col  = "p21001_i0",
-#'   exposure_col = "p20116_i0"
-#' )
-#'
-#' # Add Fully adjusted model
 #' res <- assoc_linear(
 #'   data         = dt,
 #'   outcome_col  = "p21001_i0",
 #'   exposure_col = "p20116_i0",
-#'   covariates   = c("tdi_cat", "p1558_i0", paste0("p22009_a", 1:4))
-#' )
-#'
-#' # Continuous exposure (GRS → BMI); Fully adjusted only
-#' res <- assoc_linear(
-#'   data         = dt,
-#'   outcome_col  = "p21001_i0",
-#'   exposure_col = "grs_bmi",
-#'   covariates   = c("p21022", "p31", "tdi_cat"),
+#'   covariates   = c("bmi_cat", "tdi_cat"),
 #'   base         = FALSE
 #' )
 assoc_linear <- function(data,
@@ -701,20 +651,17 @@ assoc_lm <- assoc_linear
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #' dt <- dt[dm_timing != 1L]
 #'
-#' # Test PH assumption for the same model as assoc_coxph()
 #' zph <- assoc_coxph_zph(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   time_col     = "dm_followup_years",
 #'   exposure_col = "p20116_i0",
-#'   covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-#'                    paste0("p22009_a", 1:4))
+#'   covariates   = c("bmi_cat", "tdi_cat"),
+#'   base         = FALSE
 #' )
-#'
-#' # Flag any term-level violations
 #' zph[ph_satisfied == FALSE]
 assoc_coxph_zph <- function(data,
                               outcome_col,
@@ -911,20 +858,9 @@ assoc_zph <- assoc_coxph_zph
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #' dt <- dt[dm_timing != 1L]
 #'
-#' # Subgroup Cox by sex (interaction test included by default)
-#' res <- assoc_subgroup(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   time_col     = "dm_followup_years",
-#'   exposure_col = "p20116_i0",
-#'   by           = "p31",
-#'   method       = "coxph"
-#' )
-#'
-#' # Fully adjusted; exclude subgroup variable from covariates
 #' res <- assoc_subgroup(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
@@ -932,16 +868,7 @@ assoc_zph <- assoc_coxph_zph
 #'   exposure_col = "p20116_i0",
 #'   by           = "p31",
 #'   method       = "coxph",
-#'   covariates   = c("p21022", "bmi_cat", "tdi_cat")
-#' )
-#'
-#' # Subgroup logistic by BMI category
-#' res <- assoc_subgroup(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   exposure_col = "p20116_i0",
-#'   by           = "bmi_cat",
-#'   method       = "logistic"
+#'   covariates   = c("bmi_cat", "tdi_cat")
 #' )
 assoc_subgroup <- function(data,
                             outcome_col,
@@ -1243,36 +1170,17 @@ assoc_sub <- assoc_subgroup
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #' dt <- dt[dm_timing != 1L]
 #'
-#' # Trend across BMI categories (default integer scores 0, 1, 2, 3)
 #' res <- assoc_trend(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   time_col     = "dm_followup_years",
 #'   exposure_col = "bmi_cat",
 #'   method       = "coxph",
-#'   covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0")
-#' )
-#'
-#' # Custom scores reflecting approximate median BMI per category
-#' res <- assoc_trend(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   time_col     = "dm_followup_years",
-#'   exposure_col = "bmi_cat",
-#'   method       = "coxph",
-#'   covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
-#'   scores       = c(17, 22, 27, 35)
-#' )
-#'
-#' # Logistic trend (no time_col needed)
-#' res <- assoc_trend(
-#'   data         = dt,
-#'   outcome_col  = "dm_status",
-#'   exposure_col = "bmi_cat",
-#'   method       = "logistic"
+#'   covariates   = c("tdi_cat", "p20116_i0"),
+#'   base         = FALSE
 #' )
 assoc_trend <- function(data,
                          outcome_col,
@@ -1683,34 +1591,19 @@ assoc_tr <- assoc_trend
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
-#' dt <- dt[dm_timing != 1L & htn_timing != 1L]   # exclude prevalent for both
+#' \donttest{
+#' dt <- ops_toy(scenario = "association", n = 500)
+#' dt <- dt[dm_timing != 1L & htn_timing != 1L]
 #'
-#' # Mode B: separate 0/1 columns — dm as primary, htn as competing event
 #' res <- assoc_competing(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   time_col     = "dm_followup_years",
 #'   exposure_col = "p20116_i0",
 #'   compete_col  = "htn_status",
-#'   covariates   = c("bmi_cat", "tdi_cat", paste0("p22009_a", 1:4))
+#'   covariates   = c("bmi_cat", "tdi_cat")
 #' )
-#'
-#' # Mode A: single multi-value column (0 = censored, 1 = dm, 2 = htn)
-#' dt[, event_type := data.table::fcase(
-#'   dm_timing  == 2L, 1L,
-#'   htn_timing == 2L, 2L,
-#'   default          = 0L
-#' )]
-#' res <- assoc_competing(
-#'   data         = dt,
-#'   outcome_col  = "event_type",
-#'   time_col     = "dm_followup_years",
-#'   exposure_col = "p20116_i0",
-#'   event_val    = 1L,
-#'   compete_val  = 2L,
-#'   covariates   = c("bmi_cat", "tdi_cat", paste0("p22009_a", 1:4))
-#' )
+#' }
 assoc_competing <- function(data,
                              outcome_col,
                              time_col,
@@ -1893,21 +1786,18 @@ assoc_fg <- assoc_competing
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
+#' dt <- ops_toy(scenario = "association", n = 500)
 #' dt <- dt[dm_timing != 1L]
 #'
-#' # Lag sensitivity analysis: 0 = full cohort reference, then 1 and 2 year lags
 #' res <- assoc_lag(
 #'   data         = dt,
 #'   outcome_col  = "dm_status",
 #'   time_col     = "dm_followup_years",
 #'   exposure_col = "p20116_i0",
 #'   lag_years    = c(0, 1, 2),
-#'   covariates   = c("bmi_cat", "tdi_cat", "p1558_i0",
-#'                    paste0("p22009_a", 1:4))
+#'   covariates   = c("bmi_cat", "tdi_cat"),
+#'   base         = FALSE
 #' )
-#'
-#' # Check how many participants were excluded at each lag
 #' res[, .(lag_years, n, n_excluded, HR, CI_lower, CI_upper, p_value)]
 assoc_lag <- function(data,
                        outcome_col,

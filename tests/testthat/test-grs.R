@@ -222,6 +222,7 @@ test_that("grs_validate() aborts when grs_cols are non-numeric", {
 })
 
 test_that("grs_validate() returns a list with 4 named elements (logistic)", {
+  skip_if_not_installed("pROC")
   dt  <- .fake_grs_dt()
   res <- suppressWarnings(
     grs_validate(dt,
@@ -233,6 +234,7 @@ test_that("grs_validate() returns a list with 4 named elements (logistic)", {
 })
 
 test_that("grs_validate() per_sd has one row per GRS (logistic, unadjusted)", {
+  skip_if_not_installed("pROC")
   dt  <- .fake_grs_dt()
   res <- suppressWarnings(
     grs_validate(dt,
@@ -245,6 +247,7 @@ test_that("grs_validate() per_sd has one row per GRS (logistic, unadjusted)", {
 })
 
 test_that("grs_validate() discrimination returns AUC column (logistic)", {
+  skip_if_not_installed("pROC")
   dt  <- .fake_grs_dt()
   res <- suppressWarnings(
     grs_validate(dt,
@@ -270,6 +273,7 @@ test_that("grs_validate() returns C-index column when time_col supplied (Cox)", 
 })
 
 test_that("grs_validate() does not modify the user's original data", {
+  skip_if_not_installed("pROC")
   dt   <- .fake_grs_dt()
   orig <- data.table::copy(dt)
   suppressWarnings(

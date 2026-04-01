@@ -1,6 +1,7 @@
 # =============================================================================
 # test-job.R — Unit tests for job_ series (mock-based, no network required)
 # =============================================================================
+.skip_if_no_mockery()
 
 # Helper: build a fake .dx_run() result
 .fake_dx <- function(stdout = "", stderr = "", status = 0) {
@@ -235,17 +236,17 @@ test_that("job_path() returns /mnt/project/ path for done job", {
 # ===========================================================================
 
 test_that("job_result() stops when not on RAP", {
-  mockery::stub(job_result, ".is_on_rap", function() FALSE)
+  mockery::stub(job_result, ".assert_on_rap", function() cli::cli_abort("This function must be run inside the RAP environment."))
   expect_error(job_result("job-XXXX"), "RAP environment")
 })
 
 test_that("job_result() stops on invalid job_id format", {
-  mockery::stub(job_result, ".is_on_rap", function() TRUE)
+  mockery::stub(job_result, ".assert_on_rap", function() invisible(NULL))
   expect_error(job_result("notajob"), "job-XXXX")
 })
 
 test_that("job_result() stops when job is not done", {
-  mockery::stub(job_result, ".is_on_rap", function() TRUE)
+  mockery::stub(job_result, ".assert_on_rap", function() invisible(NULL))
   mockery::stub(job_result, "job_path", function(...) {
     stop("Job job-XXXX is 'running', not 'done'.")
   })
@@ -256,7 +257,7 @@ test_that("job_result() returns a data.table when on RAP", {
   tmp <- tempfile(fileext = ".csv")
   write.csv(data.frame(eid = c(1L, 2L), p31 = c(0L, 1L)), tmp, row.names = FALSE)
 
-  mockery::stub(job_result, ".is_on_rap", function() TRUE)
+  mockery::stub(job_result, ".assert_on_rap", function() invisible(NULL))
   mockery::stub(job_result, "job_path", function(...) tmp)
 
   result <- suppressMessages(job_result("job-XXXX"))

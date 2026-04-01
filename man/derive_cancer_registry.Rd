@@ -77,7 +77,9 @@ registry record satisfies all supplied filters.}
 }
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_cancer_registry(dt, name = "skin",     icd10 = "^C44")
 derive_cancer_registry(dt, name = "invasive", icd10 = "^C", behaviour = 3L)
+}
 }

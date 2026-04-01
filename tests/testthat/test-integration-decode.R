@@ -26,7 +26,7 @@ META_DIR <- local({
 # ===========================================================================
 
 test_that("decode_names() renames participant.p31 to sex via live cache", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   .ukbflow_cache$dataset <- NULL
   .ukbflow_cache$fields  <- NULL
 
@@ -40,7 +40,7 @@ test_that("decode_names() renames participant.p31 to sex via live cache", {
 })
 
 test_that("decode_names() renames all columns from extract_pheno() format", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   .ukbflow_cache$dataset <- NULL
   .ukbflow_cache$fields  <- NULL
 
@@ -60,7 +60,7 @@ test_that("decode_names() renames all columns from extract_pheno() format", {
 })
 
 test_that("decode_names() renames p53 instance columns with _i0.._i3 suffixes", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   .ukbflow_cache$dataset <- NULL
   .ukbflow_cache$fields  <- NULL
 
@@ -78,7 +78,7 @@ test_that("decode_names() renames p53 instance columns with _i0.._i3 suffixes", 
 })
 
 test_that("decode_names() warms session cache as side effect", {
-  .skip_if_no_dx_token()
+  .skip_if_no_rap()
   .ukbflow_cache$dataset <- NULL
   .ukbflow_cache$fields  <- NULL
 

@@ -74,9 +74,11 @@ diagnosis date is recorded.
 Pass \code{data.table::copy(data)} to preserve the original.
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 # disease_cols / date_cols / visit_cols can be omitted — auto-detected from
 # column names matching p20002_* / p20008_* / p53_* respectively
 derive_selfreport(dt, name = "htn", regex = "hypertension",
                   field = "noncancer")
+}
 }

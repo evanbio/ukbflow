@@ -53,6 +53,7 @@ sources (\code{IDate}).}
 }
 }
 \examples{
+\donttest{
 dt <- ops_toy(n = 100)
 derive_selfreport(dt, name = "htn", regex = "hypertension",
                   field        = "noncancer",
@@ -61,4 +62,5 @@ derive_selfreport(dt, name = "htn", regex = "hypertension",
                   visit_cols   = "p53_i0")
 derive_icd10(dt, name = "htn", icd10 = "I10", source = c("hes", "death"))
 derive_case(dt, name = "htn")
+}
 }

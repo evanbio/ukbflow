@@ -212,9 +212,6 @@ grs_bgen2pgen <- function(chr      = 1:22,
   if (any(is.na(chr)) || any(chr < 1L) || any(chr > 22L))
     cli::cli_abort("{.arg chr} must be integers between 1 and 22.", call = NULL)
 
-  if (is.null(dest) || !nzchar(dest))
-    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/pgen/'}}).", call = NULL)
-
   if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
     cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).", call = NULL)
 
@@ -223,6 +220,9 @@ grs_bgen2pgen <- function(chr      = 1:22,
       "chr {.val {intersect(chr, 1:16)}} may exceed storage on {.val {'mem2_ssd1_v2_x4'}}.",
       "i" = "Consider {.code instance = \"large\"} (mem2_ssd2_v2_x8, 640 GB SSD) for these chromosomes."
     ))
+
+  if (is.null(dest) || !nzchar(dest))
+    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/pgen/'}}).", call = NULL)
 
   # Instance config (mirrors scripts 06 and 13)
   if (instance == "standard") {
@@ -382,15 +382,6 @@ grs_score <- function(file,
   instance <- match.arg(instance, c("standard", "large"))
   priority <- match.arg(priority, c("low", "high"))
 
-  if (is.null(pgen_dir) || !nzchar(pgen_dir))
-    cli::cli_abort("{.arg pgen_dir} must be specified (e.g. {.val {'/mnt/project/pgen'}}).", call = NULL)
-
-  if (is.null(dest) || !nzchar(dest))
-    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/grs/'}}).", call = NULL)
-
-  if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
-    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.", call = NULL)
-
   if (!is.character(file))
     cli::cli_abort("{.arg file} must be a named character vector.", call = NULL)
   if (is.null(names(file)) || any(!nzchar(names(file))))
@@ -407,6 +398,15 @@ grs_score <- function(file,
       "Local weight file(s) not found:",
       setNames(missing_local, rep("x", length(missing_local)))
     ), call = NULL)
+
+  if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
+    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.", call = NULL)
+
+  if (is.null(pgen_dir) || !nzchar(pgen_dir))
+    cli::cli_abort("{.arg pgen_dir} must be specified (e.g. {.val {'/mnt/project/pgen'}}).", call = NULL)
+
+  if (is.null(dest) || !nzchar(dest))
+    cli::cli_abort("{.arg dest} must be specified (e.g. {.val {'/grs/'}}).", call = NULL)
 
   # Instance config
   if (instance == "standard") {
@@ -663,27 +663,26 @@ grs_zscore <- grs_standardize
 #' @export
 #'
 #' @examples
-#' dt <- ops_toy(scenario = "association")
-#' dt <- grs_standardize(dt, grs_cols = c("grs_bmi", "grs_raw"))
+#' \donttest{
+#' dt <- ops_toy(scenario = "association", n = 500)
+#' dt <- grs_standardize(dt, grs_cols = "grs_bmi")
 #'
-#' # Cox (survival)
 #' res <- grs_validate(
 #'   data        = dt,
-#'   grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+#'   grs_cols    = "grs_bmi_z",
 #'   outcome_col = "dm_status",
 #'   time_col    = "dm_followup_years"
 #' )
 #' res$per_sd
-#' res$discrimination
 #'
-#' # Logistic (cross-sectional) — requires pROC
 #' if (requireNamespace("pROC", quietly = TRUE)) {
 #'   res_logit <- grs_validate(
 #'     data        = dt,
-#'     grs_cols    = c("grs_bmi_z", "grs_raw_z"),
+#'     grs_cols    = "grs_bmi_z",
 #'     outcome_col = "dm_status"
 #'   )
 #'   res_logit$discrimination
+#' }
 #' }
 grs_validate <- function(data,
                          grs_cols    = NULL,

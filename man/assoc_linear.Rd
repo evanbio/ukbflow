@@ -84,29 +84,13 @@ likelihood does not apply to \code{lm}.
 support downstream meta-analysis and GWAS-style summary statistics.
 }
 \examples{
-dt <- ops_toy(scenario = "association")
+dt <- ops_toy(scenario = "association", n = 500)
 
-# Crude + age-sex adjusted (default); outcome is continuous BMI
-res <- assoc_linear(
-  data         = dt,
-  outcome_col  = "p21001_i0",
-  exposure_col = "p20116_i0"
-)
-
-# Add Fully adjusted model
 res <- assoc_linear(
   data         = dt,
   outcome_col  = "p21001_i0",
   exposure_col = "p20116_i0",
-  covariates   = c("tdi_cat", "p1558_i0", paste0("p22009_a", 1:4))
-)
-
-# Continuous exposure (GRS → BMI); Fully adjusted only
-res <- assoc_linear(
-  data         = dt,
-  outcome_col  = "p21001_i0",
-  exposure_col = "grs_bmi",
-  covariates   = c("p21022", "p31", "tdi_cat"),
+  covariates   = c("bmi_cat", "tdi_cat"),
   base         = FALSE
 )
 }
