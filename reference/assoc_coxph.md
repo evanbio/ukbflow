@@ -157,33 +157,48 @@ internally.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Minimal: crude + age-sex adjusted only
-res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",   # 0/1 or TRUE/FALSE
-  time_col     = "followup_years",
-  exposure_col = c("exposure", "bmi_category")
-)
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L]
 
-# Add a Fully adjusted model (Model 3)
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "smoking", "alcohol_freq",
-                   paste0("pc", 1:10))
-)
-
-# Only run the Fully adjusted model (skip Unadjusted + Age-sex)
-res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  covariates   = c("age_at_recruitment", "sex", "tdi"),
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat"),
   base         = FALSE
 )
-} # }
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model = 1 Cox regression
+#> ℹ Input cohort: 463 participants (n/n_events/person_years reflect each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Fully adjusted | p20116_i0Previous: HR 0.39 (0.13-1.16), p = 0.0918
+#> ✔   Fully adjusted | p20116_i0Current: HR 0.41 (0.09-1.77), p = 0.232
+#> ✔ Done: 2 result rows across 1 exposure and 1 model.
+
+# Fully adjusted only (skip Unadjusted + Age-sex)
+res <- assoc_coxph(
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("p21022", "p31", "bmi_cat", "tdi_cat"),
+  base         = FALSE
+)
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_coxph ─────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model = 1 Cox regression
+#> ℹ Input cohort: 463 participants (n/n_events/person_years reflect each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Fully adjusted | p20116_i0Previous: HR 0.41 (0.14-1.21), p = 0.105
+#> ✔   Fully adjusted | p20116_i0Current: HR 0.42 (0.10-1.84), p = 0.253
+#> ✔ Done: 2 result rows across 1 exposure and 1 model.
 ```

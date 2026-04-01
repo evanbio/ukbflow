@@ -56,34 +56,37 @@ The output of
 [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md):
 
 ``` r
+dt  <- ops_toy(scenario = "association")
+dt  <- dt[dm_timing != 1L]
+
 res <- assoc_coxph(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "outcome_followup_years",
-  exposure_col = "exposure",
-  covariates   = c("age_at_recruitment", "sex", "tdi", "smoking_status_i0")
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat", "p1558_i0")
 )
+res <- as.data.frame(res)
 
 # Reshape: one row per model, label column first
-df <- data.frame(
-  item    = c("Exposure", as.character(res$model)),
+df2 <- data.frame(
+  item    = c("Smoking status", as.character(res$model)),
   `N`     = c("", paste0(res$n, " / ", res$n_events)),
   p_value = c(NA_real_, res$p_value),
   check.names = FALSE
 )
 
 p <- plot_forest(
-  data      = df,
+  data      = df2,
   est       = c(NA,   res$HR),
   lower     = c(NA,   res$CI_lower),
   upper     = c(NA,   res$CI_upper),
   ci_column = 3L,
   indent    = c(0L,   rep(1L, nrow(res))),
   p_cols    = "p_value",
-  xlim      = c(0.5,  2.5),
-  save      = TRUE,
-  dest      = "forest_exposure"   # saves .png / .pdf / .jpg / .tiff
+  xlim      = c(0.5,  2.5)
 )
+plot(p)
 ```
 
 ### Key parameters
@@ -91,6 +94,7 @@ p <- plot_forest(
 **CI appearance**
 
 ``` r
+# uses df, est, lower, upper from the minimal example above
 p <- plot_forest(
   data      = df,
   est       = est, lower = lower, upper = upper,
@@ -182,6 +186,7 @@ p <- plot_forest(
 **Layout and saving**
 
 ``` r
+# uses df, est, lower, upper from the minimal example above
 p <- plot_forest(
   data        = df,
   est         = est, lower = lower, upper = upper,
@@ -189,9 +194,9 @@ p <- plot_forest(
   row_height  = NULL,   # auto (8 / 12 / 10 / 15 mm); or scalar/vector
   col_width   = NULL,   # auto (rounds up to nearest 5 mm)
   save        = TRUE,
-  dest        = "results/forest_main",   # extension ignored; all 4 formats saved
-  save_width  = 20,     # cm
-  save_height = NULL    # auto: nrow(data) * 0.9 + 3 cm
+  dest        = "forest_main",   # extension ignored; all 4 formats saved
+  save_width  = 20,              # cm
+  save_height = NULL             # auto: nrow(data) * 0.9 + 3 cm
 )
 ```
 
@@ -228,13 +233,9 @@ plot_tableone(
   add_p   = TRUE,    # Wilcoxon / chi-squared p-values; formatted as <0.001
   add_smd = TRUE,
   overall = TRUE,
-  dest    = "results/table1",
+  dest    = "table1",
   save    = TRUE
 )
-#> ✔ Saved: results/table1.docx
-#> ✔ Saved: results/table1.html
-#> ✔ Saved: results/table1.pdf
-#> ✔ Saved: results/table1.png
 ```
 
 ### Key parameters
@@ -242,16 +243,18 @@ plot_tableone(
 **Variable types and statistics**
 
 ``` r
+dt <- as.data.frame(ops_toy(scenario = "association"))
+
 plot_tableone(
-  data      = cohort,
-  vars      = c("age_at_recruitment", "bmi", "sex", "smoking_status_i0"),
-  strata    = "outcome_status",
-  type      = list(age_at_recruitment = "continuous2"),   # show median + IQR
+  data      = dt,
+  vars      = c("p21022", "p21001_i0", "p31", "p20116_i0"),
+  strata    = "dm_status",
+  type      = list(p21022 = "continuous2"),   # show median + IQR
   statistic = list(
     all_continuous()  ~ "{mean} ({sd})",
     all_categorical() ~ "{n} ({p}%)"
   ),
-  digits    = list(age_at_recruitment ~ 1, bmi ~ 1),
+  digits    = list(p21022 ~ 1, p21001_i0 ~ 1),
   missing   = "ifany",   # show missing counts when present
   save      = FALSE
 )
@@ -265,9 +268,9 @@ of group proportions
 
 ``` r
 plot_tableone(
-  data    = cohort,
-  vars    = c("age_at_recruitment", "bmi", "sex"),
-  strata  = "outcome_status",
+  data    = dt,
+  vars    = c("p21022", "p21001_i0", "p31"),
+  strata  = "dm_status",
   add_smd = TRUE,
   save    = FALSE
 )
@@ -280,10 +283,10 @@ table (e.g. a redundant reference category or an “Unknown” level):
 
 ``` r
 plot_tableone(
-  data           = cohort,
-  vars           = c("sex", "smoking_status_i0"),
-  strata         = "outcome_status",
-  exclude_labels = c("Unknown", "Prefer not to answer"),  # multiple values accepted
+  data           = dt,
+  vars           = c("p31", "p20116_i0"),
+  strata         = "dm_status",
+  exclude_labels = "Never",   # e.g. remove reference category from display
   save           = FALSE
 )
 ```

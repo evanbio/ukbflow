@@ -130,20 +130,24 @@ downstream meta-analysis and GWAS-style summary statistics.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Minimal: crude + age-sex adjusted
-res <- assoc_linear(
-  data         = cohort,
-  outcome_col  = "bmi",
-  exposure_col = c("exposure", "smoking_pack_years")
-)
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
 
-# With Fully adjusted model
 res <- assoc_linear(
-  data         = cohort,
-  outcome_col  = "bmi",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "alcohol_freq", paste0("pc", 1:10))
+  data         = dt,
+  outcome_col  = "p21001_i0",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
-} # }
+#> 
+#> ── assoc_linear ────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model = 1 linear regression
+#> ℹ Input cohort: 500 participants (n reflects each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Fully adjusted | p20116_i0Previous: beta 0.10 (-0.31-0.51), p = 0.628
+#> ✔   Fully adjusted | p20116_i0Current: beta -0.05 (-0.59-0.49), p = 0.856
+#> ✔ Done: 2 result rows across 1 exposure and 1 model.
 ```

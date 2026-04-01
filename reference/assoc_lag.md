@@ -101,14 +101,50 @@ adjusted**).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-assoc_lag(
-  data         = ukb_df,
-  outcome_col  = "copd_status",
-  time_col     = "followup_years",
-  exposure_col = "t2d_tf",
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L]
+
+res <- assoc_lag(
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
   lag_years    = c(0, 1, 2),
-  covariates   = c("tdi", "smoking")
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
-} # }
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_lag ───────────────────────────────────────────────────────────────────
+#> ℹ 3 lag periods x 1 exposure x 1 model
+#> 
+#> ── Lag: 0 years ──
+#> 
+#> ℹ Excluded (time < 0 yr): 0 -- remaining: 463, events: 24
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ── Lag: 1 year ──
+#> 
+#> ℹ Excluded (time < 1 yr): 3 -- remaining: 460, events: 21
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ── Lag: 2 years ──
+#> 
+#> ℹ Excluded (time < 2 yr): 7 -- remaining: 456, events: 17
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔ Done: 6 result rows across 3 lag periods, 1 exposure, and 1 model.
+res[, .(lag_years, n, n_excluded, HR, CI_lower, CI_upper, p_value)]
+#>    lag_years     n n_excluded        HR   CI_lower CI_upper   p_value
+#>        <num> <int>      <int>     <num>      <num>    <num>     <num>
+#> 1:         0   452          0 0.3927405 0.13251113 1.164016 0.0917984
+#> 2:         0   452          0 0.4094191 0.09463282 1.771310 0.2321082
+#> 3:         1   449          3 0.4610566 0.15228917 1.395853 0.1707241
+#> 4:         1   449          3 0.4684395 0.10656446 2.059181 0.3154581
+#> 5:         2   445          7 0.6225764 0.19727224 1.964804 0.4189975
+#> 6:         2   445          7 0.6408615 0.14119296 2.908810 0.5642742
 ```

@@ -156,31 +156,32 @@ non-NULL.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Create an ordered factor exposure with 3 levels
-cohort[, exposure_cat := factor(exposure_source,
-                                 levels = c(0, 1, 2),
-                                 labels = c("None", "Mild", "Severe"))]
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L]
 
-# Trend analysis: default scores 0, 1, 2
 res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure_cat",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "bmi_cat",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "sex", "tdi", "smoking")
+  covariates   = c("tdi_cat", "p20116_i0"),
+  base         = FALSE
 )
-
-# Custom scores (e.g. median value per category)
-res <- assoc_trend(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure_cat",
-  method       = "coxph",
-  covariates   = c("age_at_recruitment", "sex", "tdi"),
-  scores       = c(0, 5, 14)
-)
-} # }
+#> ! Exposure bmi_cat is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_trend ─────────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model (categorical + trend model per combination)
+#> 
+#> ── bmi_cat ──
+#> 
+#> ℹ Levels: Underweight -> Normal -> Overweight -> Obese | Scores: 0, 1, 2, 3
+#> ℹ   Fully adjusted | bmi_catUnderweight: 1.00 (ref)
+#> ✔   Fully adjusted | bmi_catNormal: HR 0.40 (0.10-1.64), p = 0.203
+#> ✔   Fully adjusted | bmi_catOverweight: HR 0.40 (0.10-1.61), p = 0.196
+#> ✔   Fully adjusted | bmi_catObese: HR 0.64 (0.17-2.43), p = 0.516
+#> ℹ   Fully adjusted | trend: HR_per_score = 1.03 (0.66-1.60), p_trend = 0.893
+#> ✔ Done: 4 result rows across 1 exposure and 1 model.
 ```

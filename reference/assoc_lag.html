@@ -214,16 +214,52 @@ available here (<strong>Unadjusted</strong>, <strong>Age and sex adjusted</stron
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">assoc_lag</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">ukb_df</span>,</span></span>
-<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"copd_status"</span>,</span></span>
-<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
-<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"t2d_tf"</span>,</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 500 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">assoc_lag</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  data         <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span></span>
+<span class="r-in"><span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span></span>
 <span class="r-in"><span>  lag_years    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tdi"</span>, <span class="st">"smoking"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  base         <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_lag</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 3 lag periods x 1 exposure x 1 model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 0 years</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 0 yr): 0 -- remaining: 463, events: 24</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 1 year</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 1 yr): 3 -- remaining: 460, events: 21</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 2 years</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Excluded (time &lt; 2 yr): 7 -- remaining: 456, events: 17</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 6 result rows across 3 lag periods, 1 exposure, and 1 model.</span>
+<span class="r-in"><span><span class="va">res</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">lag_years</span>, <span class="va">n</span>, <span class="va">n_excluded</span>, <span class="va">HR</span>, <span class="va">CI_lower</span>, <span class="va">CI_upper</span>, <span class="va">p_value</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    lag_years     n n_excluded        HR   CI_lower CI_upper   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;num&gt; &lt;int&gt;      &lt;int&gt;     &lt;num&gt;      &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:         0   452          0 0.3927405 0.13251113 1.164016 0.0917984</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         0   452          0 0.4094191 0.09463282 1.771310 0.2321082</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         1   449          3 0.4610566 0.15228917 1.395853 0.1707241</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         1   449          3 0.4684395 0.10656446 2.059181 0.3154581</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:         2   445          7 0.6225764 0.19727224 1.964804 0.4189975</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         2   445          7 0.6408615 0.14119296 2.908810 0.5642742</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

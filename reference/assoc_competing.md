@@ -171,26 +171,25 @@ Three adjustment models are produced (where data allow):
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Mode A: single multi-value column (0 = censored, 1 = event, 2 = competing)
-assoc_competing(
-  data         = cohort,
-  outcome_col  = "censoring_type",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  event_val    = 1L,
-  compete_val  = 2L,
-  covariates   = c("tdi", "smoking")
-)
+# \donttest{
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L & htn_timing != 1L]
 
-# Mode B: separate 0/1 columns for primary and competing events
-assoc_competing(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = c("exposure", "bmi_category"),
-  compete_col  = "death_status",
-  covariates   = c("tdi", "smoking")
+res <- assoc_competing(
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  compete_col  = "htn_status",
+  covariates   = c("bmi_cat", "tdi_cat")
 )
-} # }
+#> ℹ Mode B: dm_status (event) + htn_status (compete)
+#> ℹ Events: 22, Competing: 45, Censored: 317
+#> ℹ Exposure: p20116_i0
+#> ℹ   Model: Unadjusted
+#> ℹ   Model: Age and sex adjusted
+#> ℹ   Model: Fully adjusted
+#> ✔ Done: 6 result rows across 1 exposure and 3 models.
+# }
 ```

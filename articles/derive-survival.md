@@ -12,9 +12,14 @@ three additional functions prepare the data for time-to-event analysis:
 | [`derive_age()`](https://evanbio.github.io/ukbflow/reference/derive_age.md)           | `age_at_{name}`                                | Age at event (years)                    |
 | [`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md) | `{name}_followup_end`, `{name}_followup_years` | Follow-up end date and duration         |
 
-> **Prerequisite**: `{name}_status`, `{name}_date`, `date_baseline`, and
-> `age_at_recruitment` must already be present — produced by
+> **Prerequisite**: `{name}_status` and `{name}_date` must already be
+> present — produced by
 > [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md).
+> The examples below assume the full disease derivation pipeline has
+> been run on an
+> [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+> dataset, so the baseline date column is `p53_i0` and age at
+> recruitment is `p21022`.
 
 ------------------------------------------------------------------------
 
@@ -34,23 +39,28 @@ assigns each participant to one of four categories:
 ``` r
 library(ukbflow)
 
+# Build on the derive pipeline from vignette("derive")
+df <- ops_toy(n = 500)
+df <- derive_missing(df)
+df <- derive_covariate(df, as_factor = c("p31", "p20116_i0"))
+df <- derive_selfreport(df, name = "dm", regex = "type 2 diabetes")
+df <- derive_icd10(df, name = "dm", icd10 = "E11", source = c("hes", "death"))
+df <- derive_case(df, name = "dm")
+```
+
+``` r
 # Uses {name}_status and {name}_date by default
-df <- derive_timing(df, name = "outcome", baseline_col = "date_baseline")
-#> ✔ derive_timing (outcome_timing):
-#>   0 (no disease): 484 201
-#>   1 (prevalent):   11 342
-#>   2 (incident):     6 554
-#>   NA (no date):         0
+df <- derive_timing(df, name = "dm", baseline_col = "p53_i0")
 ```
 
 Supply explicit column names when the defaults do not apply:
 
 ``` r
 df <- derive_timing(df,
-  name         = "outcome_icd10",
-  status_col   = "outcome_icd10",
-  date_col     = "outcome_icd10_date",
-  baseline_col = "date_baseline"
+  name         = "dm",
+  status_col   = "dm_status",
+  date_col     = "dm_date",
+  baseline_col = "p53_i0"
 )
 ```
 
@@ -71,16 +81,12 @@ The divisor 365.25 accounts for leap years, ensuring sub-monthly
 precision in age calculation across the full UKB follow-up window.
 
 ``` r
-# Multiple outcomes in one call — auto-detects {name}_date and {name}_status.
-# Each name produces its own age_at_{name} column in a single pass.
+# Auto-detects {name}_date and {name}_status; produces age_at_{name} column.
 df <- derive_age(df,
-  name         = c("exposure", "outcome"),
-  baseline_col = "date_baseline",
-  age_col      = "age_at_recruitment"
+  name         = "dm",
+  baseline_col = "p53_i0",
+  age_col      = "p21022"
 )
-#>   age_at_exposure: n=15 902, median=54.1, range=[40.2, 72.8]
-#>   age_at_outcome: n=8 104, median=61.7, range=[40.8, 78.3]
-#> ✔ derive_age: 2 events processed.
 ```
 
 Supply explicit column mappings when names do not follow the default
@@ -88,11 +94,11 @@ Supply explicit column mappings when names do not follow the default
 
 ``` r
 df <- derive_age(df,
-  name         = "outcome_icd10",
-  baseline_col = "date_baseline",
-  age_col      = "age_at_recruitment",
-  date_cols    = c(outcome_icd10 = "outcome_icd10_date"),
-  status_cols  = c(outcome_icd10 = "outcome_icd10")
+  name         = "dm",
+  baseline_col = "p53_i0",
+  age_col      = "p21022",
+  date_cols    = c(dm = "dm_date"),
+  status_cols  = c(dm = "dm_status")
 )
 ```
 
@@ -112,24 +118,21 @@ Follow-up time in years is then derived from the baseline date.
 
 ``` r
 df <- derive_followup(df,
-  name         = "outcome",
-  event_col    = "outcome_date",
-  baseline_col = "date_baseline",
-  censor_date  = as.Date("2022-06-01"),   # set to your study's cut-off date
-  death_col    = "date_death",
-  lost_col     = "date_lost_followup"
+  name         = "dm",
+  event_col    = "dm_date",
+  baseline_col = "p53_i0",
+  censor_date  = as.Date("2022-10-31"),   # set to your study's cut-off date
+  death_col    = "p40000_i0",
+  lost_col     = FALSE                    # not available in ops_toy
 )
-#> ✔ derive_followup (outcome):
-#>   outcome_followup_end: 502 097 / 502 097 non-missing
-#>   outcome_followup_years: mean=11.84, median=12.31, range=[0.03, 14.92]
 ```
 
 Output columns:
 
-| Column                   | Type    | Description                |
-|--------------------------|---------|----------------------------|
-| `outcome_followup_end`   | IDate   | Earliest competing date    |
-| `outcome_followup_years` | numeric | Years from baseline to end |
+| Column              | Type    | Description                |
+|---------------------|---------|----------------------------|
+| `dm_followup_end`   | IDate   | Earliest competing date    |
+| `dm_followup_years` | numeric | Years from baseline to end |
 
 ### Prevalent cases receive `NA` follow-up time
 
@@ -150,10 +153,10 @@ looks them up automatically from the field cache (UKB fields 40000 and
 
 ``` r
 df <- derive_followup(df,
-  name         = "outcome",
-  event_col    = "outcome_date",
-  baseline_col = "date_baseline",
-  censor_date  = as.Date("2022-06-01"),
+  name         = "dm",
+  event_col    = "dm_date",
+  baseline_col = "p53_i0",
+  censor_date  = as.Date("2022-10-31"),
   death_col    = FALSE,
   lost_col     = FALSE
 )
@@ -170,11 +173,11 @@ fit a Cox proportional hazards model:
 library(survival)
 
 # Incident analysis: exclude prevalent cases and those with undetermined timing
-df_incident <- df[outcome_timing != 1L]
+df_incident <- df[dm_timing != 1L]
 
 fit <- coxph(
-  Surv(outcome_followup_years, outcome_status) ~
-    exposure_status + age_at_recruitment + sex + smoking_status_i0,
+  Surv(dm_followup_years, dm_status) ~
+    p20116_i0 + p21022 + p31 + p1558_i0,
   data = df_incident
 )
 summary(fit)
@@ -182,13 +185,13 @@ summary(fit)
 
 Column roles in the model:
 
-| Column                   | Role                                                |
-|--------------------------|-----------------------------------------------------|
-| `outcome_status`         | Event indicator (logical)                           |
-| `outcome_followup_years` | Time variable                                       |
-| `outcome_timing`         | Filter: exclude prevalent (`== 1`)                  |
-| `age_at_outcome`         | Age at diagnosis (descriptive / secondary analysis) |
-| `exposure_status`        | Exposure of interest                                |
+| Column              | Role                                                |
+|---------------------|-----------------------------------------------------|
+| `dm_status`         | Event indicator (logical)                           |
+| `dm_followup_years` | Time variable                                       |
+| `dm_timing`         | Filter: exclude prevalent (`== 1`)                  |
+| `age_at_dm`         | Age at diagnosis (descriptive / secondary analysis) |
+| `p20116_i0`         | Exposure of interest (smoking status)               |
 
 ------------------------------------------------------------------------
 

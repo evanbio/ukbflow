@@ -150,26 +150,44 @@ requiring the user to recode the `by` variable.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Subgroup by sex, coxph, unadjusted only
-res <- assoc_subgroup(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = c("exposure", "bmi_category"),
-  by           = "sex",
-  method       = "coxph"
-)
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
+dt <- dt[dm_timing != 1L]
 
-# With Fully adjusted model (exclude 'sex' from covariates)
 res <- assoc_subgroup(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  time_col     = "followup_years",
-  exposure_col = "exposure",
-  by           = "sex",
+  data         = dt,
+  outcome_col  = "dm_status",
+  time_col     = "dm_followup_years",
+  exposure_col = "p20116_i0",
+  by           = "p31",
   method       = "coxph",
-  covariates   = c("age_at_recruitment", "tdi", "smoking")
+  covariates   = c("bmi_cat", "tdi_cat")
 )
-} # }
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_subgroup ──────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 2 models x 2 subgroups (p31)
+#> ℹ Computing interaction LRT (exposure x p31) on full data ...
+#> ℹ   Unadjusted | p20116_i0: p_interaction = 0.852
+#> ℹ   Fully adjusted | p20116_i0: p_interaction = 0.864
+#> 
+#> ── p31 = Female  (n = 263) ──
+#> 
+#> ── p20116_i0 
+#> ✔   Unadjusted | p20116_i0Previous: HR 0.32 (0.07-1.42), p = 0.135
+#> ✔   Unadjusted | p20116_i0Current: HR 0.35 (0.05-2.70), p = 0.316
+#> ✔   Fully adjusted | p20116_i0Previous: HR 0.35 (0.08-1.56), p = 0.169
+#> ✔   Fully adjusted | p20116_i0Current: HR 0.39 (0.05-3.00), p = 0.364
+#> 
+#> ── p31 = Male  (n = 200) ──
+#> 
+#> !   p31 = Male: only 8 events -- results may be unstable.
+#> 
+#> ── p20116_i0 
+#> ✔   Unadjusted | p20116_i0Previous: HR 0.57 (0.11-2.93), p = 0.498
+#> ✔   Unadjusted | p20116_i0Current: HR 0.57 (0.07-4.87), p = 0.606
+#> Warning: Loglik converged before variable  4,6 ; coefficient may be infinite. 
+#> ✔   Fully adjusted | p20116_i0Previous: HR 0.54 (0.10-2.90), p = 0.469
+#> ✔   Fully adjusted | p20116_i0Current: HR 0.39 (0.04-4.25), p = 0.439
+#> ✔ Done: 8 result rows across 1 exposure, 2 models, 2 subgroups.
 ```

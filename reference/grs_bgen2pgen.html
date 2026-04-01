@@ -123,7 +123,7 @@ chromosomes.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">grs_bgen2pgen</span><span class="op">(</span></span>
 <span>  chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">22</span>,</span>
-<span>  dest <span class="op">=</span> <span class="st">"/pgen/"</span>,</span>
+<span>  dest <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  maf <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  instance <span class="op">=</span> <span class="st">"standard"</span>,</span>
 <span>  priority <span class="op">=</span> <span class="st">"low"</span></span>
@@ -139,8 +139,8 @@ chromosomes.</p>
 
 
 <dt id="arg-dest">dest<a class="anchor" aria-label="anchor" href="#arg-dest"></a></dt>
-<dd><p>Character scalar. RAP destination path for output PGEN files.
-Default: <code>"/pgen/"</code>.</p></dd>
+<dd><p>Character scalar. RAP destination path for output PGEN files
+(e.g. <code>"/pgen/"</code>). Must be specified explicitly.</p></dd>
 
 
 <dt id="arg-maf">maf<a class="anchor" aria-label="anchor" href="#arg-maf"></a></dt>
@@ -191,13 +191,13 @@ standard storage is insufficient.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Test with chr22 first (smallest chromosome)</span></span></span>
-<span class="r-in"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">22</span>, priority <span class="op">=</span> <span class="st">"high"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">22</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span>, priority <span class="op">=</span> <span class="st">"high"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Small chromosomes - standard instance</span></span></span>
-<span class="r-in"><span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">15</span><span class="op">:</span><span class="fl">22</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Large chromosomes - upgrade instance to handle storage</span></span></span>
-<span class="r-in"><span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu">grs_bgen2pgen</span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Monitor</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="job_ls.html">job_ls</a></span><span class="op">(</span><span class="op">)</span></span></span>

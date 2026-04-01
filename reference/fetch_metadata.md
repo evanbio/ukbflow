@@ -1,4 +1,4 @@
-# Download all UKB Showcase metadata files
+# Download the Showcase metadata folder
 
 Downloads the entire `Showcase metadata/` folder from the DNAnexus
 Research Analysis Platform to a local directory. This includes
@@ -7,20 +7,15 @@ Research Analysis Platform to a local directory. This includes
 ## Usage
 
 ``` r
-fetch_metadata(
-  dest_dir = "data/metadata/",
-  overwrite = FALSE,
-  resume = FALSE,
-  verbose = TRUE
-)
+fetch_metadata(dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
 ```
 
 ## Arguments
 
 - dest_dir:
 
-  (character) Local destination directory. Created automatically if it
-  does not exist. Default: `"data/metadata/"`.
+  (character) Destination directory. Created automatically if it does
+  not exist.
 
 - overwrite:
 
@@ -42,7 +37,7 @@ Invisibly returns the local file paths as a character vector.
 
 ``` r
 if (FALSE) { # \dontrun{
-fetch_metadata()
-fetch_metadata(dest_dir = "metadata/", overwrite = TRUE)
+fetch_metadata(dest_dir = "metadata")
+fetch_metadata(dest_dir = "metadata", overwrite = TRUE)
 } # }
 ```

@@ -274,7 +274,7 @@ filter applied via plink2.</p>
 heavy lifting runs entirely in the cloud.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Test on the smallest chromosome first</span></span>
-<span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">22</span>, priority <span class="op">=</span> <span class="st">"high"</span><span class="op">)</span></span>
+<span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">22</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span>, priority <span class="op">=</span> <span class="st">"high"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Uploading 'grs_bgen2pgen_std.R' to RAP ...</span></span>
 <span><span class="co">#&gt; ✔ Uploaded: '/grs_bgen2pgen_std.R'</span></span>
 <span><span class="co">#&gt; Submitting 1 job(s) -- mem2_ssd1_v2_x4 / priority: high</span></span>
@@ -282,8 +282,8 @@ heavy lifting runs entirely in the cloud.</p>
 <span><span class="co">#&gt; ✔ 1/1 job(s) submitted. Monitor with job_ls().</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full run: small chromosomes on standard, large on upgraded instance</span></span>
-<span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span><span class="op">)</span></span>
-<span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
+<span><span class="va">ids_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span><span class="op">)</span></span>
+<span><span class="va">ids_large</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>,  dest <span class="op">=</span> <span class="st">"/pgen/"</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Monitor progress (job_wait() takes one job ID at a time)</span></span>
 <span><span class="fu"><a href="../reference/job_ls.html">job_ls</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -332,8 +332,8 @@ heavy lifting runs entirely in the cloud.</p>
 </tr>
 <tr class="even">
 <td><code>dest</code></td>
-<td><code>"/pgen/"</code></td>
-<td>RAP output path for PGEN files</td>
+<td>—</td>
+<td>RAP output path for PGEN files (required)</td>
 </tr>
 <tr class="odd">
 <td><code>maf</code></td>
@@ -368,10 +368,11 @@ weights file(s) and submits one plink2 scoring job per GRS. Each job
 scores all 22 chromosomes and saves a single CSV to RAP.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_score.html">grs_score</a></span><span class="op">(</span></span>
-<span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  file     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    grs_a <span class="op">=</span> <span class="st">"weights/grs_a_weights.txt"</span>,</span>
 <span>    grs_b <span class="op">=</span> <span class="st">"weights/grs_b_weights.txt"</span></span>
 <span>  <span class="op">)</span>,</span>
+<span>  pgen_dir <span class="op">=</span> <span class="st">"/mnt/project/pgen"</span>,</span>
 <span>  dest     <span class="op">=</span> <span class="st">"/grs/"</span>,</span>
 <span>  priority <span class="op">=</span> <span class="st">"high"</span></span>
 <span><span class="op">)</span></span>
@@ -391,8 +392,9 @@ root, the upload step is skipped automatically:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># On RAP: weights already at /mnt/project/grs_a_weights.txt</span></span>
 <span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_score.html">grs_score</a></span><span class="op">(</span></span>
-<span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>grs_a <span class="op">=</span> <span class="st">"/mnt/project/grs_a_weights.txt"</span><span class="op">)</span>,</span>
-<span>  dest <span class="op">=</span> <span class="st">"/grs/"</span></span>
+<span>  file     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>grs_a <span class="op">=</span> <span class="st">"/mnt/project/grs_a_weights.txt"</span><span class="op">)</span>,</span>
+<span>  pgen_dir <span class="op">=</span> <span class="st">"/mnt/project/pgen"</span>,</span>
+<span>  dest     <span class="op">=</span> <span class="st">"/grs/"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ grs_a_weights.txt already at RAP root, skipping upload.</span></span></code></pre></div>
 <blockquote>
@@ -561,15 +563,16 @@ analyses for each GRS:</p>
 <span><span class="fu"><a href="../reference/grs_check.html">grs_check</a></span><span class="op">(</span><span class="st">"weights.csv"</span>, dest <span class="op">=</span> <span class="st">"weights_clean.txt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 2. Convert BGEN -&gt; PGEN on RAP (submit jobs)</span></span>
-<span><span class="va">ids_std</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span>, maf <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="va">ids_lrg</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>,  maf <span class="op">=</span> <span class="fl">0.01</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
+<span><span class="va">ids_std</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">17</span><span class="op">:</span><span class="fl">22</span>, dest <span class="op">=</span> <span class="st">"/pgen/"</span>, maf <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="va">ids_lrg</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen</a></span><span class="op">(</span>chr <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">16</span>,  dest <span class="op">=</span> <span class="st">"/pgen/"</span>, maf <span class="op">=</span> <span class="fl">0.01</span>, instance <span class="op">=</span> <span class="st">"large"</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">id</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ids_std</span>, <span class="va">ids_lrg</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 3. Score GRS on RAP (submit jobs)</span></span>
 <span><span class="va">score_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_score.html">grs_score</a></span><span class="op">(</span></span>
-<span>  file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>grs_a <span class="op">=</span> <span class="st">"weights_clean.txt"</span><span class="op">)</span>,</span>
-<span>  maf  <span class="op">=</span> <span class="fl">0.01</span>,   <span class="co"># must match grs_bgen2pgen()</span></span>
-<span>  dest <span class="op">=</span> <span class="st">"/grs/"</span></span>
+<span>  file     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>grs_a <span class="op">=</span> <span class="st">"weights_clean.txt"</span><span class="op">)</span>,</span>
+<span>  pgen_dir <span class="op">=</span> <span class="st">"/mnt/project/pgen"</span>,</span>
+<span>  maf      <span class="op">=</span> <span class="fl">0.01</span>,   <span class="co"># must match grs_bgen2pgen()</span></span>
+<span>  dest     <span class="op">=</span> <span class="st">"/grs/"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">score_ids</span><span class="op">)</span></span>
 <span></span>

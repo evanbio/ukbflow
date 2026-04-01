@@ -139,10 +139,47 @@ that snapshot). Default <code>NULL</code>.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+<span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: raw ───────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 51</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-in"><span><span class="fu">ops_snapshot_cols</span><span class="op">(</span><span class="st">"raw"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [51] "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"    "p40006_i1"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [56] "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"    "p40011_i2"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [61] "p40012_i2"    "p40005_i2"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [66] "p40002_i0_a2" "p40000_i0"    "p131742"      "grs_bmi"      "grs_raw"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [71] "grs_finngen"  "messy_allna"  "messy_empty"  "messy_label" </span>
 <span class="r-in"><span><span class="fu">ops_snapshot_cols</span><span class="op">(</span><span class="st">"raw"</span>, keep <span class="op">=</span> <span class="st">"eid"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [51] "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"    "p40006_i1"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [56] "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"    "p40011_i2"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [61] "p40012_i2"    "p40005_i2"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [66] "p40002_i0_a2" "p40000_i0"    "p131742"      "grs_bmi"      "grs_raw"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [71] "grs_finngen"  "messy_allna"  "messy_empty"  "messy_label" </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

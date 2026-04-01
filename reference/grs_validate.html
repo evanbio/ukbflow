@@ -192,26 +192,174 @@ is non-<code>NULL</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Logistic (cross-sectional)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">grs_validate</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data        <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  grs_cols    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GRS_a_z"</span>, <span class="st">"GRS_b_z"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  outcome_col <span class="op">=</span> <span class="st">"outcome"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 500 participants | 33 columns | scenario = <span style="color: #0000BB;">"association"</span> | seed = 42</span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="grs_standardize.html">grs_standardize</a></span><span class="op">(</span><span class="va">dt</span>, grs_cols <span class="op">=</span> <span class="st">"grs_bmi"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> grs_bmi -&gt; grs_bmi_z  [mean=0.8844, sd=2.5272]</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Cox (survival)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">grs_validate</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data        <span class="op">=</span> <span class="va">cohort</span>,</span></span>
-<span class="r-in"><span>  grs_cols    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GRS_a_z"</span>, <span class="st">"GRS_b_z"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  outcome_col <span class="op">=</span> <span class="st">"outcome"</span>,</span></span>
-<span class="r-in"><span>  time_col    <span class="op">=</span> <span class="st">"followup_years"</span>,</span></span>
-<span class="r-in"><span>  covariates  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"pc"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  data        <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>  grs_cols    <span class="op">=</span> <span class="st">"grs_bmi_z"</span>,</span></span>
+<span class="r-in"><span>  outcome_col <span class="op">=</span> <span class="st">"dm_status"</span>,</span></span>
+<span class="r-in"><span>  time_col    <span class="op">=</span> <span class="st">"dm_followup_years"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Creating GRS groups ─────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Source: grs_bmi_z ───────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z</span>: mean=0, median=0.01, sd=1, Q1=-0.69, Q3=0.66, NA=0% (n=0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── New column: grs_bmi_z_quad ──────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z_quad</span> [4 levels]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q1: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q2: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q3: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q4: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &lt;NA&gt;: n=0 (0%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Source: grs_bmi_z ───────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z</span>: mean=0, median=0.01, sd=1, Q1=-0.69, Q3=0.66, NA=0% (n=0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── New column: grs_bmi_z_tri ───────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z_tri</span> [3 levels]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Low: n=100 (20%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mid: n=300 (60%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> High: n=100 (20%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &lt;NA&gt;: n=0 (0%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Effect per SD (HR) ──────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_coxph</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models = 2 Cox regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants (n/n_events/person_years reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z: HR 1.10 (0.74-1.65), p = 0.639</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z: HR 1.10 (0.73-1.66), p = 0.644</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 2 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── High vs Low ─────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_coxph</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models = 2 Cox regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants (n/n_events/person_years reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z_tri</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_triMid: HR 1.14 (0.38-3.47), p = 0.816</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_triHigh: HR 1.49 (0.42-5.29), p = 0.536</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_triMid: HR 1.07 (0.35-3.30), p = 0.901</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_triHigh: HR 1.48 (0.42-5.24), p = 0.547</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 4 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Trend test ──────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Exposure <span style="color: #00BB00;">grs_bmi_z_quad</span> is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_trend</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models (categorical + trend model per combination)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z_quad</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Levels: Q1 -&gt; Q2 -&gt; Q3 -&gt; Q4 | Scores: 0, 1, 2, 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | grs_bmi_z_quadQ1: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ2: HR 1.52 (0.50-4.65), p = 0.461</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ3: HR 0.79 (0.21-2.93), p = 0.721</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ4: HR 1.38 (0.44-4.36), p = 0.579</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | trend: HR_per_score = 1.03 (0.72-1.48), p_trend = 0.854</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | grs_bmi_z_quadQ1: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ2: HR 1.45 (0.47-4.46), p = 0.513</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ3: HR 0.76 (0.20-2.83), p = 0.677</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ4: HR 1.37 (0.43-4.31), p = 0.594</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | trend: HR_per_score = 1.03 (0.72-1.48), p_trend = 0.864</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 8 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── C-index ─────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Validation complete.</span>
 <span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">per_sd</span></span></span>
-<span class="r-in"><span><span class="va">res</span><span class="op">$</span><span class="va">discrimination</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     exposure      term                model     n n_events person_years</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;char&gt;    &lt;char&gt;                &lt;ord&gt; &lt;int&gt;    &lt;num&gt;        &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: grs_bmi_z grs_bmi_z           Unadjusted   463       24         6445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: grs_bmi_z grs_bmi_z Age and sex adjusted   463       24         6445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          HR  CI_lower CI_upper   p_value         HR_label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;num&gt;     &lt;num&gt;    &lt;num&gt;     &lt;num&gt;           &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: 1.101385 0.7361392 1.647854 0.6385214 1.10 (0.74-1.65)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: 1.101363 0.7312927 1.658707 0.6439986 1.10 (0.73-1.66)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"pROC"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">res_logit</span> <span class="op">&lt;-</span> <span class="fu">grs_validate</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    data        <span class="op">=</span> <span class="va">dt</span>,</span></span>
+<span class="r-in"><span>    grs_cols    <span class="op">=</span> <span class="st">"grs_bmi_z"</span>,</span></span>
+<span class="r-in"><span>    outcome_col <span class="op">=</span> <span class="st">"dm_status"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">res_logit</span><span class="op">$</span><span class="va">discrimination</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Creating GRS groups ─────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Source: grs_bmi_z ───────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z</span>: mean=0, median=0.01, sd=1, Q1=-0.69, Q3=0.66, NA=0% (n=0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── New column: grs_bmi_z_quad ──────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z_quad</span> [4 levels]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q1: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q2: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q3: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Q4: n=125 (25%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &lt;NA&gt;: n=0 (0%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Source: grs_bmi_z ───────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z</span>: mean=0, median=0.01, sd=1, Q1=-0.69, Q3=0.66, NA=0% (n=0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── New column: grs_bmi_z_tri ───────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">grs_bmi_z_tri</span> [3 levels]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Low: n=100 (20%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Mid: n=300 (60%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> High: n=100 (20%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &lt;NA&gt;: n=0 (0%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Effect per SD (OR) ──────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_logistic</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models = 2 logistic regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z: OR 0.97 (0.74-1.27), p = 0.81</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z: OR 0.96 (0.74-1.26), p = 0.79</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 2 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── High vs Low ─────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_logistic</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models = 2 logistic regressions</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z_tri</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_triMid: OR 0.79 (0.40-1.53), p = 0.478</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_triHigh: OR 0.92 (0.41-2.07), p = 0.836</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_triMid: OR 0.76 (0.39-1.50), p = 0.428</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_triHigh: OR 0.91 (0.40-2.05), p = 0.815</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 4 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Trend test ──────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Exposure <span style="color: #00BB00;">grs_bmi_z_quad</span> is not an ordered factor -- levels will be scored 0, 1, 2, ... (equal spacing assumed).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_trend</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models (categorical + trend model per combination)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">grs_bmi_z_quad</span> ──</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Levels: Q1 -&gt; Q2 -&gt; Q3 -&gt; Q4 | Scores: 0, 1, 2, 3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | grs_bmi_z_quadQ1: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ2: OR 0.69 (0.32-1.48), p = 0.339</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ3: OR 0.75 (0.36-1.58), p = 0.45</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Unadjusted | grs_bmi_z_quadQ4: OR 0.87 (0.42-1.80), p = 0.712</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | trend: OR_per_score = 0.96 (0.76-1.22), p_trend = 0.76</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | grs_bmi_z_quadQ1: 1.00 (ref)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ2: OR 0.67 (0.31-1.44), p = 0.306</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ3: OR 0.73 (0.34-1.55), p = 0.41</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span>   Age and sex adjusted | grs_bmi_z_quadQ4: OR 0.86 (0.42-1.78), p = 0.683</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Age and sex adjusted | trend: OR_per_score = 0.96 (0.75-1.22), p_trend = 0.738</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Done: 8 result rows across 1 exposure and 2 models.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── AUC ─────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Validation complete.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          GRS       AUC  CI_lower  CI_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;char&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: grs_bmi_z 0.5103253 0.4291761 0.5914745</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

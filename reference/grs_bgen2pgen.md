@@ -10,7 +10,7 @@ parallel across chromosomes.
 ``` r
 grs_bgen2pgen(
   chr = 1:22,
-  dest = "/pgen/",
+  dest = NULL,
   maf = 0.01,
   instance = "standard",
   priority = "low"
@@ -25,8 +25,8 @@ grs_bgen2pgen(
 
 - dest:
 
-  Character scalar. RAP destination path for output PGEN files. Default:
-  `"/pgen/"`.
+  Character scalar. RAP destination path for output PGEN files (e.g.
+  `"/pgen/"`). Must be specified explicitly.
 
 - maf:
 
@@ -81,13 +81,13 @@ auto-uploads to `dest` on completion. Output files per chromosome:
 ``` r
 if (FALSE) { # \dontrun{
 # Test with chr22 first (smallest chromosome)
-ids <- grs_bgen2pgen(chr = 22, priority = "high")
+ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
 
 # Small chromosomes - standard instance
-ids_small <- grs_bgen2pgen(chr = 15:22)
+ids_small <- grs_bgen2pgen(chr = 15:22, dest = "/pgen/")
 
 # Large chromosomes - upgrade instance to handle storage
-ids_large <- grs_bgen2pgen(chr = 1:16, instance = "large")
+ids_large <- grs_bgen2pgen(chr = 1:16, dest = "/pgen/", instance = "large")
 
 # Monitor
 job_ls()

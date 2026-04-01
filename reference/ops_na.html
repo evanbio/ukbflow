@@ -164,19 +164,185 @@ This means <code>n_na</code> and <code>pct_na</code> reflect <em>effective</em> 
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show all columns with any missing value</span></span></span>
 <span class="r-in"><span><span class="fu">ops_na</span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── ops_na ──────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 100 rows | 75 columns | threshold = 0%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a3  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a4  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a3  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a4  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a4     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a5     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a6     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a7     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a8     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_allna   100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_empty   100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a0   98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a0   98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a0   97 / 100  ( 97.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a4   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a4   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a1   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p131742        95 / 100  ( 95.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a1   94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a1   94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a2   93 / 100  ( 93.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a2   93 / 100  ( 93.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a3   92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a3   92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a3      92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40001_i0      85 / 100  ( 85.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40000_i0      85 / 100  ( 85.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a2      83 / 100  ( 83.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a0   82 / 100  ( 82.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a0   82 / 100  ( 82.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a1   80 / 100  ( 80.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a1   80 / 100  ( 80.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a1      77 / 100  ( 77.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41270         62 / 100  ( 62.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a0      62 / 100  ( 62.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_label    57 / 100  ( 57.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> 51 columns ≥ 10% missing</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> 24 columns complete (0% missing)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only list columns with &gt; 10% missing in the CLI output</span></span></span>
 <span class="r-in"><span><span class="fu">ops_na</span><span class="op">(</span><span class="va">dt</span>, threshold <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── ops_na ──────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 100 rows | 75 columns | threshold = 10%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a3  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a4  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a3  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a4  100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a4     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a5     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a6     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a7     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a8     100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_allna   100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_empty   100 / 100  (100.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a2   99 / 100  ( 99.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a0   98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a0   98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i2      98 / 100  ( 98.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a0   97 / 100  ( 97.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a4   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a4   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i1      96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40002_i0_a1   96 / 100  ( 96.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p131742        95 / 100  ( 95.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20001_i0_a1   94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20006_i0_a1   94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40006_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40011_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40012_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40005_i0      94 / 100  ( 94.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a2   93 / 100  ( 93.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a2   93 / 100  ( 93.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a3   92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a3   92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a3      92 / 100  ( 92.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40001_i0      85 / 100  ( 85.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p40000_i0      85 / 100  ( 85.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a2      83 / 100  ( 83.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a0   82 / 100  ( 82.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a0   82 / 100  ( 82.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20002_i0_a1   80 / 100  ( 80.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p20008_i0_a1   80 / 100  ( 80.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a1      77 / 100  ( 77.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41270         62 / 100  ( 62.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> p41280_a0      62 / 100  ( 62.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> messy_label    57 / 100  ( 57.00%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> 51 columns ≥ 10% missing</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> 24 columns complete (0% missing)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Programmatic use — retrieve result silently</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">ops_na</span><span class="op">(</span><span class="va">dt</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span><span class="op">[</span><span class="va">pct_na</span> <span class="op">&gt;</span> <span class="fl">50</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           column  n_na pct_na</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt; &lt;int&gt;  &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1: p20001_i0_a3   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2: p20001_i0_a4   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3: p20006_i0_a3   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4: p20006_i0_a4   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:    p41280_a4   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:    p41280_a5   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:    p41280_a6   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:    p41280_a7   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    p41280_a8   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:  messy_allna   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:  messy_empty   100    100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12: p20001_i0_a2    99     99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13: p20006_i0_a2    99     99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14: p40002_i0_a2    99     99</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15: p20001_i0_a0    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16: p20006_i0_a0    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:    p40006_i2    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:    p40011_i2    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:    p40012_i2    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:    p40005_i2    98     98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21: p40002_i0_a0    97     97</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22: p20002_i0_a4    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23: p20008_i0_a4    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:    p40006_i1    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:    p40011_i1    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:    p40012_i1    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:    p40005_i1    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28: p40002_i0_a1    96     96</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:      p131742    95     95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30: p20001_i0_a1    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31: p20006_i0_a1    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:    p40006_i0    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:    p40011_i0    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:    p40012_i0    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:    p40005_i0    94     94</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36: p20002_i0_a2    93     93</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37: p20008_i0_a2    93     93</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38: p20002_i0_a3    92     92</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39: p20008_i0_a3    92     92</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40:    p41280_a3    92     92</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41:    p40001_i0    85     85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42:    p40000_i0    85     85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43:    p41280_a2    83     83</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44: p20002_i0_a0    82     82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45: p20008_i0_a0    82     82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46: p20002_i0_a1    80     80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47: p20008_i0_a1    80     80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48:    p41280_a1    77     77</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49:       p41270    62     62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 50:    p41280_a0    62     62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 51:  messy_label    57     57</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           column  n_na pct_na</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt; &lt;int&gt;  &lt;num&gt;</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

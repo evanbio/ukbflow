@@ -8,20 +8,15 @@ references.
 ## Usage
 
 ``` r
-fetch_field(
-  dest_dir = "data/metadata/",
-  overwrite = FALSE,
-  resume = FALSE,
-  verbose = TRUE
-)
+fetch_field(dest_dir, overwrite = FALSE, resume = FALSE, verbose = TRUE)
 ```
 
 ## Arguments
 
 - dest_dir:
 
-  (character) Local destination directory. Created automatically if it
-  does not exist. Default: `"data/metadata/"`.
+  (character) Destination directory. Created automatically if it does
+  not exist.
 
 - overwrite:
 
@@ -43,7 +38,7 @@ Invisibly returns the local file path as a character string.
 
 ``` r
 if (FALSE) { # \dontrun{
-fetch_field()
-fetch_field(dest_dir = "metadata/", overwrite = TRUE)
+fetch_field(dest_dir = "metadata")
+fetch_field(dest_dir = "metadata", overwrite = TRUE)
 } # }
 ```

@@ -131,21 +131,25 @@ internally.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Minimal: crude + age-sex adjusted
-res <- assoc_logistic(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  exposure_col = c("exposure", "bmi_category")
-)
+dt <- ops_toy(scenario = "association", n = 500)
+#> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
 
-# With Fully adjusted model + profile likelihood CI
 res <- assoc_logistic(
-  data         = cohort,
-  outcome_col  = "outcome_status",
-  exposure_col = "exposure",
-  covariates   = c("tdi", "smoking", paste0("pc", 1:10)),
-  ci_method    = "profile"
+  data         = dt,
+  outcome_col  = "dm_status",
+  exposure_col = "p20116_i0",
+  covariates   = c("bmi_cat", "tdi_cat"),
+  base         = FALSE
 )
-} # }
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> 
+#> ── assoc_logistic ──────────────────────────────────────────────────────────────
+#> ℹ 1 exposure x 1 model = 1 logistic regression
+#> ℹ Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
+#> 
+#> ── p20116_i0 ──
+#> 
+#> ✔   Fully adjusted | p20116_i0Previous: OR 0.73 (0.39-1.35), p = 0.313
+#> ✔   Fully adjusted | p20116_i0Current: OR 0.70 (0.30-1.64), p = 0.406
+#> ✔ Done: 2 result rows across 1 exposure and 1 model.
 ```

@@ -12,8 +12,8 @@ monitor progress.
 ``` r
 grs_score(
   file,
-  pgen_dir = "/mnt/project/pgen",
-  dest = "/grs/",
+  pgen_dir = NULL,
+  dest = NULL,
   maf = 0.01,
   instance = "standard",
   priority = "low"
@@ -30,13 +30,13 @@ grs_score(
 
 - pgen_dir:
 
-  Character scalar. Path to PGEN files on RAP. Default:
-  `"/mnt/project/pgen"`.
+  Character scalar. Path to PGEN files on RAP (e.g.
+  `"/mnt/project/pgen"`). Must be specified explicitly.
 
 - dest:
 
-  Character scalar. RAP destination path for output CSV files. Default:
-  `"/grs/"`.
+  Character scalar. RAP destination path for output CSV files (e.g.
+  `"/grs/"`). Must be specified explicitly.
 
 - maf:
 
@@ -102,6 +102,7 @@ ids <- grs_score(
     grs_a = "weights/grs_a_weights.txt",
     grs_b = "weights/grs_b_weights.txt"
   ),
+  pgen_dir = "/mnt/project/pgen",
   dest     = "/grs/",
   priority = "high"
 )

@@ -43,11 +43,27 @@ the original `data.frame` is not modified.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-ops_snapshot(data, label = "raw")
-# ... derive_* operations ...
-ops_snapshot(data, label = "derived")
-ops_snapshot_diff("raw", "derived")   # inspect
-data <- ops_snapshot_remove(data, from = "raw")  # clean up
-} # }
+dt <- ops_toy(n = 100)
+#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
+ops_snapshot(dt, label = "raw")
+#> ── snapshot: raw ───────────────────────────────────────────────────────────────
+#> rows 100 (= 0)
+#> cols 75 (= 0)
+#> NA cols 51 (-2)
+#> size 0.09 MB (= 0)
+#> ────────────────────────────────────────────────────────────────────────────────
+dt <- derive_missing(dt)
+#> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
+ops_snapshot(dt, label = "derived")
+#> ── snapshot: derived ───────────────────────────────────────────────────────────
+#> rows 100 (= 0)
+#> cols 75 (= 0)
+#> NA cols 53 (+2)
+#> size 0.09 MB (= 0)
+#> ────────────────────────────────────────────────────────────────────────────────
+ops_snapshot_diff("raw", "derived")
+#> Columns added (0):
+#> Columns removed (0):
+dt <- ops_snapshot_remove(dt, from = "raw")
+#> ✔ ops_snapshot_remove: dropped 74 raw columns, 1 remaining.
 ```
