@@ -98,6 +98,7 @@ function a new user runs after installation."><meta property="og:image" content=
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
 
 
@@ -106,7 +107,7 @@ function a new user runs after installation."><meta property="og:image" content=
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Check the ukbflow operating environment</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/v0.3.3/R/ops.R" class="external-link"><code>R/ops.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/main/R/ops.R" class="external-link"><code>R/ops.R</code></a></small>
       <div class="d-none name"><code>ops_setup.Rd</code></div>
     </div>
 
@@ -164,17 +165,17 @@ errors, because the check itself does not require a live RAP connection.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ops_setup</span><span class="op">(</span>check_dx <span class="op">=</span> <span class="cn">FALSE</span>, check_auth <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── ukbflow environment check ───────────────────────────────────────────────────</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> ukbflow 0.3.3 | R 4.5.3 | 2026-04-01</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> ukbflow 0.3.3 | R 4.5.3 | 2026-04-07</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── 3. R packages ───────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">cli</span>  3.6.5  [core]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">data.table</span>  1.18.2.1  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">processx</span>  3.8.6  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">rlang</span>  1.1.7  [core]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">processx</span>  3.8.7  [core]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">rlang</span>  1.2.0  [core]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tools</span>  4.5.3  [core]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">curl</span>  7.0.0  [extract / fetch]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">jsonlite</span>  2.0.0  [extract / fetch]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">survival</span>  3.8.6  [assoc_coxph]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dplyr</span>  1.2.0  [assoc / derive]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dplyr</span>  1.2.1  [assoc / derive]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyselect</span>  1.2.1  [assoc / derive]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forestploter</span>  1.1.3  [plot_forest]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">broom</span>  1.0.12  [plot_tableone]</span>
@@ -205,7 +206,7 @@ errors, because the check itself does not require a live RAP connection.</p>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: April 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>

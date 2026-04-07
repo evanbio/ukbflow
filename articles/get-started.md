@@ -12,6 +12,10 @@ data for development and testing.
 ## Installation
 
 ``` r
+# From CRAN (recommended)
+install.packages("ukbflow")
+
+# Latest development version from GitHub
 pak::pkg_install("evanbio/ukbflow")
 ```
 

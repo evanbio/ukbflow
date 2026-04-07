@@ -21,23 +21,22 @@ two working modes:
 
 ## Quick Install
 
-### From GitHub
+### From CRAN *(recommended)*
 
 ``` r
+install.packages("ukbflow")
+```
+
+### From GitHub *(latest development version)*
+
+``` r
+# Using pak (faster)
+install.packages("pak")
+pak::pkg_install("evanbio/ukbflow")
+
 # Using remotes
 install.packages("remotes")
 remotes::install_github("evanbio/ukbflow")
-
-# Using pak (faster, recommended)
-install.packages("pak")
-pak::pkg_install("evanbio/ukbflow")
-```
-
-### From CRAN *(coming soon)*
-
-``` r
-# CRAN submission planned after GitHub MVP is stable
-# install.packages("ukbflow")
 ```
 
 ------------------------------------------------------------------------
@@ -173,7 +172,7 @@ ops_setup()   # checks R version, dxpy, DX_API_TOKEN, and key package versions
 remotes::install_github("evanbio/ukbflow", force = TRUE)
 ```
 
-### From CRAN *(once available)*
+### From CRAN
 
 ``` r
 update.packages("ukbflow")

@@ -2,6 +2,8 @@
 
 ## ukbflow 0.3.3
 
+CRAN release: 2026-04-07
+
 *Released: April 2026*
 
 ### Bug Fixes

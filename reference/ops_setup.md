@@ -51,17 +51,17 @@ errors, because the check itself does not require a live RAP connection.
 ``` r
 ops_setup(check_dx = FALSE, check_auth = FALSE)
 #> ── ukbflow environment check ───────────────────────────────────────────────────
-#> ℹ ukbflow 0.3.3 | R 4.5.3 | 2026-04-01
+#> ℹ ukbflow 0.3.3 | R 4.5.3 | 2026-04-07
 #> ── 3. R packages ───────────────────────────────────────────────────────────────
 #> ✔ cli  3.6.5  [core]
 #> ✔ data.table  1.18.2.1  [core]
-#> ✔ processx  3.8.6  [core]
-#> ✔ rlang  1.1.7  [core]
+#> ✔ processx  3.8.7  [core]
+#> ✔ rlang  1.2.0  [core]
 #> ✔ tools  4.5.3  [core]
 #> ✔ curl  7.0.0  [extract / fetch]
 #> ✔ jsonlite  2.0.0  [extract / fetch]
 #> ✔ survival  3.8.6  [assoc_coxph]
-#> ✔ dplyr  1.2.0  [assoc / derive]
+#> ✔ dplyr  1.2.1  [assoc / derive]
 #> ✔ tidyselect  1.2.1  [assoc / derive]
 #> ✔ forestploter  1.1.3  [plot_forest]
 #> ✔ broom  1.0.12  [plot_tableone]

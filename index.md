@@ -2,13 +2,16 @@
 
 > RAP-native R workflow for UK Biobank analysis
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.org/package=ukbflow)
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![License:
-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ------------------------------------------------------------------------
+
+> \[!NOTE\] 🎉 **2026-04 — ukbflow is now available on CRAN!** Install
+> with `install.packages("ukbflow")`.
 
 ## Overview
 
@@ -22,7 +25,10 @@ data policy requiring individual-level data to remain in the cloud.
 ## Installation
 
 ``` r
-# Recommended
+# From CRAN (recommended)
+install.packages("ukbflow")
+
+# Latest development version from GitHub
 pak::pkg_install("evanbio/ukbflow")
 
 # or

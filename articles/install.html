@@ -126,6 +126,7 @@
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
 </div>
 
@@ -141,7 +142,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Installation Guide</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/v0.3.3/vignettes/install.Rmd" class="external-link"><code>vignettes/install.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evanbio/ukbflow/blob/main/vignettes/install.Rmd" class="external-link"><code>vignettes/install.Rmd</code></a></small>
       <div class="d-none name"><code>install.Rmd</code></div>
     </div>
 
@@ -173,23 +174,22 @@ statistics, plots, reports) may be exported.</p>
 <h2 id="quick-install">Quick Install<a class="anchor" aria-label="anchor" href="#quick-install"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-github">From GitHub<a class="anchor" aria-label="anchor" href="#from-github"></a>
+<h3 id="from-cran-recommended">From CRAN <em>(recommended)</em><a class="anchor" aria-label="anchor" href="#from-cran-recommended"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Using remotes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Using pak (faster, recommended)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ukbflow"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="from-cran-coming-soon">From CRAN <em>(coming soon)</em><a class="anchor" aria-label="anchor" href="#from-cran-coming-soon"></a>
+<h3 id="from-github-latest-development-version">From GitHub <em>(latest development version)</em><a class="anchor" aria-label="anchor" href="#from-github-latest-development-version"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># CRAN submission planned after GitHub MVP is stable</span></span>
-<span><span class="co"># install.packages("ukbflow")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Using pak (faster)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Using remotes</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -336,13 +336,13 @@ session with:</p>
 <h2 id="update-ukbflow">Update ukbflow<a class="anchor" aria-label="anchor" href="#update-ukbflow"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-github-1">From GitHub<a class="anchor" aria-label="anchor" href="#from-github-1"></a>
+<h3 id="from-github">From GitHub<a class="anchor" aria-label="anchor" href="#from-github"></a>
 </h3>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span>, force <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="from-cran-once-available">From CRAN <em>(once available)</em><a class="anchor" aria-label="anchor" href="#from-cran-once-available"></a>
+<h3 id="from-cran">From CRAN<a class="anchor" aria-label="anchor" href="#from-cran"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/update.packages.html" class="external-link">update.packages</a></span><span class="op">(</span><span class="st">"ukbflow"</span><span class="op">)</span></span></code></pre></div>
@@ -435,7 +435,7 @@ Reference</a>
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: March 2026</small></p>
+<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: April 2026</small></p>
 </div>
 <div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>

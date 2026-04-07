@@ -4,11 +4,11 @@
 
 ### *面向 UK Biobank 的 RAP 原生 R 分析工作流*
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.org/package=ukbflow)
 [![R-CMD-check](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evanbio/ukbflow/actions/workflows/R-CMD-check.yaml)
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![License:
-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [📚 文档](https://evanbio.github.io/ukbflow/) • [🚀
 快速开始](https://evanbio.github.io/ukbflow/articles/get-started.html) •
@@ -19,6 +19,9 @@ MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/
 简体中文
 
 ------------------------------------------------------------------------
+
+> \[!NOTE\] 🎉 **2026-04 — ukbflow 现已上架 CRAN！** 使用
+> `install.packages("ukbflow")` 安装。
 
 ## 简介
 
@@ -75,7 +78,10 @@ plot_forest(
 ## 安装
 
 ``` r
-# 推荐
+# 从 CRAN 安装（推荐）
+install.packages("ukbflow")
+
+# 从 GitHub 安装最新开发版
 pak::pkg_install("evanbio/ukbflow")
 
 # 或者
