@@ -283,6 +283,11 @@ navbar:
       href: https://github.com/evanbio/ukbflow
       aria-label: "GitHub"
 
+    cran:
+      icon: "fa fa-cube"
+      href: https://CRAN.R-project.org/package=ukbflow
+      aria-label: "CRAN"
+
 # ==============================================================================
 # Function Reference Organization
 # ==============================================================================
@@ -441,7 +446,7 @@ footer:
     package_info: |
       <div class="text-muted">
         <strong>ukbflow v0.3.3</strong><br>
-        <small>Last updated: March 2026</small>
+        <small>Last updated: April 2026</small>
       </div>
 
     social_links: |
