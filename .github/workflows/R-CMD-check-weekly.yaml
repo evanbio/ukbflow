@@ -112,7 +112,7 @@ jobs:
       - name: Install dependencies
         run: |
           pak::pak(c("rcmdcheck", "remotes"))
-          pak::local_install_deps()
+          pak::local_install_dev_deps()
         shell: Rscript {0}
 
       - name: Check
