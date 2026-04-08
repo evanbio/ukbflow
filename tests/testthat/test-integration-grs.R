@@ -9,9 +9,11 @@
 # Shared fixture
 # =============================================================================
 
+skip_on_cran()
 DT <- suppressMessages(ops_toy(n = 2000L, seed = 42L))
 
 # Simulate two raw GRS scores correlated with a latent signal
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 set.seed(42L)
 N          <- nrow(DT)
 grs_signal <- rnorm(N)

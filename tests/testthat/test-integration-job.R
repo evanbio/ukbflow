@@ -4,6 +4,7 @@
 # Run manually before release: devtools::test(filter = "integration-job")
 # =============================================================================
 
+skip_on_cran()
 
 # Known job IDs from this project (used as stable test fixtures)
 # State is immutable once terminal — safe to hardcode

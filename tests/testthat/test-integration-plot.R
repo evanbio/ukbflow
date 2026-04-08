@@ -9,6 +9,8 @@
 # Shared helpers
 # ===========================================================================
 
+skip_on_cran()
+
 .fake_forest_df <- function() {
   data.frame(
     item    = c("AD vs control", "Crude", "Adjusted"),

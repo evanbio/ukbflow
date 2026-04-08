@@ -8,6 +8,8 @@
 # Shared fixture (n=2000, realistic UKB-like distributions)
 # ===========================================================================
 
+skip_on_cran()
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 set.seed(2024L)
 N <- 2000L
 

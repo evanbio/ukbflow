@@ -10,6 +10,7 @@
 # Shared fixture
 # =============================================================================
 
+skip_on_cran()
 DT      <- suppressMessages(ops_toy(n = 2000L, seed = 42L))
 CENSOR  <- as.Date("2022-06-01")
 

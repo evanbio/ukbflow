@@ -5,6 +5,7 @@
 # Run manually before release: devtools::test(filter = "integration-decode")
 # =============================================================================
 
+skip_on_cran()
 
 # Download metadata files once for the decode_values() tests (RAP + token required)
 META_DIR <- local({
