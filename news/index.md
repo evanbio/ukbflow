@@ -1,5 +1,20 @@
 # Changelog
 
+## ukbflow 0.3.4
+
+*Released: April 2026*
+
+### Bug Fixes
+
+- All `test-integration-*.R` files now call `skip_on_cran()` at file
+  scope, preventing integration tests from running on CRAN. Resolves
+  CHECK ERROR on `r-devel-linux-x86_64-fedora-clang` and
+  `r-devel-linux-x86_64-fedora-gcc` reported by CRAN on 2026-04-08.
+- [`RNGkind()`](https://rdrr.io/r/base/Random.html) is now explicitly
+  set before [`set.seed()`](https://rdrr.io/r/base/Random.html) in
+  integration tests that use simulated data, ensuring cross-platform RNG
+  reproducibility.
+
 ## ukbflow 0.3.3
 
 CRAN release: 2026-04-07

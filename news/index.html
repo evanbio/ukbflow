@@ -63,7 +63,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,6 +106,16 @@
       <small>Source: <a href="https://github.com/evanbio/ukbflow/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.4" id="ukbflow-034">ukbflow 0.3.4<a class="anchor" aria-label="anchor" href="#ukbflow-034"></a></h2>
+<p><em>Released: April 2026</em></p>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-4">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-4"></a></h3>
+<ul><li>All <code>test-integration-*.R</code> files now call <code>skip_on_cran()</code> at file scope, preventing integration tests from running on CRAN. Resolves CHECK ERROR on <code>r-devel-linux-x86_64-fedora-clang</code> and <code>r-devel-linux-x86_64-fedora-gcc</code> reported by CRAN on 2026-04-08.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">RNGkind()</a></code> is now explicitly set before <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> in integration tests that use simulated data, ensuring cross-platform RNG reproducibility.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.3" id="ukbflow-033">ukbflow 0.3.3<a class="anchor" aria-label="anchor" href="#ukbflow-033"></a></h2><p class="text-muted">CRAN release: 2026-04-07</p>
 <p><em>Released: April 2026</em></p>
@@ -397,7 +407,7 @@
 
 <div class="pkgdown-footer-right">
   <div class="text-muted">
-<p><strong>ukbflow v0.3.3</strong><br><small>Last updated: April 2026</small></p>
+<p><strong>ukbflow v0.3.4</strong><br><small>Last updated: April 2026</small></p>
 </div><div class="footer-links">
 <p><a href="https://github.com/evanbio/ukbflow" class="external-link text-muted me-3" aria-label="GitHub"> <i class="fab fa-github fa-lg"></i> </a> <a href="https://blog.evanzhou.org" class="external-link text-muted" aria-label="Blog"> <i class="fas fa-blog fa-lg"></i> </a></p>
 </div>
