@@ -119,6 +119,6 @@ jobs:
         run: |
           rcmdcheck::rcmdcheck(
             args     = c("--no-manual", "--as-cran"),
-            error_on = "warning"
+            error_on = "error"
           )
         shell: Rscript {0}
