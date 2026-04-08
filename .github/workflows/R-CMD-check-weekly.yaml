@@ -103,16 +103,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {image: 'ghcr.io/r-hub/containers/clang-asan:latest', label: 'r-hub / fedora-clang-asan'}
-          - {image: 'ghcr.io/r-hub/containers/gcc:latest',        label: 'r-hub / fedora-gcc'}
+          - {image: 'ghcr.io/r-hub/containers/clang-asan:latest', label: 'r-hub / clang-asan'}
+          - {image: 'ghcr.io/r-hub/containers/gcc-asan:latest',   label: 'r-hub / gcc-asan'}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          install.packages(c("rcmdcheck", "remotes"))
-          remotes::install_deps(dependencies = TRUE)
+          pak::pak(c("rcmdcheck", "remotes"))
+          pak::local_install_deps()
         shell: Rscript {0}
 
       - name: Check
