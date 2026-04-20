@@ -159,7 +159,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><strong>ukbflow</strong> provides a streamlined, RAP-native R workflow for UK Biobank analysis — from phenotype extraction and disease derivation to association analysis and publication-quality figures. All functions are designed to run within the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a>, in compliance with the 2024+ data policy requiring individual-level data to remain in the cloud.</p>
+<p><strong>ukbflow</strong> provides a streamlined, RAP-native R workflow for UK Biobank analysis — from phenotype extraction and disease derivation to association analysis and publication-quality figures. It is designed to support workflows on the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a> under the 2024+ data policy requiring individual-level data to remain in the cloud; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -175,6 +175,7 @@
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Requirements:</strong> R ≥ 4.1 · <a href="https://documentation.dnanexus.com/downloads" class="external-link">dxpy</a> (dx-toolkit, required for RAP interaction)</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span></code></pre></div>
+<p>GRS workflows additionally require <code>plink2</code> availability in the RAP job environment.</p>
 </div>
 <div class="section level2">
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
@@ -183,8 +184,8 @@
 <p><strong>Data Access</strong> — Retrieve phenotype data from UKB dataset on RAP; monitor asynchronous jobs (<code>fetch_metadata</code>, <code>extract_batch</code>, <code>job_wait</code>)</p>
 <p><strong>Data Processing</strong> — Harmonize multi-source records and derive analysis-ready cohort: decode field IDs and value codes, build ICD-10 case definitions, compute follow-up time (<code>decode_names</code>, <code>decode_values</code>, <code>derive_icd10</code>, <code>derive_followup</code>, <code>derive_case</code>)</p>
 <p><strong>Association Analysis</strong> — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (<code>assoc_coxph</code>, <code>assoc_logistic</code>, <code>assoc_subgroup</code>)</p>
-<p><strong>Genomic Scoring</strong> — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardisation (<code>grs_bgen2pgen</code>, <code>grs_score</code>, <code>grs_standardize</code>)</p>
-<p><strong>Visualization</strong> — Publication-ready forest plots and Table 1, saved in all major formats at 300 dpi (<code>plot_forest</code>, <code>plot_tableone</code>)</p>
+<p><strong>Genomic Scoring</strong> — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardization (<code>grs_bgen2pgen</code>, <code>grs_score</code>, <code>grs_standardize</code>)</p>
+<p><strong>Visualization</strong> — Publication-ready forest plots and Table 1 outputs in common manuscript formats (<code>plot_forest</code>, <code>plot_tableone</code>)</p>
 <p><strong>Utilities</strong> — Verify environment before analysis; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (<code>ops_setup</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>, <code>ops_withdraw</code>)</p>
 </div>
 <div class="section level2">

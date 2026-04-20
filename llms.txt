@@ -17,10 +17,12 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 
 **ukbflow** provides a streamlined, RAP-native R workflow for UK Biobank
 analysis — from phenotype extraction and disease derivation to
-association analysis and publication-quality figures. All functions are
-designed to run within the [UK Biobank Research Analysis Platform
-(RAP)](https://ukbiobank.dnanexus.com), in compliance with the 2024+
-data policy requiring individual-level data to remain in the cloud.
+association analysis and publication-quality figures. It is designed to
+support workflows on the [UK Biobank Research Analysis Platform
+(RAP)](https://ukbiobank.dnanexus.com) under the 2024+ data policy
+requiring individual-level data to remain in the cloud; users remain
+responsible for ensuring that only permitted summary-level outputs are
+downloaded.
 
 ## Installation
 
@@ -43,6 +45,9 @@ required for RAP interaction)
 pip install dxpy
 ```
 
+GRS workflows additionally require `plink2` availability in the RAP job
+environment.
+
 ## Key Features
 
 **Connection** — Authenticate to RAP via dx-toolkit and manage project
@@ -64,10 +69,10 @@ dose-response trend, and Fine-Gray competing risks (`assoc_coxph`,
 
 **Genomic Scoring** — Distributed plink2 scoring on RAP worker nodes:
 BGEN → PGEN conversion, multi-chromosome GRS computation, and
-standardisation (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
+standardization (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
 
-**Visualization** — Publication-ready forest plots and Table 1, saved in
-all major formats at 300 dpi (`plot_forest`, `plot_tableone`)
+**Visualization** — Publication-ready forest plots and Table 1 outputs
+in common manuscript formats (`plot_forest`, `plot_tableone`)
 
 **Utilities** — Verify environment before analysis; generate synthetic
 UKB-like data for development; diagnose missing values; track cohort

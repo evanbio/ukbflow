@@ -3,7 +3,9 @@
 Extracts phenotypic fields from the UKB Research Analysis Platform
 dataset and returns a `data.table`. All instances and arrays are
 returned for each requested field. Column names are kept as-is (e.g.
-`participant.p53_i0`); use the `clean_` series for renaming.
+`participant.p53_i0`); use
+[`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
+for renaming.
 
 ## Usage
 

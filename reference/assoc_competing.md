@@ -184,6 +184,8 @@ res <- assoc_competing(
   compete_col  = "htn_status",
   covariates   = c("bmi_cat", "tdi_cat")
 )
+#> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
+#> ℹ outcome_col htn_status: logical detected, converting TRUE/FALSE -> 1/0
 #> ℹ Mode B: dm_status (event) + htn_status (compete)
 #> ℹ Events: 22, Competing: 45, Censored: 317
 #> ℹ Exposure: p20116_i0

@@ -31,12 +31,7 @@ but not `label2`).
 dt <- ops_toy(n = 100)
 #> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
 ops_snapshot(dt, label = "raw")
-#> ── snapshot: raw ───────────────────────────────────────────────────────────────
-#> rows 100 (= 0)
-#> cols 75 (= 0)
-#> NA cols 51 (= 0)
-#> size 0.09 MB (= 0)
-#> ────────────────────────────────────────────────────────────────────────────────
+#> Error: Snapshot label "raw" already exists. Use a unique `label`.
 dt <- derive_missing(dt)
 #> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
 ops_snapshot(dt, label = "derived")

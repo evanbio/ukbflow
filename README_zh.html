@@ -126,7 +126,7 @@
 <h2 id="简介">简介<a class="anchor" aria-label="anchor" href="#%E7%AE%80%E4%BB%8B"></a></h2>
 <p><strong>ukbflow</strong> 提供了一套完整的、RAP 原生的 UK Biobank 分析工作流 —— 从表型提取、疾病衍生，到关联分析和发表级图表，全程在 RAP 云端环境中运行。</p>
 <blockquote>
-<p><strong>UK Biobank 数据政策（2024+）</strong>：个体水平数据必须保留在 RAP 环境中，不得下载到本地。所有 <code>ukbflow</code> 函数均遵循此约束设计。</p>
+<p><strong>UK Biobank 数据政策（2024+）</strong>：个体水平数据必须保留在 RAP 环境中，不得下载到本地。<code>ukbflow</code> 旨在支持符合该约束的 RAP 原生分析流程；用户仍需确保仅下载获准的汇总级结果。</p>
 </blockquote>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
@@ -181,6 +181,7 @@
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evanbio/ukbflow"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>环境要求：</strong> R ≥ 4.1 · <a href="https://documentation.dnanexus.com/downloads" class="external-link">dxpy</a>（dx-toolkit，RAP 交互必需）</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="ex">pip</span> install dxpy</span></code></pre></div>
+<p>GRS 流程还需要 RAP 任务环境中可用的 <code>plink2</code>。</p>
 <hr></div>
 <div class="section level2">
 <h2 id="核心功能">核心功能<a class="anchor" aria-label="anchor" href="#%E6%A0%B8%E5%BF%83%E5%8A%9F%E8%83%BD"></a></h2>
