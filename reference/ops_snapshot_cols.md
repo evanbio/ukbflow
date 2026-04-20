@@ -30,6 +30,8 @@ A character vector of column names.
 ## Examples
 
 ``` r
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 #> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
 ops_snapshot(dt, label = "raw")
@@ -71,4 +73,6 @@ ops_snapshot_cols("raw", keep = "eid")
 #> [61] "p40012_i2"    "p40005_i2"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"
 #> [66] "p40002_i0_a2" "p40000_i0"    "p131742"      "grs_bmi"      "grs_raw"     
 #> [71] "grs_finngen"  "messy_allna"  "messy_empty"  "messy_label" 
+
+ops_snapshot(reset = TRUE, verbose = FALSE)
 ```

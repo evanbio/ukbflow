@@ -43,17 +43,31 @@ the original `data.frame` is not modified.
 ## Examples
 
 ``` r
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 #> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
 ops_snapshot(dt, label = "raw")
-#> Error: Snapshot label "raw" already exists. Use a unique `label`.
+#> ── snapshot: raw ───────────────────────────────────────────────────────────────
+#> rows 100
+#> cols 75
+#> NA cols 51
+#> size 0.09 MB
+#> ────────────────────────────────────────────────────────────────────────────────
 dt <- derive_missing(dt)
 #> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
 ops_snapshot(dt, label = "derived")
-#> Error: Snapshot label "derived" already exists. Use a unique `label`.
+#> ── snapshot: derived ───────────────────────────────────────────────────────────
+#> rows 100 (= 0)
+#> cols 75 (= 0)
+#> NA cols 53 (+2)
+#> size 0.09 MB (= 0)
+#> ────────────────────────────────────────────────────────────────────────────────
 ops_snapshot_diff("raw", "derived")
 #> Columns added (0):
 #> Columns removed (0):
 dt <- ops_snapshot_remove(dt, from = "raw")
 #> ✔ ops_snapshot_remove: dropped 74 raw columns, 1 remaining.
+
+ops_snapshot(reset = TRUE, verbose = FALSE)
 ```

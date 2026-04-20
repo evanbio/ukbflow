@@ -71,7 +71,7 @@ weights <- data.frame(
 write.csv(weights, tmp_in, row.names = FALSE)
 
 w <- grs_check(tmp_in)
-#> Read /tmp/RtmpJ50v5D/file225f6296aef2.csv: 3 rows, 3 columns.
+#> Read /tmp/RtmpCuSioA/file225c46cc89c8.csv: 3 rows, 3 columns.
 #> ✔ No NA values.
 #> ✔ No duplicate SNPs.
 #> ✔ All SNP IDs match rs[0-9]+ format.
@@ -93,7 +93,7 @@ w
 # Save validated weights to a file
 tmp_out <- tempfile(fileext = ".txt")
 grs_check(tmp_in, dest = tmp_out)
-#> Read /tmp/RtmpJ50v5D/file225f6296aef2.csv: 3 rows, 3 columns.
+#> Read /tmp/RtmpCuSioA/file225c46cc89c8.csv: 3 rows, 3 columns.
 #> ✔ No NA values.
 #> ✔ No duplicate SNPs.
 #> ✔ All SNP IDs match rs[0-9]+ format.
@@ -105,5 +105,5 @@ grs_check(tmp_in, dest = tmp_out)
 #>   Negative : 1 (33.3%)
 #>   Zero : 0
 #> ✔ Weights file passed checks: 3 SNPs ready for UKB RAP.
-#> ✔ Saved: /tmp/RtmpJ50v5D/file225f5590de5f.txt
+#> ✔ Saved: /tmp/RtmpCuSioA/file225c3be4fe3c.txt
 ```

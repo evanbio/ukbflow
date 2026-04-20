@@ -171,7 +171,9 @@ history data.table invisibly.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ops_snapshot</span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span><span class="fu">ops_snapshot</span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: raw ───────────────────────────────────────────────────────────────</span>
@@ -196,8 +198,8 @@ history data.table invisibly.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── ops_snapshot history ────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      idx                label timestamp  nrow  ncol n_na_cols size_mb</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;int&gt;               &lt;char&gt;    &lt;char&gt; &lt;int&gt; &lt;int&gt;     &lt;int&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1                  raw  07:41:20   100    75        51    0.09</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2 after_derive_missing  07:41:20   100    75        53    0.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     1                  raw  08:12:07   100    75        51    0.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     2 after_derive_missing  08:12:07   100    75        53    0.09</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Reset history</span></span></span>
