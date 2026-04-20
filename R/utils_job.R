@@ -43,7 +43,12 @@
       call = NULL
     )
   }
-  csv[[1]]$`$dnanexus_link`
+  file_id <- csv[[1]]$`$dnanexus_link`
+  if (is.null(file_id) || !is.character(file_id) || length(file_id) != 1L ||
+      is.na(file_id) || !nzchar(file_id)) {
+    cli::cli_abort("Job output CSV does not contain a DNAnexus file link.", call = NULL)
+  }
+  file_id
 }
 
 

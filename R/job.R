@@ -78,6 +78,14 @@ job_status <- function(job_id) {
 #' }
 job_wait <- function(job_id, interval = 30, timeout = Inf, verbose = TRUE) {
   .assert_job_id(job_id)
+  interval <- .assert_count(interval)
+  if (!is.numeric(timeout) || length(timeout) != 1L || is.na(timeout) ||
+      timeout < 0 || timeout != floor(timeout)) {
+    cli::cli_abort("{.arg timeout} must be a single non-negative integer or Inf.", call = NULL)
+  }
+  if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+    cli::cli_abort("{.arg verbose} must be a single TRUE or FALSE.", call = NULL)
+  }
 
   terminal <- c("done", "failed", "terminated")
   start    <- proc.time()[["elapsed"]]

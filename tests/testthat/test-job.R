@@ -78,6 +78,12 @@ test_that(".dx_job_output_id() stops when output$csv is empty list", {
   expect_error(ukbflow:::.dx_job_output_id(desc), "no output CSV")
 })
 
+test_that(".dx_job_output_id() stops when output CSV link is missing", {
+  desc <- .fake_desc_done()
+  desc$output$csv <- list(list())
+  expect_error(ukbflow:::.dx_job_output_id(desc), "DNAnexus file link")
+})
+
 # ===========================================================================
 # .dx_parse_jobs() — pure function, no mocking needed
 # ===========================================================================
@@ -202,6 +208,21 @@ test_that("job_wait() stops on timeout", {
 
 test_that("job_wait() stops on invalid job_id format", {
   expect_error(job_wait("notajob"), "job-XXXX")
+})
+
+test_that("job_wait() validates interval", {
+  expect_error(job_wait("job-XXXX", interval = 0), "interval")
+  expect_error(job_wait("job-XXXX", interval = 1.5), "interval")
+})
+
+test_that("job_wait() validates timeout", {
+  expect_error(job_wait("job-XXXX", timeout = -1), "timeout")
+  expect_error(job_wait("job-XXXX", timeout = NA_real_), "timeout")
+})
+
+test_that("job_wait() validates verbose", {
+  expect_error(job_wait("job-XXXX", verbose = "yes"), "verbose")
+  expect_error(job_wait("job-XXXX", verbose = NA), "verbose")
 })
 
 
