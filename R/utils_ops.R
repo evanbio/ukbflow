@@ -3,6 +3,19 @@
 # =============================================================================
 
 
+# Validate ops_toy() seed without silently truncating decimals/strings.
+.ops_assert_seed <- function(seed) {
+  if (!is.numeric(seed) || length(seed) != 1L || is.na(seed) ||
+      !is.finite(seed) || seed != floor(seed)) {
+    cli::cli_abort(
+      "{.arg seed} must be NULL or a single finite integer value.",
+      call = NULL
+    )
+  }
+  as.integer(seed)
+}
+
+
 # ── ops_toy helpers ───────────────────────────────────────────────────────────
 
 #' Generate toy cohort data (UKB-like phenotype table)
@@ -437,11 +450,16 @@
 #' @noRd
 .ops_toy_forest <- function(n = 8L) {
 
-  exposures <- c(
+  base_exposures <- c(
     "bmi", "smoking_ex", "smoking_current", "alcohol_freq",
     "townsend_deprivation", "age_at_recruitment", "ethnicity_asian",
     "ethnicity_black", "physical_activity", "sleep_duration"
-  )[seq_len(min(n, 10L))]
+  )
+  if (n <= length(base_exposures)) {
+    exposures <- base_exposures[seq_len(n)]
+  } else {
+    exposures <- c(base_exposures, paste0("exposure_", seq_len(n - length(base_exposures))))
+  }
 
   models <- c("Unadjusted", "Age and sex adjusted", "Fully adjusted")
 
@@ -502,11 +520,17 @@
     return(list(ok = FALSE, path = NA_character_, version = NA_character_))
   }
 
-  ver_res <- processx::run(
-    command          = unname(path),
-    args             = "--version",
-    error_on_status  = FALSE
+  ver_res <- tryCatch(
+    processx::run(
+      command          = unname(path),
+      args             = "--version",
+      error_on_status  = FALSE
+    ),
+    error = function(e) NULL
   )
+  if (is.null(ver_res)) {
+    return(list(ok = FALSE, path = unname(path), version = NA_character_))
+  }
   version <- trimws(ver_res$stdout)
   if (!nzchar(version)) version <- trimws(ver_res$stderr)
 
@@ -525,12 +549,15 @@
     return(list(ok = FALSE, logged_in = FALSE, user = NA_character_, project = NA_character_))
   }
 
-  whoami <- .dx_run(c("whoami"))
+  whoami <- tryCatch(.dx_run(c("whoami")), error = function(e) NULL)
+  if (is.null(whoami)) {
+    return(list(ok = FALSE, logged_in = FALSE, user = NA_character_, project = NA_character_))
+  }
   if (!whoami$success) {
     return(list(ok = FALSE, logged_in = FALSE, user = NA_character_, project = NA_character_))
   }
 
-  project <- .dx_get_project_id()
+  project <- tryCatch(.dx_get_project_id(), error = function(e) NA_character_)
   list(
     ok        = TRUE,
     logged_in = TRUE,

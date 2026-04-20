@@ -25,6 +25,12 @@ test_that("ops_toy() rejects non-integer numeric n", {
   expect_error(suppressMessages(ops_toy(n = 10.9, seed = 1)), "integer")
 })
 
+test_that("ops_toy() rejects invalid seed values", {
+  expect_error(suppressMessages(ops_toy(n = 10, seed = 1.5)), "seed")
+  expect_error(suppressMessages(ops_toy(n = 10, seed = "42")), "seed")
+  expect_error(suppressMessages(ops_toy(n = 10, seed = Inf)), "seed")
+})
+
 
 # ===========================================================================
 # ops_toy(scenario = "cohort") — output structure
@@ -181,6 +187,12 @@ test_that("ops_toy() forest n=3 produces 3 exposures × 3 models = 9 rows", {
   expect_equal(nrow(dt), 9L)
 })
 
+test_that("ops_toy() forest n > 10 produces requested number of exposures", {
+  dt <- suppressMessages(ops_toy(scenario = "forest", n = 12, seed = 1))
+  expect_equal(length(unique(dt$exposure)), 12L)
+  expect_equal(nrow(dt), 36L)
+})
+
 test_that("ops_toy() forest HR values are positive", {
   dt <- suppressMessages(ops_toy(scenario = "forest", seed = 1))
   expect_true(all(dt$HR > 0))
@@ -233,6 +245,13 @@ test_that("ops_toy() with seed=NULL does not error", {
 test_that("ops_setup() returns an invisible list", {
   result <- suppressMessages(ops_setup(verbose = FALSE))
   expect_true(is.list(result))
+})
+
+test_that("ops_setup() aborts on invalid logical flags", {
+  expect_error(ops_setup(check_dx = "yes"), "check_dx")
+  expect_error(ops_setup(check_auth = "yes"), "check_auth")
+  expect_error(ops_setup(check_deps = "yes"), "check_deps")
+  expect_error(ops_setup(verbose = "yes"), "verbose")
 })
 
 test_that("ops_setup() result has a summary element", {
@@ -417,6 +436,11 @@ test_that("ops_na() aborts when threshold >= 100", {
   expect_error(suppressMessages(ops_na(dt, threshold = 100)), "threshold")
 })
 
+test_that("ops_na() aborts when threshold is infinite", {
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  expect_error(suppressMessages(ops_na(dt, threshold = Inf)), "threshold")
+})
+
 test_that("ops_na() aborts on invalid verbose", {
   dt <- suppressMessages(ops_toy(n = 50, seed = 1))
   expect_error(suppressMessages(ops_na(dt, verbose = "yes")), "verbose")
@@ -582,9 +606,24 @@ test_that("ops_snapshot() verbose=FALSE produces no messages when recording", {
   expect_no_message(ops_snapshot(dt, label = "quiet", verbose = FALSE))
 })
 
+test_that("ops_snapshot() verbose=FALSE produces no messages when history is empty", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  expect_no_message(ops_snapshot(verbose = FALSE))
+})
+
 test_that("ops_snapshot() warns when no history and no data supplied", {
   suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
   expect_message(ops_snapshot(verbose = TRUE), "No snapshots")
+})
+
+test_that("ops_snapshot() aborts on duplicate labels", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "dup", verbose = FALSE))
+  expect_error(
+    suppressMessages(ops_snapshot(dt, label = "dup", verbose = FALSE)),
+    "already exists"
+  )
 })
 
 
@@ -620,6 +659,36 @@ test_that("ops_withdraw() aborts on invalid verbose", {
   expect_error(
     suppressMessages(ops_withdraw(dt, file = wfile, verbose = "yes")),
     "verbose"
+  )
+})
+
+test_that("ops_withdraw() aborts when withdrawal file has multiple columns", {
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines(c("123,456"), wfile)
+  expect_error(
+    suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE)),
+    "one column"
+  )
+})
+
+test_that("ops_withdraw() aborts when withdrawal file is empty", {
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  file.create(wfile)
+  expect_error(
+    suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE)),
+    "no participant IDs"
+  )
+})
+
+test_that("ops_withdraw() aborts when withdrawal file contains missing IDs", {
+  dt    <- suppressMessages(ops_toy(n = 50, seed = 1))
+  wfile <- withr::local_tempfile(fileext = ".csv")
+  writeLines(c("1234567", "NA"), wfile)
+  expect_error(
+    suppressMessages(ops_withdraw(dt, file = wfile, verbose = FALSE)),
+    "missing or empty"
   )
 })
 
@@ -809,6 +878,13 @@ test_that("ops_snapshot_remove() aborts on non-string from", {
   dt <- suppressMessages(ops_toy(n = 50, seed = 1))
   suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
   expect_error(ops_snapshot_remove(dt, from = 123), "from")
+})
+
+test_that("ops_snapshot_remove() aborts on invalid verbose", {
+  suppressMessages(ops_snapshot(reset = TRUE, verbose = FALSE))
+  dt <- suppressMessages(ops_toy(n = 50, seed = 1))
+  suppressMessages(ops_snapshot(dt, label = "raw", verbose = FALSE))
+  expect_error(ops_snapshot_remove(dt, from = "raw", verbose = "yes"), "verbose")
 })
 
 test_that("ops_snapshot_remove() returns a data.table", {

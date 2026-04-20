@@ -36,6 +36,11 @@ ops_setup <- function(
     check_deps = TRUE,
     verbose    = TRUE
 ) {
+  .assert_flag(check_dx)
+  .assert_flag(check_auth)
+  .assert_flag(check_deps)
+  .assert_flag(verbose)
+
   results <- list()
 
   r_ver <- paste0(R.version$major, ".", R.version$minor)
@@ -275,7 +280,10 @@ ops_toy <- function(
   }
   .assert_count_min(n, 1L)
   n <- as.integer(n)
-  if (!is.null(seed)) set.seed(as.integer(seed))
+  if (!is.null(seed)) {
+    seed <- .ops_assert_seed(seed)
+    set.seed(seed)
+  }
 
   dt <- switch(scenario,
     cohort      = .ops_toy_cohort(n),
@@ -340,7 +348,8 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
   if (nrow(data) == 0L)
     cli::cli_abort("{.arg data} has 0 rows.", call = NULL)
   if (!is.numeric(threshold) || length(threshold) != 1L ||
-      is.na(threshold) || threshold < 0 || threshold >= 100)
+      is.na(threshold) || !is.finite(threshold) ||
+      threshold < 0 || threshold >= 100)
     cli::cli_abort("{.arg threshold} must be a single numeric value in [0, 100).", call = NULL)
   .assert_flag(verbose)
 
@@ -465,7 +474,7 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
   if (is.null(data)) {
     history <- .ukbflow_cache$snapshots
     if (is.null(history) || nrow(history) == 0L) {
-      cli::cli_alert_warning("No snapshots recorded yet.")
+      if (verbose) cli::cli_alert_warning("No snapshots recorded yet.")
       return(invisible(NULL))
     }
     if (verbose) {
@@ -484,6 +493,12 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
   idx     <- if (is.null(history)) 1L else nrow(history) + 1L
 
   if (is.null(label)) label <- paste0("snapshot_", idx)
+  if (!is.null(history) && label %in% history$label) {
+    cli::cli_abort(
+      "Snapshot label {.val {label}} already exists. Use a unique {.arg label}.",
+      call = NULL
+    )
+  }
 
   # Reason: count NA + "" consistently with ops_na(); skippable via check_na = FALSE
   if (check_na) {
@@ -661,6 +676,7 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 
   .assert_data_frame(data)
   .assert_scalar_string(from)
+  .assert_flag(verbose)
 
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
@@ -776,7 +792,25 @@ ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
   # ── Read withdrawal list ─────────────────────────────────────────────────────
   # Reason: UKB withdrawal files are headerless single-column CSVs; fread
   # auto-detects integer type so no coercion is needed.
-  withdraw_ids <- data.table::fread(file, header = FALSE)[[1L]]
+  if (isTRUE(file.info(file)$size == 0L)) {
+    cli::cli_abort("Withdrawal file contains no participant IDs.", call = NULL)
+  }
+  withdraw_dt <- tryCatch(
+    data.table::fread(file, header = FALSE),
+    error = function(e) data.table::data.table()
+  )
+  if (nrow(withdraw_dt) == 0L) {
+    cli::cli_abort("Withdrawal file contains no participant IDs.", call = NULL)
+  }
+  if (ncol(withdraw_dt) != 1L) {
+    cli::cli_abort("Withdrawal file must contain exactly one column.", call = NULL)
+  }
+  withdraw_ids <- withdraw_dt[[1L]]
+  bad_ids <- is.na(withdraw_ids) |
+    (is.character(withdraw_ids) & !is.na(withdraw_ids) & !nzchar(withdraw_ids))
+  if (any(bad_ids)) {
+    cli::cli_abort("Withdrawal file contains missing or empty participant IDs.", call = NULL)
+  }
   n_withdraw   <- length(withdraw_ids)
 
   # ── Snapshot before ──────────────────────────────────────────────────────────
