@@ -49,6 +49,92 @@
 # Data pre-processing
 # -----------------------------------------------------------------------------
 
+# Validate estimate and CI vectors.
+# Rows with est = NA are treated as headers/spacers and do not need CI bounds.
+.fp_validate_ci <- function(est, lower, upper) {
+  if (!is.numeric(est) || !is.numeric(lower) || !is.numeric(upper)) {
+    cli::cli_abort(
+      "{.arg est}, {.arg lower}, and {.arg upper} must be numeric vectors.",
+      call = NULL
+    )
+  }
+
+  finite_est <- !(is.na(est) & !is.nan(est))
+  if (any(!is.finite(est[finite_est])) ||
+      any(is.na(lower[finite_est])) || any(is.na(upper[finite_est])) ||
+      any(!is.finite(lower[finite_est])) ||
+      any(!is.finite(upper[finite_est]))) {
+    cli::cli_abort(
+      "Rows with non-missing {.arg est} must have finite {.arg lower} and {.arg upper}.",
+      call = NULL
+    )
+  }
+
+  bad_order <- finite_est & (lower > est | est > upper)
+  if (any(bad_order)) {
+    cli::cli_abort(
+      "{.arg lower}, {.arg est}, and {.arg upper} must satisfy lower <= est <= upper.",
+      call = NULL
+    )
+  }
+
+  invisible(TRUE)
+}
+
+
+# Validate p-value columns before formatting.
+.fp_validate_p_cols <- function(data, p_cols) {
+  if (is.null(p_cols)) return(invisible(TRUE))
+
+  for (col in p_cols) {
+    x <- data[[col]]
+    if (!is.numeric(x)) {
+      cli::cli_abort(
+        "{.arg p_cols} column {.field {col}} must be numeric.",
+        call = NULL
+      )
+    }
+    x_valid <- stats::na.omit(x)
+    if (any(!is.finite(x_valid)) || any(x_valid < 0 | x_valid > 1)) {
+      cli::cli_abort(
+        "{.arg p_cols} column {.field {col}} must contain values in [0, 1] or NA.",
+        call = NULL
+      )
+    }
+  }
+
+  invisible(TRUE)
+}
+
+
+# Validate column alignment codes.
+.fp_validate_align <- function(align) {
+  if (!is.numeric(align) && !is.integer(align)) {
+    cli::cli_abort("{.arg align} must contain only -1, 0, or 1.", call = NULL)
+  }
+  bad <- is.na(align) | !align %in% c(-1, 0, 1)
+  if (any(bad)) {
+    cli::cli_abort("{.arg align} must contain only -1, 0, or 1.", call = NULL)
+  }
+  invisible(TRUE)
+}
+
+
+# Validate user-supplied layout dimensions after the gtable is available.
+.fp_validate_layout_dim <- function(x, n, arg) {
+  if (is.null(x)) return(invisible(TRUE))
+  if (!is.numeric(x) || length(x) == 0L ||
+      !(length(x) %in% c(1L, n)) ||
+      any(is.na(x)) || any(!is.finite(x)) || any(x <= 0)) {
+    cli::cli_abort(
+      "{.arg {arg}} must be a positive finite numeric scalar or have length {n}.",
+      call = NULL
+    )
+  }
+  invisible(TRUE)
+}
+
+
 # Apply indent, format p_cols, insert gap_ci + OR label at ci_column.
 # Returns list(data = final_df, p_col_idxs = integer vector of p col positions
 #              in final_df).

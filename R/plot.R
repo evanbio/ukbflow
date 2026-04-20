@@ -160,10 +160,12 @@ plot_forest <- function(data,
   .assert_length_n(est,   n)
   .assert_length_n(lower, n)
   .assert_length_n(upper, n)
+  .fp_validate_ci(est, lower, upper)
   if (!is.null(indent))     .assert_length_n(indent,     n)
   if (!is.null(bold_label)) .assert_length_n(bold_label, n)
   if (length(ci_col) > 1L)  .assert_length_n(ci_col,     n)
   .assert_has_cols(data, p_cols)
+  .fp_validate_p_cols(data, p_cols)
   .assert_logical(bold_p)
   if (length(bold_p) == 1L) bold_p <- rep(bold_p, n)
   .assert_length_n(bold_p, n)
@@ -174,7 +176,10 @@ plot_forest <- function(data,
       call = NULL
     )
   if (!is.null(header)) .assert_length_n(header, nc_final)
-  if (!is.null(align))  .assert_length_n(align,  nc_final)
+  if (!is.null(align)) {
+    .assert_length_n(align, nc_final)
+    .fp_validate_align(align)
+  }
 
   # Defaults
   if (is.null(indent)) indent <- rep(0L, n)
@@ -221,6 +226,8 @@ plot_forest <- function(data,
   p <- .fp_ci_colors(p, ci_col, ci_column, est, nr)
   p <- .fp_background(p, nr, nc_final, background, bold_label, bg_col)
   p <- .fp_borders(p, nr, border, border_width)
+  .fp_validate_layout_dim(row_height, length(p$heights), "row_height")
+  .fp_validate_layout_dim(col_width,  length(p$widths),  "col_width")
   p <- .fp_layout(p, row_height, col_width)
 
   # Save

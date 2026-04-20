@@ -90,6 +90,50 @@ test_that("plot_forest() aborts when bold_label length != nrow(data)", {
   )
 })
 
+test_that("plot_forest() aborts when CI vectors are not numeric", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, "1.52", "1.43"),
+                lower = c(NA, 1.18, 1.11),
+                upper = c(NA, 1.96, 1.85)),
+    "numeric"
+  )
+})
+
+test_that("plot_forest() aborts when non-missing est has incomplete CI", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, 1.52, 1.43),
+                lower = c(NA, NA, 1.11),
+                upper = c(NA, 1.96, 1.85)),
+    "finite"
+  )
+})
+
+test_that("plot_forest() aborts when est contains NaN", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, NaN, 1.43),
+                lower = c(NA, 1.18, 1.11),
+                upper = c(NA, 1.96, 1.85)),
+    "finite"
+  )
+})
+
+test_that("plot_forest() aborts when CI order is invalid", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, 1.52, 1.43),
+                lower = c(NA, 1.60, 1.11),
+                upper = c(NA, 1.96, 1.85)),
+    "lower <= est <= upper"
+  )
+})
+
 test_that("plot_forest() aborts when ci_col is wrong vector length", {
   df <- .fake_forest_df()
   expect_error(
@@ -111,6 +155,32 @@ test_that("plot_forest() aborts when p_cols not in data", {
                 upper  = c(NA, 1.96, 1.85),
                 p_cols = "nonexistent"),
     "nonexistent"
+  )
+})
+
+test_that("plot_forest() aborts when p_cols are not numeric", {
+  df <- .fake_forest_df()
+  df$p_value <- c(NA, "0.01", "foo")
+  expect_error(
+    plot_forest(df,
+                est    = c(NA, 1.52, 1.43),
+                lower  = c(NA, 1.18, 1.11),
+                upper  = c(NA, 1.96, 1.85),
+                p_cols = "p_value"),
+    "numeric"
+  )
+})
+
+test_that("plot_forest() aborts when p_cols contain values outside [0, 1]", {
+  df <- .fake_forest_df()
+  df$p_value <- c(NA_real_, 0.01, 1.2)
+  expect_error(
+    plot_forest(df,
+                est    = c(NA, 1.52, 1.43),
+                lower  = c(NA, 1.18, 1.11),
+                upper  = c(NA, 1.96, 1.85),
+                p_cols = "p_value"),
+    "\\[0, 1\\]"
   )
 })
 
@@ -183,6 +253,30 @@ test_that("plot_forest() aborts when align length != ncol(data) + 2", {
                 upper = c(NA, 1.96, 1.85),
                 align = c(-1L, 0L)),  # need 4
     "length"
+  )
+})
+
+test_that("plot_forest() aborts when align contains unsupported values", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, 1.52, 1.43),
+                lower = c(NA, 1.18, 1.11),
+                upper = c(NA, 1.96, 1.85),
+                align = c(-1L, 0L, 2L, 0L)),
+    "-1, 0, or 1"
+  )
+})
+
+test_that("plot_forest() aborts when align contains NA", {
+  df <- .fake_forest_df()
+  expect_error(
+    plot_forest(df,
+                est   = c(NA, 1.52, 1.43),
+                lower = c(NA, 1.18, 1.11),
+                upper = c(NA, 1.96, 1.85),
+                align = c(-1L, 0L, NA, 0L)),
+    "-1, 0, or 1"
   )
 })
 
@@ -269,6 +363,32 @@ test_that(".fp_build_data() maps p_col indices correctly when p_col is right of 
   )
   # orig p is col 3, >= ci_column (2) → idx = 3 + 2 = 5
   expect_equal(out$p_col_idxs, 5L)
+})
+
+
+# ===========================================================================
+# plot_forest() validation helpers
+# ===========================================================================
+
+test_that(".fp_validate_layout_dim() accepts NULL, scalar, and full-length vector", {
+  expect_true(ukbflow:::.fp_validate_layout_dim(NULL, 3L, "row_height"))
+  expect_true(ukbflow:::.fp_validate_layout_dim(8, 3L, "row_height"))
+  expect_true(ukbflow:::.fp_validate_layout_dim(c(8, 10, 12), 3L, "row_height"))
+})
+
+test_that(".fp_validate_layout_dim() aborts on wrong length or invalid values", {
+  expect_error(
+    ukbflow:::.fp_validate_layout_dim(c(8, 10), 3L, "row_height"),
+    "length 3"
+  )
+  expect_error(
+    ukbflow:::.fp_validate_layout_dim(c(8, NA, 12), 3L, "row_height"),
+    "positive finite"
+  )
+  expect_error(
+    ukbflow:::.fp_validate_layout_dim(0, 3L, "row_height"),
+    "positive finite"
+  )
 })
 
 
