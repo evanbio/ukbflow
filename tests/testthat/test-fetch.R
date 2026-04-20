@@ -113,6 +113,11 @@ test_that("fetch_ls() throws error when dx fails", {
   expect_error(fetch_ls(), "Failed to list")
 })
 
+test_that("fetch_ls() validates path and pattern", {
+  expect_error(fetch_ls(path = 1), "single non-empty string")
+  expect_error(fetch_ls(pattern = 1), "single non-empty string")
+})
+
 test_that("fetch_ls() filters by type = 'file'", {
   mockery::stub(fetch_ls, ".dx_ls_raw",
                 function(path, ...) .fake_dx(stdout = .fake_ls_stdout()))
@@ -182,6 +187,18 @@ test_that("fetch_url() returns character(0) for empty folder", {
   expect_equal(result, character(0))
 })
 
+test_that("fetch_url() validates path and duration", {
+  expect_error(fetch_url(path = 1), "single non-empty string")
+  expect_error(fetch_url("Showcase metadata/field.tsv", duration = NA_character_),
+               "single non-empty string")
+})
+
+test_that("fetch_url() aborts when remote path is missing", {
+  mockery::stub(fetch_url, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = FALSE, exists = FALSE, stdout = ""))
+  expect_error(fetch_url("missing.tsv"), "Remote path not found")
+})
+
 # ===========================================================================
 # fetch_file()
 # ===========================================================================
@@ -232,6 +249,21 @@ test_that("fetch_file() creates dest_dir if it does not exist", {
   })
 })
 
+test_that("fetch_file() validates arguments inside RAP", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
+  expect_error(fetch_file(path = 1, dest_dir = "."), "single non-empty string")
+  expect_error(fetch_file(path = "x", dest_dir = ".", overwrite = NA), "single TRUE or FALSE")
+})
+
+test_that("fetch_file() aborts when remote path is missing", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
+  mockery::stub(fetch_file, ".dx_probe_path",
+                function(...) list(is_folder = FALSE, is_file = FALSE, exists = FALSE, stdout = ""))
+  withr::with_tempdir({
+    expect_error(fetch_file("missing.tsv", dest_dir = "."), "Remote path not found")
+  })
+})
+
 # ===========================================================================
 # fetch_metadata()
 # ===========================================================================
@@ -240,7 +272,7 @@ test_that("fetch_metadata() calls fetch_file with 'Showcase metadata/' path", {
   called_with <- NULL
   mockery::stub(fetch_metadata, "fetch_file",
                 function(path, ...) { called_with <<- path; invisible(path) })
-  fetch_metadata()
+  fetch_metadata(dest_dir = "metadata")
   expect_equal(called_with, "Showcase metadata/")
 })
 
@@ -252,6 +284,10 @@ test_that("fetch_metadata() passes dest_dir through to fetch_file", {
   expect_equal(args_received, "custom/dir/")
 })
 
+test_that("fetch_metadata() requires dest_dir", {
+  expect_error(fetch_metadata(), "dest_dir")
+})
+
 # ===========================================================================
 # fetch_field()
 # ===========================================================================
@@ -260,7 +296,7 @@ test_that("fetch_field() calls fetch_file with 'Showcase metadata/field.tsv' pat
   called_with <- NULL
   mockery::stub(fetch_field, "fetch_file",
                 function(path, ...) { called_with <<- path; invisible(path) })
-  fetch_field()
+  fetch_field(dest_dir = "metadata")
   expect_equal(called_with, "Showcase metadata/field.tsv")
 })
 
@@ -270,6 +306,10 @@ test_that("fetch_field() passes dest_dir through to fetch_file", {
                 function(path, dest_dir, ...) { args_received <<- dest_dir; invisible(path) })
   fetch_field(dest_dir = "custom/dir/")
   expect_equal(args_received, "custom/dir/")
+})
+
+test_that("fetch_field() requires dest_dir", {
+  expect_error(fetch_field(), "dest_dir")
 })
 
 # ===========================================================================
@@ -297,6 +337,11 @@ test_that("fetch_tree() produces no output when verbose = FALSE", {
   mockery::stub(fetch_tree, ".dx_ls_names",
                 function(path, ...) .fake_dx(stdout = "Bulk/\n"))
   expect_silent(fetch_tree(verbose = FALSE))
+})
+
+test_that("fetch_tree() validates max_depth and verbose", {
+  expect_error(fetch_tree(max_depth = -1), "single integer >= 0")
+  expect_error(fetch_tree(verbose = NA), "single TRUE or FALSE")
 })
 
 
@@ -443,4 +488,49 @@ test_that("fetch_file() returns destfiles invisibly for a folder", {
     result <- fetch_file("Showcase metadata/", dest_dir = ".")
     expect_equal(result, file.path(".", c("field.tsv", "encoding.tsv")))
   })
+})
+
+
+# ===========================================================================
+# .dx_download_batch()
+# ===========================================================================
+
+test_that(".dx_download_batch() aborts when an HTTP request fails", {
+  local_mocked_bindings(
+    .curl_multi_download = function(urls, destfile, ...) {
+      data.frame(
+        success = c(TRUE, TRUE),
+        status_code = c(200L, 404L),
+        destfile = destfile,
+        error = c("", ""),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "ukbflow"
+  )
+
+  expect_error(
+    ukbflow:::.dx_download_batch(c("url-a", "url-b"), c("ok.tsv", "missing.tsv")),
+    "missing.tsv: HTTP 404"
+  )
+})
+
+test_that(".dx_download_batch() aborts when a network request fails", {
+  local_mocked_bindings(
+    .curl_multi_download = function(urls, destfile, ...) {
+      data.frame(
+        success = c(TRUE, FALSE),
+        status_code = c(200L, NA_integer_),
+        destfile = destfile,
+        error = c("", "timeout"),
+        stringsAsFactors = FALSE
+      )
+    },
+    .package = "ukbflow"
+  )
+
+  expect_error(
+    ukbflow:::.dx_download_batch(c("url-a", "url-b"), c("ok.tsv", "slow.tsv")),
+    "slow.tsv: timeout"
+  )
 })

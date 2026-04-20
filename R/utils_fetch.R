@@ -48,6 +48,18 @@
 }
 
 
+#' Abort when a probed RAP path does not exist
+#'
+#' @keywords internal
+#' @noRd
+.dx_abort_if_missing <- function(path, probe) {
+  if (!isTRUE(probe$exists)) {
+    cli::cli_abort("Remote path not found: {.path {path}}", call = NULL)
+  }
+  invisible(path)
+}
+
+
 #' Run dx ls -l on a remote path and return raw output
 #'
 #' @keywords internal
@@ -127,6 +139,35 @@
 #'
 #' @keywords internal
 #' @noRd
+.curl_multi_download <- function(...) {
+  curl::multi_download(...)
+}
+
+
+#' @keywords internal
+#' @noRd
+.dx_download_result_ok <- function(result, resume = FALSE) {
+  ok_status <- !is.na(result$status_code) &
+    result$status_code >= 200L & result$status_code < 300L
+  if (resume) {
+    ok_status <- ok_status | result$status_code == 416L
+  }
+  !is.na(result$success) & result$success & ok_status
+}
+
+
+#' @keywords internal
+#' @noRd
+.dx_download_error_details <- function(result) {
+  error <- result$error
+  missing_error <- is.na(error) | !nzchar(error)
+  error[missing_error] <- paste0("HTTP ", result$status_code[missing_error])
+  paste(basename(result$destfile), error, sep = ": ")
+}
+
+
+#' @keywords internal
+#' @noRd
 .dx_download_batch <- function(urls, destfiles, overwrite = FALSE,
                                 resume = FALSE, verbose = TRUE) {
   # Reason: skip files that already exist when overwrite = FALSE and resume = FALSE
@@ -144,13 +185,23 @@
     return(invisible(destfiles))
   }
 
-  curl::multi_download(
+  result <- .curl_multi_download(
     urls     = urls,
     destfile = destfiles,
     resume   = resume,
     progress = verbose,
     multiplex = TRUE
   )
+
+  ok <- .dx_download_result_ok(result, resume = resume)
+  if (any(!ok)) {
+    failed <- result[!ok, , drop = FALSE]
+    cli::cli_abort(
+      c("One or more downloads failed.",
+        "x" = .dx_download_error_details(failed)),
+      call = NULL
+    )
+  }
 
   invisible(destfiles)
 }

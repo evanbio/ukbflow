@@ -34,7 +34,9 @@
 #' fetch_ls("results/", pattern = "\\.csv$")
 #' }
 fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
+  .assert_scalar_string(path)
   type <- match.arg(type, c("all", "file", "folder"))
+  if (!is.null(pattern)) .assert_scalar_string(pattern)
 
   result <- .dx_ls_raw(path)
   if (!result$success) {
@@ -80,8 +82,12 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 #' fetch_url("Showcase metadata/", duration = "7d")
 #' }
 fetch_url <- function(path, duration = "1d") {
+  .assert_scalar_string(path)
+  .assert_scalar_string(duration)
+
   norm      <- .dx_normalize_path(path)
   probe     <- .dx_probe_path(path)
+  .dx_abort_if_missing(path, probe)
   is_folder <- probe$is_folder
 
   if (!is_folder) {
@@ -137,12 +143,19 @@ fetch_url <- function(path, duration = "1d") {
 fetch_file <- function(path, dest_dir, overwrite = FALSE,
                        resume = FALSE, verbose = TRUE) {
   .assert_on_rap()
+  .assert_scalar_string(path)
+  .assert_scalar_string(dest_dir)
+  .assert_flag(overwrite)
+  .assert_flag(resume)
+  .assert_flag(verbose)
 
   if (!dir.exists(dest_dir)) {
     dir.create(dest_dir, recursive = TRUE)
   }
 
-  is_folder <- .dx_probe_path(path)$is_folder
+  probe <- .dx_probe_path(path)
+  .dx_abort_if_missing(path, probe)
+  is_folder <- probe$is_folder
 
   if (!is_folder) {
     # Single file
@@ -194,6 +207,14 @@ fetch_file <- function(path, dest_dir, overwrite = FALSE,
 #' }
 fetch_metadata <- function(dest_dir, overwrite = FALSE,
                            resume = FALSE, verbose = TRUE) {
+  if (missing(dest_dir)) {
+    cli::cli_abort("{.arg dest_dir} must be specified.", call = NULL)
+  }
+  .assert_scalar_string(dest_dir)
+  .assert_flag(overwrite)
+  .assert_flag(resume)
+  .assert_flag(verbose)
+
   fetch_file("Showcase metadata/", dest_dir = dest_dir,
              overwrite = overwrite, resume = resume, verbose = verbose)
 }
@@ -223,6 +244,14 @@ fetch_metadata <- function(dest_dir, overwrite = FALSE,
 #' }
 fetch_field <- function(dest_dir, overwrite = FALSE,
                         resume = FALSE, verbose = TRUE) {
+  if (missing(dest_dir)) {
+    cli::cli_abort("{.arg dest_dir} must be specified.", call = NULL)
+  }
+  .assert_scalar_string(dest_dir)
+  .assert_flag(overwrite)
+  .assert_flag(resume)
+  .assert_flag(verbose)
+
   fetch_file("Showcase metadata/field.tsv", dest_dir = dest_dir,
              overwrite = overwrite, resume = resume, verbose = verbose)
 }
@@ -256,6 +285,10 @@ fetch_field <- function(dest_dir, overwrite = FALSE,
 #' fetch_tree(verbose = FALSE)
 #' }
 fetch_tree <- function(path = ".", max_depth = 2, verbose = TRUE) {
+  .assert_scalar_string(path)
+  .assert_count_min(max_depth, min = 0L)
+  .assert_flag(verbose)
+
   norm  <- .dx_normalize_path(path)
   lines <- character(0)
 

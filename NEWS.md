@@ -174,7 +174,7 @@ Initial release of **ukbflow** — a RAP-native R workflow for UK Biobank analys
 - `fetch_file()` — download files from RAP to local
 - `fetch_url()` — generate pre-signed download URLs
 - `fetch_metadata()` — retrieve UKB field metadata (field.tsv, encoding.tsv)
-- `fetch_field()` — retrieve UKB field-level metadata for specific field IDs
+- `fetch_field()` — download the UKB field dictionary file
 - `extract_ls()` — list available UKB datasets on RAP
 - `extract_pheno()` — synchronously extract phenotype fields from a RAP dataset
 - `extract_batch()` — submit a DNAnexus table-exporter job to extract phenotype fields
