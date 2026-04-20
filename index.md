@@ -124,6 +124,8 @@ plot_forest(
 
 ## Documentation
 
+- **[ukbflow Book](https://ukbflow.evanzhou.org)** — Practical
+  RAP-native workflows, examples, and module notes
 - **[Get
   Started](https://evanbio.github.io/ukbflow/articles/get-started.md)**
   — Installation and end-to-end workflow

@@ -10,7 +10,8 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 
-[📚 文档](https://evanbio.github.io/ukbflow/) • [🚀
+[📚 文档](https://evanbio.github.io/ukbflow/) • [📖
+教程书](https://ukbflow.evanzhou.org) • [🚀
 快速开始](https://evanbio.github.io/ukbflow/articles/get-started.html) •
 [💬 问题反馈](https://github.com/evanbio/ukbflow/issues) • [🤝
 贡献指南](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)

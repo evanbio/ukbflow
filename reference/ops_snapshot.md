@@ -83,8 +83,8 @@ ops_snapshot()
 #> ── ops_snapshot history ────────────────────────────────────────────────────────
 #>      idx                label timestamp  nrow  ncol n_na_cols size_mb
 #>    <int>               <char>    <char> <int> <int>     <int>   <num>
-#> 1:     1                  raw  08:12:07   100    75        51    0.09
-#> 2:     2 after_derive_missing  08:12:07   100    75        53    0.09
+#> 1:     1                  raw  08:55:16   100    75        51    0.09
+#> 2:     2 after_derive_missing  08:55:16   100    75        53    0.09
 #> ────────────────────────────────────────────────────────────────────────────────
 
 # Reset history
