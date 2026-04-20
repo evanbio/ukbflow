@@ -74,6 +74,13 @@
 }
 
 
+# Escape user-supplied literal strings before embedding them in a regex.
+# Used when match = "prefix" or "exact"; match = "regex" bypasses this.
+.regex_escape <- function(x) {
+  gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", x, perl = TRUE)
+}
+
+
 # Detect a single First Occurrence column for a given UKB field ID.
 # First Occurrence fields (p131xxx) are single-column, no _i/_a suffix.
 # Strategy:

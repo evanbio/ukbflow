@@ -352,6 +352,32 @@ test_that("derive_selfreport() returns FALSE flag when no regex match", {
   expect_true(all(!result$rare_disease_selfreport))
 })
 
+test_that("derive_selfreport() aligns sparse arrays by _a index", {
+  d <- data.table::data.table(
+    eid = 1L,
+    p20002_i0_a0 = "hypertension",
+    p20002_i0_a2 = "type 2 diabetes",
+    p20008_i0_a0 = 2001.0,
+    p20008_i0_a1 = 2002.0,
+    p20008_i0_a2 = 2010.0,
+    p53_i0 = "2000-01-01"
+  )
+
+  result <- suppressMessages(
+    derive_selfreport(
+      d,
+      name = "t2d",
+      regex = "type 2 diabetes",
+      field = "noncancer",
+      disease_cols = c("p20002_i0_a0", "p20002_i0_a2"),
+      date_cols = c("p20008_i0_a0", "p20008_i0_a1", "p20008_i0_a2"),
+      visit_cols = "p53_i0"
+    )
+  )
+
+  expect_equal(result$t2d_selfreport_date, data.table::as.IDate("2010-01-01"))
+})
+
 test_that("derive_selfreport() returns data.table", {
   d    <- data.table::copy(DT)
   sr_d <- grep("^p20002_i0_a", names(d), value = TRUE)
@@ -494,6 +520,28 @@ test_that("derive_hes() exact match returns subset of prefix match cases", {
                disease_cols = "p41270", date_cols = date_cols)
   )
   expect_true(sum(r_exact$t2d_hes) <= sum(r_prefix$t2d_hes))
+})
+
+test_that("derive_hes() exact match treats dot as literal", {
+  d <- data.table::data.table(
+    eid = 1L,
+    p41270 = '["I25X9","I25.9"]',
+    p41280_a0 = "2010-01-01",
+    p41280_a1 = "2020-01-01"
+  )
+
+  result <- suppressMessages(
+    derive_hes(
+      d,
+      name = "ihd",
+      icd10 = "I25.9",
+      match = "exact",
+      disease_cols = "p41270",
+      date_cols = c("p41280_a0", "p41280_a1")
+    )
+  )
+
+  expect_equal(result$ihd_hes_date, data.table::as.IDate("2020-01-01"))
 })
 
 test_that("derive_hes() returns data.table", {
@@ -662,6 +710,29 @@ test_that("derive_death_registry() exact match is subset of prefix match", {
   expect_true(sum(r_exact$cvd2_death) <= sum(r_prefix$cvd_death))
 })
 
+test_that("derive_death_registry() exact match treats dot as literal", {
+  d <- data.table::data.table(
+    eid = 1:2,
+    p40001_i0 = c("I25X9", "I25.9"),
+    p40000_i0 = c("2010-01-01", "2020-01-01")
+  )
+
+  result <- suppressMessages(
+    derive_death_registry(
+      d,
+      name = "ihd",
+      icd10 = "I25.9",
+      match = "exact",
+      primary_cols = "p40001_i0",
+      secondary_cols = character(0),
+      date_cols = "p40000_i0"
+    )
+  )
+
+  expect_false(result$ihd_death[1])
+  expect_true(result$ihd_death[2])
+})
+
 test_that("derive_death_registry() non-cases have NA date", {
   d   <- data.table::copy(DT)
   pri <- grep("^p40001_i", names(d), value = TRUE)
@@ -753,6 +824,41 @@ test_that("derive_icd10() warns when first_occurrence selected without fo_field/
     regexp = "fo_field|fo_col|skipping",
     ignore.case = TRUE
   )
+})
+
+test_that("derive_icd10() stops when no active source columns are created", {
+  d <- data.table::data.table(eid = 1:3)
+  expect_error(
+    suppressWarnings(
+      suppressMessages(
+        derive_icd10(d, name = "t2d", icd10 = "E11", source = "first_occurrence")
+      )
+    ),
+    "no active source"
+  )
+})
+
+test_that("derive_icd10() exact cancer registry match treats dot as literal", {
+  d <- data.table::data.table(
+    eid = 1:2,
+    p40006_i0 = c("I25X9", "I25.9"),
+    p40005_i0 = c("2010-01-01", "2020-01-01")
+  )
+
+  result <- suppressMessages(
+    derive_icd10(
+      d,
+      name = "ihd",
+      icd10 = "I25.9",
+      source = "cancer_registry",
+      match = "exact",
+      cr_code_cols = "p40006_i0",
+      cr_date_cols = "p40005_i0"
+    )
+  )
+
+  expect_false(result$ihd_icd10[1])
+  expect_true(result$ihd_icd10[2])
 })
 
 test_that("derive_icd10() returns data.table", {
@@ -1033,6 +1139,49 @@ test_that("derive_followup() accepts character censor_date", {
       derive_followup(d, name = "t2d", event_col = "t2d_date",
                       baseline_col = "date_baseline", censor_date = "2022-06-01")
     )
+  )
+})
+
+test_that("derive_followup() respects FALSE sentinel for death and lost columns", {
+  d <- data.table::data.table(
+    eid = 1L,
+    t2d_date = data.table::as.IDate(NA_character_),
+    date_baseline = data.table::as.IDate("2000-01-01"),
+    p40000_i0 = data.table::as.IDate("2010-01-01"),
+    p191 = data.table::as.IDate("2011-01-01")
+  )
+
+  result <- suppressMessages(
+    derive_followup(
+      d,
+      name = "t2d",
+      event_col = "t2d_date",
+      baseline_col = "date_baseline",
+      censor_date = "2022-06-01",
+      death_col = FALSE,
+      lost_col = FALSE
+    )
+  )
+
+  expect_equal(result$t2d_followup_end, data.table::as.IDate("2022-06-01"))
+})
+
+test_that("derive_followup() validates censor_date", {
+  d <- .followup_dt()
+  expect_error(
+    suppressMessages(
+      derive_followup(d, name = "t2d", event_col = "t2d_date",
+                      baseline_col = "date_baseline", censor_date = NA_character_)
+    ),
+    "censor_date"
+  )
+  expect_error(
+    suppressMessages(
+      derive_followup(d, name = "t2d", event_col = "t2d_date",
+                      baseline_col = "date_baseline",
+                      censor_date = c("2022-06-01", "2023-06-01"))
+    ),
+    "censor_date"
   )
 })
 

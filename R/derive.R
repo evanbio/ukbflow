@@ -431,6 +431,11 @@ derive_selfreport <- function(data,
     data <- data.table::as.data.table(data)
   }
 
+  array_index <- function(x) {
+    idx <- sub(".*_a(\\d+)$", "\\1", as.character(x), perl = TRUE)
+    suppressWarnings(as.integer(idx))
+  }
+
   # ── Field ID mapping ───────────────────────────────────────────────────────
   fid_disease <- if (field == "noncancer") 20002L else 20001L
   fid_date    <- if (field == "noncancer") 20008L else 20006L
@@ -496,7 +501,7 @@ derive_selfreport <- function(data,
       variable.name = "array_idx",
       value.name    = "text"
     )
-    long_d[, array_idx := as.integer(array_idx)]
+    long_d[, array_idx := array_index(array_idx)]
 
     # Filter: drop empty/NA, lowercase, apply regex
     long_d <- long_d[!is.na(text) & nchar(as.character(text)) > 0L]
@@ -520,7 +525,7 @@ derive_selfreport <- function(data,
         variable.name = "array_idx",
         value.name    = "year_month"
       )
-      long_t[, array_idx  := as.integer(array_idx)]
+      long_t[, array_idx  := array_index(array_idx)]
       long_t[, year_month := suppressWarnings(as.numeric(year_month))]
 
       # Left join: attach year_month to matched disease rows by (eid, array_idx)
@@ -752,17 +757,18 @@ derive_hes <- function(data,
   }
 
   # ── Build ICD-10 match patterns ───────────────────────────────────────────
+  icd10_safe <- if (match == "regex") icd10 else .regex_escape(icd10)
   pattern <- switch(match,
-    prefix = paste0("^(", paste(icd10, collapse = "|"), ")"),
-    exact  = paste0("^(", paste(icd10, collapse = "|"), ")$"),
+    prefix = paste0("^(", paste(icd10_safe, collapse = "|"), ")"),
+    exact  = paste0("^(", paste(icd10_safe, collapse = "|"), ")$"),
     regex  = icd10[1L]
   )
   # Reason: pre_pattern is anchor-free so it can match codes embedded inside
   # the raw JSON string (e.g. '"L209"' inside '["R55","L209",...]').
   # The anchored pattern is applied later on individual parsed codes.
   pre_pattern <- switch(match,
-    prefix = paste(icd10, collapse = "|"),
-    exact  = paste(icd10, collapse = "|"),
+    prefix = paste(icd10_safe, collapse = "|"),
+    exact  = paste(icd10_safe, collapse = "|"),
     regex  = icd10[1L]
   )
 
@@ -1119,9 +1125,10 @@ derive_death_registry <- function(data,
   }
 
   # ── Build ICD-10 match pattern ─────────────────────────────────────────────
+  icd10_safe <- if (match == "regex") icd10 else .regex_escape(icd10)
   pattern <- switch(match,
-    prefix = paste0("^(", paste(icd10, collapse = "|"), ")"),
-    exact  = paste0("^(", paste(icd10, collapse = "|"), ")$"),
+    prefix = paste0("^(", paste(icd10_safe, collapse = "|"), ")"),
+    exact  = paste0("^(", paste(icd10_safe, collapse = "|"), ")$"),
     regex  = icd10[1L]
   )
 
@@ -1366,9 +1373,10 @@ derive_icd10 <- function(data,
   if ("cancer_registry" %in% source) {
     # Reason: derive_cancer_registry takes a single regex string, not a vector
     # + match mode. Convert here so the caller only needs one set of params.
+    icd10_safe <- if (match == "regex") icd10 else .regex_escape(icd10)
     icd10_regex <- switch(match,
-      prefix = paste0("^(", paste(icd10, collapse = "|"), ")"),
-      exact  = paste0("^(", paste(icd10, collapse = "|"), ")$"),
+      prefix = paste0("^(", paste(icd10_safe, collapse = "|"), ")"),
+      exact  = paste0("^(", paste(icd10_safe, collapse = "|"), ")$"),
       regex  = icd10[1L]
     )
     data <- derive_cancer_registry(data, name = name, icd10 = icd10_regex,
@@ -1400,6 +1408,12 @@ derive_icd10 <- function(data,
   )
 
   # ── Combine: OR for status, pmin for date ──────────────────────────────────
+  if (length(active_status) == 0L) {
+    cli::cli_abort(
+      "derive_icd10: no active source columns were created. Check {.arg source} and required source arguments such as {.arg fo_field} or {.arg fo_col}.",
+      call = NULL
+    )
+  }
   data[, (status_col) := as.logical(Reduce(`|`, lapply(active_status, function(col) data[[col]])))]
 
   if (length(active_dates) > 0L) {
@@ -1719,16 +1733,18 @@ derive_followup <- function(data,
   if (!data.table::is.data.table(data)) data <- data.table::as.data.table(data)
 
   # Reason: FALSE is a documented sentinel meaning "disable this endpoint".
-  # Convert to NULL early so all downstream NULL-checks work correctly.
-  if (isFALSE(death_col)) death_col <- NULL
-  if (isFALSE(lost_col))  lost_col  <- NULL
+  # Track it separately so auto-detection does not re-enable the endpoint.
+  death_disabled <- isFALSE(death_col)
+  lost_disabled  <- isFALSE(lost_col)
+  if (death_disabled) death_col <- NULL
+  if (lost_disabled)  lost_col  <- NULL
 
   # ── Auto-detect death / lost-to-follow-up columns from extract_ls() cache ──
   # Reason: UKB field 40000 = date of death, field 191 = date lost to follow-up.
   # When the user does not supply these, try to locate them automatically so
   # the function works out-of-the-box after extract_pheno() + decode_names().
-  if (is.null(death_col)) death_col <- .detect_fo_col(data, 40000L)
-  if (is.null(lost_col))  lost_col  <- .detect_fo_col(data, 191L)
+  if (is.null(death_col) && !death_disabled) death_col <- .detect_fo_col(data, 40000L)
+  if (is.null(lost_col) && !lost_disabled)   lost_col  <- .detect_fo_col(data, 191L)
 
   # ── Validate required columns ──────────────────────────────────────────────
   .assert_has_cols(data, c(event_col, baseline_col))
@@ -1736,6 +1752,9 @@ derive_followup <- function(data,
   if (!is.null(lost_col))  .assert_has_cols(data, lost_col)
 
   censor_date <- data.table::as.IDate(censor_date)
+  if (length(censor_date) != 1L || is.na(censor_date)) {
+    cli::cli_abort("{.arg censor_date} must be a single valid Date or YYYY-MM-DD string.", call = NULL)
+  }
 
   # ── Output column names ────────────────────────────────────────────────────
   end_col   <- paste0(name, "_followup_end")
