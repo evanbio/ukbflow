@@ -21,8 +21,12 @@ Returns the column names stored by a previous \code{\link{ops_snapshot}}
 call, optionally excluding columns you wish to keep.
 }
 \examples{
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 ops_snapshot(dt, label = "raw")
 ops_snapshot_cols("raw")
 ops_snapshot_cols("raw", keep = "eid")
+
+ops_snapshot(reset = TRUE, verbose = FALSE)
 }

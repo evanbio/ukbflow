@@ -443,6 +443,8 @@ ops_na <- function(data, threshold = 0, verbose = TRUE) {
 #' @export
 #'
 #' @examples
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
+#'
 #' dt <- ops_toy(n = 100)
 #' ops_snapshot(dt, label = "raw")
 #'
@@ -584,10 +586,14 @@ ops_snapshot <- function(data = NULL, label = NULL, reset = FALSE, verbose = TRU
 #' @export
 #'
 #' @examples
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
+#'
 #' dt <- ops_toy(n = 100)
 #' ops_snapshot(dt, label = "raw")
 #' ops_snapshot_cols("raw")
 #' ops_snapshot_cols("raw", keep = "eid")
+#'
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
 ops_snapshot_cols <- function(label, keep = NULL) {
 
   .assert_scalar_string(label)
@@ -666,12 +672,16 @@ ops_set_safe_cols <- function(cols = NULL, reset = FALSE) {
 #' @export
 #'
 #' @examples
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
+#'
 #' dt <- ops_toy(n = 100)
 #' ops_snapshot(dt, label = "raw")
 #' dt <- derive_missing(dt)
 #' ops_snapshot(dt, label = "derived")
 #' ops_snapshot_diff("raw", "derived")
 #' dt <- ops_snapshot_remove(dt, from = "raw")
+#'
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
 ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 
   .assert_data_frame(data)
@@ -719,6 +729,8 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 #' @export
 #'
 #' @examples
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
+#'
 #' dt <- ops_toy(n = 100)
 #' ops_snapshot(dt, label = "raw")
 #' dt <- derive_missing(dt)
@@ -726,6 +738,8 @@ ops_snapshot_remove <- function(data, from, keep = NULL, verbose = TRUE) {
 #' ops_snapshot_diff("raw", "derived")
 #' # $added   — newly derived columns
 #' # $removed — columns dropped between snapshots
+#'
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
 ops_snapshot_diff <- function(label1, label2) {
 
   .assert_scalar_string(label1)
@@ -771,10 +785,14 @@ ops_snapshot_diff <- function(label1, label2) {
 #' @export
 #'
 #' @examples
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
+#'
 #' dt <- ops_toy(n = 100)
 #' withdraw_file <- tempfile(fileext = ".csv")
 #' writeLines(as.character(dt$eid[1:5]), withdraw_file)
 #' dt <- ops_withdraw(dt, file = withdraw_file)
+#'
+#' ops_snapshot(reset = TRUE, verbose = FALSE)
 ops_withdraw <- function(data, file, eid_col = "eid", verbose = TRUE) {
 
   # ── Validation ──────────────────────────────────────────────────────────────

@@ -28,8 +28,12 @@ anonymised participant IDs) and removes the corresponding rows from
 before/after row counts are recorded in the session snapshot history.
 }
 \examples{
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 withdraw_file <- tempfile(fileext = ".csv")
 writeLines(as.character(dt$eid[1:5]), withdraw_file)
 dt <- ops_withdraw(dt, file = withdraw_file)
+
+ops_snapshot(reset = TRUE, verbose = FALSE)
 }

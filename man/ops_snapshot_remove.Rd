@@ -32,10 +32,14 @@ any user-registered safe columns set via \code{\link{ops_set_safe_cols}}.
 Columns that no longer exist in \code{data} are silently skipped.
 }
 \examples{
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 ops_snapshot(dt, label = "raw")
 dt <- derive_missing(dt)
 ops_snapshot(dt, label = "derived")
 ops_snapshot_diff("raw", "derived")
 dt <- ops_snapshot_remove(dt, from = "raw")
+
+ops_snapshot(reset = TRUE, verbose = FALSE)
 }

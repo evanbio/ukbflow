@@ -42,6 +42,8 @@ deltas against the previous snapshot, making it easy to track how data
 changes through \verb{derive_*}, \verb{assoc_*}, and other processing steps.
 }
 \examples{
+ops_snapshot(reset = TRUE, verbose = FALSE)
+
 dt <- ops_toy(n = 100)
 ops_snapshot(dt, label = "raw")
 
