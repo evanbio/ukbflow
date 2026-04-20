@@ -1640,8 +1640,8 @@ assoc_competing <- function(data,
     )
   } else {
     # Mode B: dual binary columns; primary event takes priority
-    ev  <- suppressWarnings(as.integer(dt[[outcome_col]]))
-    cmp <- suppressWarnings(as.integer(dt[[compete_col]]))
+    ev  <- .normalise_event(dt[[outcome_col]], outcome_col)
+    cmp <- .normalise_event(dt[[compete_col]], compete_col)
     fg_vec <- data.table::fcase(
       ev  == 1L, "event",
       cmp == 1L, "compete",
@@ -1815,8 +1815,10 @@ assoc_lag <- function(data,
   .assert_flag(base)
   .assert_not_null_if_false(base, covariates)
 
-  if (!is.numeric(lag_years) || any(lag_years < 0)) {
-    cli::cli_abort("{.arg lag_years} must be a non-negative numeric vector.", call = NULL)
+  if (!is.numeric(lag_years) || length(lag_years) == 0L ||
+      any(is.na(lag_years)) || any(!is.finite(lag_years)) ||
+      any(lag_years < 0)) {
+    cli::cli_abort("{.arg lag_years} must be a non-empty finite non-negative numeric vector.", call = NULL)
   }
 
   .assert_proportion(conf_level)

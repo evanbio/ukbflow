@@ -12,15 +12,21 @@
     )
     return(as.integer(x))
   }
-  xi  <- suppressWarnings(as.integer(x))
-  bad <- setdiff(stats::na.omit(unique(xi)), c(0L, 1L))
+  if (!is.numeric(x) && !is.integer(x)) {
+    cli::cli_abort(
+      "outcome_col {.field {col}} must be logical or numeric 0/1. Found: {class(x)[1]}.",
+      call = NULL
+    )
+  }
+  x_valid <- stats::na.omit(x)
+  bad <- unique(x_valid[!x_valid %in% c(0, 1)])
   if (length(bad) > 0L) {
     cli::cli_abort(
       "outcome_col {.field {col}}: values other than 0/1/NA found: {bad}",
       call = NULL
     )
   }
-  xi
+  as.integer(x)
 }
 
 

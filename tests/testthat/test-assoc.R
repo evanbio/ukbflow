@@ -142,6 +142,15 @@ test_that("assoc_coxph() logical exposure converts to integer (no TRUE suffix)",
   expect_true(all(res$term == "t2d_tf"))
 })
 
+test_that("assoc_coxph() aborts on fractional outcome values", {
+  dt <- .fake_assoc_dt()
+  dt$copd_01[1L] <- 0.5
+  expect_error(
+    suppressMessages(assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")),
+    "0/1"
+  )
+})
+
 test_that("assoc_coxph() factor exposure produces n_levels - 1 term rows per model", {
   dt  <- .fake_assoc_dt()
   res <- suppressMessages(
@@ -227,6 +236,15 @@ test_that("assoc_logistic() aborts on non-binary outcome", {
   expect_error(
     suppressMessages(assoc_logistic(dt, "bmi_int", "t2d_01")),
     "0/1"
+  )
+})
+
+test_that("assoc_logistic() aborts on character outcome values", {
+  dt <- .fake_assoc_dt()
+  dt[, bad_outcome := ifelse(copd_01 == 1L, "yes", "no")]
+  expect_error(
+    suppressMessages(assoc_logistic(dt, "bad_outcome", "t2d_01")),
+    "logical or numeric"
   )
 })
 
@@ -536,6 +554,18 @@ test_that("assoc_competing() Mode B produces same n_events as Mode A", {
   )
 })
 
+test_that("assoc_competing() Mode B aborts on invalid competing event values", {
+  dt <- .fake_competing_dt()
+  dt$death_01[1L] <- 0.5
+  expect_error(
+    suppressMessages(
+      assoc_competing(dt, "copd_01", "followup_years", "t2d_01",
+                      compete_col = "death_01")
+    ),
+    "0/1"
+  )
+})
+
 test_that("assoc_competing() logical exposure normalised (no TRUE suffix in term)", {
   dt  <- .fake_competing_dt()
   res <- suppressMessages(
@@ -611,6 +641,28 @@ test_that("assoc_lag() aborts on negative lag_years", {
       assoc_lag(dt, "copd_01", "followup_years", "t2d_01", lag_years = c(-1, 2))
     ),
     "non-negative"
+  )
+})
+
+test_that("assoc_lag() aborts on invalid lag_years values", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(
+      assoc_lag(dt, "copd_01", "followup_years", "t2d_01", lag_years = NA_real_)
+    ),
+    "lag_years"
+  )
+  expect_error(
+    suppressMessages(
+      assoc_lag(dt, "copd_01", "followup_years", "t2d_01", lag_years = Inf)
+    ),
+    "lag_years"
+  )
+  expect_error(
+    suppressMessages(
+      assoc_lag(dt, "copd_01", "followup_years", "t2d_01", lag_years = numeric(0))
+    ),
+    "lag_years"
   )
 })
 
