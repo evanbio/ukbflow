@@ -44,6 +44,13 @@ test_that("grs_check() aborts when file not found", {
   expect_error(grs_check("/no/such/file.txt"), "not found")
 })
 
+test_that("grs_check() aborts when dest is not a scalar string", {
+  withr::local_tempfile(fileext = ".csv") |> (function(path) {
+    .write_weights_file(path)
+    expect_error(grs_check(path, dest = NA_character_), "single non-empty string")
+  })()
+})
+
 test_that("grs_check() aborts when required columns are missing", {
   withr::local_tempfile(fileext = ".csv") |> (function(path) {
     data.table::fwrite(data.table::data.table(x = 1:3, y = 1:3), path)
@@ -133,6 +140,11 @@ test_that("grs_standardize() aborts when manually specified column not found", {
   expect_error(grs_standardize(dt, grs_cols = "no_such_col"), "not found")
 })
 
+test_that("grs_standardize() aborts when target column is non-numeric", {
+  dt <- data.table::data.table(IID = 1:5, GRS_text = letters[1:5])
+  expect_error(grs_standardize(dt, grs_cols = "GRS_text"), "numeric")
+})
+
 test_that("grs_standardize() aborts when no GRS columns auto-detected", {
   dt <- data.table::data.table(IID = 1:5, age = 50:54)
   expect_error(grs_standardize(dt), "No columns")
@@ -141,6 +153,14 @@ test_that("grs_standardize() aborts when no GRS columns auto-detected", {
 test_that("grs_standardize() aborts on zero-variance column", {
   dt <- data.table::data.table(IID = 1:5, GRS_flat = rep(1.0, 5))
   expect_error(grs_standardize(dt), "zero variance")
+})
+
+test_that("grs_standardize() aborts when column lacks two finite values", {
+  dt <- data.table::data.table(IID = 1:5, GRS_missing = c(NA_real_, NA, NA, NA, NA))
+  expect_error(grs_standardize(dt, grs_cols = "GRS_missing"), "finite")
+
+  dt2 <- data.table::data.table(IID = 1:5, GRS_inf = c(1, 2, Inf, 4, 5))
+  expect_error(grs_standardize(dt2, grs_cols = "GRS_inf"), "finite")
 })
 
 test_that("grs_standardize() produces mean ≈ 0 and SD ≈ 1 for _z columns", {
@@ -298,10 +318,20 @@ test_that("grs_bgen2pgen() aborts when chr contains NA", {
   expect_error(grs_bgen2pgen(chr = NA_integer_), "between 1 and 22")
 })
 
+test_that("grs_bgen2pgen() aborts when chr is fractional or character", {
+  expect_error(grs_bgen2pgen(chr = 1.5), "between 1 and 22")
+  expect_error(grs_bgen2pgen(chr = "22"), "between 1 and 22")
+})
+
 test_that("grs_bgen2pgen() aborts when maf is out of range", {
   expect_error(grs_bgen2pgen(chr = 22, maf = 0),    "maf")
   expect_error(grs_bgen2pgen(chr = 22, maf = 0.5),  "maf")
   expect_error(grs_bgen2pgen(chr = 22, maf = -0.1), "maf")
+})
+
+test_that("grs_bgen2pgen() aborts when maf is missing or infinite", {
+  expect_error(grs_bgen2pgen(chr = 22, maf = NA_real_), "maf")
+  expect_error(grs_bgen2pgen(chr = 22, maf = Inf), "maf")
 })
 
 test_that("grs_bgen2pgen() aborts when maf is not a scalar", {
@@ -355,6 +385,26 @@ test_that("grs_score() aborts on duplicate names in file", {
   )
 })
 
+test_that("grs_score() aborts when file names are not shell-safe", {
+  withr::local_tempfile(fileext = ".txt") |> (function(f) {
+    file.create(f)
+    expect_error(
+      grs_score(file = stats::setNames(f, "bad name")),
+      "letters, numbers"
+    )
+  })()
+})
+
+test_that("grs_score() aborts when weight basename is not shell-safe", {
+  dir <- withr::local_tempdir()
+  f <- file.path(dir, "bad name.txt")
+  file.create(f)
+  expect_error(
+    grs_score(file = c(grs_a = f)),
+    "letters, numbers"
+  )
+})
+
 test_that("grs_score() aborts when local weight file does not exist", {
   expect_error(
     grs_score(file = c(grs_a = "/no/such/weights.txt")),
@@ -367,6 +417,14 @@ test_that("grs_score() aborts when maf is out of range", {
     file.create(f)
     expect_error(grs_score(file = c(grs_a = f), maf = 0),   "maf")
     expect_error(grs_score(file = c(grs_a = f), maf = 0.5), "maf")
+  })()
+})
+
+test_that("grs_score() aborts when maf is missing or infinite", {
+  withr::local_tempfile(fileext = ".txt") |> (function(f) {
+    file.create(f)
+    expect_error(grs_score(file = c(grs_a = f), maf = NA_real_), "maf")
+    expect_error(grs_score(file = c(grs_a = f), maf = Inf), "maf")
   })()
 })
 

@@ -3,6 +3,61 @@
 # =============================================================================
 
 
+# Validate chromosome vector without silently truncating decimals/strings.
+.grs_assert_chr <- function(chr) {
+  if (!is.numeric(chr) || length(chr) == 0L ||
+      any(is.na(chr)) || any(!is.finite(chr)) ||
+      any(chr != floor(chr)) || any(chr < 1L) || any(chr > 22L)) {
+    cli::cli_abort("{.arg chr} must be integer values between 1 and 22.", call = NULL)
+  }
+  as.integer(chr)
+}
+
+
+# Validate MAF threshold used by both bgen2pgen and score jobs.
+.grs_assert_maf <- function(maf) {
+  if (!is.numeric(maf) || length(maf) != 1L || is.na(maf) ||
+      !is.finite(maf) || maf <= 0 || maf >= 0.5) {
+    cli::cli_abort("{.arg maf} must be a single finite numeric value in (0, 0.5).", call = NULL)
+  }
+  invisible(maf)
+}
+
+
+# Validate tokens interpolated into RAP shell commands and output names.
+.grs_assert_safe_token <- function(x, arg) {
+  bad <- x[is.na(x) | !nzchar(x) | !grepl("^[A-Za-z0-9_.-]+$", x)]
+  if (length(bad) > 0L) {
+    cli::cli_abort(
+      c("{.arg {arg}} must use only letters, numbers, underscore, dot, and hyphen.",
+        "x" = "Invalid value{?s}: {.val {bad}}"),
+      call = NULL
+    )
+  }
+  invisible(x)
+}
+
+
+# Validate a GRS vector before z-score transformation.
+.grs_assert_standardizable <- function(x, col) {
+  if (!is.numeric(x)) {
+    cli::cli_abort("{.field {col}} must be numeric to standardise.", call = NULL)
+  }
+  x_valid <- x[!is.na(x)]
+  if (length(x_valid) < 2L || any(!is.finite(x_valid))) {
+    cli::cli_abort(
+      "{.field {col}} must contain at least two finite non-missing values.",
+      call = NULL
+    )
+  }
+  sigma <- stats::sd(x, na.rm = TRUE)
+  if (is.na(sigma) || !is.finite(sigma) || sigma <= 0) {
+    cli::cli_abort("{.field {col}} has zero variance - cannot standardise.", call = NULL)
+  }
+  invisible(sigma)
+}
+
+
 # Generate the plink2 driver R script executed on RAP via Swiss Army Knife.
 # Faithfully mirrors scripts 06 (standard) and 13 (large), differing only
 # in n_threads and plink_memory which are injected at generation time.

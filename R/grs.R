@@ -57,6 +57,7 @@ grs_check <- function(file, dest = NULL) {
 
   # Read
   .assert_file_exists(file)
+  if (!is.null(dest)) .assert_scalar_string(dest)
 
   dt <- data.table::fread(file, data.table = TRUE)
   if (nrow(dt) == 0L)
@@ -208,12 +209,9 @@ grs_bgen2pgen <- function(chr      = 1:22,
   instance <- match.arg(instance, c("standard", "large"))
   priority <- match.arg(priority, c("low", "high"))
 
-  chr <- as.integer(chr)
-  if (any(is.na(chr)) || any(chr < 1L) || any(chr > 22L))
-    cli::cli_abort("{.arg chr} must be integers between 1 and 22.", call = NULL)
+  chr <- .grs_assert_chr(chr)
 
-  if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
-    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5).", call = NULL)
+  .grs_assert_maf(maf)
 
   if (instance == "standard" && any(chr %in% 1:16))
     cli::cli_warn(c(
@@ -391,6 +389,8 @@ grs_score <- function(file,
       "Duplicate names in {.arg file}: {.val {names(file)[duplicated(names(file))]}}",
       call = NULL
     )
+  .grs_assert_safe_token(names(file), "names(file)")
+  .grs_assert_safe_token(basename(file), "basename(file)")
 
   missing_local <- file[!file.exists(file)]
   if (length(missing_local) > 0L)
@@ -399,8 +399,7 @@ grs_score <- function(file,
       setNames(missing_local, rep("x", length(missing_local)))
     ), call = NULL)
 
-  if (!is.numeric(maf) || length(maf) != 1L || maf <= 0 || maf >= 0.5)
-    cli::cli_abort("{.arg maf} must be a single numeric value in (0, 0.5). Must match the value used in {.fn grs_bgen2pgen}.", call = NULL)
+  .grs_assert_maf(maf)
 
   if (is.null(pgen_dir) || !nzchar(pgen_dir))
     cli::cli_abort("{.arg pgen_dir} must be specified (e.g. {.val {'/mnt/project/pgen'}}).", call = NULL)
@@ -585,11 +584,8 @@ grs_standardize <- function(data, grs_cols = NULL) {
   # Z-score each column: add _z column immediately after source column
   for (col in grs_cols) {
     x       <- dt[[col]]
+    sigma   <- .grs_assert_standardizable(x, col)
     mu      <- mean(x, na.rm = TRUE)
-    sigma   <- stats::sd(x, na.rm = TRUE)
-
-    if (sigma == 0)
-      cli::cli_abort("{.field {col}} has zero variance - cannot standardise.", call = NULL)
 
     z_col   <- paste0(col, "_z")
     z_vals  <- (x - mu) / sigma
