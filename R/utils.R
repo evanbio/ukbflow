@@ -46,6 +46,19 @@
       call = NULL
     )
   }
+  if (any(x < 1L)) {
+    cli::cli_abort(
+      "`{arg}` must contain positive whole numbers only.",
+      call = NULL
+    )
+  }
+  max_int <- .Machine$integer.max
+  if (any(x > max_int)) {
+    cli::cli_abort(
+      "`{arg}` must be <= {.val {max_int}}.",
+      call = NULL
+    )
+  }
   as.integer(unique(x))
 }
 
@@ -117,6 +130,10 @@
 #' @keywords internal
 #' @noRd
 .assert_choices <- function(x, choices, arg = deparse(substitute(x))) {
+  if (!is.character(choices) || length(choices) == 0L ||
+      anyNA(choices) || any(!nzchar(choices))) {
+    cli::cli_abort("{.arg choices} must be a non-empty character vector.", call = NULL)
+  }
   if (is.null(x)) return(invisible(NULL))
   if (!is.character(x)) {
     cli::cli_abort(
@@ -202,6 +219,7 @@
 #' @keywords internal
 #' @noRd
 .assert_file_exists <- function(x, arg = deparse(substitute(x))) {
+  .assert_scalar_string(x, arg)
   if (!file.exists(x)) {
     cli::cli_abort("File not found: {.path {x}}", call = NULL)
   }
@@ -219,6 +237,7 @@
 .assert_not_null_if_false <- function(flag, value,
                                       flag_name  = deparse(substitute(flag)),
                                       value_name = deparse(substitute(value))) {
+  .assert_flag(flag, flag_name)
   if (!isTRUE(flag) && is.null(value)) {
     cli::cli_abort(
       "When {.arg {flag_name}} = FALSE, {.arg {value_name}} must be supplied.",
@@ -239,6 +258,7 @@
 .assert_not_null_if_true <- function(flag, value,
                                      flag_name  = deparse(substitute(flag)),
                                      value_name = deparse(substitute(value))) {
+  .assert_flag(flag, flag_name)
   if (isTRUE(flag) && is.null(value)) {
     cli::cli_abort(
       "When {.arg {flag_name}} = TRUE, {.arg {value_name}} must be supplied.",
@@ -267,6 +287,10 @@
 #' @keywords internal
 #' @noRd
 .assert_length_n <- function(x, n, arg = deparse(substitute(x))) {
+  if (!is.numeric(n) || length(n) != 1L || is.na(n) ||
+      !is.finite(n) || n < 0L || n != floor(n)) {
+    cli::cli_abort("{.arg n} must be a single non-negative integer.", call = NULL)
+  }
   if (length(x) != n) {
     cli::cli_abort("{.arg {arg}} must have length {n}.", call = NULL)
   }

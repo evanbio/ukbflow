@@ -71,6 +71,15 @@ test_that(".assert_integer_ids() rejects decimal values", {
   expect_error(ukbflow:::.assert_integer_ids(31.7), "whole numbers")
 })
 
+test_that(".assert_integer_ids() rejects zero and negative values", {
+  expect_error(ukbflow:::.assert_integer_ids(0), "positive")
+  expect_error(ukbflow:::.assert_integer_ids(-31), "positive")
+})
+
+test_that(".assert_integer_ids() rejects values outside integer range", {
+  expect_error(ukbflow:::.assert_integer_ids(1e12), "2147483647")
+})
+
 test_that(".assert_integer_ids() error message includes the argument name", {
   bad_ids <- c(31, NA)
   expect_error(ukbflow:::.assert_integer_ids(bad_ids), "bad_ids")
@@ -203,6 +212,12 @@ test_that(".assert_choices() error message lists valid values", {
 
 test_that(".assert_choices() rejects mix of valid and invalid values", {
   expect_error(ukbflow:::.assert_choices(c("a", "oops"), c("a", "b")), "oops")
+})
+
+test_that(".assert_choices() rejects invalid choices", {
+  expect_error(ukbflow:::.assert_choices("a", NULL), "choices")
+  expect_error(ukbflow:::.assert_choices("a", character(0)), "choices")
+  expect_error(ukbflow:::.assert_choices("a", c("a", NA_character_)), "choices")
 })
 
 test_that(".assert_choices() error message includes the argument name", {
@@ -485,6 +500,13 @@ test_that(".assert_length_n() rejects vector that is too long", {
   expect_error(ukbflow:::.assert_length_n(c(1, 2, 3, 4), 3L), "length 3")
 })
 
+test_that(".assert_length_n() rejects invalid n", {
+  expect_error(ukbflow:::.assert_length_n(c(1, 2), NA_real_), "n")
+  expect_error(ukbflow:::.assert_length_n(c(1, 2), Inf), "n")
+  expect_error(ukbflow:::.assert_length_n(c(1, 2), 1.5), "n")
+  expect_error(ukbflow:::.assert_length_n(c(1, 2), -1), "n")
+})
+
 test_that(".assert_length_n() error message includes the argument name", {
   bad_vec <- c(1, 2)
   expect_error(ukbflow:::.assert_length_n(bad_vec, 5L), "bad_vec")
@@ -551,6 +573,12 @@ test_that(".assert_file_exists() rejects a non-existent path", {
   )
 })
 
+test_that(".assert_file_exists() rejects invalid path shape", {
+  expect_error(ukbflow:::.assert_file_exists(character(0)), "single non-empty string")
+  expect_error(ukbflow:::.assert_file_exists(c("a", "b")), "single non-empty string")
+  expect_error(ukbflow:::.assert_file_exists(NA_character_), "single non-empty string")
+})
+
 test_that(".assert_file_exists() error message includes the path", {
   expect_error(
     ukbflow:::.assert_file_exists("/no/such/file.csv"),
@@ -583,6 +611,13 @@ test_that(".assert_not_null_if_false() aborts when flag is FALSE and value is NU
   )
 })
 
+test_that(".assert_not_null_if_false() validates flag", {
+  expect_error(
+    ukbflow:::.assert_not_null_if_false(NA, NULL),
+    "TRUE or FALSE"
+  )
+})
+
 test_that(".assert_not_null_if_false() error message includes flag and value names", {
   use_base <- FALSE
   covariates <- NULL
@@ -593,6 +628,51 @@ test_that(".assert_not_null_if_false() error message includes flag and value nam
   expect_error(
     ukbflow:::.assert_not_null_if_false(use_base, covariates),
     "covariates"
+  )
+})
+
+
+# ===========================================================================
+# .assert_not_null_if_true()
+# ===========================================================================
+
+test_that(".assert_not_null_if_true() passes when flag is FALSE and value is NULL", {
+  expect_invisible(ukbflow:::.assert_not_null_if_true(FALSE, NULL))
+})
+
+test_that(".assert_not_null_if_true() passes when flag is TRUE and value is non-NULL", {
+  expect_invisible(ukbflow:::.assert_not_null_if_true(TRUE, "dest"))
+})
+
+test_that(".assert_not_null_if_true() returns value invisibly", {
+  result <- ukbflow:::.assert_not_null_if_true(TRUE, "dest")
+  expect_equal(result, "dest")
+})
+
+test_that(".assert_not_null_if_true() aborts when flag is TRUE and value is NULL", {
+  expect_error(
+    ukbflow:::.assert_not_null_if_true(TRUE, NULL),
+    "must be supplied"
+  )
+})
+
+test_that(".assert_not_null_if_true() validates flag", {
+  expect_error(
+    ukbflow:::.assert_not_null_if_true(NA, NULL),
+    "TRUE or FALSE"
+  )
+})
+
+test_that(".assert_not_null_if_true() error message includes flag and value names", {
+  save_output <- TRUE
+  dest <- NULL
+  expect_error(
+    ukbflow:::.assert_not_null_if_true(save_output, dest),
+    "save_output"
+  )
+  expect_error(
+    ukbflow:::.assert_not_null_if_true(save_output, dest),
+    "dest"
   )
 })
 
