@@ -29,7 +29,7 @@
 
 **ukbflow** 提供了一套完整的、RAP 原生的 UK Biobank 分析工作流 —— 从表型提取、疾病衍生，到关联分析和发表级图表，全程在 RAP 云端环境中运行。
 
-> **UK Biobank 数据政策（2024+）**：个体水平数据必须保留在 RAP 环境中，不得下载到本地。所有 `ukbflow` 函数均遵循此约束设计。
+> **UK Biobank 数据政策（2024+）**：个体水平数据必须保留在 RAP 环境中，不得下载到本地。`ukbflow` 旨在支持符合该约束的 RAP 原生分析流程；用户仍需确保仅下载获准的汇总级结果。
 
 ```r
 library(ukbflow)
@@ -92,6 +92,8 @@ remotes::install_github("evanbio/ukbflow")
 ```bash
 pip install dxpy
 ```
+
+GRS 流程还需要 RAP 任务环境中可用的 `plink2`。
 
 ---
 

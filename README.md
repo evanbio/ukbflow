@@ -29,7 +29,7 @@
 
 **ukbflow** provides a streamlined, RAP-native R workflow for UK Biobank analysis — from phenotype extraction and disease derivation to association analysis and publication-quality figures.
 
-> **UK Biobank Data Policy (2024+)**: Individual-level data must remain within the RAP environment. Only summary-level outputs may be downloaded locally. All `ukbflow` functions are designed with this constraint in mind.
+> **UK Biobank Data Policy (2024+)**: Individual-level data must remain within the RAP environment. Only summary-level outputs may be downloaded locally. `ukbflow` is designed to support RAP-native workflows under this constraint; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.
 
 ```r
 library(ukbflow)
@@ -92,6 +92,8 @@ remotes::install_github("evanbio/ukbflow")
 ```bash
 pip install dxpy
 ```
+
+GRS workflows additionally require `plink2` availability in the RAP job environment.
 
 ---
 
@@ -180,7 +182,7 @@ pip install dxpy
 </details>
 
 <details>
-<summary><b>Visualisation</b></summary>
+<summary><b>Visualization</b></summary>
 
 - `plot_forest()` — forest plot (PNG / PDF / JPG / TIFF, 300 dpi)
 - `plot_tableone()` — Table 1 (DOCX / HTML / PDF / PNG)
@@ -208,7 +210,7 @@ pip install dxpy
 - `grs_check()` — validate SNP weights file
 - `grs_bgen2pgen()` — convert BGEN → PGEN on RAP (submits cloud jobs)
 - `grs_score()` — score GRS across chromosomes with plink2
-- `grs_standardize()` / `grs_zscore()` — Z-score standardisation
+- `grs_standardize()` / `grs_zscore()` — Z-score standardization
 - `grs_validate()` — OR/HR per SD, high vs low, trend, AUC/C-index
 
 </details>
