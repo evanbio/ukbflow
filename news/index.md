@@ -2,6 +2,8 @@
 
 ## ukbflow 0.3.4
 
+CRAN release: 2026-04-08
+
 *Released: April 2026*
 
 ### Bug Fixes
@@ -254,7 +256,7 @@ analysis.
 - [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
   — retrieve UKB field metadata (field.tsv, encoding.tsv)
 - [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
-  — retrieve UKB field-level metadata for specific field IDs
+  — download the UKB field dictionary file
 - [`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)
   — list available UKB datasets on RAP
 - [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)
