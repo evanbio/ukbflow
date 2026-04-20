@@ -18,7 +18,3 @@
   ))
 }
 
-
-# ── R CMD check — data.table NSE ──────────────────────────────────────────────
-
-utils::globalVariables(c(".SD", ".N", ".I", ".GRP", ".BY", ".EACHI"))

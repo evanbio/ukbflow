@@ -8,6 +8,8 @@
 ## usethis namespace: end
 
 utils::globalVariables(c(
+  # data.table special symbols
+  ".SD", ".N", ".I", ".GRP", ".BY", ".EACHI",
   # data.table .() — function alias for list(), not exported by data.table
   ".",
   # data.table column references — assoc_*
