@@ -23,6 +23,12 @@ test_that("auth_login() throws error when token is NULL and env var is unset", {
   })
 })
 
+test_that("auth_login() throws error when env var token is blank", {
+  withr::with_envvar(c(DX_API_TOKEN = "   "), {
+    expect_error(auth_login(token = NULL), "DX_API_TOKEN")
+  })
+})
+
 test_that("auth_login() throws error when token is an empty string", {
   expect_error(auth_login(token = ""), "single non-empty string")
 })

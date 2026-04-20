@@ -28,7 +28,7 @@
 auth_login <- function(token = NULL) {
   if (is.null(token)) {
     token <- Sys.getenv("DX_API_TOKEN")
-    if (!nzchar(token)) {
+    if (!nzchar(trimws(token))) {
       stop(
         "No token provided. Supply a token or set DX_API_TOKEN environment variable.",
         call. = FALSE
@@ -37,6 +37,7 @@ auth_login <- function(token = NULL) {
   } else {
     .assert_scalar_string(token)
   }
+  .assert_scalar_string(token)
 
   result <- .dx_run(c("login", "--token", token, "--noprojects"))
 
