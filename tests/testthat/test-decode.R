@@ -52,8 +52,11 @@
   # dx ls network call so decode_names() -> extract_ls() is a pure memory path
   .ukbflow_cache$dataset    <- "fake_dataset"
   .ukbflow_cache$fields     <- list("fake_dataset" = .fake_fields_decode())
-  .ukbflow_cache$field_meta <- .fake_field_meta()
-  .ukbflow_cache$esimpint   <- .fake_esimpint()
+  key <- ukbflow:::.metadata_cache_key("data/metadata/")
+  .ukbflow_cache$field_meta <- list()
+  .ukbflow_cache$esimpint   <- list()
+  .ukbflow_cache$field_meta[[key]] <- .fake_field_meta()
+  .ukbflow_cache$esimpint[[key]]   <- .fake_esimpint()
 }
 
 .clear_decode_cache <- function() {
@@ -386,4 +389,37 @@ test_that("decode_values() errors with clear message when esimpint.tsv missing",
     suppressMessages(decode_values(df, metadata_dir = tmp)),
     "esimpint.tsv"
   )
+})
+
+test_that("decode_values() caches metadata separately by metadata_dir", {
+  .clear_decode_cache()
+  on.exit(.clear_decode_cache())
+
+  dir_a <- file.path(tempdir(), "decode_meta_a")
+  dir_b <- file.path(tempdir(), "decode_meta_b")
+  dir.create(dir_a, showWarnings = FALSE)
+  dir.create(dir_b, showWarnings = FALSE)
+  on.exit(unlink(c(dir_a, dir_b), recursive = TRUE), add = TRUE)
+
+  meta_a <- .fake_field_meta()
+  meta_b <- .fake_field_meta()
+  meta_b$encoding_id[meta_b$field_id == 31L] <- 99L
+  enc_a <- .fake_esimpint()
+  enc_b <- data.frame(
+    encoding_id = c(99L, 99L),
+    value = c(0L, 1L),
+    meaning = c("Woman", "Man"),
+    stringsAsFactors = FALSE
+  )
+
+  data.table::fwrite(meta_a, file.path(dir_a, "field.tsv"), sep = "\t")
+  data.table::fwrite(enc_a, file.path(dir_a, "esimpint.tsv"), sep = "\t")
+  data.table::fwrite(meta_b, file.path(dir_b, "field.tsv"), sep = "\t")
+  data.table::fwrite(enc_b, file.path(dir_b, "esimpint.tsv"), sep = "\t")
+
+  result_a <- suppressMessages(decode_values(data.frame(p31 = 1L), metadata_dir = dir_a))
+  result_b <- suppressMessages(decode_values(data.frame(p31 = 1L), metadata_dir = dir_b))
+
+  expect_equal(result_a$p31, "Male")
+  expect_equal(result_b$p31, "Man")
 })

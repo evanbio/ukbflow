@@ -69,7 +69,7 @@
 #'
 #' Reads \code{field.tsv} from \code{metadata_dir}, retaining only the columns
 #' needed for value decoding (\code{field_id}, \code{value_type},
-#' \code{encoding_id}). Result is cached in \code{.ukbflow_cache$field_meta}.
+#' \code{encoding_id}). Results are cached per \code{metadata_dir}.
 #'
 #' @param metadata_dir (character) Directory containing \code{field.tsv}.
 #' @return data.frame with columns \code{field_id}, \code{value_type},
@@ -77,8 +77,21 @@
 #'
 #' @keywords internal
 #' @noRd
+.metadata_cache_key <- function(metadata_dir) {
+  normalizePath(metadata_dir, winslash = "/", mustWork = FALSE)
+}
+
+
+#' @keywords internal
+#' @noRd
 .load_field_meta <- function(metadata_dir) {
-  if (!is.null(.ukbflow_cache$field_meta)) return(.ukbflow_cache$field_meta)
+  cache_key <- .metadata_cache_key(metadata_dir)
+  if (!is.list(.ukbflow_cache$field_meta) || is.data.frame(.ukbflow_cache$field_meta)) {
+    .ukbflow_cache$field_meta <- list()
+  }
+  if (!is.null(.ukbflow_cache$field_meta[[cache_key]])) {
+    return(.ukbflow_cache$field_meta[[cache_key]])
+  }
 
   path <- file.path(metadata_dir, "field.tsv")
   if (!file.exists(path)) {
@@ -95,15 +108,15 @@
     select      = c("field_id", "value_type", "encoding_id"),
     data.table  = FALSE
   )
-  .ukbflow_cache$field_meta <- df
+  .ukbflow_cache$field_meta[[cache_key]] <- df
   df
 }
 
 
 #' Load and cache esimpint.tsv encoding table
 #'
-#' Reads \code{esimpint.tsv} from \code{metadata_dir} and caches it in
-#' \code{.ukbflow_cache$esimpint}. This table maps
+#' Reads \code{esimpint.tsv} from \code{metadata_dir} and caches it per
+#' \code{metadata_dir}. This table maps
 #' \code{encoding_id + value → meaning} for simple integer-encoded categorical
 #' fields (UKB \code{value_type} 21 and 22).
 #'
@@ -114,7 +127,13 @@
 #' @keywords internal
 #' @noRd
 .load_esimpint <- function(metadata_dir) {
-  if (!is.null(.ukbflow_cache$esimpint)) return(.ukbflow_cache$esimpint)
+  cache_key <- .metadata_cache_key(metadata_dir)
+  if (!is.list(.ukbflow_cache$esimpint) || is.data.frame(.ukbflow_cache$esimpint)) {
+    .ukbflow_cache$esimpint <- list()
+  }
+  if (!is.null(.ukbflow_cache$esimpint[[cache_key]])) {
+    return(.ukbflow_cache$esimpint[[cache_key]])
+  }
 
   path <- file.path(metadata_dir, "esimpint.tsv")
   if (!file.exists(path)) {
@@ -130,7 +149,7 @@
     select     = c("encoding_id", "value", "meaning"),
     data.table = FALSE
   )
-  .ukbflow_cache$esimpint <- df
+  .ukbflow_cache$esimpint[[cache_key]] <- df
   df
 }
 
