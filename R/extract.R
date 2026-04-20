@@ -42,10 +42,14 @@
 #' extract_ls(refresh = TRUE)
 #' }
 extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
+  if (!is.null(dataset)) .assert_scalar_string(dataset)
+  if (!is.null(pattern)) .assert_scalar_string(pattern)
+  .assert_flag(refresh)
 
   # Reason: auto-detect before cache check so cache is keyed by dataset name —
   # prevents returning stale fields after switching datasets or projects
   if (is.null(dataset)) {
+    if (refresh) .ukbflow_cache$dataset <- NULL
     dataset <- .dx_find_dataset()
     cli::cli_inform("Using dataset: {.val {dataset}}")
   }
@@ -97,7 +101,7 @@ extract_ls <- function(dataset = NULL, pattern = NULL, refresh = FALSE) {
 #' Extracts phenotypic fields from the UKB Research Analysis Platform dataset
 #' and returns a \code{data.table}. All instances and arrays are returned for
 #' each requested field. Column names are kept as-is (e.g.
-#' \code{participant.p53_i0}); use the \code{clean_} series for renaming.
+#' \code{participant.p53_i0}); use [decode_names()] for renaming.
 #'
 #' @param field_id (integer) Vector of UKB Field IDs to extract, e.g.
 #'   \code{c(31, 53, 22189)}. \code{eid} is always included automatically.
@@ -120,6 +124,8 @@ extract_pheno <- function(field_id, dataset = NULL, timeout = 300) {
   .assert_on_rap()
 
   field_id <- .assert_integer_ids(field_id)
+  if (!is.null(dataset)) .assert_scalar_string(dataset)
+  .assert_count(timeout)
 
   dest <- tempfile(fileext = ".csv")
   on.exit(unlink(dest), add = TRUE)
@@ -241,6 +247,9 @@ extract_batch <- function(field_id, dataset = NULL, file = NULL,
   priority <- match.arg(priority)
 
   field_id <- .assert_integer_ids(field_id)
+  if (!is.null(dataset)) .assert_scalar_string(dataset)
+  if (!is.null(file)) .assert_scalar_string(file)
+  if (!is.null(instance_type)) .assert_scalar_string(instance_type)
 
   # Auto-detect dataset
   if (is.null(dataset)) {

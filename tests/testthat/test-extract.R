@@ -169,6 +169,22 @@ test_that("extract_ls() refresh = TRUE re-fetches from network", {
   expect_equal(nrow(.ukbflow_cache$fields[["app12345.dataset"]]), 1)
 })
 
+test_that("extract_ls() refresh = TRUE clears cached auto-detected dataset", {
+  .clear_cache()
+  on.exit(.clear_cache())
+
+  .ukbflow_cache$dataset <- "old.dataset"
+  mockery::stub(extract_ls, ".dx_find_dataset", function() {
+    expect_null(.ukbflow_cache$dataset)
+    "new.dataset"
+  })
+  mockery::stub(extract_ls, ".dx_list_fields_raw",
+                function(...) .fake_dx(stdout = "participant.p31\tSex\n"))
+
+  suppressMessages(extract_ls(refresh = TRUE))
+  expect_false(is.null(.ukbflow_cache$fields[["new.dataset"]]))
+})
+
 test_that("extract_ls() pattern filters results", {
   .set_fake_cache()
   on.exit(.clear_cache())
@@ -222,6 +238,12 @@ test_that("extract_ls() throws error when .dx_list_fields_raw fails", {
   expect_error(suppressMessages(extract_ls()), "Failed to list fields")
 })
 
+test_that("extract_ls() validates optional arguments", {
+  expect_error(extract_ls(dataset = 1), "single non-empty string")
+  expect_error(extract_ls(pattern = 1), "single non-empty string")
+  expect_error(extract_ls(refresh = NA), "single TRUE or FALSE")
+})
+
 # ===========================================================================
 # extract_pheno()
 # ===========================================================================
@@ -254,6 +276,12 @@ test_that("extract_pheno() throws error on Inf field_id", {
 test_that("extract_pheno() throws error on decimal field_id", {
   mockery::stub(extract_pheno, ".assert_on_rap", function() invisible(NULL))
   expect_error(extract_pheno(31.7), "whole numbers")
+})
+
+test_that("extract_pheno() validates dataset and timeout", {
+  mockery::stub(extract_pheno, ".assert_on_rap", function() invisible(NULL))
+  expect_error(extract_pheno(31, dataset = 1), "single non-empty string")
+  expect_error(extract_pheno(31, timeout = NA), "single positive integer")
 })
 
 test_that("extract_pheno() throws error when no fields match", {
@@ -339,6 +367,12 @@ test_that("extract_batch() throws error on Inf field_id", {
 
 test_that("extract_batch() throws error on decimal field_id", {
   expect_error(extract_batch(31.7), "whole numbers")
+})
+
+test_that("extract_batch() validates optional string arguments", {
+  expect_error(extract_batch(31, dataset = 1), "single non-empty string")
+  expect_error(extract_batch(31, file = ""), "single non-empty string")
+  expect_error(extract_batch(31, instance_type = 1), "single non-empty string")
 })
 
 test_that("extract_batch() strips participant. prefix for table-exporter", {

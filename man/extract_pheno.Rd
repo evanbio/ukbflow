@@ -24,7 +24,7 @@ Fields not found are skipped with a warning.
 Extracts phenotypic fields from the UKB Research Analysis Platform dataset
 and returns a \code{data.table}. All instances and arrays are returned for
 each requested field. Column names are kept as-is (e.g.
-\code{participant.p53_i0}); use the \code{clean_} series for renaming.
+\code{participant.p53_i0}); use \code{\link[=decode_names]{decode_names()}} for renaming.
 }
 \examples{
 \dontrun{
