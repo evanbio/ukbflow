@@ -98,6 +98,7 @@ plot_forest(
 
 ## Documentation
 
+- **[ukbflow Book](https://ukbflow.evanzhou.org)** — Practical RAP-native workflows, examples, and module notes
 - **[Get Started](articles/get-started.html)** — Installation and end-to-end workflow
 - **[Function Reference](reference/index.html)** — Complete API documentation
 - **[Vignettes](articles/index.html)** — Module-by-module tutorials

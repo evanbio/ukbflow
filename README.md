@@ -12,6 +12,7 @@
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 
 [📚 Documentation](https://evanbio.github.io/ukbflow/) •
+[📖 Book](https://ukbflow.evanzhou.org) •
 [🚀 Get Started](https://evanbio.github.io/ukbflow/articles/get-started.html) •
 [💬 Issues](https://github.com/evanbio/ukbflow/issues) •
 [🤝 Contributing](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)

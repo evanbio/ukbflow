@@ -143,6 +143,9 @@ home:
     structure: [links, toc, license, community, citation, authors, dev]
 
   links:
+  - text: "ukbflow Book"
+    href: https://ukbflow.evanzhou.org
+    desc: "Practical RAP-native workflows, examples, and module notes"
   - text: "Get Started with ukbflow"
     href: articles/get-started.html
     desc: "End-to-end workflow overview"
@@ -222,6 +225,7 @@ navbar:
       - reference
       - news
     right:
+      - book
       - github
       - cran
 
@@ -237,6 +241,11 @@ navbar:
     intro:
       text: "Get Started"
       href: articles/get-started.html
+
+    book:
+      icon: "fa fa-book"
+      href: https://ukbflow.evanzhou.org
+      aria-label: "ukbflow Book"
 
     vignettes:
       text: "Vignettes"
