@@ -183,6 +183,171 @@ ops_setup <- function(
 }
 
 
+#' Common UK Biobank fields for quick reference
+#'
+#' Returns a small offline reference table of frequently used UK Biobank field
+#' IDs. This helper is intentionally limited: it is not a complete UKB data
+#' dictionary and does not imply that a field is approved or available in the
+#' current RAP project. Use \code{\link{extract_ls}} to search the approved
+#' fields in the active project before extraction.
+#'
+#' @param pattern (character or NULL) Optional case-insensitive keyword or
+#'   regular expression used to filter across \code{field_id}, \code{title},
+#'   \code{description}, \code{group}, and \code{structure}. Default
+#'   \code{NULL} returns all common fields.
+#' @param group (character or NULL) Optional group filter. Use values from the
+#'   returned \code{group} column, e.g. \code{"demographics"},
+#'   \code{"genetics"}, \code{"self_report"}, \code{"hes"},
+#'   \code{"death"}, \code{"cancer_registry"}, or \code{"lifestyle"}.
+#'
+#' @return A \code{data.table} with columns:
+#'   \describe{
+#'     \item{field_id}{Integer UKB field ID.}
+#'     \item{title}{UKB field title.}
+#'     \item{description}{Short practical description of the field.}
+#'     \item{group}{Broad reference group.}
+#'     \item{structure}{Expected field shape: \code{"single"},
+#'       \code{"instance"}, \code{"array"}, or \code{"instance_array"}.}
+#'   }
+#'
+#' @export
+#'
+#' @examples
+#' ops_fields_common()
+#' ops_fields_common("sex")
+#' ops_fields_common(group = "genetics")
+ops_fields_common <- function(pattern = NULL, group = NULL) {
+
+  if (!is.null(pattern)) .assert_scalar_string(pattern)
+  if (!is.null(group)) .assert_character(group)
+  group_filter <- group
+
+  out <- data.table::data.table(
+    field_id = c(
+      31L, 34L, 53L, 54L, 21022L, 21000L, 22189L,
+      22009L, 22000L, 22001L, 22006L, 22020L, 22021L,
+      20002L, 20008L, 20009L, 20001L, 20006L, 20007L,
+      41270L, 41280L,
+      40000L, 40001L, 40002L,
+      40005L, 40006L, 40011L, 40012L,
+      21001L, 20116L, 1558L, 738L, 845L, 894L, 904L
+    ),
+    title = c(
+      "Sex",
+      "Year of birth",
+      "Date of attending assessment centre",
+      "UK Biobank assessment centre",
+      "Age at recruitment",
+      "Ethnic background",
+      "Townsend deprivation index at recruitment",
+      "Genetic principal components",
+      "Genotype measurement batch",
+      "Genetic sex",
+      "Genetic ethnic grouping",
+      "Used in genetic principal components",
+      "Genetic kinship to other participants",
+      "Non-cancer illness code",
+      "Interpolated Year when non-cancer illness first diagnosed",
+      "Interpolated Age of participant when non-cancer illness first diagnosed",
+      "Cancer code",
+      "Interpolated Year when cancer first diagnosed",
+      "Interpolated Age of participant when cancer first diagnosed",
+      "Diagnoses - ICD10",
+      "Date of first in-patient diagnosis - ICD10",
+      "Date of death",
+      "Underlying (primary) cause of death: ICD10",
+      "Contributory (secondary) causes of death: ICD10",
+      "Date of cancer diagnosis",
+      "Type of cancer: ICD10",
+      "Histology of cancer tumour",
+      "Behaviour of cancer tumour",
+      "Body mass index (BMI)",
+      "Smoking status",
+      "Alcohol intake frequency.",
+      "Average total household income before tax",
+      "Age completed full time education",
+      "Duration of moderate activity",
+      "Number of days/week of vigorous physical activity 10+ minutes"
+    ),
+    description = c(
+      "Participant sex.",
+      "Participant year of birth.",
+      "Assessment visit date.",
+      "Assessment centre attended by the participant.",
+      "Age at recruitment.",
+      "Self-reported ethnic background.",
+      "Area-level deprivation index at recruitment.",
+      "Genetic ancestry principal components.",
+      "Genotyping batch or array indicator.",
+      "Genetic sex from genotype data.",
+      "Genetic ethnic grouping.",
+      "Indicator for inclusion in genetic principal components.",
+      "Genetic kinship flag.",
+      "Self-reported non-cancer illness code.",
+      "Self-reported non-cancer illness diagnosis year.",
+      "Self-reported non-cancer illness diagnosis age.",
+      "Self-reported cancer code.",
+      "Self-reported cancer diagnosis year.",
+      "Self-reported cancer diagnosis age.",
+      "Any-position HES inpatient ICD-10 diagnosis codes.",
+      "Dates corresponding to HES inpatient ICD-10 diagnoses.",
+      "Death date.",
+      "Underlying primary cause of death in ICD-10.",
+      "Contributory secondary causes of death in ICD-10.",
+      "Cancer registry diagnosis date.",
+      "Cancer registry ICD-10 cancer type.",
+      "Cancer registry tumour histology.",
+      "Cancer registry tumour behaviour.",
+      "Measured body mass index.",
+      "Smoking status.",
+      "Alcohol intake frequency.",
+      "Average household income before tax.",
+      "Age when full-time education was completed.",
+      "Duration of moderate physical activity.",
+      "Frequency of vigorous physical activity."
+    ),
+    group = c(
+      rep("demographics", 7L),
+      rep("genetics", 6L),
+      rep("self_report", 6L),
+      rep("hes", 2L),
+      rep("death", 3L),
+      rep("cancer_registry", 4L),
+      rep("lifestyle", 7L)
+    ),
+    structure = c(
+      "single", "single", "instance", "instance", "single", "instance",
+      "single",
+      "array", "single", "single", "single", "single", "single",
+      "instance_array", "instance_array", "instance_array",
+      "instance_array", "instance_array", "instance_array",
+      "single", "array",
+      "instance", "instance", "instance_array",
+      "instance", "instance", "instance", "instance",
+      "instance", "instance", "instance", "instance", "instance",
+      "instance", "instance"
+    )
+  )
+
+  if (!is.null(group_filter)) {
+    out <- out[group %in% group_filter]
+  }
+
+  if (!is.null(pattern)) {
+    haystack <- paste(
+      out$field_id,
+      out$title,
+      out$description,
+      out$group,
+      out$structure
+    )
+    out <- out[grepl(pattern, haystack, ignore.case = TRUE, perl = TRUE)]
+  }
+
+  out[]
+}
+
+
 #' Generate toy UKB-like data for testing and development
 #'
 #' Creates a small, synthetic dataset that mimics the structure of UK Biobank

@@ -108,7 +108,7 @@ GRS workflows additionally require `plink2` availability in the RAP job environm
 | **Association Analysis** | `assoc_coxph`, `assoc_logistic`, `assoc_subgroup` | Three-model adjustment; subgroup & trend analysis |
 | **Genomic Scoring** | `grs_bgen2pgen`, `grs_score`, `grs_standardize` | Distributed plink2 scoring on RAP worker nodes |
 | **Visualization** | `plot_forest`, `plot_tableone` | Publication-ready figures & tables |
-| **Utilities** | `ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw` | Environment check, synthetic data, pipeline diagnostics, and cohort management |
+| **Utilities** | `ops_setup`, `ops_fields_common`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw` | Environment check, common field reference, synthetic data, pipeline diagnostics, and cohort management |
 
 ---
 
@@ -214,6 +214,7 @@ part of the current public API.
 <summary><b>Utilities &amp; Diagnostics</b></summary>
 
 - `ops_setup()` — environment health check (dx CLI, RAP auth, R packages)
+- `ops_fields_common()` — small offline reference table of frequently used UKB field IDs
 - `ops_toy()` — generate synthetic UKB-like data for development and testing
 - `ops_na()` — summarise missing values (NA and `""`) across all columns
 - `ops_snapshot()` — record pipeline checkpoints and track dataset changes

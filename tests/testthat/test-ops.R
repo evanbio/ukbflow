@@ -6,6 +6,44 @@
 
 
 # ===========================================================================
+# ops_fields_common() — offline UKB field reference
+# ===========================================================================
+
+test_that("ops_fields_common() returns a data.table with expected columns", {
+  result <- ops_fields_common()
+  expect_true(data.table::is.data.table(result))
+  expect_true(all(c("field_id", "title", "description", "group", "structure") %in% names(result)))
+})
+
+test_that("ops_fields_common() includes core fields", {
+  result <- ops_fields_common()
+  expect_true(all(c(31L, 53L, 21022L, 41270L, 40006L, 22009L) %in% result$field_id))
+})
+
+test_that("ops_fields_common() does not include unavailable legacy Townsend field p189", {
+  result <- ops_fields_common()
+  expect_false(189L %in% result$field_id)
+})
+
+test_that("ops_fields_common() filters by keyword", {
+  result <- ops_fields_common("sex")
+  expect_true(31L %in% result$field_id)
+  expect_true(all(grepl("sex", paste(result$title, result$description), ignore.case = TRUE)))
+})
+
+test_that("ops_fields_common() filters by group", {
+  result <- ops_fields_common(group = "genetics")
+  expect_gt(nrow(result), 0L)
+  expect_true(all(result$group == "genetics"))
+})
+
+test_that("ops_fields_common() validates optional arguments", {
+  expect_error(ops_fields_common(pattern = 1), "pattern")
+  expect_error(ops_fields_common(group = 1), "group")
+})
+
+
+# ===========================================================================
 # ops_toy() — input validation
 # ===========================================================================
 

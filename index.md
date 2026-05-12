@@ -51,7 +51,7 @@ GRS workflows additionally require `plink2` availability in the RAP job environm
 
 **Visualization** — Publication-ready forest plots and Table 1 outputs in common manuscript formats (`plot_forest`, `plot_tableone`)
 
-**Utilities** — Verify environment before analysis; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (`ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
+**Utilities** — Verify environment before analysis; look up common UKB field IDs; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (`ops_setup`, `ops_fields_common`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
 
 ## Supported Phenotype Sources
 
