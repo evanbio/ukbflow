@@ -33,6 +33,22 @@ This vignette covers the disease phenotype derivation pipeline:
 | 9 | `derive_icd10()` | Combine any subset of sources (wrapper) |
 | 10 | `derive_case()` | Merge self-report + ICD-10 into final case definition |
 
+Current phenotype-source support is intentionally scoped to the common UKB
+sources below:
+
+| Source | Code system / field type | Main function(s) |
+|---|---|---|
+| Self-reported illness / cancer | UKB fields `20002` / `20001` | `derive_selfreport()` |
+| HES inpatient diagnoses | ICD-10, any-position field `41270` with dates from `41280` | `derive_hes()` |
+| First Occurrence fields | UKB precomputed `p131xxx` dates | `derive_first_occurrence()` |
+| Cancer registry | ICD-10, histology, behaviour, diagnosis date | `derive_cancer_registry()` |
+| Death registry | ICD-10 primary / secondary cause of death | `derive_death_registry()` |
+| Multi-source ICD-10 phenotype | HES, death, First Occurrence, cancer registry | `derive_icd10()` |
+| Final case definition | Self-report plus ICD-10-derived status/date | `derive_case()` |
+
+ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems are not
+part of the current public API.
+
 All functions accept a `data.frame` or `data.table` and return a `data.table`.
 For `data.table` input, new columns are added **by reference** (no copy);
 `data.frame` input is converted to `data.table` internally before modification.
@@ -166,6 +182,11 @@ This adds two columns per call:
 `derive_hes()` scans UKB Hospital Episode Statistics ICD-10 codes (field
 41270, stored as a JSON array per participant) and matches the earliest
 corresponding date from field 41280.
+
+Field 41270 contains any recorded HES inpatient ICD-10 diagnosis position.
+`derive_hes()` therefore treats any matching ICD-10 code in this field as a
+case. It does not currently distinguish main/primary diagnoses (field 41202)
+from secondary diagnoses (field 41204).
 
 ```{r derive-hes}
 # Prefix match: codes starting with "I10" (hypertension)

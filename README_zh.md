@@ -112,6 +112,24 @@ GRS 流程还需要 RAP 任务环境中可用的 `plink2`。
 
 ---
 
+## 当前支持的表型来源
+
+`ukbflow` 当前聚焦于 UK Biobank 表型提取流程中最常用、最稳定的疾病表型来源：
+
+| 来源 | 编码系统 / 字段类型 | 主要函数 |
+|---|---|---|
+| 自报告疾病 / 癌症 | UKB 字段 `20002` / `20001` | `derive_selfreport()` |
+| HES 住院诊断 | ICD-10，任意诊断位置字段 `41270`，日期来自 `41280`；暂不区分 primary/secondary position | `derive_hes()` |
+| First Occurrence 字段 | UKB 预计算的 `p131xxx` 日期字段 | `derive_first_occurrence()` |
+| 癌症注册 | ICD-10、histology、behaviour、诊断日期 | `derive_cancer_registry()` |
+| 死亡注册 | ICD-10 主要 / 次要死因 | `derive_death_registry()` |
+| 多源 ICD-10 表型 | HES、死亡注册、First Occurrence、癌症注册 | `derive_icd10()` |
+| 最终病例定义 | 自报告 + ICD-10 衍生状态 / 日期 | `derive_case()` |
+
+ICD-9、OPCS-4、Read v2、CTV3 以及其他 GP / primary-care 编码系统暂不属于当前 public API。
+
+---
+
 ## 函数一览
 
 <details>

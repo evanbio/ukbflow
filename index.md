@@ -53,6 +53,24 @@ GRS workflows additionally require `plink2` availability in the RAP job environm
 
 **Utilities** — Verify environment before analysis; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (`ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
 
+## Supported Phenotype Sources
+
+`ukbflow` currently focuses on common UK Biobank disease-phenotype sources that
+are routinely available in phenotype extraction workflows:
+
+| Source | Code system / field type | Main function(s) |
+|---|---|---|
+| Self-reported illness / cancer | UKB fields `20002` / `20001` | `derive_selfreport()` |
+| HES inpatient diagnoses | ICD-10, any-position field `41270` with dates from `41280`; primary/secondary position is not currently configurable | `derive_hes()` |
+| First Occurrence fields | UKB precomputed `p131xxx` dates | `derive_first_occurrence()` |
+| Cancer registry | ICD-10, histology, behaviour, diagnosis date | `derive_cancer_registry()` |
+| Death registry | ICD-10 primary / secondary cause of death | `derive_death_registry()` |
+| Multi-source ICD-10 phenotype | HES, death, First Occurrence, cancer registry | `derive_icd10()` |
+| Final case definition | Self-report plus ICD-10-derived status/date | `derive_case()` |
+
+ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems are not
+part of the current public API.
+
 ## Quick Start
 
 ```r
