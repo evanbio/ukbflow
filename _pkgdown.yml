@@ -401,10 +401,12 @@ reference:
 
 - title: "Utilities & Diagnostics"
   desc: >
-    Environment checks, synthetic data generation, missing-value summaries,
-    pipeline snapshots, and cohort management.
+    Environment checks, field discovery, synthetic data generation,
+    missing-value summaries, pipeline snapshots, and cohort management.
   contents:
   - ops_setup
+  - ops_fields
+  - ops_fields_common
   - ops_toy
   - ops_na
   - ops_snapshot

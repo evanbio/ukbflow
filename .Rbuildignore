@@ -3,6 +3,7 @@
 ^dev$
 ^\.github$
 ^CLAUDE\.md$
+^\.claude$
 ^LICENSE\.md$
 ^_pkgdown\.yml$
 ^index\.md$
