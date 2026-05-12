@@ -544,6 +544,16 @@ test_that("derive_hes() exact match treats dot as literal", {
   expect_equal(result$ihd_hes_date, data.table::as.IDate("2020-01-01"))
 })
 
+test_that("derive_hes() does not expose diagnosis-position filtering", {
+  d <- data.table::copy(DT)
+  expect_error(
+    suppressMessages(
+      derive_hes(d, name = "t2d", icd10 = "E11", position = "primary")
+    ),
+    "unused argument"
+  )
+})
+
 test_that("derive_hes() returns data.table", {
   d        <- data.table::copy(DT)
   date_cols <- grep("^p41280_a", names(d), value = TRUE)

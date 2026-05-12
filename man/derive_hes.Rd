@@ -29,7 +29,9 @@ matches any code starting with the supplied string; \code{"exact"}
 requires a full match; \code{"regex"} uses \code{icd10} directly.}
 
 \item{disease_cols}{(character or NULL) Name of the \code{p41270} column.
-\code{NULL} = auto-detect.}
+\code{NULL} = auto-detect. This should be the any-position HES ICD-10
+diagnosis field, not the main-only (\code{p41202}) or secondary-only
+(\code{p41204}) summary fields.}
 
 \item{date_cols}{(character or NULL) Names of \code{p41280_a*} columns.
 \code{NULL} = auto-detect.}
@@ -49,6 +51,13 @@ JSON array corresponds to \code{p41280_aN} (date of first in-patient
 diagnosis for that code).
 }
 \details{
+\strong{Diagnosis position}: \code{derive_hes()} uses field
+\code{p41270}, which represents any recorded HES inpatient ICD-10
+diagnosis position. A participant is counted as a case if any matching
+ICD-10 code appears in \code{p41270}. The function does not currently
+distinguish main/primary diagnoses (\code{p41202}) from secondary diagnoses
+(\code{p41204}).
+
 \describe{
 \item{\code{{name}_hes}}{Logical flag: \code{TRUE} if any HES record
 contains a matching ICD-10 code.}
