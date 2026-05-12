@@ -183,6 +183,103 @@ ops_setup <- function(
 }
 
 
+#' Search approved UKB fields in the current project
+#'
+#' Searches the field list returned by \code{\link{extract_ls}} and summarizes
+#' matching RAP columns at the UKB field-ID level. This is a project-specific
+#' field-discovery helper: results reflect fields approved and available in the
+#' active RAP dataset, not the full UK Biobank data dictionary.
+#'
+#' By default, \code{pattern} is treated as one or more case-insensitive
+#' keywords that must all be present in either the RAP field name or the field
+#' title. Set \code{regex = TRUE} to use \code{pattern} as a regular
+#' expression.
+#'
+#' @param pattern (character) Keyword string or regular expression to search.
+#'   For keyword search, separate multiple required keywords with spaces, e.g.
+#'   \code{"age recruitment"}.
+#' @param dataset (character or NULL) Dataset file name, e.g.
+#'   \code{"app12345_20260101.dataset"}. Default: \code{NULL} (auto-detect).
+#' @param refresh (logical) Force re-fetch from cloud, ignoring the cached
+#'   field list. Default: \code{FALSE}.
+#' @param regex (logical) Interpret \code{pattern} as a regular expression.
+#'   Default: \code{FALSE}.
+#' @param details (logical) Return the raw matching RAP columns instead of the
+#'   field-level summary. Default: \code{FALSE}.
+#'
+#' @return A \code{data.table}. With \code{details = FALSE}, columns are:
+#'   \code{field_id}, \code{title}, \code{n_cols}, and
+#'   \code{example_field_name}. With \code{details = TRUE}, columns are:
+#'   \code{field_id}, \code{field_name}, and \code{title}.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ops_fields("sex")
+#' ops_fields("age recruitment")
+#' ops_fields("p31|p53|p21022", regex = TRUE)
+#' ops_fields("cancer", details = TRUE)
+#' }
+ops_fields <- function(pattern, dataset = NULL, refresh = FALSE,
+                       regex = FALSE, details = FALSE) {
+
+  .assert_scalar_string(pattern)
+  if (!is.null(dataset)) .assert_scalar_string(dataset)
+  .assert_flag(refresh)
+  .assert_flag(regex)
+  .assert_flag(details)
+
+  fields <- suppressMessages(extract_ls(dataset = dataset, refresh = refresh))
+  fields <- data.table::as.data.table(fields)
+
+  haystack <- paste(fields$field_name, fields$title)
+  if (regex) {
+    idx <- grepl(pattern, haystack, ignore.case = TRUE, perl = TRUE)
+  } else {
+    keywords <- tolower(strsplit(trimws(pattern), "\\s+")[[1L]])
+    haystack_lower <- tolower(haystack)
+    idx <- vapply(haystack_lower, function(x) {
+      all(vapply(keywords, grepl, logical(1L), x = x, fixed = TRUE))
+    }, logical(1L))
+  }
+
+  hits <- fields[idx, .(field_name, title)]
+  if (nrow(hits) == 0L) {
+    if (details) {
+      return(data.table::data.table(
+        field_id = integer(),
+        field_name = character(),
+        title = character()
+      ))
+    }
+    return(data.table::data.table(
+      field_id = integer(),
+      title = character(),
+      n_cols = integer(),
+      example_field_name = character()
+    ))
+  }
+
+  hits[, field_id := vapply(field_name, .extract_field_id, integer(1L))]
+  data.table::setcolorder(hits, c("field_id", "field_name", "title"))
+  data.table::setorder(hits, field_id, field_name)
+
+  if (details) {
+    return(hits[])
+  }
+
+  hits[, base_title := trimws(sub("\\s*\\|.*$", "", title))]
+  out <- hits[, .(
+    n_cols = .N,
+    example_field_name = field_name[1L]
+  ), by = .(field_id, title = base_title)]
+  data.table::setorder(out, field_id, title)
+
+  out[]
+}
+
+
 #' Common UK Biobank fields for quick reference
 #'
 #' Returns a small offline reference table of frequently used UK Biobank field

@@ -6,6 +6,113 @@
 
 
 # ===========================================================================
+# ops_fields() — project-specific UKB field search
+# ===========================================================================
+
+.fake_ops_fields_df <- function() {
+  data.frame(
+    field_name = c(
+      "participant.eid",
+      "participant.p31",
+      "participant.p53_i0",
+      "participant.p53_i1",
+      "participant.p21022",
+      "participant.p22009_a1",
+      "participant.p22009_a2",
+      "participant.p20002_i0_a0"
+    ),
+    title = c(
+      "Participant ID",
+      "Sex",
+      "Date of attending assessment centre | Instance 0",
+      "Date of attending assessment centre | Instance 1",
+      "Age at recruitment",
+      "Genetic principal components | Array 1",
+      "Genetic principal components | Array 2",
+      "Non-cancer illness code | Instance 0 | Array 0"
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+test_that("ops_fields() keyword search returns field-level summary", {
+  local_mocked_bindings(
+    extract_ls = function(...) .fake_ops_fields_df(),
+    .package = "ukbflow"
+  )
+  result <- ops_fields("assessment centre")
+  expect_true(data.table::is.data.table(result))
+  expect_equal(result$field_id, 53L)
+  expect_equal(result$n_cols, 2L)
+  expect_equal(result$title, "Date of attending assessment centre")
+})
+
+test_that("ops_fields() keyword search requires all keywords", {
+  local_mocked_bindings(
+    extract_ls = function(...) .fake_ops_fields_df(),
+    .package = "ukbflow"
+  )
+  result <- ops_fields("genetic components")
+  expect_equal(result$field_id, 22009L)
+  expect_equal(result$n_cols, 2L)
+})
+
+test_that("ops_fields() regex search matches field names", {
+  local_mocked_bindings(
+    extract_ls = function(...) .fake_ops_fields_df(),
+    .package = "ukbflow"
+  )
+  result <- ops_fields("p31|p21022", regex = TRUE)
+  expect_equal(sort(result$field_id), c(31L, 21022L))
+})
+
+test_that("ops_fields() details returns raw matching columns", {
+  local_mocked_bindings(
+    extract_ls = function(...) .fake_ops_fields_df(),
+    .package = "ukbflow"
+  )
+  result <- ops_fields("genetic", details = TRUE)
+  expect_true(all(c("field_id", "field_name", "title") %in% names(result)))
+  expect_equal(nrow(result), 2L)
+  expect_true(all(result$field_id == 22009L))
+})
+
+test_that("ops_fields() returns empty table for unmatched pattern", {
+  local_mocked_bindings(
+    extract_ls = function(...) .fake_ops_fields_df(),
+    .package = "ukbflow"
+  )
+  result <- ops_fields("xyzzy")
+  expect_true(data.table::is.data.table(result))
+  expect_equal(nrow(result), 0L)
+  expect_true(all(c("field_id", "title", "n_cols", "example_field_name") %in% names(result)))
+})
+
+test_that("ops_fields() passes dataset and refresh to extract_ls", {
+  received <- list()
+  local_mocked_bindings(
+    extract_ls = function(dataset = NULL, refresh = FALSE, ...) {
+      received$dataset <<- dataset
+      received$refresh <<- refresh
+      .fake_ops_fields_df()
+    },
+    .package = "ukbflow"
+  )
+  suppressMessages(ops_fields("sex", dataset = "app123.dataset", refresh = TRUE))
+  expect_equal(received$dataset, "app123.dataset")
+  expect_true(received$refresh)
+})
+
+test_that("ops_fields() validates arguments", {
+  expect_error(ops_fields(pattern = 1), "pattern")
+  expect_error(ops_fields(pattern = "sex", dataset = 1), "dataset")
+  expect_error(ops_fields(pattern = "sex", refresh = NA), "refresh")
+  expect_error(ops_fields(pattern = "sex", regex = NA), "regex")
+  expect_error(ops_fields(pattern = "sex", details = NA), "details")
+})
+
+
+# ===========================================================================
 # ops_fields_common() — offline UKB field reference
 # ===========================================================================
 
