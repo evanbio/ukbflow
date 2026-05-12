@@ -302,11 +302,44 @@ Intermediate source columns are retained alongside the combined result:
 
 ## Step 10: Final Case Definition
 
-`derive_case()` merges the self-report and ICD-10 flags into a unified case
-status, with the earliest date across both sources taken via `pmin()`.
+`derive_case()` applies an any-source reconciliation rule by default. The final
+status is `TRUE` if either the ICD-10-derived status or the self-report status
+is `TRUE`; this is an OR rule, not a medical-record confirmation rule. The
+final date is the earliest available date across the included sources, computed
+with `pmin()`.
+
+Use `derive_icd10(source = ...)` to control which medical / registry sources
+enter the ICD-10-derived status before calling `derive_case()`. If only one of
+`{name}_icd10` or `{name}_selfreport` is present, `derive_case()` uses that
+available source alone and prints a warning.
 
 ```{r derive-case}
 df <- derive_case(df, name = "dm")
+```
+
+Single-source case definitions are also possible. For an ICD-10-derived
+medical / registry definition, run `derive_icd10()` for a distinct `name` and
+do not create the matching self-report columns:
+
+```{r derive-case-icd10-only}
+df <- derive_icd10(df,
+  name   = "dm_medical",
+  icd10  = "E11",
+  source = c("hes", "death", "first_occurrence"),
+  fo_col = "p131742"
+)
+df <- derive_case(df, name = "dm_medical")
+```
+
+For a self-report-only definition, run `derive_selfreport()` for a distinct
+`name` and do not create the matching ICD-10-derived columns:
+
+```{r derive-case-selfreport-only}
+df <- derive_selfreport(df,
+  name  = "dm_selfonly",
+  regex = "type 2 diabetes"
+)
+df <- derive_case(df, name = "dm_selfonly")
 ```
 
 Output columns:
