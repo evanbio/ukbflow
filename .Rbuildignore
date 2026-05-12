@@ -16,3 +16,4 @@
 ^tests/testthat/_snaps$
 ^tests/testthat/data$
 ^AGENTS\.md$
+^PLANNING\.md$
