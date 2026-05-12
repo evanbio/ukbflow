@@ -4,12 +4,11 @@
 \alias{audit_start}
 \title{Start a ukbflow audit record}
 \usage{
-audit_start(project_id)
+audit_start(name)
 }
 \arguments{
-\item{project_id}{(character) User-defined project or analysis identifier,
-e.g. \code{"ad_nmsc_analysis"}. This does not need to be a DNAnexus
-project ID.}
+\item{name}{(character) User-defined analysis name, e.g.
+\code{"ad_nmsc_analysis"}. This is not a DNAnexus project ID.}
 }
 \value{
 An S3 object with class \code{c("ukbflow_audit", "list")}.
@@ -17,9 +16,14 @@ An S3 object with class \code{c("ukbflow_audit", "list")}.
 \description{
 Creates a minimal S3 audit object for one analysis. The object records only
 the root metadata needed to identify and reproduce the analysis context:
-project ID, start time, ukbflow version, and R session information. Later
-audit helpers can append fields, snapshots, exclusions, models, and jobs to
-this object.
+analysis name, start time, ukbflow version, R session information, and the
+current DNAnexus user / project when available. Later audit helpers can
+append fields, snapshots, exclusions, models, and jobs to this object.
+}
+\details{
+DNAnexus context is captured opportunistically. If the dx CLI is unavailable,
+the user is not logged in, or no project is selected, the corresponding
+fields are recorded as \code{NA} without failing.
 }
 \examples{
 aud <- audit_start("example_analysis")
