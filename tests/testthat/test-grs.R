@@ -31,7 +31,9 @@
     GRS_a_z    = rnorm(n),
     GRS_b_z = rnorm(n),
     outcome          = rbinom(n, 1, 0.20),
-    followup_years   = round(runif(n, 1, 15), 2)
+    followup_years   = round(runif(n, 1, 15), 2),
+    age_at_recruitment = round(rnorm(n, 57, 8), 1),
+    sex = factor(sample(c("Male", "Female"), n, TRUE))
   )
 }
 
