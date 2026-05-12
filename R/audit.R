@@ -52,6 +52,49 @@ audit_start <- function(name) {
 }
 
 
+#' Record UKB field IDs used for extraction
+#'
+#' Appends one extraction record to a \code{\link{audit_start}} object. The
+#' function records the declared UKB field IDs, optional dataset name, optional
+#' note, number of fields, and timestamp. It does not validate field
+#' availability against RAP; use \code{\link{ops_fields}} or
+#' \code{\link{extract_ls}} separately for project-specific field discovery.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param field_id (integer) UKB field IDs used for extraction.
+#' @param dataset (character or NULL) Optional RAP dataset file name.
+#'   Default: \code{NULL}.
+#' @param note (character or NULL) Optional note for this extraction record.
+#'   Default: \code{NULL}.
+#'
+#' @return The updated \code{ukbflow_audit} object.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' aud <- audit_fields(aud, c(31, 53, 21022), note = "Core fields")
+audit_fields <- function(audit, field_id, dataset = NULL, note = NULL) {
+
+  .assert_audit(audit)
+  field_id <- unique(.assert_integer_ids(field_id))
+  if (!is.null(dataset)) .assert_scalar_string(dataset)
+  if (!is.null(note)) .assert_scalar_string(note)
+
+  record <- list(
+    field_id    = field_id,
+    dataset     = if (is.null(dataset)) NA_character_ else dataset,
+    note        = if (is.null(note)) NA_character_ else note,
+    n_fields    = length(field_id),
+    recorded_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
+  )
+
+  if (is.null(audit$extraction)) audit$extraction <- list()
+  audit$extraction[[length(audit$extraction) + 1L]] <- record
+  audit
+}
+
+
 #' @export
 print.ukbflow_audit <- function(x, ...) {
 
@@ -61,7 +104,24 @@ print.ukbflow_audit <- function(x, ...) {
   cli::cli_inform("ukbflow_version: {.val {x$ukbflow_version}}")
   cli::cli_inform("dx_user: {.val {if (is.na(x$dx_user)) 'NA' else x$dx_user}}")
   cli::cli_inform("dx_project: {.val {if (is.na(x$dx_project)) 'NA' else x$dx_project}}")
+  n_extraction <- if (is.null(x$extraction)) 0L else length(x$extraction)
+  cli::cli_inform("extraction records: {n_extraction}")
   cli::cli_inform("session_info: recorded")
 
+  invisible(x)
+}
+
+
+#' Assert that an object is a ukbflow audit record
+#'
+#' @keywords internal
+#' @noRd
+.assert_audit <- function(x, arg = deparse(substitute(x))) {
+  if (!inherits(x, "ukbflow_audit")) {
+    cli::cli_abort(
+      "{.arg {arg}} must be a ukbflow_audit object created by {.fn audit_start}.",
+      call = NULL
+    )
+  }
   invisible(x)
 }

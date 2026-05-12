@@ -62,6 +62,65 @@ test_that("audit_start() records NA for unavailable DNAnexus context", {
 
 
 # ===========================================================================
+# audit_fields()
+# ===========================================================================
+
+test_that("audit_fields() appends an extraction record", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(
+    aud,
+    field_id = c(31, 53, 21022),
+    dataset = "app123.dataset",
+    note = "Core fields"
+  )
+
+  expect_length(aud$extraction, 1L)
+  rec <- aud$extraction[[1L]]
+  expect_equal(rec$field_id, c(31L, 53L, 21022L))
+  expect_equal(rec$dataset, "app123.dataset")
+  expect_equal(rec$note, "Core fields")
+  expect_equal(rec$n_fields, 3L)
+  expect_match(rec$recorded_at, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}")
+})
+
+test_that("audit_fields() appends multiple extraction records", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 53), note = "first")
+  aud <- audit_fields(aud, c(41270, 41280), note = "second")
+
+  expect_length(aud$extraction, 2L)
+  expect_equal(aud$extraction[[1L]]$field_id, c(31L, 53L))
+  expect_equal(aud$extraction[[2L]]$field_id, c(41270L, 41280L))
+})
+
+test_that("audit_fields() records NA for missing optional values", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 53))
+  rec <- aud$extraction[[1L]]
+
+  expect_true(is.na(rec$dataset))
+  expect_true(is.na(rec$note))
+})
+
+test_that("audit_fields() deduplicates field_id within a record", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 31, 53))
+
+  expect_equal(aud$extraction[[1L]]$field_id, c(31L, 53L))
+  expect_equal(aud$extraction[[1L]]$n_fields, 2L)
+})
+
+test_that("audit_fields() validates inputs", {
+  aud <- audit_start("example_analysis")
+  expect_error(audit_fields(list(), 31), "ukbflow_audit")
+  expect_error(audit_fields(aud, character(0)), "field_id")
+  expect_error(audit_fields(aud, c(31, NA)), "NA")
+  expect_error(audit_fields(aud, 31, dataset = 1), "dataset")
+  expect_error(audit_fields(aud, 31, note = 1), "note")
+})
+
+
+# ===========================================================================
 # print.ukbflow_audit()
 # ===========================================================================
 
