@@ -13,6 +13,8 @@ assoc_coxph(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
+  cluster_col = NULL,
   conf_level = 0.95
 )
 
@@ -24,6 +26,8 @@ assoc_cox(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
+  cluster_col = NULL,
   conf_level = 0.95
 )
 }
@@ -55,6 +59,14 @@ only the Fully adjusted model (requires \code{covariates} to be non-NULL).}
 \item{strata}{(character or NULL) Optional stratification variable.
 Passed to \code{survival::strata()} in the Cox formula.}
 
+\item{test}{(character) P-value method for Cox models: \code{"wald"}
+(default) or \code{"lrt"}.}
+
+\item{cluster_col}{(character or NULL) Optional clustering variable for
+cluster-robust Cox variance, added to the model as
+\code{cluster(cluster_col)}. When supplied, \code{test} must be
+\code{"wald"}.}
+
 \item{conf_level}{(numeric) Confidence level for hazard ratio intervals.
 Default: \code{0.95}.}
 }
@@ -77,7 +89,9 @@ model's analysis set (rounded, after \code{NA} removal).}
 \item{\code{HR}}{Hazard ratio (point estimate).}
 \item{\code{CI_lower}}{Lower bound of the confidence interval.}
 \item{\code{CI_upper}}{Upper bound of the confidence interval.}
-\item{\code{p_value}}{Wald test p-value.}
+\item{\code{p_value}}{P-value from the method selected by
+\code{test}. When \code{cluster_col} is supplied, this is the
+cluster-robust Wald p-value.}
 \item{\code{HR_label}}{Formatted string, e.g.
 \code{"1.23 (1.05-1.44)"}.}
 }
@@ -90,9 +104,10 @@ adjustment models are always included alongside any user-specified model:
 \details{
 \itemize{
 \item \strong{Unadjusted} - no covariates (crude).
-\item \strong{Age and sex adjusted} - age + sex auto-detected from the
-data via UKB field IDs (21022 and 31). Skipped with a warning if either
-column cannot be found.
+\item \strong{Age and sex adjusted} - age + sex auto-detected from
+standard UKB names (\code{p21022}/\code{p31}) or decoded names
+(\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+be found.
 \item \strong{Fully adjusted} - the covariates supplied via the
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
@@ -108,6 +123,15 @@ produces one \code{term} row per model.
 \item \emph{Factor} - produces one \code{term} row per non-reference level.
 \item \emph{Numeric} (continuous) - produces one \code{term} row per model.
 }
+
+\strong{P-value method}: \code{test = "wald"} returns the term-level Wald
+p-value from \code{summary.coxph()}. \code{test = "lrt"} returns the
+exposure-level likelihood-ratio p-value from single-term deletion
+(\code{drop1(..., test = "Chisq")}); for factor exposures, the same overall
+exposure p-value is repeated across the non-reference level rows.
+When \code{cluster_col} is supplied, only \code{test = "wald"} is supported;
+the Wald p-value and confidence interval use the cluster-robust variance from
+\code{summary.coxph()}.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

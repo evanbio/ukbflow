@@ -11,6 +11,7 @@ assoc_logistic(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   ci_method = c("wald", "profile"),
   conf_level = 0.95
 )
@@ -21,6 +22,7 @@ assoc_logit(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   ci_method = c("wald", "profile"),
   conf_level = 0.95
 )
@@ -38,6 +40,9 @@ assoc_logit(
 
 \item{base}{(logical) Include \strong{Unadjusted} and \strong{Age and sex
 adjusted} models. Default: \code{TRUE}.}
+
+\item{test}{(character) P-value method for logistic models: \code{"wald"}
+(default) or \code{"lrt"}.}
 
 \item{ci_method}{(character) CI calculation method: \code{"wald"} (default)
 or \code{"profile"}.}
@@ -57,7 +62,8 @@ A \code{data.table} with one row per exposure \eqn{\times} term
 \item{\code{OR}}{Odds ratio (point estimate).}
 \item{\code{CI_lower}}{Lower confidence bound.}
 \item{\code{CI_upper}}{Upper confidence bound.}
-\item{\code{p_value}}{Wald test p-value.}
+\item{\code{p_value}}{P-value from the method selected by
+\code{test}.}
 \item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 }
 }
@@ -69,9 +75,10 @@ two standard adjustment models are always included:
 \details{
 \itemize{
 \item \strong{Unadjusted} - no covariates (crude).
-\item \strong{Age and sex adjusted} - age + sex auto-detected from the
-data via UKB field IDs (21022 and 31). Skipped with a warning if either
-column cannot be found.
+\item \strong{Age and sex adjusted} - age + sex auto-detected from
+standard UKB names (\code{p21022}/\code{p31}) or decoded names
+(\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+be found.
 \item \strong{Fully adjusted} - the covariates supplied via the
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
@@ -86,6 +93,12 @@ Logical values are converted to integer internally.
 \item \code{"profile"} - profile likelihood CI via \code{confint.glm()};
 slower but more accurate for small or sparse data.
 }
+
+\strong{P-value method}: \code{test = "wald"} returns coefficient-level Wald
+p-values from \code{summary.glm()}. \code{test = "lrt"} returns the
+exposure-level likelihood-ratio p-value from single-term deletion
+(\code{drop1(..., test = "Chisq")}); for factor exposures, the same overall
+exposure p-value is repeated across the non-reference level rows.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

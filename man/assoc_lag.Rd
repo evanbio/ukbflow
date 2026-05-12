@@ -13,6 +13,7 @@ assoc_lag(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 }
@@ -33,11 +34,14 @@ unfiltered full-cohort result as a reference.}
 model. When \code{NULL}, only Unadjusted (and Age and sex adjusted if
 \code{base = TRUE}) are run.}
 
-\item{base}{(logical) Auto-detect age and sex and include an Age and sex
-adjusted model. Default: \code{TRUE}.}
+\item{base}{(logical) Auto-detect age and sex from standard UKB or decoded
+names and include an Age and sex adjusted model. Default: \code{TRUE}.}
 
 \item{strata}{(character or NULL) Optional stratification variable passed to
 \code{survival::strata()}.}
+
+\item{test}{(character) P-value method: \code{"wald"} (default) or
+\code{"lrt"}.}
 
 \item{conf_level}{(numeric) Confidence level for HR intervals.
 Default: \code{0.95}.}
@@ -70,6 +74,11 @@ lagged results can be compared.
 The same three adjustment models produced by \code{\link{assoc_coxph}} are
 available here (\strong{Unadjusted}, \strong{Age and sex adjusted},
 \strong{Fully adjusted}).
+
+\strong{P-value method}: \code{test = "wald"} returns term-level Wald
+p-values from \code{summary.coxph()}. \code{test = "lrt"} returns the
+exposure-level likelihood-ratio p-value from single-term deletion within
+each lag-specific analysis set.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

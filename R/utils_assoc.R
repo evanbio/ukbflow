@@ -46,28 +46,63 @@
 }
 
 
-# Auto-detect the age column via UKB field 21022 (age at recruitment).
-# Falls back to a grep on "^age" if the field cache is unavailable.
-# Returns NULL with a warning when not found.
-.detect_age_col <- function(data) {
-  cols <- .detect_cols_by_field(data, 21022L)
-  if (length(cols) > 0L) return(cols[1L])
-  cols <- grep("^age", names(data), value = TRUE, ignore.case = TRUE)
-  if (length(cols) > 0L) return(cols[1L])
-  NULL
+# Quote a data column for use inside a model formula.
+.bt <- function(x) {
+  if (is.null(x) || length(x) == 0L) return(character())
+  paste0("`", gsub("`", "\\\\`", x, fixed = TRUE), "`")
 }
 
 
-# Auto-detect the sex column via UKB field 31.
-# Falls back to an exact "sex" match then a case-insensitive grep.
-# Returns NULL with a warning when not found.
+# Auto-detect the age column via standard UKB/raw and decoded names.
+.detect_age_col <- function(data) {
+  intersect(
+    c("age_at_recruitment", "p21022", "21022", "participant.p21022"),
+    names(data)
+  )
+}
+
+
+# Auto-detect the sex column via standard UKB/raw and decoded names.
 .detect_sex_col <- function(data) {
-  cols <- .detect_cols_by_field(data, 31L)
-  if (length(cols) > 0L) return(cols[1L])
-  if ("sex" %in% names(data)) return("sex")
-  cols <- grep("^sex$", names(data), value = TRUE, ignore.case = TRUE)
-  if (length(cols) > 0L) return(cols[1L])
-  NULL
+  intersect(
+    c("sex", "p31", "31", "participant.p31"),
+    names(data)
+  )
+}
+
+
+# Resolve the standard age-and-sex covariates for base = TRUE.
+.resolve_base_age_sex <- function(data) {
+  age_col <- .detect_age_col(data)
+  sex_col <- .detect_sex_col(data)
+
+  if (length(age_col) == 0L || length(sex_col) == 0L) {
+    missing <- c(
+      if (length(age_col) == 0L) "age column (age_at_recruitment / p21022 / 21022)" else NULL,
+      if (length(sex_col) == 0L) "sex column (sex / p31 / 31)" else NULL
+    )
+    cli::cli_abort(
+      c(
+        "Age and sex adjusted model requires {.field {missing}}.",
+        "i" = "If these columns were renamed manually, use {.code base = FALSE} and pass age/sex through {.arg covariates}."
+      ),
+      call = NULL
+    )
+  }
+
+  if (length(age_col) > 1L || length(sex_col) > 1L) {
+    cli::cli_abort(
+      c(
+        "Multiple candidate columns detected for the age-and-sex adjusted model.",
+        "x" = "Age candidates: {paste(age_col, collapse = ', ')}",
+        "x" = "Sex candidates: {paste(sex_col, collapse = ', ')}",
+        "i" = "Use {.code base = FALSE} and pass the intended age/sex columns through {.arg covariates}."
+      ),
+      call = NULL
+    )
+  }
+
+  c(age_col, sex_col)
 }
 
 
@@ -80,17 +115,31 @@
 #   exposure   (character) Exposure variable name as it appears in the formula.
 #   is_factor  (logical)   Whether the exposure is a factor in the data.
 #   conf_level (numeric)   Confidence level, e.g. 0.95.
+#   robust_ci  (logical)   Use summary.coxph() CI, which reflects robust
+#                          variance when the model includes cluster().
 #
 # Returns:
 #   data.table with columns: term, HR, CI_lower, CI_upper, p_value.
 #   NULL if no matching terms are found.
-.extract_cox_terms <- function(model, exposure, is_factor, conf_level) {
-  coef_mat  <- summary(model)$coefficients
-  # confint() returns log-scale CI; exp() converts to HR scale
-  ci_log    <- confint(model, level = conf_level)
-  if (!is.matrix(ci_log)) {
-    ci_log <- matrix(ci_log, nrow = 1L,
-                     dimnames = list(exposure, names(ci_log)))
+.extract_cox_terms <- function(model, exposure, is_factor, conf_level,
+                               test = c("wald", "lrt"),
+                               robust_ci = FALSE) {
+  test <- match.arg(test)
+  model_summary <- summary(model, conf.int = conf_level)
+  coef_mat <- model_summary$coefficients
+
+  if (robust_ci) {
+    lower_col <- grep("^lower", colnames(model_summary$conf.int), value = TRUE)
+    upper_col <- grep("^upper", colnames(model_summary$conf.int), value = TRUE)
+    ci_mat <- model_summary$conf.int[, c(lower_col, upper_col), drop = FALSE]
+  } else {
+    # confint() returns log-scale CI; exp() converts to HR scale
+    ci_log <- confint(model, level = conf_level)
+    if (!is.matrix(ci_log)) {
+      ci_log <- matrix(ci_log, nrow = 1L,
+                       dimnames = list(exposure, names(ci_log)))
+    }
+    ci_mat <- exp(ci_log)
   }
 
   all_terms <- rownames(coef_mat)
@@ -110,13 +159,73 @@
     return(NULL)
   }
 
+  p_value <- coef_mat[idx, "Pr(>|z|)"]
+
+  if (test == "lrt") {
+    p_value <- rep(.extract_cox_lrt_p(model, exposure), length(idx))
+  }
+
   data.table::data.table(
     term     = all_terms[idx],
     HR       = exp(coef_mat[idx, "coef"]),
-    CI_lower = exp(ci_log[idx, 1L]),
-    CI_upper = exp(ci_log[idx, 2L]),
-    p_value  = coef_mat[idx, "Pr(>|z|)"]
+    CI_lower = ci_mat[idx, 1L],
+    CI_upper = ci_mat[idx, 2L],
+    p_value  = p_value
   )
+}
+
+
+# Extract the exposure-level likelihood-ratio p-value from a fitted Cox model.
+# This tests the current exposure by comparing the full model against a reduced
+# model with that exposure removed. For factor exposures, this is the overall
+# multi-df p-value for the factor term.
+.extract_cox_lrt_p <- function(model, exposure) {
+  lrt <- tryCatch(
+    stats::drop1(model, test = "Chisq"),
+    error = function(e) {
+      cli::cli_alert_warning(
+        "  LRT p-value unavailable for exposure {.field {exposure}}: {conditionMessage(e)}"
+      )
+      NULL
+    }
+  )
+  if (is.null(lrt)) return(NA_real_)
+
+  row_id <- intersect(c(exposure, .bt(exposure)), rownames(lrt))
+  if (length(row_id) != 1L || !"Pr(>Chi)" %in% colnames(lrt)) {
+    cli::cli_alert_warning(
+      "  LRT p-value unavailable for exposure {.field {exposure}}."
+    )
+    return(NA_real_)
+  }
+
+  as.numeric(lrt[row_id, "Pr(>Chi)"])
+}
+
+
+# Extract an exposure-level p-value from drop1().
+# For multi-level factors, this is the overall multi-df p-value for the factor.
+.extract_drop1_p <- function(model, exposure, test, p_col, label) {
+  tbl <- tryCatch(
+    stats::drop1(model, test = test),
+    error = function(e) {
+      cli::cli_alert_warning(
+        "  {label} p-value unavailable for exposure {.field {exposure}}: {conditionMessage(e)}"
+      )
+      NULL
+    }
+  )
+  if (is.null(tbl)) return(NA_real_)
+
+  row_id <- intersect(c(exposure, .bt(exposure)), rownames(tbl))
+  if (length(row_id) != 1L || !p_col %in% colnames(tbl)) {
+    cli::cli_alert_warning(
+      "  {label} p-value unavailable for exposure {.field {exposure}}."
+    )
+    return(NA_real_)
+  }
+
+  as.numeric(tbl[row_id, p_col])
 }
 
 
@@ -135,23 +244,31 @@
 #   covariates   (character or NULL) Covariate column names.
 #   strata       (character or NULL) Strata variable name.
 #   model_label  (character)  Human-readable model name for the output.
+#   test         (character)  P-value method: "wald" or "lrt".
+#   cluster_col  (character or NULL) Clustering variable for robust variance.
 #   conf_level   (numeric)    Confidence level for CI.
 #
 # Returns:
 #   data.table or NULL on failure.
 .run_one_cox_model <- function(dt, time_col, exposure, covariates,
-                                strata, model_label, conf_level) {
+                                strata, model_label, conf_level,
+                                test = c("wald", "lrt"),
+                                cluster_col = NULL) {
+  test <- match.arg(test)
 
   is_factor <- is.factor(dt[[exposure]])
 
-  rhs_parts <- c(exposure, covariates)
+  rhs_parts <- c(.bt(exposure), .bt(covariates))
   if (!is.null(strata)) {
-    rhs_parts <- c(rhs_parts, paste0("strata(", strata, ")"))
+    rhs_parts <- c(rhs_parts, paste0("strata(", .bt(strata), ")"))
+  }
+  if (!is.null(cluster_col)) {
+    rhs_parts <- c(rhs_parts, paste0("cluster(", .bt(cluster_col), ")"))
   }
   rhs <- paste(rhs_parts, collapse = " + ")
 
   fml <- stats::as.formula(
-    sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs)
+    sprintf("Surv(%s, .ukb_event) ~ %s", .bt(time_col), rhs)
   )
 
   model <- tryCatch(
@@ -165,7 +282,10 @@
   )
   if (is.null(model)) return(NULL)
 
-  terms_dt <- .extract_cox_terms(model, exposure, is_factor, conf_level)
+  terms_dt <- .extract_cox_terms(
+    model, exposure, is_factor, conf_level, test,
+    robust_ci = !is.null(cluster_col)
+  )
   if (is.null(terms_dt)) return(NULL)
 
   # Extract n, n_events, person_years from the model itself so that listwise
@@ -205,17 +325,20 @@
 #   exposure     (character)  Single exposure variable name.
 #   covariates   (character or NULL) Covariate column names.
 #   model_label  (character)  Human-readable model name for the output.
+#   test         (character)  P-value method: "wald" or "lrt".
 #   ci_method    (character)  "wald" (default) or "profile".
 #   conf_level   (numeric)    Confidence level for CI.
 #
 # Returns:
 #   data.table or NULL on failure.
 .run_one_logistic_model <- function(dt, exposure, covariates,
-                                     model_label, ci_method, conf_level) {
+                                     model_label, ci_method, conf_level,
+                                     test = c("wald", "lrt")) {
+  test <- match.arg(test)
 
   is_factor <- is.factor(dt[[exposure]])
 
-  rhs <- paste(c(exposure, covariates), collapse = " + ")
+  rhs <- paste(c(.bt(exposure), .bt(covariates)), collapse = " + ")
   fml <- stats::as.formula(sprintf(".ukb_event ~ %s", rhs))
 
   model <- tryCatch(
@@ -257,12 +380,21 @@
                      dimnames = list(all_terms[idx], names(ci_log)))
   }
 
+  p_value <- coef_mat[idx, "Pr(>|z|)"]
+  if (test == "lrt") {
+    p_value <- rep(
+      .extract_drop1_p(model, exposure, test = "Chisq",
+                       p_col = "Pr(>Chi)", label = "LRT"),
+      length(idx)
+    )
+  }
+
   terms_dt <- data.table::data.table(
     term     = all_terms[idx],
     OR       = exp(coef_mat[idx, "Estimate"]),
     CI_lower = exp(ci_log[idx, 1L]),
     CI_upper = exp(ci_log[idx, 2L]),
-    p_value  = coef_mat[idx, "Pr(>|z|)"]
+    p_value  = p_value
   )
 
   # n and n_cases from the model's actual analysis set (after listwise deletion)
@@ -298,17 +430,20 @@
 #   exposure     (character)  Single exposure variable name.
 #   covariates   (character or NULL) Covariate column names.
 #   model_label  (character)  Human-readable model name for the output.
+#   test         (character)  P-value method: "wald" or "lrt".
 #   conf_level   (numeric)    Confidence level for CI (t-distribution based).
 #
 # Returns:
 #   data.table or NULL on failure.
 .run_one_linear_model <- function(dt, outcome_col, exposure, covariates,
-                                   model_label, conf_level) {
+                                   model_label, conf_level,
+                                   test = c("wald", "lrt")) {
+  test <- match.arg(test)
 
   is_factor <- is.factor(dt[[exposure]])
 
-  rhs <- paste(c(exposure, covariates), collapse = " + ")
-  fml <- stats::as.formula(sprintf("%s ~ %s", outcome_col, rhs))
+  rhs <- paste(c(.bt(exposure), .bt(covariates)), collapse = " + ")
+  fml <- stats::as.formula(sprintf("%s ~ %s", .bt(outcome_col), rhs))
 
   model <- tryCatch(
     stats::lm(fml, data = dt),
@@ -344,13 +479,22 @@
                      dimnames = list(all_terms[idx], names(ci_mat)))
   }
 
+  p_value <- coef_mat[idx, "Pr(>|t|)"]
+  if (test == "lrt") {
+    p_value <- rep(
+      .extract_drop1_p(model, exposure, test = "F",
+                       p_col = "Pr(>F)", label = "Nested-model"),
+      length(idx)
+    )
+  }
+
   terms_dt <- data.table::data.table(
     term     = all_terms[idx],
     beta     = coef_mat[idx, "Estimate"],
     se       = coef_mat[idx, "Std. Error"],
     CI_lower = ci_mat[idx, 1L],
     CI_upper = ci_mat[idx, 2L],
-    p_value  = coef_mat[idx, "Pr(>|t|)"]
+    p_value  = p_value
   )
 
   terms_dt[, `:=`(
@@ -389,13 +533,13 @@
 
   is_factor <- is.factor(dt[[exposure]])
 
-  rhs_parts <- c(exposure, covariates)
+  rhs_parts <- c(.bt(exposure), .bt(covariates))
   if (!is.null(strata)) {
-    rhs_parts <- c(rhs_parts, paste0("strata(", strata, ")"))
+    rhs_parts <- c(rhs_parts, paste0("strata(", .bt(strata), ")"))
   }
   rhs <- paste(rhs_parts, collapse = " + ")
   fml <- stats::as.formula(
-    sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs)
+    sprintf("Surv(%s, .ukb_event) ~ %s", .bt(time_col), rhs)
   )
 
   model <- tryCatch(
@@ -521,7 +665,7 @@
   Surv <- survival::Surv  # nolint: object_usage_linter
 
   # Expand data with Fine-Gray inverse probability of censoring weights
-  fg_fml  <- stats::as.formula(sprintf("Surv(%s, .fg_status) ~ .", time_col))
+  fg_fml  <- stats::as.formula(sprintf("Surv(%s, .fg_status) ~ .", .bt(time_col)))
   fg_data <- tryCatch(
     survival::finegray(fg_fml, data = sub, etype = "event"),
     error = function(e) {
@@ -534,7 +678,7 @@
   if (is.null(fg_data)) return(NULL)
 
   # Weighted Cox on the expanded Fine-Gray dataset
-  rhs     <- paste(c(exposure, covariates), collapse = " + ")
+  rhs     <- paste(c(.bt(exposure), .bt(covariates)), collapse = " + ")
   cox_fml <- stats::as.formula(
     sprintf("Surv(fgstart, fgstop, fgstatus) ~ %s", rhs)
   )
@@ -633,15 +777,15 @@
 .run_one_interaction_lrt <- function(dt, method, outcome_col, time_col,
                                       exposure, by, covariates, model_label) {
 
-  rhs_base <- paste(c(exposure, by, covariates), collapse = " + ")
-  rhs_full <- paste(c(paste0(exposure, " * ", by), covariates), collapse = " + ")
+  rhs_base <- paste(c(.bt(exposure), .bt(by), .bt(covariates)), collapse = " + ")
+  rhs_full <- paste(c(paste0(.bt(exposure), " * ", .bt(by)), .bt(covariates)), collapse = " + ")
 
   lrt_p <- tryCatch({
     if (method == "coxph") {
       fml_r <- stats::as.formula(
-        sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs_base))
+        sprintf("Surv(%s, .ukb_event) ~ %s", .bt(time_col), rhs_base))
       fml_f <- stats::as.formula(
-        sprintf("Surv(%s, .ukb_event) ~ %s", time_col, rhs_full))
+        sprintf("Surv(%s, .ukb_event) ~ %s", .bt(time_col), rhs_full))
       mod_r <- survival::coxph(fml_r, data = dt)
       mod_f <- survival::coxph(fml_f, data = dt)
       aov   <- anova(mod_r, mod_f)
@@ -652,8 +796,8 @@
       mod_f <- stats::glm(fml_f, data = dt, family = stats::binomial(link = "logit"))
       aov   <- stats::anova(mod_r, mod_f, test = "Chisq")
     } else {  # linear
-      fml_r <- stats::as.formula(sprintf("%s ~ %s", outcome_col, rhs_base))
-      fml_f <- stats::as.formula(sprintf("%s ~ %s", outcome_col, rhs_full))
+      fml_r <- stats::as.formula(sprintf("%s ~ %s", .bt(outcome_col), rhs_base))
+      fml_f <- stats::as.formula(sprintf("%s ~ %s", .bt(outcome_col), rhs_full))
       mod_r <- stats::lm(fml_r, data = dt)
       mod_f <- stats::lm(fml_f, data = dt)
       aov   <- stats::anova(mod_r, mod_f)

@@ -100,6 +100,60 @@ test_that("assoc_coxph() produces Unadjusted and Age-sex models by default", {
   expect_true("Age and sex adjusted" %in% levels(res$model))
 })
 
+test_that("assoc_coxph() detects raw age and sex field names", {
+  dt <- .fake_assoc_dt()
+  data.table::setnames(dt, c("age_at_recruitment", "sex"), c("p21022", "p31"))
+
+  res <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")
+  )
+  expect_true("Age and sex adjusted" %in% as.character(unique(res$model)))
+})
+
+test_that("assoc_coxph() detects bare numeric age and sex field names", {
+  dt <- .fake_assoc_dt()
+  data.table::setnames(dt, c("age_at_recruitment", "sex"), c("21022", "31"))
+
+  res <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")
+  )
+  expect_true("Age and sex adjusted" %in% as.character(unique(res$model)))
+})
+
+test_that("assoc_coxph() aborts when base age or sex cannot be detected", {
+  dt <- .fake_assoc_dt()
+  dt[, c("age_at_recruitment", "sex") := NULL]
+
+  expect_error(
+    suppressMessages(assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")),
+    "Age and sex adjusted model requires"
+  )
+})
+
+test_that("assoc_coxph() aborts on ambiguous base age or sex columns", {
+  dt <- .fake_assoc_dt()
+  dt[, p21022 := age_at_recruitment]
+
+  expect_error(
+    suppressMessages(assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")),
+    "Multiple candidate columns"
+  )
+})
+
+test_that("assoc_coxph() supports custom age and sex names through covariates", {
+  dt <- .fake_assoc_dt()
+  data.table::setnames(dt, c("age_at_recruitment", "sex"), c("baseline_age", "gender"))
+
+  res <- suppressMessages(
+    assoc_coxph(
+      dt, "copd_01", "followup_years", "t2d_01",
+      covariates = c("baseline_age", "gender"),
+      base = FALSE
+    )
+  )
+  expect_true("Fully adjusted" %in% as.character(unique(res$model)))
+})
+
 test_that("assoc_coxph() model is ordered factor", {
   dt  <- .fake_assoc_dt()
   res <- suppressMessages(
@@ -124,6 +178,84 @@ test_that("assoc_coxph() p_value in [0, 1]", {
     assoc_coxph(dt, "copd_01", "followup_years", "t2d_01")
   )
   expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+})
+
+test_that("assoc_coxph() supports LRT p-values", {
+  dt  <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "t2d_01", test = "lrt")
+  )
+  expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+})
+
+test_that("assoc_coxph() LRT p-value is repeated for factor exposure levels", {
+  dt  <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "bmi_cat", test = "lrt")
+  )
+  p_unadj <- unique(res[res$model == "Unadjusted", p_value])
+  expect_equal(length(p_unadj), 1L)
+})
+
+test_that("assoc_coxph() Wald and LRT p-values are close for binary exposure", {
+  dt <- .fake_assoc_dt()
+  res_wald <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "t2d_01", test = "wald")
+  )
+  res_lrt <- suppressMessages(
+    assoc_coxph(dt, "copd_01", "followup_years", "t2d_01", test = "lrt")
+  )
+
+  expect_equal(res_wald$p_value, res_lrt$p_value, tolerance = 0.05)
+})
+
+test_that("assoc_coxph() cluster_col uses cluster-robust Cox summary", {
+  dt <- .fake_assoc_dt()
+  dt[, cluster_id := sample(sprintf("cluster_%02d", 1:30), .N, replace = TRUE)]
+
+  res <- suppressMessages(
+    assoc_coxph(
+      dt, "copd_01", "followup_years", "t2d_01",
+      cluster_col = "cluster_id"
+    )
+  )
+
+  fit <- survival::coxph(
+    survival::Surv(followup_years, copd_01) ~ t2d_01 + cluster(cluster_id),
+    data = dt
+  )
+  s <- summary(fit)
+  unadj <- res[model == "Unadjusted"]
+
+  expect_equal(unadj$p_value, s$coefficients["t2d_01", "Pr(>|z|)"])
+  expect_equal(unadj$CI_lower, s$conf.int["t2d_01", "lower .95"])
+  expect_equal(unadj$CI_upper, s$conf.int["t2d_01", "upper .95"])
+})
+
+test_that("assoc_coxph() cluster_col requires Wald test", {
+  dt <- .fake_assoc_dt()
+  dt[, cluster_id := sample(sprintf("cluster_%02d", 1:30), .N, replace = TRUE)]
+
+  expect_error(
+    suppressMessages(
+      assoc_coxph(
+        dt, "copd_01", "followup_years", "t2d_01",
+        test = "lrt",
+        cluster_col = "cluster_id"
+      )
+    ),
+    "cluster_col"
+  )
+})
+
+test_that("assoc_coxph() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(
+      assoc_coxph(dt, "copd_01", "followup_years", "t2d_01", test = "score")
+    ),
+    "arg"
+  )
 })
 
 test_that("assoc_coxph() binary term name matches exposure name (no suffix)", {
@@ -230,6 +362,35 @@ test_that("assoc_logistic() OR > 0 and CI_lower < OR < CI_upper", {
   expect_true(all(res$CI_lower < res$OR & res$OR < res$CI_upper))
 })
 
+test_that("assoc_logistic() supports LRT p-values", {
+  dt  <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_logistic(dt, "copd_01", "bmi_cat", test = "lrt")
+  )
+  expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+  expect_equal(length(unique(res[res$model == "Unadjusted", p_value])), 1L)
+})
+
+test_that("assoc_logistic() Wald and LRT p-values are close for binary exposure", {
+  dt <- .fake_assoc_dt()
+  res_wald <- suppressMessages(
+    assoc_logistic(dt, "copd_01", "t2d_01", test = "wald")
+  )
+  res_lrt <- suppressMessages(
+    assoc_logistic(dt, "copd_01", "t2d_01", test = "lrt")
+  )
+
+  expect_equal(res_wald$p_value, res_lrt$p_value, tolerance = 0.05)
+})
+
+test_that("assoc_logistic() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(assoc_logistic(dt, "copd_01", "t2d_01", test = "score")),
+    "arg"
+  )
+})
+
 test_that("assoc_logistic() aborts on non-binary outcome", {
   dt <- .fake_assoc_dt()
   dt[, bmi_int := as.integer(bmi_num)]
@@ -285,6 +446,35 @@ test_that("assoc_linear() p_value in [0, 1]", {
   dt  <- .fake_assoc_dt()
   res <- suppressMessages(assoc_linear(dt, "bmi_num", "t2d_01"))
   expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+})
+
+test_that("assoc_linear() supports nested-model p-values", {
+  dt  <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_linear(dt, "bmi_num", "bmi_cat", test = "lrt")
+  )
+  expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+  expect_equal(length(unique(res[res$model == "Unadjusted", p_value])), 1L)
+})
+
+test_that("assoc_linear() Wald and nested-model p-values are close for binary exposure", {
+  dt <- .fake_assoc_dt()
+  res_wald <- suppressMessages(
+    assoc_linear(dt, "bmi_num", "t2d_01", test = "wald")
+  )
+  res_lrt <- suppressMessages(
+    assoc_linear(dt, "bmi_num", "t2d_01", test = "lrt")
+  )
+
+  expect_equal(res_wald$p_value, res_lrt$p_value, tolerance = 0.05)
+})
+
+test_that("assoc_linear() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(assoc_linear(dt, "bmi_num", "t2d_01", test = "score")),
+    "arg"
+  )
 })
 
 test_that("assoc_lm() alias matches assoc_linear()", {
@@ -396,6 +586,26 @@ test_that("assoc_subgroup() p_interaction is shared across subgroup levels", {
   expect_equal(nrow(pi_vals), 1L)
 })
 
+test_that("assoc_subgroup() supports LRT p-values for subgroup main effects", {
+  dt <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_subgroup(dt, "copd_01", "followup_years", "t2d_01", by = "sex",
+                   test = "lrt", interaction = FALSE)
+  )
+  expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+})
+
+test_that("assoc_subgroup() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(
+      assoc_subgroup(dt, "copd_01", "followup_years", "t2d_01", by = "sex",
+                     test = "score")
+    ),
+    "arg"
+  )
+})
+
 test_that("assoc_sub() alias matches assoc_subgroup()", {
   dt   <- .fake_assoc_dt()
   res1 <- suppressMessages(
@@ -457,6 +667,26 @@ test_that("assoc_trend() p_trend is last column", {
     assoc_trend(dt, "copd_01", "followup_years", "bmi_cat", method = "coxph")
   )
   expect_equal(names(res)[ncol(res)], "p_trend")
+})
+
+test_that("assoc_trend() supports LRT p-values", {
+  dt <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_trend(dt, "copd_01", "followup_years", "bmi_cat",
+                method = "coxph", test = "lrt")
+  )
+  expect_true(all(res$p_trend >= 0 & res$p_trend <= 1))
+})
+
+test_that("assoc_trend() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(
+      assoc_trend(dt, "copd_01", "followup_years", "bmi_cat",
+                  method = "coxph", test = "score")
+    ),
+    "arg"
+  )
 })
 
 test_that("assoc_trend() level is factor", {
@@ -587,15 +817,17 @@ test_that("assoc_competing() Fully adjusted n <= Unadjusted n", {
   expect_lte(n_full, n_unadj)
 })
 
-test_that("assoc_competing() skips Age and sex adjusted when age/sex columns absent", {
+test_that("assoc_competing() aborts when base age or sex cannot be detected", {
   dt <- .fake_competing_dt()
-  # Remove both age and sex columns so auto-detection fails
   dt[, c("age_at_recruitment", "sex") := NULL]
-  res <- suppressMessages(
-    assoc_competing(dt, "censoring_type", "followup_years", "t2d_01",
-                    event_val = 1L, compete_val = 2L)
+
+  expect_error(
+    suppressMessages(
+      assoc_competing(dt, "censoring_type", "followup_years", "t2d_01",
+                      event_val = 1L, compete_val = 2L)
+    ),
+    "Age and sex adjusted model requires"
   )
-  expect_false("Age and sex adjusted" %in% as.character(unique(res$model)))
 })
 
 test_that("assoc_fg() alias matches assoc_competing()", {
@@ -718,6 +950,25 @@ test_that("assoc_lag() HR > 0 across all lags", {
     assoc_lag(dt, "copd_01", "followup_years", "t2d_01", lag_years = c(1, 2))
   )
   expect_true(all(res$HR > 0))
+})
+
+test_that("assoc_lag() supports LRT p-values", {
+  dt <- .fake_assoc_dt()
+  res <- suppressMessages(
+    assoc_lag(dt, "copd_01", "followup_years", "t2d_01",
+              lag_years = c(0, 1), test = "lrt")
+  )
+  expect_true(all(res$p_value >= 0 & res$p_value <= 1))
+})
+
+test_that("assoc_lag() aborts on invalid test method", {
+  dt <- .fake_assoc_dt()
+  expect_error(
+    suppressMessages(
+      assoc_lag(dt, "copd_01", "followup_years", "t2d_01", test = "score")
+    ),
+    "arg"
+  )
 })
 
 test_that("assoc_lag() multiple exposures produce correct row count", {

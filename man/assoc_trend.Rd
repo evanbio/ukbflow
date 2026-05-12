@@ -11,6 +11,7 @@ assoc_trend(
   time_col = NULL,
   exposure_col,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   base = TRUE,
   scores = NULL,
@@ -23,6 +24,7 @@ assoc_tr(
   time_col = NULL,
   exposure_col,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   base = TRUE,
   scores = NULL,
@@ -43,6 +45,9 @@ as the reference group.}
 
 \item{method}{(character) Regression method: \code{"coxph"} (default),
 \code{"logistic"}, or \code{"linear"}.}
+
+\item{test}{(character) P-value method: \code{"wald"} (default) or
+\code{"lrt"}.}
 
 \item{covariates}{(character or NULL) Covariates for the Fully adjusted
 model. Default: \code{NULL}.}
@@ -116,6 +121,10 @@ the per-score estimate change; per-category HRs are unaffected.
 \code{\link{assoc_coxph}} - Unadjusted and Age-and-sex-adjusted models are
 included by default (\code{base = TRUE}); a Fully adjusted model is added
 when \code{covariates} is non-NULL.
+
+\strong{P-value method}: \code{test} controls both categorical-model
+\code{p_value} and trend-model \code{p_trend}. For \code{method = "linear"},
+\code{"lrt"} uses the conventional nested-model F test.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

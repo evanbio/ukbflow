@@ -12,6 +12,7 @@ assoc_subgroup(
   exposure_col,
   by,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   interaction = TRUE,
   conf_level = 0.95
@@ -24,6 +25,7 @@ assoc_sub(
   exposure_col,
   by,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   interaction = TRUE,
   conf_level = 0.95
@@ -49,6 +51,11 @@ version (e.g. via \code{\link{derive_cut}}) instead.}
 
 \item{method}{(character) Regression method: \code{"coxph"} (default),
 \code{"logistic"}, or \code{"linear"}.}
+
+\item{test}{(character) P-value method for subgroup-specific main
+associations: \code{"wald"} (default) or \code{"lrt"}. For
+\code{method = "linear"}, \code{"lrt"} uses the conventional
+nested-model F test.}
 
 \item{covariates}{(character or NULL) Covariate column names for the Fully
 adjusted model. When \code{NULL}, only the Unadjusted model is run.}
@@ -106,6 +113,10 @@ computed on the \emph{full} dataset for each exposure \eqn{\times} model
 combination and appended as \code{p_interaction}. LRT is preferred over
 Wald because it handles factor, binary, and continuous \code{by} variables
 uniformly without requiring the user to recode the \code{by} variable.
+
+\strong{P-value method}: \code{test} controls the subgroup-specific main
+association p-values. It does not change \code{p_interaction}, which remains
+an interaction LRT.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

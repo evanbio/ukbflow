@@ -11,6 +11,7 @@ assoc_linear(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 
@@ -20,6 +21,7 @@ assoc_lm(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 }
@@ -36,6 +38,10 @@ assoc_lm(
 \item{base}{(logical) Include \strong{Unadjusted} and \strong{Age and sex
 adjusted} models. Default: \code{TRUE}.}
 
+\item{test}{(character) P-value method for linear models: \code{"wald"}
+(default) or \code{"lrt"}. For \code{lm}, \code{"lrt"} uses the
+conventional nested-model F test.}
+
 \item{conf_level}{(numeric) Confidence level. Default: \code{0.95}.}
 }
 \value{
@@ -51,7 +57,8 @@ A \code{data.table} with one row per exposure \eqn{\times} term
 \item{\code{se}}{Standard error of \eqn{\beta}.}
 \item{\code{CI_lower}}{Lower confidence bound.}
 \item{\code{CI_upper}}{Upper confidence bound.}
-\item{\code{p_value}}{t-test p-value.}
+\item{\code{p_value}}{P-value from the method selected by
+\code{test}.}
 \item{\code{beta_label}}{Formatted string, e.g.
 \code{"0.23 (0.05-0.41)"}.}
 }
@@ -64,9 +71,10 @@ always included:
 \details{
 \itemize{
 \item \strong{Unadjusted} - no covariates (crude).
-\item \strong{Age and sex adjusted} - age + sex auto-detected from the
-data via UKB field IDs (21022 and 31). Skipped with a warning if either
-column cannot be found.
+\item \strong{Age and sex adjusted} - age + sex auto-detected from
+standard UKB names (\code{p21022}/\code{p31}) or decoded names
+(\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+be found.
 \item \strong{Fully adjusted} - the covariates supplied via the
 \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 }
@@ -82,6 +90,12 @@ likelihood does not apply to \code{lm}.
 
 \strong{SE column}: the standard error of \eqn{\beta} is included to
 support downstream meta-analysis and GWAS-style summary statistics.
+
+\strong{P-value method}: \code{test = "wald"} returns coefficient-level
+t-test p-values from \code{summary.lm()}. \code{test = "lrt"} returns an
+exposure-level nested-model p-value from single-term deletion
+(\code{drop1(..., test = "F")}); for factor exposures, the same overall
+exposure p-value is repeated across the non-reference level rows.
 }
 \examples{
 dt <- ops_toy(scenario = "association", n = 500)

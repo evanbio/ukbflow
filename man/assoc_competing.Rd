@@ -55,8 +55,9 @@ competing event (Mode A only). Default: \code{2L}.}
 adjusted model. When \code{NULL}, only Unadjusted (and Age/sex adjusted
 if \code{base = TRUE}) are run.}
 
-\item{base}{(logical) Whether to auto-detect age and sex columns and include
-an Age and sex adjusted model. Default: \code{TRUE}.}
+\item{base}{(logical) Whether to auto-detect age and sex columns from
+standard UKB or decoded names and include an Age and sex adjusted model.
+Default: \code{TRUE}.}
 
 \item{conf_level}{(numeric) Confidence level for SHR intervals.
 Default: \code{0.95}.}
@@ -114,8 +115,8 @@ Internally both modes are converted to a three-level factor
 Three adjustment models are produced (where data allow):
 \itemize{
 \item \strong{Unadjusted} - always included.
-\item \strong{Age and sex adjusted} - when \code{base = TRUE} and
-age/sex columns are detected.
+\item \strong{Age and sex adjusted} - when \code{base = TRUE}; age/sex
+must be detectable from standard UKB or decoded names.
 \item \strong{Fully adjusted} - when \code{covariates} is non-NULL.
 }
 }

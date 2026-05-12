@@ -11,9 +11,10 @@
 #'
 #' \itemize{
 #'   \item \strong{Unadjusted} - no covariates (crude).
-#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
-#'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
-#'     column cannot be found.
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from
+#'     standard UKB names (\code{p21022}/\code{p31}) or decoded names
+#'     (\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+#'     be found.
 #'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
@@ -29,6 +30,15 @@
 #'   \item \emph{Factor} - produces one \code{term} row per non-reference level.
 #'   \item \emph{Numeric} (continuous) - produces one \code{term} row per model.
 #' }
+#'
+#' \strong{P-value method}: \code{test = "wald"} returns the term-level Wald
+#' p-value from \code{summary.coxph()}. \code{test = "lrt"} returns the
+#' exposure-level likelihood-ratio p-value from single-term deletion
+#' (\code{drop1(..., test = "Chisq")}); for factor exposures, the same overall
+#' exposure p-value is repeated across the non-reference level rows.
+#' When \code{cluster_col} is supplied, only \code{test = "wald"} is supported;
+#' the Wald p-value and confidence interval use the cluster-robust variance from
+#' \code{summary.coxph()}.
 #'
 #' @param data (data.frame or data.table) Analysis dataset. Must contain all
 #'   columns referenced by \code{outcome_col}, \code{time_col}, and
@@ -50,6 +60,12 @@
 #'   only the Fully adjusted model (requires \code{covariates} to be non-NULL).
 #' @param strata (character or NULL) Optional stratification variable.
 #'   Passed to \code{survival::strata()} in the Cox formula.
+#' @param test (character) P-value method for Cox models: \code{"wald"}
+#'   (default) or \code{"lrt"}.
+#' @param cluster_col (character or NULL) Optional clustering variable for
+#'   cluster-robust Cox variance, added to the model as
+#'   \code{cluster(cluster_col)}. When supplied, \code{test} must be
+#'   \code{"wald"}.
 #' @param conf_level (numeric) Confidence level for hazard ratio intervals.
 #'   Default: \code{0.95}.
 #'
@@ -71,7 +87,9 @@
 #'     \item{\code{HR}}{Hazard ratio (point estimate).}
 #'     \item{\code{CI_lower}}{Lower bound of the confidence interval.}
 #'     \item{\code{CI_upper}}{Upper bound of the confidence interval.}
-#'     \item{\code{p_value}}{Wald test p-value.}
+#'     \item{\code{p_value}}{P-value from the method selected by
+#'       \code{test}. When \code{cluster_col} is supplied, this is the
+#'       cluster-robust Wald p-value.}
 #'     \item{\code{HR_label}}{Formatted string, e.g.
 #'       \code{"1.23 (1.05-1.44)"}.}
 #'   }
@@ -108,11 +126,25 @@ assoc_coxph <- function(data,
                          covariates  = NULL,
                          base        = TRUE,
                          strata      = NULL,
+                         test        = c("wald", "lrt"),
+                         cluster_col = NULL,
                          conf_level  = 0.95) {
+
+  test <- match.arg(test)
+
+  if (!is.null(cluster_col)) {
+    .assert_scalar_string(cluster_col, "cluster_col")
+    if (test != "wald") {
+      cli::cli_abort(
+        "{.arg cluster_col} currently supports only {.code test = 'wald'}.",
+        call = NULL
+      )
+    }
+  }
 
   # Input validation
   .assert_data_frame(data)
-  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates, strata))
+  .assert_has_cols(data, c(outcome_col, time_col, exposure_col, covariates, strata, cluster_col))
   .assert_flag(base)
 
   .assert_not_null_if_false(base, covariates)
@@ -134,22 +166,7 @@ assoc_coxph <- function(data,
     # the key instead of setting it, which would drop the Unadjusted model.
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -185,6 +202,8 @@ assoc_coxph <- function(data,
         covariates   = covs,
         strata       = strata,
         model_label  = model_label,
+        test         = test,
+        cluster_col  = cluster_col,
         conf_level   = conf_level
       )
 
@@ -234,9 +253,10 @@ assoc_cox <- assoc_coxph
 #'
 #' \itemize{
 #'   \item \strong{Unadjusted} - no covariates (crude).
-#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
-#'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
-#'     column cannot be found.
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from
+#'     standard UKB names (\code{p21022}/\code{p31}) or decoded names
+#'     (\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+#'     be found.
 #'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
@@ -252,6 +272,12 @@ assoc_cox <- assoc_coxph
 #'     slower but more accurate for small or sparse data.
 #' }
 #'
+#' \strong{P-value method}: \code{test = "wald"} returns coefficient-level Wald
+#' p-values from \code{summary.glm()}. \code{test = "lrt"} returns the
+#' exposure-level likelihood-ratio p-value from single-term deletion
+#' (\code{drop1(..., test = "Chisq")}); for factor exposures, the same overall
+#' exposure p-value is repeated across the non-reference level rows.
+#'
 #' @param data (data.frame or data.table) Analysis dataset.
 #' @param outcome_col (character) Binary outcome column (\code{0}/\code{1} or
 #'   \code{TRUE}/\code{FALSE}).
@@ -260,6 +286,8 @@ assoc_cox <- assoc_coxph
 #'   \strong{Fully adjusted} model. Default: \code{NULL}.
 #' @param base (logical) Include \strong{Unadjusted} and \strong{Age and sex
 #'   adjusted} models. Default: \code{TRUE}.
+#' @param test (character) P-value method for logistic models: \code{"wald"}
+#'   (default) or \code{"lrt"}.
 #' @param ci_method (character) CI calculation method: \code{"wald"} (default)
 #'   or \code{"profile"}.
 #' @param conf_level (numeric) Confidence level. Default: \code{0.95}.
@@ -276,7 +304,8 @@ assoc_cox <- assoc_coxph
 #'     \item{\code{OR}}{Odds ratio (point estimate).}
 #'     \item{\code{CI_lower}}{Lower confidence bound.}
 #'     \item{\code{CI_upper}}{Upper confidence bound.}
-#'     \item{\code{p_value}}{Wald test p-value.}
+#'     \item{\code{p_value}}{P-value from the method selected by
+#'       \code{test}.}
 #'     \item{\code{OR_label}}{Formatted string, e.g. \code{"1.23 (1.05-1.44)"}.}
 #'   }
 #'
@@ -297,9 +326,11 @@ assoc_logistic <- function(data,
                             exposure_col,
                             covariates = NULL,
                             base       = TRUE,
+                            test       = c("wald", "lrt"),
                             ci_method  = c("wald", "profile"),
                             conf_level = 0.95) {
 
+  test <- match.arg(test)
   ci_method <- match.arg(ci_method)
 
   # Input validation
@@ -323,22 +354,7 @@ assoc_logistic <- function(data,
   if (base) {
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -354,7 +370,7 @@ assoc_logistic <- function(data,
     "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} logistic regression{?s}"
   )
   cli::cli_alert_info(
-    "Input cohort: {nrow(dt)} participants | CI method: {ci_method} (n/n_cases reflect each model's actual analysis set)"
+    "Input cohort: {nrow(dt)} participants | test: {test} | CI method: {ci_method} (n/n_cases reflect each model's actual analysis set)"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -372,6 +388,7 @@ assoc_logistic <- function(data,
         exposure    = exp,
         covariates  = covs,
         model_label = model_label,
+        test        = test,
         ci_method   = ci_method,
         conf_level  = conf_level
       )
@@ -420,9 +437,10 @@ assoc_logit <- assoc_logistic
 #'
 #' \itemize{
 #'   \item \strong{Unadjusted} - no covariates (crude).
-#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from the
-#'     data via UKB field IDs (21022 and 31). Skipped with a warning if either
-#'     column cannot be found.
+#'   \item \strong{Age and sex adjusted} - age + sex auto-detected from
+#'     standard UKB names (\code{p21022}/\code{p31}) or decoded names
+#'     (\code{age_at_recruitment}/\code{sex}). Errors if either column cannot
+#'     be found.
 #'   \item \strong{Fully adjusted} - the covariates supplied via the
 #'     \code{covariates} argument. Only run when \code{covariates} is non-NULL.
 #' }
@@ -439,6 +457,12 @@ assoc_logit <- assoc_logistic
 #' \strong{SE column}: the standard error of \eqn{\beta} is included to
 #' support downstream meta-analysis and GWAS-style summary statistics.
 #'
+#' \strong{P-value method}: \code{test = "wald"} returns coefficient-level
+#' t-test p-values from \code{summary.lm()}. \code{test = "lrt"} returns an
+#' exposure-level nested-model p-value from single-term deletion
+#' (\code{drop1(..., test = "F")}); for factor exposures, the same overall
+#' exposure p-value is repeated across the non-reference level rows.
+#'
 #' @param data (data.frame or data.table) Analysis dataset.
 #' @param outcome_col (character) Name of the continuous numeric outcome column.
 #' @param exposure_col (character) One or more exposure variable names.
@@ -446,6 +470,9 @@ assoc_logit <- assoc_logistic
 #'   \strong{Fully adjusted} model. Default: \code{NULL}.
 #' @param base (logical) Include \strong{Unadjusted} and \strong{Age and sex
 #'   adjusted} models. Default: \code{TRUE}.
+#' @param test (character) P-value method for linear models: \code{"wald"}
+#'   (default) or \code{"lrt"}. For \code{lm}, \code{"lrt"} uses the
+#'   conventional nested-model F test.
 #' @param conf_level (numeric) Confidence level. Default: \code{0.95}.
 #'
 #' @return A \code{data.table} with one row per exposure \eqn{\times} term
@@ -460,7 +487,8 @@ assoc_logit <- assoc_logistic
 #'     \item{\code{se}}{Standard error of \eqn{\beta}.}
 #'     \item{\code{CI_lower}}{Lower confidence bound.}
 #'     \item{\code{CI_upper}}{Upper confidence bound.}
-#'     \item{\code{p_value}}{t-test p-value.}
+#'     \item{\code{p_value}}{P-value from the method selected by
+#'       \code{test}.}
 #'     \item{\code{beta_label}}{Formatted string, e.g.
 #'       \code{"0.23 (0.05-0.41)"}.}
 #'   }
@@ -482,7 +510,10 @@ assoc_linear <- function(data,
                           exposure_col,
                           covariates = NULL,
                           base       = TRUE,
+                          test       = c("wald", "lrt"),
                           conf_level = 0.95) {
+
+  test <- match.arg(test)
 
   # Input validation
   .assert_data_frame(data)
@@ -520,22 +551,7 @@ assoc_linear <- function(data,
   if (base) {
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -551,7 +567,7 @@ assoc_linear <- function(data,
     "{n_exposures} exposure{?s} x {n_models} model{?s} = {n_exposures * n_models} linear regression{?s}"
   )
   cli::cli_alert_info(
-    "Input cohort: {nrow(dt)} participants (n reflects each model's actual analysis set)"
+    "Input cohort: {nrow(dt)} participants | test: {test} (n reflects each model's actual analysis set)"
   )
 
   results <- vector("list", n_exposures * n_models)
@@ -570,6 +586,7 @@ assoc_linear <- function(data,
         exposure    = exp,
         covariates  = covs,
         model_label = model_label,
+        test        = test,
         conf_level  = conf_level
       )
 
@@ -689,22 +706,7 @@ assoc_coxph_zph <- function(data,
   if (base) {
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -811,6 +813,10 @@ assoc_zph <- assoc_coxph_zph
 #' Wald because it handles factor, binary, and continuous \code{by} variables
 #' uniformly without requiring the user to recode the \code{by} variable.
 #'
+#' \strong{P-value method}: \code{test} controls the subgroup-specific main
+#' association p-values. It does not change \code{p_interaction}, which remains
+#' an interaction LRT.
+#'
 #' @param data (data.frame or data.table) Analysis dataset.
 #' @param outcome_col (character) Outcome column name.
 #' @param time_col (character or NULL) Follow-up time column (required when
@@ -825,6 +831,10 @@ assoc_zph <- assoc_coxph_zph
 #'   version (e.g. via \code{\link{derive_cut}}) instead.
 #' @param method (character) Regression method: \code{"coxph"} (default),
 #'   \code{"logistic"}, or \code{"linear"}.
+#' @param test (character) P-value method for subgroup-specific main
+#'   associations: \code{"wald"} (default) or \code{"lrt"}. For
+#'   \code{method = "linear"}, \code{"lrt"} uses the conventional
+#'   nested-model F test.
 #' @param covariates (character or NULL) Covariate column names for the Fully
 #'   adjusted model. When \code{NULL}, only the Unadjusted model is run.
 #' @param interaction (logical) Compute the LRT p-value for the exposure
@@ -876,11 +886,13 @@ assoc_subgroup <- function(data,
                             exposure_col,
                             by,
                             method      = c("coxph", "logistic", "linear"),
+                            test        = c("wald", "lrt"),
                             covariates  = NULL,
                             interaction = TRUE,
                             conf_level  = 0.95) {
 
   method <- match.arg(method)
+  test <- match.arg(test)
 
   # Input validation
   .assert_data_frame(data)
@@ -929,7 +941,7 @@ assoc_subgroup <- function(data,
 
   cli::cli_h1("assoc_subgroup")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} x {n_models} model{?s} x {n_levels} subgroup{?s} ({.field {by}})"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} x {n_levels} subgroup{?s} ({.field {by}}) | test: {test}"
   )
 
   # Interaction LRT on full data (one p-value per exposure x model)
@@ -1005,6 +1017,7 @@ assoc_subgroup <- function(data,
             covariates  = covs,
             strata      = NULL,
             model_label = warn_label,
+            test        = test,
             conf_level  = conf_level
           ),
           logistic = .run_one_logistic_model(
@@ -1012,6 +1025,7 @@ assoc_subgroup <- function(data,
             exposure    = exp,
             covariates  = covs,
             model_label = warn_label,
+            test        = test,
             ci_method   = "wald",
             conf_level  = conf_level
           ),
@@ -1021,6 +1035,7 @@ assoc_subgroup <- function(data,
             exposure    = exp,
             covariates  = covs,
             model_label = warn_label,
+            test        = test,
             conf_level  = conf_level
           )
         )
@@ -1118,6 +1133,10 @@ assoc_sub <- assoc_subgroup
 #' included by default (\code{base = TRUE}); a Fully adjusted model is added
 #' when \code{covariates} is non-NULL.
 #'
+#' \strong{P-value method}: \code{test} controls both categorical-model
+#' \code{p_value} and trend-model \code{p_trend}. For \code{method = "linear"},
+#' \code{"lrt"} uses the conventional nested-model F test.
+#'
 #' @param data (data.frame or data.table) Analysis dataset.
 #' @param outcome_col (character) Outcome column name.
 #' @param time_col (character or NULL) Follow-up time column (required when
@@ -1127,6 +1146,8 @@ assoc_sub <- assoc_subgroup
 #'   as the reference group.
 #' @param method (character) Regression method: \code{"coxph"} (default),
 #'   \code{"logistic"}, or \code{"linear"}.
+#' @param test (character) P-value method: \code{"wald"} (default) or
+#'   \code{"lrt"}.
 #' @param covariates (character or NULL) Covariates for the Fully adjusted
 #'   model. Default: \code{NULL}.
 #' @param base (logical) Include Unadjusted and Age-and-sex-adjusted models.
@@ -1187,12 +1208,14 @@ assoc_trend <- function(data,
                          time_col    = NULL,
                          exposure_col,
                          method      = c("coxph", "logistic", "linear"),
+                         test        = c("wald", "lrt"),
                          covariates  = NULL,
                          base        = TRUE,
                          scores      = NULL,
                          conf_level  = 0.95) {
 
   method <- match.arg(method)
+  test <- match.arg(test)
 
   # Input validation
   .assert_data_frame(data)
@@ -1264,22 +1287,7 @@ assoc_trend <- function(data,
   if (base) {
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -1292,7 +1300,7 @@ assoc_trend <- function(data,
 
   cli::cli_h1("assoc_trend")
   cli::cli_alert_info(
-    "{n_exposures} exposure{?s} x {n_models} model{?s} (categorical + trend model per combination)"
+    "{n_exposures} exposure{?s} x {n_models} model{?s} (categorical + trend model per combination) | test: {test}"
   )
 
   all_results <- vector("list", n_exposures * n_models)
@@ -1323,13 +1331,13 @@ assoc_trend <- function(data,
       # ---- Categorical model (factor exposure → per-category estimates) ----
       res_cat <- switch(method,
         coxph = .run_one_cox_model(
-          dt, time_col, exp, covs, NULL, model_label, conf_level
+          dt, time_col, exp, covs, NULL, model_label, conf_level, test = test
         ),
         logistic = .run_one_logistic_model(
-          dt, exp, covs, model_label, "wald", conf_level
+          dt, exp, covs, model_label, "wald", conf_level, test = test
         ),
         linear = .run_one_linear_model(
-          dt, outcome_col, exp, covs, model_label, conf_level
+          dt, outcome_col, exp, covs, model_label, conf_level, test = test
         )
       )
 
@@ -1337,15 +1345,15 @@ assoc_trend <- function(data,
       res_trend <- switch(method,
         coxph = .run_one_cox_model(
           dt, time_col, ".ukb_trend_score", covs, NULL,
-          paste0(model_label, " [trend]"), conf_level
+          paste0(model_label, " [trend]"), conf_level, test = test
         ),
         logistic = .run_one_logistic_model(
           dt, ".ukb_trend_score", covs,
-          paste0(model_label, " [trend]"), "wald", conf_level
+          paste0(model_label, " [trend]"), "wald", conf_level, test = test
         ),
         linear = .run_one_linear_model(
           dt, outcome_col, ".ukb_trend_score", covs,
-          paste0(model_label, " [trend]"), conf_level
+          paste0(model_label, " [trend]"), conf_level, test = test
         )
       )
 
@@ -1545,8 +1553,8 @@ assoc_tr <- assoc_trend
 #' Three adjustment models are produced (where data allow):
 #' \itemize{
 #'   \item \strong{Unadjusted} - always included.
-#'   \item \strong{Age and sex adjusted} - when \code{base = TRUE} and
-#'     age/sex columns are detected.
+#'   \item \strong{Age and sex adjusted} - when \code{base = TRUE}; age/sex
+#'     must be detectable from standard UKB or decoded names.
 #'   \item \strong{Fully adjusted} - when \code{covariates} is non-NULL.
 #' }
 #'
@@ -1565,8 +1573,9 @@ assoc_tr <- assoc_trend
 #' @param covariates (character or NULL) Covariate names for the Fully
 #'   adjusted model. When \code{NULL}, only Unadjusted (and Age/sex adjusted
 #'   if \code{base = TRUE}) are run.
-#' @param base (logical) Whether to auto-detect age and sex columns and include
-#'   an Age and sex adjusted model. Default: \code{TRUE}.
+#' @param base (logical) Whether to auto-detect age and sex columns from
+#'   standard UKB or decoded names and include an Age and sex adjusted model.
+#'   Default: \code{TRUE}.
 #' @param conf_level (numeric) Confidence level for SHR intervals.
 #'   Default: \code{0.95}.
 #'
@@ -1664,23 +1673,8 @@ assoc_competing <- function(data,
   models <- list(list(label = "Unadjusted", covs = NULL))
 
   if (isTRUE(base)) {
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column (UKB field 21022) not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column (UKB field 31) not found" else "",
-          "."
-        )
-      )
-    } else {
-      models <- c(models, list(list(label = "Age and sex adjusted",
-                                    covs  = c(age_col, sex_col))))
-    }
+    models <- c(models, list(list(label = "Age and sex adjusted",
+                                  covs  = .resolve_base_age_sex(dt))))
   }
 
   if (!is.null(covariates)) {
@@ -1754,6 +1748,11 @@ assoc_fg <- assoc_competing
 #' available here (\strong{Unadjusted}, \strong{Age and sex adjusted},
 #' \strong{Fully adjusted}).
 #'
+#' \strong{P-value method}: \code{test = "wald"} returns term-level Wald
+#' p-values from \code{summary.coxph()}. \code{test = "lrt"} returns the
+#' exposure-level likelihood-ratio p-value from single-term deletion within
+#' each lag-specific analysis set.
+#'
 #' @param data (data.frame or data.table) Analysis dataset.
 #' @param outcome_col (character) Event indicator column (0/1 or logical).
 #' @param time_col (character) Follow-up time column (numeric, e.g. years).
@@ -1764,10 +1763,12 @@ assoc_fg <- assoc_competing
 #' @param covariates (character or NULL) Covariates for the Fully adjusted
 #'   model. When \code{NULL}, only Unadjusted (and Age and sex adjusted if
 #'   \code{base = TRUE}) are run.
-#' @param base (logical) Auto-detect age and sex and include an Age and sex
-#'   adjusted model. Default: \code{TRUE}.
+#' @param base (logical) Auto-detect age and sex from standard UKB or decoded
+#'   names and include an Age and sex adjusted model. Default: \code{TRUE}.
 #' @param strata (character or NULL) Optional stratification variable passed to
 #'   \code{survival::strata()}.
+#' @param test (character) P-value method: \code{"wald"} (default) or
+#'   \code{"lrt"}.
 #' @param conf_level (numeric) Confidence level for HR intervals.
 #'   Default: \code{0.95}.
 #'
@@ -1807,7 +1808,10 @@ assoc_lag <- function(data,
                        covariates = NULL,
                        base       = TRUE,
                        strata     = NULL,
+                       test       = c("wald", "lrt"),
                        conf_level = 0.95) {
+
+  test <- match.arg(test)
 
   # Input validation
   .assert_data_frame(data)
@@ -1838,22 +1842,7 @@ assoc_lag <- function(data,
   if (base) {
     model_list["Unadjusted"] <- list(NULL)
 
-    age_col <- .detect_age_col(dt)
-    sex_col <- .detect_sex_col(dt)
-
-    if (is.null(age_col) || is.null(sex_col)) {
-      cli::cli_alert_warning(
-        paste0(
-          "Age and sex adjusted model skipped: ",
-          if (is.null(age_col)) "age column not found" else "",
-          if (is.null(age_col) && is.null(sex_col)) " and " else "",
-          if (is.null(sex_col)) "sex column not found" else "",
-          "."
-        )
-      )
-    } else {
-      model_list[["Age and sex adjusted"]] <- c(age_col, sex_col)
-    }
+    model_list[["Age and sex adjusted"]] <- .resolve_base_age_sex(dt)
   }
 
   if (!is.null(covariates) && length(covariates) > 0L) {
@@ -1863,7 +1852,7 @@ assoc_lag <- function(data,
   # Loop: lag x exposure x model
   cli::cli_h1("assoc_lag")
   cli::cli_alert_info(
-    "{length(lag_years)} lag period{?s} x {length(exposure_col)} exposure{?s} x {length(model_list)} model{?s}"
+    "{length(lag_years)} lag period{?s} x {length(exposure_col)} exposure{?s} x {length(model_list)} model{?s} | test: {test}"
   )
 
   all_results <- list()
@@ -1898,6 +1887,7 @@ assoc_lag <- function(data,
           covariates  = model_list[[model_label]],
           strata      = strata,
           model_label = model_label,
+          test        = test,
           conf_level  = conf_level
         )
 
