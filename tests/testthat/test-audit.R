@@ -71,22 +71,22 @@ test_that("audit_fields() appends an extraction record", {
     aud,
     field_id = c(31, 53, 21022),
     dataset = "app123.dataset",
-    note = "Core fields"
+    label = "core_fields"
   )
 
   expect_length(aud$extraction, 1L)
   rec <- aud$extraction[[1L]]
   expect_equal(rec$field_id, c(31L, 53L, 21022L))
   expect_equal(rec$dataset, "app123.dataset")
-  expect_equal(rec$note, "Core fields")
+  expect_equal(rec$label, "core_fields")
   expect_equal(rec$n_fields, 3L)
   expect_match(rec$recorded_at, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}")
 })
 
 test_that("audit_fields() appends multiple extraction records", {
   aud <- audit_start("example_analysis")
-  aud <- audit_fields(aud, c(31, 53), note = "first")
-  aud <- audit_fields(aud, c(41270, 41280), note = "second")
+  aud <- audit_fields(aud, c(31, 53), label = "first")
+  aud <- audit_fields(aud, c(41270, 41280), label = "second")
 
   expect_length(aud$extraction, 2L)
   expect_equal(aud$extraction[[1L]]$field_id, c(31L, 53L))
@@ -99,7 +99,7 @@ test_that("audit_fields() records NA for missing optional values", {
   rec <- aud$extraction[[1L]]
 
   expect_true(is.na(rec$dataset))
-  expect_true(is.na(rec$note))
+  expect_true(is.na(rec$label))
 })
 
 test_that("audit_fields() deduplicates field_id within a record", {
@@ -116,7 +116,7 @@ test_that("audit_fields() validates inputs", {
   expect_error(audit_fields(aud, character(0)), "field_id")
   expect_error(audit_fields(aud, c(31, NA)), "NA")
   expect_error(audit_fields(aud, 31, dataset = 1), "dataset")
-  expect_error(audit_fields(aud, 31, note = 1), "note")
+  expect_error(audit_fields(aud, 31, label = 1), "label")
 })
 
 

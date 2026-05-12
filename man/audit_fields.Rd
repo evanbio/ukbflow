@@ -4,7 +4,7 @@
 \alias{audit_fields}
 \title{Record UKB field IDs used for extraction}
 \usage{
-audit_fields(audit, field_id, dataset = NULL, note = NULL)
+audit_fields(audit, field_id, dataset = NULL, label = NULL)
 }
 \arguments{
 \item{audit}{A \code{ukbflow_audit} object created by
@@ -15,7 +15,7 @@ audit_fields(audit, field_id, dataset = NULL, note = NULL)
 \item{dataset}{(character or NULL) Optional RAP dataset file name.
 Default: \code{NULL}.}
 
-\item{note}{(character or NULL) Optional note for this extraction record.
+\item{label}{(character or NULL) Optional label for this extraction record.
 Default: \code{NULL}.}
 }
 \value{
@@ -24,11 +24,11 @@ The updated \code{ukbflow_audit} object.
 \description{
 Appends one extraction record to a \code{\link{audit_start}} object. The
 function records the declared UKB field IDs, optional dataset name, optional
-note, number of fields, and timestamp. It does not validate field
+label, number of fields, and timestamp. It does not validate field
 availability against RAP; use \code{\link{ops_fields}} or
 \code{\link{extract_ls}} separately for project-specific field discovery.
 }
 \examples{
 aud <- audit_start("example_analysis")
-aud <- audit_fields(aud, c(31, 53, 21022), note = "Core fields")
+aud <- audit_fields(aud, c(31, 53, 21022), label = "core_fields")
 }

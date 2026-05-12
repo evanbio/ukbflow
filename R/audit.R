@@ -56,7 +56,7 @@ audit_start <- function(name) {
 #'
 #' Appends one extraction record to a \code{\link{audit_start}} object. The
 #' function records the declared UKB field IDs, optional dataset name, optional
-#' note, number of fields, and timestamp. It does not validate field
+#' label, number of fields, and timestamp. It does not validate field
 #' availability against RAP; use \code{\link{ops_fields}} or
 #' \code{\link{extract_ls}} separately for project-specific field discovery.
 #'
@@ -65,7 +65,7 @@ audit_start <- function(name) {
 #' @param field_id (integer) UKB field IDs used for extraction.
 #' @param dataset (character or NULL) Optional RAP dataset file name.
 #'   Default: \code{NULL}.
-#' @param note (character or NULL) Optional note for this extraction record.
+#' @param label (character or NULL) Optional label for this extraction record.
 #'   Default: \code{NULL}.
 #'
 #' @return The updated \code{ukbflow_audit} object.
@@ -73,18 +73,18 @@ audit_start <- function(name) {
 #'
 #' @examples
 #' aud <- audit_start("example_analysis")
-#' aud <- audit_fields(aud, c(31, 53, 21022), note = "Core fields")
-audit_fields <- function(audit, field_id, dataset = NULL, note = NULL) {
+#' aud <- audit_fields(aud, c(31, 53, 21022), label = "core_fields")
+audit_fields <- function(audit, field_id, dataset = NULL, label = NULL) {
 
   .assert_audit(audit)
   field_id <- unique(.assert_integer_ids(field_id))
   if (!is.null(dataset)) .assert_scalar_string(dataset)
-  if (!is.null(note)) .assert_scalar_string(note)
+  if (!is.null(label)) .assert_scalar_string(label)
 
   record <- list(
     field_id    = field_id,
     dataset     = if (is.null(dataset)) NA_character_ else dataset,
-    note        = if (is.null(note)) NA_character_ else note,
+    label       = if (is.null(label)) NA_character_ else label,
     n_fields    = length(field_id),
     recorded_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
   )
