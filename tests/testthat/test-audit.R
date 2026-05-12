@@ -121,6 +121,94 @@ test_that("audit_fields() validates inputs", {
 
 
 # ===========================================================================
+# audit_snapshot()
+# ===========================================================================
+
+test_that("audit_snapshot() appends a snapshot record", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:3, x = c(1, NA, 3), y = c("", "a", "b"))
+
+  aud <- suppressMessages(audit_snapshot(aud, dt, "raw"))
+
+  expect_length(aud$snapshots, 1L)
+  rec <- aud$snapshots[[1L]]
+  expect_equal(rec$label, "raw")
+  expect_equal(rec$nrow, 3L)
+  expect_equal(rec$ncol, 3L)
+  expect_equal(rec$n_na_cols, 2L)
+  expect_equal(rec$columns, names(dt))
+  expect_type(rec$object_size_mb, "double")
+  expect_match(rec$recorded_at, "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}")
+})
+
+test_that("audit_snapshot() appends multiple snapshot records", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2, x = 1:2)
+
+  aud <- suppressMessages(audit_snapshot(aud, dt, "raw"))
+  aud <- suppressMessages(audit_snapshot(aud, dt, "analysis_ready"))
+
+  expect_length(aud$snapshots, 2L)
+  expect_equal(vapply(aud$snapshots, `[[`, "", "label"),
+               c("raw", "analysis_ready"))
+})
+
+test_that("audit_snapshot() rejects duplicate labels", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2)
+  aud <- suppressMessages(audit_snapshot(aud, dt, "raw"))
+
+  expect_error(
+    suppressMessages(audit_snapshot(aud, dt, "raw")),
+    "already exists"
+  )
+})
+
+test_that("audit_snapshot() check_na=FALSE skips missingness scan", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:3, x = c(1, NA, 3))
+
+  aud <- suppressMessages(audit_snapshot(aud, dt, "raw", check_na = FALSE))
+
+  expect_true(is.na(aud$snapshots[[1L]]$n_na_cols))
+})
+
+test_that("audit_snapshot() reset clears only snapshots layer", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 53))
+  dt <- data.frame(eid = 1:2)
+  aud <- suppressMessages(audit_snapshot(aud, dt, "raw"))
+
+  aud <- suppressMessages(audit_snapshot(aud, reset = TRUE))
+
+  expect_null(aud$snapshots)
+  expect_length(aud$extraction, 1L)
+  expect_equal(aud$name, "example_analysis")
+})
+
+test_that("audit_snapshot() validates inputs", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2)
+
+  expect_error(audit_snapshot(list(), dt, "raw"), "ukbflow_audit")
+  expect_error(audit_snapshot(aud, reset = NA), "reset")
+  expect_error(audit_snapshot(aud, check_na = NA), "check_na")
+  expect_error(audit_snapshot(aud, verbose = NA), "verbose")
+  expect_error(audit_snapshot(aud, label = "raw"), "data")
+  expect_error(audit_snapshot(aud, dt), "label")
+  expect_error(audit_snapshot(aud, "not data", "raw"), "data.frame")
+  expect_error(audit_snapshot(aud, dt, ""), "label")
+})
+
+test_that("audit_snapshot() verbose=FALSE produces no messages", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2)
+
+  expect_no_message(audit_snapshot(aud, dt, "raw", verbose = FALSE))
+})
+
+
+# ===========================================================================
 # print.ukbflow_audit()
 # ===========================================================================
 

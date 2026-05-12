@@ -95,6 +95,98 @@ audit_fields <- function(audit, field_id, dataset = NULL, note = NULL) {
 }
 
 
+#' Record a data snapshot in a ukbflow audit object
+#'
+#' Captures a lightweight structural snapshot of a data.frame at a named
+#' analysis stage and appends it to the \code{snapshots} layer of a
+#' \code{ukbflow_audit} object. This function mirrors the core behavior of
+#' \code{\link{ops_snapshot}} but stores records inside the explicit audit
+#' object rather than a session cache.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param data A data.frame or data.table to snapshot. Required unless
+#'   \code{reset = TRUE}.
+#' @param label (character) A unique label for this snapshot, e.g.
+#'   \code{"raw_extracted"} or \code{"analysis_ready"}. Required unless
+#'   \code{reset = TRUE}.
+#' @param reset (logical) If \code{TRUE}, clears only the
+#'   \code{audit$snapshots} layer and returns the updated audit object.
+#'   Default: \code{FALSE}.
+#' @param check_na (logical) Whether to count columns with any \code{NA} or
+#'   blank string values. Set to \code{FALSE} to avoid scanning large datasets.
+#'   Default: \code{TRUE}.
+#' @param verbose (logical) Print a short status message. Default:
+#'   \code{TRUE}.
+#'
+#' @return The updated \code{ukbflow_audit} object.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' dt <- data.frame(eid = 1:3, x = c(1, NA, 3))
+#' aud <- audit_snapshot(aud, dt, "raw")
+audit_snapshot <- function(audit, data = NULL, label = NULL, reset = FALSE,
+                           check_na = TRUE, verbose = TRUE) {
+
+  .assert_audit(audit)
+  .assert_flag(reset)
+  .assert_flag(check_na)
+  .assert_flag(verbose)
+
+  if (reset) {
+    audit$snapshots <- NULL
+    if (verbose) cli::cli_alert_success("audit snapshots cleared.")
+    return(audit)
+  }
+
+  if (is.null(data)) {
+    cli::cli_abort("{.arg data} is required unless {.code reset = TRUE}.", call = NULL)
+  }
+  .assert_data_frame(data)
+  if (is.null(label)) {
+    cli::cli_abort("{.arg label} is required unless {.code reset = TRUE}.", call = NULL)
+  }
+  .assert_scalar_string(label)
+
+  snapshot_records <- if (is.null(audit$snapshots)) list() else audit$snapshots
+  existing_labels <- vapply(snapshot_records, `[[`, "", "label")
+  if (label %in% existing_labels) {
+    cli::cli_abort("Snapshot label {.val {label}} already exists.", call = NULL)
+  }
+
+  if (check_na) {
+    dt_tmp <- data.table::as.data.table(data)
+    n_na_cols <- sum(vapply(dt_tmp, function(col) {
+      any(is.na(col) | (is.character(col) & !is.na(col) & col == ""))
+    }, logical(1L)))
+  } else {
+    n_na_cols <- NA_integer_
+  }
+
+  record <- list(
+    label          = label,
+    nrow           = nrow(data),
+    ncol           = ncol(data),
+    n_na_cols      = n_na_cols,
+    columns        = names(data),
+    object_size_mb = round(as.numeric(utils::object.size(data)) / 1024^2, 2),
+    recorded_at    = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
+  )
+
+  if (is.null(audit$snapshots)) audit$snapshots <- list()
+  audit$snapshots[[length(audit$snapshots) + 1L]] <- record
+
+  if (verbose) {
+    cli::cli_alert_success(
+      "audit snapshot {.val {label}}: {nrow(data)} rows x {ncol(data)} cols."
+    )
+  }
+
+  audit
+}
+
+
 #' @export
 print.ukbflow_audit <- function(x, ...) {
 
@@ -106,6 +198,8 @@ print.ukbflow_audit <- function(x, ...) {
   cli::cli_inform("dx_project: {.val {if (is.na(x$dx_project)) 'NA' else x$dx_project}}")
   n_extraction <- if (is.null(x$extraction)) 0L else length(x$extraction)
   cli::cli_inform("extraction records: {n_extraction}")
+  n_snapshots <- if (is.null(x$snapshots)) 0L else length(x$snapshots)
+  cli::cli_inform("snapshots: {n_snapshots}")
   cli::cli_inform("session_info: recorded")
 
   invisible(x)
