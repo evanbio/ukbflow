@@ -28,7 +28,7 @@
 
 ## 简介
 
-**ukbflow** 提供了一套完整的、RAP 原生的 UK Biobank 分析工作流 —— 从表型提取、疾病衍生，到关联分析和发表级图表，全程在 RAP 云端环境中运行。
+**ukbflow** 的定位是面向 UK Biobank 受控数据平台的 R-native、RAP-aware 工作流系统。它为表型提取、疾病衍生、关联分析、审计记录和发表级输出提供统一的工作流层，同时让个体水平数据保留在 RAP 环境中。
 
 > **UK Biobank 数据政策（2024+）**：个体水平数据必须保留在 RAP 环境中，不得下载到本地。`ukbflow` 旨在支持符合该约束的 RAP 原生分析流程；用户仍需确保仅下载获准的汇总级结果。
 
@@ -128,6 +128,16 @@ GRS 流程还需要 RAP 任务环境中可用的 `plink2`。
 | 最终病例定义 | 自报告 + ICD-10 衍生状态 / 日期 | `derive_case()` |
 
 ICD-9、OPCS-4、Read v2、CTV3 以及其他 GP / primary-care 编码系统暂不属于当前 public API。
+
+---
+
+## 局限性
+
+`ukbflow` 是工作流系统，不替代底层 RAP 和统计工具。它围绕 dx-toolkit /
+DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS 流程进行封装、编排与记录。
+它不提供通用 DAG 调度器，不估算 RAP 费用，不替代 DNAnexus 界面，也不替代研究设计、
+协变量选择、表型有效性判断或因果解释。当前 public phenotype helpers 聚焦上表列出的
+UKB 数据来源，暂不覆盖 GP / primary-care 编码系统。
 
 ---
 

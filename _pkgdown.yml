@@ -58,7 +58,7 @@ template:
   includes:
     in_header: |
       <meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics">
-      <meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)">
+      <meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)">
       <meta name="author" content="Evan Zhou">
 
       <!-- Enhanced Favicon -->
@@ -131,12 +131,12 @@ template:
 
 home:
   title: ukbflow
-  subtitle: "RAP-native R Workflow for UK Biobank Analysis"
+  subtitle: "R-native, RAP-aware workflow system for UK Biobank analysis"
   description: >
-    An R package for UK Biobank cloud-based analysis on the Research Analysis
-    Platform (RAP). Covers phenotype extraction, variable derivation, survival
-    and association analysis, genetic risk score computation, and
-    publication-quality visualization.
+    A workflow system for UK Biobank controlled-data analysis on the Research
+    Analysis Platform (RAP). Covers phenotype extraction, variable derivation,
+    survival and association analysis, genetic risk score computation, audit
+    records, and publication-quality visualization.
   strip_header: false
 
   sidebar:
@@ -431,7 +431,6 @@ reference:
   - audit_model
   - audit_job
   - audit_write
-  - summary.ukbflow_audit
 
 - title: "Visualisation"
   desc: >

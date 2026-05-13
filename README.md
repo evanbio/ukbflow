@@ -28,7 +28,7 @@
 
 ## Overview
 
-**ukbflow** provides a streamlined, RAP-native R workflow for UK Biobank analysis — from phenotype extraction and disease derivation to association analysis and publication-quality figures.
+**ukbflow** is an R-native, RAP-aware workflow system for UK Biobank controlled-data analysis. It provides a coherent workflow layer for phenotype extraction, disease derivation, association analysis, audit records, and publication-quality outputs while keeping individual-level data inside the RAP environment.
 
 > **UK Biobank Data Policy (2024+)**: Individual-level data must remain within the RAP environment. Only summary-level outputs may be downloaded locally. `ukbflow` is designed to support RAP-native workflows under this constraint; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.
 
@@ -130,6 +130,19 @@ are routinely available in phenotype extraction workflows:
 
 ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems are not
 part of the current public API.
+
+---
+
+## Limitations
+
+`ukbflow` is a workflow system, not a replacement for the underlying RAP and
+statistical tools. It orchestrates and records common analysis steps around
+dx-toolkit / DNAnexus jobs, R modelling functions, plotting packages, and
+PLINK2-based GRS workflows. It does not provide a general DAG scheduler,
+estimate RAP costs, replace the DNAnexus interface, or determine study design,
+covariate choice, phenotype validity, or causal interpretation. Current public
+phenotype helpers focus on the UKB sources listed above and do not cover GP /
+primary-care code systems.
 
 ---
 
