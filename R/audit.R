@@ -187,6 +187,59 @@ audit_snapshot <- function(audit, data = NULL, label = NULL, reset = FALSE,
 }
 
 
+#' Write a ukbflow audit manifest
+#'
+#' Writes a \code{ukbflow_audit} object to a JSON manifest. The manifest is a
+#' plain-list representation of the audit object: session information is
+#' converted to character lines, and record layers such as \code{extraction}
+#' and \code{snapshots} are written as JSON arrays.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param file (character) Output JSON file path. Default:
+#'   \code{"ukbflow-audit.json"}.
+#' @param overwrite (logical) Overwrite \code{file} if it already exists.
+#'   Default: \code{FALSE}.
+#'
+#' @return Invisibly returns the normalized output path.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' outfile <- tempfile(fileext = ".json")
+#' audit_write(aud, outfile)
+audit_write <- function(audit, file = "ukbflow-audit.json", overwrite = FALSE) {
+
+  .assert_audit(audit)
+  .assert_scalar_string(file)
+  .assert_flag(overwrite)
+
+  out_dir <- dirname(file)
+  if (!dir.exists(out_dir)) {
+    cli::cli_abort("Output directory does not exist: {.path {out_dir}}", call = NULL)
+  }
+  if (file.exists(file) && !overwrite) {
+    cli::cli_abort(
+      "Output file already exists: {.path {file}}. Use {.code overwrite = TRUE}.",
+      call = NULL
+    )
+  }
+
+  manifest <- .audit_as_manifest(audit)
+  jsonlite::write_json(
+    manifest,
+    path = file,
+    pretty = TRUE,
+    auto_unbox = TRUE,
+    null = "null"
+  )
+
+  out_path <- normalizePath(file, winslash = "/", mustWork = TRUE)
+  cli::cli_alert_success("audit manifest written: {.path {out_path}}")
+  invisible(out_path)
+}
+
+
 #' @export
 print.ukbflow_audit <- function(x, ...) {
 
@@ -218,4 +271,51 @@ print.ukbflow_audit <- function(x, ...) {
     )
   }
   invisible(x)
+}
+
+
+#' Convert a ukbflow audit object to a JSON-safe manifest list
+#'
+#' @keywords internal
+#' @noRd
+.audit_as_manifest <- function(audit) {
+  .assert_audit(audit)
+
+  extraction <- if (is.null(audit$extraction)) {
+    list()
+  } else {
+    lapply(audit$extraction, function(record) {
+      if (length(record$field_id) == 1L) {
+        record$field_id <- list(record$field_id)
+      }
+      record
+    })
+  }
+
+  snapshots <- if (is.null(audit$snapshots)) {
+    list()
+  } else {
+    lapply(audit$snapshots, function(record) {
+      if (length(record$columns) == 1L) {
+        record$columns <- list(record$columns)
+      }
+      record
+    })
+  }
+
+  session_info <- capture.output(print(audit$session_info))
+  if (length(session_info) == 1L) {
+    session_info <- list(session_info)
+  }
+
+  list(
+    name            = audit$name,
+    start_time      = audit$start_time,
+    ukbflow_version = audit$ukbflow_version,
+    dx_user         = audit$dx_user,
+    dx_project      = audit$dx_project,
+    session_info    = session_info,
+    extraction      = extraction,
+    snapshots       = snapshots
+  )
 }

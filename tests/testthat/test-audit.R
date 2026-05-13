@@ -209,6 +209,90 @@ test_that("audit_snapshot() verbose=FALSE produces no messages", {
 
 
 # ===========================================================================
+# audit_write()
+# ===========================================================================
+
+test_that("audit_write() writes a JSON manifest", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 53), label = "core_fields")
+  aud <- audit_snapshot(
+    aud,
+    data.frame(eid = 1:2, x = c(1, NA)),
+    "raw",
+    verbose = FALSE
+  )
+  file <- withr::local_tempfile(fileext = ".json")
+
+  out <- suppressMessages(audit_write(aud, file))
+  manifest <- jsonlite::read_json(file, simplifyVector = TRUE)
+
+  expect_equal(out, normalizePath(file, winslash = "/", mustWork = TRUE))
+  expect_equal(manifest$name, "example_analysis")
+  expect_equal(manifest$extraction$n_fields, 2L)
+  expect_equal(manifest$snapshots$label, "raw")
+  expect_type(manifest$session_info, "character")
+})
+
+test_that("audit_write() preserves single field_id as a JSON array", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, 31)
+  file <- withr::local_tempfile(fileext = ".json")
+
+  suppressMessages(audit_write(aud, file))
+  raw <- paste(readLines(file), collapse = "\n")
+
+  expect_match(raw, '"field_id":\\s*\\[\\s*31\\s*\\]')
+})
+
+test_that("audit_write() preserves single snapshot column as a JSON array", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_snapshot(
+    aud,
+    data.frame(eid = 1:3),
+    "raw",
+    verbose = FALSE
+  )
+  file <- withr::local_tempfile(fileext = ".json")
+
+  suppressMessages(audit_write(aud, file))
+  raw <- paste(readLines(file), collapse = "\n")
+
+  expect_match(raw, '"columns":\\s*\\[\\s*"eid"\\s*\\]')
+})
+
+test_that("audit_write() refuses to overwrite by default", {
+  aud <- audit_start("example_analysis")
+  file <- withr::local_tempfile(fileext = ".json")
+  writeLines("{}", file)
+
+  expect_error(
+    suppressMessages(audit_write(aud, file)),
+    "already exists"
+  )
+})
+
+test_that("audit_write() can overwrite existing file", {
+  aud <- audit_start("example_analysis")
+  file <- withr::local_tempfile(fileext = ".json")
+  writeLines("{}", file)
+
+  expect_no_error(suppressMessages(audit_write(aud, file, overwrite = TRUE)))
+  manifest <- jsonlite::read_json(file, simplifyVector = TRUE)
+  expect_equal(manifest$name, "example_analysis")
+})
+
+test_that("audit_write() validates inputs", {
+  aud <- audit_start("example_analysis")
+  missing_dir_file <- file.path(tempdir(), "missing_dir_for_audit", "audit.json")
+
+  expect_error(audit_write(list(), tempfile(fileext = ".json")), "ukbflow_audit")
+  expect_error(audit_write(aud, file = 1), "file")
+  expect_error(audit_write(aud, overwrite = NA), "overwrite")
+  expect_error(audit_write(aud, file = missing_dir_file), "directory")
+})
+
+
+# ===========================================================================
 # print.ukbflow_audit()
 # ===========================================================================
 
