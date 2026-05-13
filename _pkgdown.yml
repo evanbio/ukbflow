@@ -429,6 +429,7 @@ reference:
   - audit_cols
   - audit_pheno
   - audit_model
+  - audit_job
   - audit_write
   - summary.ukbflow_audit
 

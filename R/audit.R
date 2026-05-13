@@ -358,6 +358,47 @@ audit_model <- function(audit, result, label = NULL, covariates = NULL) {
 }
 
 
+#' Record a DNAnexus job in an audit manifest
+#'
+#' Records a DNAnexus job ID and, when available, lightweight metadata from
+#' \code{dx describe job-XXXX --json}. The function is best-effort: if the job
+#' cannot be described in the current environment, the job ID is still recorded
+#' and metadata fields are set to \code{NA}. Cost is not estimated.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param job_id (character) DNAnexus job ID, e.g. \code{"job-XXXX"}.
+#' @param label (character or NULL) Optional label for this job record.
+#'   Default: \code{NULL}, which creates \code{"job_N"}.
+#'
+#' @return The updated \code{ukbflow_audit} object.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' \dontrun{
+#' job_id <- extract_batch(c(31, 53, 21022))
+#' aud <- audit_job(aud, job_id, "phenotype_extraction")
+#' }
+audit_job <- function(audit, job_id, label = NULL) {
+
+  .assert_audit(audit)
+  .assert_job_id(job_id)
+  if (!is.null(label)) .assert_scalar_string(label)
+
+  jobs <- audit$jobs
+  idx <- if (is.null(jobs)) 1L else length(jobs) + 1L
+  if (is.null(label)) label <- paste0("job_", idx)
+
+  desc <- tryCatch(.dx_job_describe(job_id), error = function(e) NULL)
+  record <- .audit_job_record(job_id, label, desc)
+
+  if (is.null(audit$jobs)) audit$jobs <- list()
+  audit$jobs[[length(audit$jobs) + 1L]] <- record
+  audit
+}
+
+
 #' Write a ukbflow audit manifest
 #'
 #' Writes a \code{ukbflow_audit} object to a JSON manifest. The manifest is a
@@ -501,6 +542,16 @@ summary.ukbflow_audit <- function(object, ...) {
       cli::cli_inform(
         "  - {record$label}: {record$method}, {n_exposures} exposure{?s}, {record$n_rows} result row{?s}"
       )
+    }
+  }
+
+  jobs <- object$jobs
+  n_jobs <- if (is.null(jobs)) 0L else length(jobs)
+  cli::cli_inform("jobs: {n_jobs}")
+  if (n_jobs > 0L) {
+    for (record in jobs) {
+      state_info <- if (is.na(record$state)) "" else paste0(" (", record$state, ")")
+      cli::cli_inform("  - {record$label}: {record$job_id}{state_info}")
     }
   }
 

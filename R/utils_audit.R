@@ -64,6 +64,12 @@
     audit$models
   }
 
+  jobs <- if (is.null(audit$jobs)) {
+    list()
+  } else {
+    audit$jobs
+  }
+
   list(
     name            = audit$name,
     start_time      = audit$start_time,
@@ -74,7 +80,8 @@
     extraction      = extraction,
     snapshots       = snapshots,
     phenotypes      = phenotypes,
-    models          = models
+    models          = models,
+    jobs            = jobs
   )
 }
 
@@ -204,4 +211,55 @@
   } else {
     "unknown"
   }
+}
+
+
+#' @keywords internal
+#' @noRd
+.audit_job_record <- function(job_id, label, desc = NULL) {
+  output_file_id <- if (is.null(desc)) {
+    NA_character_
+  } else {
+    tryCatch(.dx_job_output_id(desc), error = function(e) NA_character_)
+  }
+
+  list(
+    label           = label,
+    job_id          = job_id,
+    name            = .audit_chr_or_na(desc$name),
+    state           = .audit_chr_or_na(desc$state),
+    created         = .audit_job_created_or_na(desc$created),
+    failure_message = .audit_chr_or_na(desc$failureMessage %||% desc$failureReason),
+    output_file_id  = output_file_id,
+    recorded_at     = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
+  )
+}
+
+
+#' @keywords internal
+#' @noRd
+.audit_chr_or_na <- function(x) {
+  if (is.null(x) || length(x) == 0L || is.na(x[1L]) || !nzchar(as.character(x[1L]))) {
+    NA_character_
+  } else {
+    as.character(x[1L])
+  }
+}
+
+
+#' @keywords internal
+#' @noRd
+.audit_job_created_or_na <- function(x) {
+  if (is.null(x) || length(x) == 0L || is.na(x[1L])) {
+    return(NA_character_)
+  }
+
+  if (is.numeric(x)) {
+    return(format(
+      as.POSIXct(as.numeric(x[1L]) / 1000, origin = "1970-01-01", tz = "UTC"),
+      "%Y-%m-%dT%H:%M:%SZ"
+    ))
+  }
+
+  .audit_chr_or_na(x)
 }

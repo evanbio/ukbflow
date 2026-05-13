@@ -362,10 +362,72 @@ test_that("audit_model() validates inputs", {
 
 
 # ===========================================================================
+# audit_job()
+# ===========================================================================
+
+test_that("audit_job() records described job metadata when available", {
+  local_mocked_bindings(
+    .dx_job_describe = function(job_id) {
+      expect_equal(job_id, "job-XXXX")
+      list(
+        name = "Table exporter",
+        state = "done",
+        created = 1778659200000,
+        output = list(csv = list(list(`$dnanexus_link` = "file-XXXX")))
+      )
+    },
+    .package = "ukbflow"
+  )
+
+  aud <- audit_start("example_analysis")
+  aud <- audit_job(aud, "job-XXXX", "phenotype_extraction")
+
+  expect_length(aud$jobs, 1L)
+  rec <- aud$jobs[[1L]]
+  expect_equal(rec$label, "phenotype_extraction")
+  expect_equal(rec$job_id, "job-XXXX")
+  expect_equal(rec$name, "Table exporter")
+  expect_equal(rec$state, "done")
+  expect_equal(rec$created, "2026-05-13T08:00:00Z")
+  expect_equal(rec$output_file_id, "file-XXXX")
+})
+
+test_that("audit_job() records job_id when describe is unavailable", {
+  local_mocked_bindings(
+    .dx_job_describe = function(job_id) stop("dx unavailable"),
+    .package = "ukbflow"
+  )
+
+  aud <- audit_start("example_analysis")
+  aud <- audit_job(aud, "job-XXXX")
+
+  rec <- aud$jobs[[1L]]
+  expect_equal(rec$label, "job_1")
+  expect_equal(rec$job_id, "job-XXXX")
+  expect_true(is.na(rec$name))
+  expect_true(is.na(rec$state))
+  expect_true(is.na(rec$output_file_id))
+})
+
+test_that("audit_job() validates inputs", {
+  aud <- audit_start("example_analysis")
+
+  expect_error(audit_job(list(), "job-XXXX"), "ukbflow_audit")
+  expect_error(audit_job(aud, "notajob"), "job-XXXX")
+  expect_error(audit_job(aud, "job-XXXX", label = 1), "label")
+})
+
+
+# ===========================================================================
 # audit_write()
 # ===========================================================================
 
 test_that("audit_write() writes a JSON manifest", {
+  local_mocked_bindings(
+    .dx_job_describe = function(job_id) stop("dx unavailable"),
+    .package = "ukbflow"
+  )
+
   aud <- audit_start("example_analysis")
   aud <- audit_fields(aud, c(31, 53), label = "core_fields")
   aud <- audit_snapshot(
@@ -385,6 +447,7 @@ test_that("audit_write() writes a JSON manifest", {
     "cox_model",
     covariates = "age"
   )
+  aud <- audit_job(aud, "job-XXXX", "extract_job")
   file <- withr::local_tempfile(fileext = ".json")
 
   out <- suppressMessages(audit_write(aud, file))
@@ -398,6 +461,8 @@ test_that("audit_write() writes a JSON manifest", {
   expect_equal(manifest$phenotypes$combined$n_cases, 1L)
   expect_equal(manifest$models$label, "cox_model")
   expect_equal(manifest$models$results[[1L]]$HR, 1.1)
+  expect_equal(manifest$jobs$label, "extract_job")
+  expect_equal(manifest$jobs$job_id, "job-XXXX")
   expect_type(manifest$session_info, "character")
 })
 
@@ -481,6 +546,11 @@ test_that("print.ukbflow_audit() returns audit object invisibly", {
 # ===========================================================================
 
 test_that("summary.ukbflow_audit() prints a short audit summary", {
+  local_mocked_bindings(
+    .dx_job_describe = function(job_id) stop("dx unavailable"),
+    .package = "ukbflow"
+  )
+
   aud <- audit_start("example_analysis")
   aud <- audit_fields(aud, c(31, 53), label = "core_fields")
   aud <- audit_snapshot(
@@ -503,6 +573,7 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
     data.frame(exposure = "smoking", model = "Fully adjusted", HR = 1.2),
     "cox_model"
   )
+  aud <- audit_job(aud, "job-XXXX", "extract_job")
 
   visible <- NULL
   out <- capture.output(
@@ -520,4 +591,6 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
   expect_true(any(grepl("lung: 3 rows, 2 cases, timing 0/1/2 = 1/1/1", out, fixed = TRUE)))
   expect_true(any(grepl("models: 1", out, fixed = TRUE)))
   expect_true(any(grepl("cox_model: coxph, 1 exposure, 1 result row", out, fixed = TRUE)))
+  expect_true(any(grepl("jobs: 1", out, fixed = TRUE)))
+  expect_true(any(grepl("extract_job: job-XXXX", out, fixed = TRUE)))
 })

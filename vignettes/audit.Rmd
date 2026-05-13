@@ -30,6 +30,7 @@ A typical audit captures:
   missingness count, object size, and complete column names;
 - derived phenotype summaries from standard `derive_*` column names;
 - association result tables returned by `assoc_*`;
+- DNAnexus job IDs and lightweight job metadata when available;
 - a JSON manifest that can be saved with the analysis outputs.
 
 The examples below use synthetic data from `ops_toy()` and can be developed
@@ -71,10 +72,16 @@ aud <- audit_fields(aud, fields, label = "analysis_fields")
 
 # In a RAP workflow this same vector can be used for extraction:
 # job_id <- extract_batch(field_id = fields, file = "lung_analysis_pheno")
+# aud <- audit_job(aud, job_id, "phenotype_extraction")
 ```
 
 The manifest stores the declared field IDs, an optional dataset name, a label,
 the number of fields, and a timestamp.
+
+`audit_job()` records the DNAnexus job ID and any lightweight metadata available
+from `dx describe job-XXXX --json`, such as job state and output file ID. It
+does not estimate RAP cost; use the DNAnexus / RAP billing interface for cost
+review.
 
 ---
 
@@ -259,8 +266,8 @@ For most analyses, these are enough:
 5. `audit_snapshot()` after each major cohort exclusion.
 6. `audit_snapshot()` immediately before modelling.
 7. `audit_model()` after each main association result.
-8. `audit_write()` at the end of the script.
+8. `audit_job()` next to long-running RAP jobs when a job ID is available.
+9. `audit_write()` at the end of the script.
 
 Keep the audit close to the real workflow. Do not duplicate logic just for the
 manifest; record objects that already exist in the analysis.
-
