@@ -227,6 +227,74 @@ audit_cols <- function(audit, label) {
 }
 
 
+#' Record a derived phenotype audit summary
+#'
+#' Summarises phenotype columns created by the \code{derive_*} family using
+#' ukbflow's standard \code{name} prefix convention. The function records
+#' whichever columns are present and marks missing components as not present.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param data A data.frame or data.table containing derived phenotype columns.
+#' @param name (character) Phenotype prefix used by \code{derive_*}, e.g.
+#'   \code{"lung"} for \code{lung_status}, \code{lung_icd10}, and
+#'   \code{lung_timing}.
+#'
+#' @return The updated \code{ukbflow_audit} object.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' dt <- data.frame(
+#'   eid = 1:3,
+#'   lung_status = c(TRUE, FALSE, TRUE),
+#'   lung_date = as.Date(c("2020-01-01", NA, "2021-01-01"))
+#' )
+#' aud <- audit_pheno(aud, dt, "lung")
+audit_pheno <- function(audit, data, name) {
+
+  .assert_audit(audit)
+  .assert_data_frame(data)
+  .assert_scalar_string(name)
+
+  record <- list(
+    name        = name,
+    n           = nrow(data),
+    recorded_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z"),
+    selfreport  = .audit_status_date_record(data, name, "selfreport"),
+    icd10       = .audit_status_date_record(data, name, "icd10"),
+    sources     = list(
+      hes              = .audit_status_date_record(data, name, "hes"),
+      death            = .audit_status_date_record(data, name, "death"),
+      first_occurrence = .audit_status_date_record(data, name, "fo"),
+      cancer_registry  = .audit_status_date_record(data, name, "cancer")
+    ),
+    combined    = .audit_status_date_record(data, name, "status", date_suffix = "date"),
+    timing      = .audit_timing_record(data, name),
+    followup    = .audit_followup_record(data, name)
+  )
+
+  present <- c(
+    record$selfreport$present,
+    record$icd10$present,
+    vapply(record$sources, `[[`, logical(1L), "present"),
+    record$combined$present,
+    record$timing$present,
+    record$followup$present
+  )
+  if (!any(present)) {
+    cli::cli_abort(
+      "No phenotype columns found for name {.val {name}}.",
+      call = NULL
+    )
+  }
+
+  if (is.null(audit$phenotypes)) audit$phenotypes <- list()
+  audit$phenotypes[[length(audit$phenotypes) + 1L]] <- record
+  audit
+}
+
+
 #' Write a ukbflow audit manifest
 #'
 #' Writes a \code{ukbflow_audit} object to a JSON manifest. The manifest is a
@@ -334,6 +402,30 @@ summary.ukbflow_audit <- function(object, ...) {
       cli::cli_inform(
         "  - {record$label}: {record$nrow} rows x {record$ncol} cols"
       )
+    }
+  }
+
+  phenotypes <- object$phenotypes
+  n_phenotypes <- if (is.null(phenotypes)) 0L else length(phenotypes)
+  cli::cli_inform("phenotypes: {n_phenotypes}")
+  if (n_phenotypes > 0L) {
+    for (record in phenotypes) {
+      case_info <- if (isTRUE(record$combined$present)) {
+        paste0(", ", record$combined$n_cases, " cases")
+      } else {
+        ""
+      }
+      timing_info <- if (isTRUE(record$timing$present)) {
+        paste0(
+          ", timing 0/1/2 = ",
+          record$timing$no_disease, "/",
+          record$timing$prevalent, "/",
+          record$timing$incident
+        )
+      } else {
+        ""
+      }
+      cli::cli_inform("  - {record$name}: {record$n} rows{case_info}{timing_info}")
     }
   }
 

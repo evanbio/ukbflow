@@ -233,6 +233,73 @@ test_that("audit_cols() validates inputs", {
 
 
 # ===========================================================================
+# audit_pheno()
+# ===========================================================================
+
+test_that("audit_pheno() records available phenotype components", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(
+    eid = 1:5,
+    lung_selfreport = c(TRUE, FALSE, TRUE, FALSE, FALSE),
+    lung_selfreport_date = as.Date(c("2020-01-01", NA, "2020-02-01", NA, NA)),
+    lung_icd10 = c(FALSE, TRUE, FALSE, FALSE, FALSE),
+    lung_icd10_date = as.Date(c(NA, "2021-01-01", NA, NA, NA)),
+    lung_hes = c(FALSE, TRUE, FALSE, FALSE, FALSE),
+    lung_hes_date = as.Date(c(NA, "2021-01-01", NA, NA, NA)),
+    lung_status = c(TRUE, TRUE, TRUE, FALSE, FALSE),
+    lung_date = as.Date(c("2020-01-01", "2021-01-01", "2020-02-01", NA, NA)),
+    lung_timing = c(2L, 2L, 1L, 0L, 0L),
+    lung_followup_end = as.Date(rep("2022-10-31", 5L)),
+    lung_followup_years = c(1, 2, NA, 4, 5)
+  )
+
+  aud <- audit_pheno(aud, dt, "lung")
+
+  expect_length(aud$phenotypes, 1L)
+  rec <- aud$phenotypes[[1L]]
+  expect_equal(rec$name, "lung")
+  expect_equal(rec$n, 5L)
+  expect_true(rec$selfreport$present)
+  expect_equal(rec$selfreport$n_cases, 2L)
+  expect_equal(rec$icd10$n_cases, 1L)
+  expect_equal(rec$sources$hes$n_cases, 1L)
+  expect_false(rec$sources$death$present)
+  expect_equal(rec$combined$n_cases, 3L)
+  expect_equal(rec$timing$prevalent, 1L)
+  expect_equal(rec$timing$incident, 2L)
+  expect_equal(rec$followup$n_non_missing, 4L)
+})
+
+test_that("audit_pheno() records fixed framework for missing components", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(
+    eid = 1:3,
+    asthma_selfreport = c(TRUE, FALSE, FALSE)
+  )
+
+  aud <- audit_pheno(aud, dt, "asthma")
+  rec <- aud$phenotypes[[1L]]
+
+  expect_true(rec$selfreport$present)
+  expect_true(is.na(rec$selfreport$date_col))
+  expect_false(rec$icd10$present)
+  expect_false(rec$combined$present)
+  expect_false(rec$timing$present)
+  expect_false(rec$followup$present)
+})
+
+test_that("audit_pheno() validates inputs", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2)
+
+  expect_error(audit_pheno(list(), dt, "lung"), "ukbflow_audit")
+  expect_error(audit_pheno(aud, "not data", "lung"), "data.frame")
+  expect_error(audit_pheno(aud, dt, 1), "name")
+  expect_error(audit_pheno(aud, dt, "lung"), "No phenotype columns")
+})
+
+
+# ===========================================================================
 # audit_write()
 # ===========================================================================
 
@@ -245,6 +312,11 @@ test_that("audit_write() writes a JSON manifest", {
     "raw",
     verbose = FALSE
   )
+  aud <- audit_pheno(
+    aud,
+    data.frame(eid = 1:2, lung_status = c(TRUE, FALSE)),
+    "lung"
+  )
   file <- withr::local_tempfile(fileext = ".json")
 
   out <- suppressMessages(audit_write(aud, file))
@@ -254,6 +326,8 @@ test_that("audit_write() writes a JSON manifest", {
   expect_equal(manifest$name, "example_analysis")
   expect_equal(manifest$extraction$n_fields, 2L)
   expect_equal(manifest$snapshots$label, "raw")
+  expect_equal(manifest$phenotypes$name, "lung")
+  expect_equal(manifest$phenotypes$combined$n_cases, 1L)
   expect_type(manifest$session_info, "character")
 })
 
@@ -345,6 +419,15 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
     "analysis_ready",
     verbose = FALSE
   )
+  aud <- audit_pheno(
+    aud,
+    data.frame(
+      eid = 1:3,
+      lung_status = c(TRUE, FALSE, TRUE),
+      lung_timing = c(2L, 0L, 1L)
+    ),
+    "lung"
+  )
 
   visible <- NULL
   out <- capture.output(
@@ -358,4 +441,6 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
   expect_true(any(grepl("core_fields: 2 fields", out, fixed = TRUE)))
   expect_true(any(grepl("snapshots: 1", out, fixed = TRUE)))
   expect_true(any(grepl("analysis_ready: 3 rows x 2 cols", out, fixed = TRUE)))
+  expect_true(any(grepl("phenotypes: 1", out, fixed = TRUE)))
+  expect_true(any(grepl("lung: 3 rows, 2 cases, timing 0/1/2 = 1/1/1", out, fixed = TRUE)))
 })
