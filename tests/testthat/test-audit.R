@@ -209,6 +209,30 @@ test_that("audit_snapshot() verbose=FALSE produces no messages", {
 
 
 # ===========================================================================
+# audit_cols()
+# ===========================================================================
+
+test_that("audit_cols() returns complete columns for a snapshot label", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2, sex = c("F", "M"), x = 1:2)
+  aud <- audit_snapshot(aud, dt, "raw", verbose = FALSE)
+
+  expect_equal(audit_cols(aud, "raw"), names(dt))
+})
+
+test_that("audit_cols() validates inputs", {
+  aud <- audit_start("example_analysis")
+  dt <- data.frame(eid = 1:2)
+  aud <- audit_snapshot(aud, dt, "raw", verbose = FALSE)
+
+  expect_error(audit_cols(list(), "raw"), "ukbflow_audit")
+  expect_error(audit_cols(aud, 1), "label")
+  expect_error(audit_cols(audit_start("empty"), "raw"), "No snapshots")
+  expect_error(audit_cols(aud, "missing"), "missing")
+})
+
+
+# ===========================================================================
 # audit_write()
 # ===========================================================================
 

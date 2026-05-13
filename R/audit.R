@@ -187,6 +187,46 @@ audit_snapshot <- function(audit, data = NULL, label = NULL, reset = FALSE,
 }
 
 
+#' Retrieve column names from an audit snapshot
+#'
+#' Returns the complete column names recorded by \code{\link{audit_snapshot}}
+#' for a given snapshot label. Unlike \code{\link{ops_snapshot_cols}}, this
+#' helper does not exclude protected columns; it returns exactly the columns
+#' stored in the audit manifest.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param label (character) Snapshot label passed to
+#'   \code{\link{audit_snapshot}}.
+#'
+#' @return A character vector of column names.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' dt <- data.frame(eid = 1:3, x = c(1, NA, 3))
+#' aud <- audit_snapshot(aud, dt, "raw", verbose = FALSE)
+#' audit_cols(aud, "raw")
+audit_cols <- function(audit, label) {
+
+  .assert_audit(audit)
+  .assert_scalar_string(label)
+
+  snapshots <- audit$snapshots
+  if (is.null(snapshots) || length(snapshots) == 0L) {
+    cli::cli_abort("No snapshots recorded in {.arg audit}.", call = NULL)
+  }
+
+  labels <- vapply(snapshots, `[[`, "", "label")
+  idx <- match(label, labels)
+  if (is.na(idx)) {
+    cli::cli_abort("No audit snapshot found with label {.val {label}}.", call = NULL)
+  }
+
+  snapshots[[idx]]$columns
+}
+
+
 #' Write a ukbflow audit manifest
 #'
 #' Writes a \code{ukbflow_audit} object to a JSON manifest. The manifest is a
