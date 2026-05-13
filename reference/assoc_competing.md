@@ -77,8 +77,9 @@ assoc_fg(
 
 - base:
 
-  (logical) Whether to auto-detect age and sex columns and include an
-  Age and sex adjusted model. Default: `TRUE`.
+  (logical) Whether to auto-detect age and sex columns from standard UKB
+  or decoded names and include an Age and sex adjusted model. Default:
+  `TRUE`.
 
 - conf_level:
 
@@ -163,8 +164,8 @@ Three adjustment models are produced (where data allow):
 
 - **Unadjusted** - always included.
 
-- **Age and sex adjusted** - when `base = TRUE` and age/sex columns are
-  detected.
+- **Age and sex adjusted** - when `base = TRUE`; age/sex must be
+  detectable from standard UKB or decoded names.
 
 - **Fully adjusted** - when `covariates` is non-NULL.
 

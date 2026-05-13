@@ -20,6 +20,7 @@ simulate and generate a synthetic UK Biobank-style dataset for this
 analysis.
 
 ``` r
+
 library(ukbflow)
 
 data <- ops_toy(n = 500000, seed = 2026)
@@ -34,6 +35,7 @@ translates UKB field IDs into human-readable snake_case column names
 (e.g. `p31` → `sex`, `p21022` → `age_at_recruitment`).
 
 ``` r
+
 data <- decode_names(data)
 #> Field dictionary not cached - calling `extract_ls()` to populate it.
 #> Using dataset: "XXXXXXXXXXXXXXXXXXXXXXX"
@@ -55,6 +57,7 @@ We first handle non-informative missing codes (e.g. “Do not know”,
 [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md).
 
 ``` r
+
 data <- derive_missing(data)
 #> ✔ derive_missing: replaced 279650 values across 3 columns (action = "na").
 ```
@@ -63,6 +66,7 @@ Next, convert categorical columns to factors with
 [`derive_covariate()`](https://evanbio.github.io/ukbflow/reference/derive_covariate.md).
 
 ``` r
+
 data <- derive_covariate(
   data,
   as_factor = c(
@@ -88,6 +92,7 @@ using
 [`derive_cut()`](https://evanbio.github.io/ukbflow/reference/derive_cut.md).
 
 ``` r
+
 data <- derive_cut(
   data,
   col    = "p21001_i0",                              # body_mass_index_bmi_i0
@@ -123,6 +128,7 @@ Self-reported lung cancer (field 20001) is derived with
 which searches the cancer self-report columns for a matching label.
 
 ``` r
+
 data <- derive_selfreport(
   data,
   name  = "lung_cancer",
@@ -139,6 +145,7 @@ registry provides the most complete and accurate ascertainment and is
 therefore our primary source.
 
 ``` r
+
 data <- derive_icd10(
   data,
   name      = "lung",
@@ -156,6 +163,7 @@ merges the self-report and ICD-10 flags into a single case status and
 earliest date using an OR rule across sources.
 
 ``` r
+
 data <- derive_case(
   data,
   name                = "lung",
@@ -173,6 +181,7 @@ classifies each case as prevalent (disease before baseline) or incident
 analysis.
 
 ``` r
+
 data <- derive_timing(data, name = "lung", baseline_col = "p53_i0")  # date_of_attending_assessment_centre_i0
 #> ✔ derive_timing (lung_timing):
 #> ℹ   0 (no disease): 490890
@@ -187,6 +196,7 @@ taking the earliest of the event date, death date, and the
 administrative censoring date.
 
 ``` r
+
 data <- derive_followup(
   data,
   name         = "lung",
@@ -208,6 +218,7 @@ cleaner binary contrast, we collapse Previous and Current into a single
 “Ever” category, with “Never” as the reference level.
 
 ``` r
+
 data[, smoking_ever := factor(
   ifelse(p20116_i0 == "Never", "Never", "Ever"),
   levels = c("Never", "Ever")   # Never = reference
@@ -223,6 +234,7 @@ is a handy utility for recording cohort size at each step — the snapshot
 history can directly inform the flow diagram in your methods section.
 
 ``` r
+
 ops_snapshot(data, label = "raw")
 #> ── snapshot: raw ────────────────────────────────────────────────────────────
 #>   rows      500,000
@@ -235,6 +247,7 @@ Exclude participants with prevalent lung cancer (diagnosed at or before
 baseline) — they are not eligible for the incident analysis.
 
 ``` r
+
 data <- data[lung_timing != 1 | is.na(lung_timing)]
 ops_snapshot(data, label = "after excluding prevalent cases")
 #> ── snapshot: after excluding prevalent cases ─────────────────────────────────
@@ -248,6 +261,7 @@ Exclude participants with missing values in the exposure or any
 covariate.
 
 ``` r
+
 data <- data[!is.na(smoking_ever)  &
              !is.na(p31)           &   # sex
              !is.na(p21022)        &   # age_at_recruitment
@@ -276,6 +290,7 @@ ops_snapshot(data, label = "after excluding missing covariates")
 Review the full exclusion history.
 
 ``` r
+
 ops_snapshot()
 #> ── ops_snapshot history ─────────────────────────────────────────────────────
 #>    idx                              label timestamp   nrow  ncol n_na_cols size_mb
@@ -289,6 +304,7 @@ final cohort — exposure distribution, outcome ascertainment, and
 follow-up time.
 
 ``` r
+
 # Exposure distribution
 data[, .N, by = smoking_ever]
 
@@ -322,6 +338,7 @@ The function automatically produces three adjustment levels: unadjusted,
 age and sex adjusted, and fully adjusted.
 
 ``` r
+
 res <- assoc_coxph(
   data         = data,
   outcome_col  = "lung_status",
@@ -356,6 +373,7 @@ We first inspect the result table returned by
 [`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md).
 
 ``` r
+
 print(res)
 #>        exposure             term                model      n n_events person_years        HR  CI_lower
 #>          <char>           <char>                <ord>  <int>    <num>        <num>     <num>     <num>
@@ -377,6 +395,7 @@ relies on dplyr internally, so we convert the result to a plain
 data.frame first.
 
 ``` r
+
 res_df <- as.data.frame(res)
 ```
 
@@ -385,6 +404,7 @@ res_df <- as.data.frame(res)
 to produce a forest plot.
 
 ``` r
+
 p <- plot_forest(
   data       = res_df,
   est        = res_df$HR,
@@ -404,6 +424,7 @@ Or we can reshape `res_df` or add equal-length vectors to produce a
 publication-ready figure.
 
 ``` r
+
 p2 <- plot_forest(
   data       = res_df[, c("model", "n_events", "n", "p_value")],
   est        = res_df$HR,
@@ -424,6 +445,7 @@ To add a header row with an exposure label, prepend a row with `NA`
 estimates.
 
 ``` r
+
 res_pub <- rbind(
   data.frame(model = "Ever vs. Never", HR_label = "", p_value = NA,
              HR = NA, CI_lower = NA, CI_upper = NA, stringsAsFactors = FALSE),
@@ -467,6 +489,7 @@ show a demo — for more advanced usage see
 [`?plot_tableone`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md).
 
 ``` r
+
 t1 <- plot_tableone(
   data    = as.data.frame(data),
   vars    = c("p21022", "p31", "bmi_cat", "tdi_cat", "p1558_i0"),
@@ -512,6 +535,7 @@ print(t1)
 Session Info
 
 ``` r
+
 sessionInfo()
 #> R version 4.5.1 (2025-06-13 ucrt)
 #> Platform: x86_64-w64-mingw32/x64

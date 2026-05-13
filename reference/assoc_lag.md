@@ -20,6 +20,7 @@ assoc_lag(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 ```
@@ -56,13 +57,17 @@ assoc_lag(
 
 - base:
 
-  (logical) Auto-detect age and sex and include an Age and sex adjusted
-  model. Default: `TRUE`.
+  (logical) Auto-detect age and sex from standard UKB or decoded names
+  and include an Age and sex adjusted model. Default: `TRUE`.
 
 - strata:
 
   (character or NULL) Optional stratification variable passed to
   [`survival::strata()`](https://rdrr.io/pkg/survival/man/strata.html).
+
+- test:
+
+  (character) P-value method: `"wald"` (default) or `"lrt"`.
 
 - conf_level:
 
@@ -98,6 +103,11 @@ The same three adjustment models produced by
 are available here (**Unadjusted**, **Age and sex adjusted**, **Fully
 adjusted**).
 
+**P-value method**: `test = "wald"` returns term-level Wald p-values
+from `summary.coxph()`. `test = "lrt"` returns the exposure-level
+likelihood-ratio p-value from single-term deletion within each
+lag-specific analysis set.
+
 ## Examples
 
 ``` r
@@ -117,7 +127,7 @@ res <- assoc_lag(
 #> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
 #> 
 #> ── assoc_lag ───────────────────────────────────────────────────────────────────
-#> ℹ 3 lag periods x 1 exposure x 1 model
+#> ℹ 3 lag periods x 1 exposure x 1 model | test: wald
 #> 
 #> ── Lag: 0 years ──
 #> 

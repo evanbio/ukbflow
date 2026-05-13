@@ -9,10 +9,10 @@ via the DNAnexus `dx extract_dataset` and `table-exporter` tools.
 
 Two workflows are available:
 
-| Function                                                                          | Mode        | Scale                                     | Output                    |
-|-----------------------------------------------------------------------------------|-------------|-------------------------------------------|---------------------------|
-| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | Async job   | Large / production (typically 50+ fields) | job ID → CSV on RAP cloud |
-| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | Synchronous | Small (quick checks)                      | data.table in memory      |
+| Function | Mode | Scale | Output |
+|----|----|----|----|
+| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | Async job | Large / production (typically 50+ fields) | job ID → CSV on RAP cloud |
+| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | Synchronous | Small (quick checks) | data.table in memory |
 
 **[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
 is the recommended approach** for any serious analysis.
@@ -27,6 +27,7 @@ only.
 Ensure you are authenticated and have selected your project:
 
 ``` r
+
 library(ukbflow)
 
 auth_login()
@@ -42,6 +43,7 @@ Before extracting, use
 to explore what fields are approved for your project:
 
 ``` r
+
 # List all approved fields (cached after first call)
 extract_ls()
 
@@ -73,6 +75,7 @@ For large-scale or production extractions, submit an asynchronous
 table-exporter job on the RAP cloud:
 
 ``` r
+
 # Submit extraction job
 job_id <- extract_batch(c(31, 53, 21022, 22189))
 
@@ -93,6 +96,7 @@ The job runs asynchronously on the RAP cloud. The output CSV is saved to
 your RAP project and can be monitored with the `job_` series:
 
 ``` r
+
 job_status(job_id)        # check progress
 job_path(job_id)          # get cloud file path once complete
 job_result(job_id)        # read result as data.table (inside RAP only)
@@ -121,6 +125,7 @@ For small-scale interactive checks **inside the RAP RStudio
 environment**:
 
 ``` r
+
 df <- extract_pheno(c(31, 53, 21022))
 ```
 

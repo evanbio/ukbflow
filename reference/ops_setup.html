@@ -3,7 +3,7 @@
 authentication, and R package dependencies. Designed to be the first
 function a new user runs after installation."><meta property="og:description" content="Runs a four-block health check covering the dx CLI, dxpy (Python), RAP
 authentication, and R package dependencies. Designed to be the first
-function a new user runs after installation."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+function a new user runs after installation."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -90,6 +90,7 @@ function a new user runs after installation."><meta property="og:image" content=
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -166,19 +167,19 @@ errors, because the check itself does not require a live RAP connection.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">ops_setup</span><span class="op">(</span>check_dx <span class="op">=</span> <span class="cn">FALSE</span>, check_auth <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── ukbflow environment check ───────────────────────────────────────────────────</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> ukbflow 0.3.4 | R 4.5.3 | 2026-04-20</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> ukbflow 0.3.4 | R 4.6.0 | 2026-05-13</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── 3. R packages ───────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">cli</span>  3.6.6  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">data.table</span>  1.18.2.1  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">processx</span>  3.8.7  [core]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">data.table</span>  1.18.4  [core]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">processx</span>  3.9.0  [core]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">rlang</span>  1.2.0  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tools</span>  4.5.3  [core]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">curl</span>  7.0.0  [extract / fetch]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tools</span>  4.6.0  [core]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">curl</span>  7.1.0  [extract / fetch]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">jsonlite</span>  2.0.0  [extract / fetch]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">survival</span>  3.8.6  [assoc_coxph]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dplyr</span>  1.2.1  [assoc / derive]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyselect</span>  1.2.1  [assoc / derive]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forestploter</span>  1.1.3  [plot_forest]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forestploter</span>  1.1.4  [plot_forest]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">broom</span>  1.0.12  [plot_tableone]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">gt</span>  1.3.0  [plot_tableone]</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">gtsummary</span>  2.5.0  [plot_tableone]</span>

@@ -8,14 +8,14 @@ Research Analysis Platform (RAP). Because individual-level genotype data
 cannot be downloaded locally, all computationally intensive steps are
 executed as cloud jobs via the DNAnexus Swiss Army Knife app.
 
-| Function                                                                              | Where it runs    | Purpose                                                                                         |
-|---------------------------------------------------------------------------------------|------------------|-------------------------------------------------------------------------------------------------|
-| [`grs_check()`](https://evanbio.github.io/ukbflow/reference/grs_check.md)             | Local or RAP     | Validate and export a SNP weights file                                                          |
-| [`grs_bgen2pgen()`](https://evanbio.github.io/ukbflow/reference/grs_bgen2pgen.md)     | Submits RAP jobs | Convert UKB imputed BGEN files to PGEN                                                          |
-| [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)             | Submits RAP jobs | Score genotypes across chromosomes with plink2                                                  |
-| [`grs_standardize()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md) | Local or RAP     | Z-score standardise GRS columns                                                                 |
-| [`grs_zscore()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md)      | Local or RAP     | Alias for [`grs_standardize()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md) |
-| [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md)       | Local or RAP     | Assess predictive performance (OR/HR, AUC, C-index)                                             |
+| Function | Where it runs | Purpose |
+|----|----|----|
+| [`grs_check()`](https://evanbio.github.io/ukbflow/reference/grs_check.md) | Local or RAP | Validate and export a SNP weights file |
+| [`grs_bgen2pgen()`](https://evanbio.github.io/ukbflow/reference/grs_bgen2pgen.md) | Submits RAP jobs | Convert UKB imputed BGEN files to PGEN |
+| [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md) | Submits RAP jobs | Score genotypes across chromosomes with plink2 |
+| [`grs_standardize()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md) | Local or RAP | Z-score standardise GRS columns |
+| [`grs_zscore()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md) | Local or RAP | Alias for [`grs_standardize()`](https://evanbio.github.io/ukbflow/reference/grs_standardize.md) |
+| [`grs_validate()`](https://evanbio.github.io/ukbflow/reference/grs_validate.md) | Local or RAP | Assess predictive performance (OR/HR, AUC, C-index) |
 
 **Typical pipeline:**
 
@@ -42,6 +42,7 @@ plink2-compatible space-delimited output.
 | `beta`          | Effect size (log-OR or beta); must be numeric  |
 
 ``` r
+
 library(ukbflow)
 
 # Local: weights file on your machine
@@ -62,6 +63,7 @@ w <- grs_check("weights.csv", dest = "weights_clean.txt")
 ```
 
 ``` r
+
 # On RAP (RStudio) -- use /mnt/project/ paths directly
 w <- grs_check(
   file = "/mnt/project/weights/weights.csv",
@@ -84,6 +86,7 @@ This function is called from your local machine or RAP RStudio – the
 heavy lifting runs entirely in the cloud.
 
 ``` r
+
 # Test on the smallest chromosome first
 ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
 #> Uploading 'grs_bgen2pgen_std.R' to RAP ...
@@ -94,6 +97,7 @@ ids <- grs_bgen2pgen(chr = 22, dest = "/pgen/", priority = "high")
 ```
 
 ``` r
+
 # Full run: small chromosomes on standard, large on upgraded instance
 ids_small <- grs_bgen2pgen(chr = 17:22, dest = "/pgen/")
 ids_large <- grs_bgen2pgen(chr = 1:16,  dest = "/pgen/", instance = "large")
@@ -133,6 +137,7 @@ uploads your weights file(s) and submits one plink2 scoring job per GRS.
 Each job scores all 22 chromosomes and saves a single CSV to RAP.
 
 ``` r
+
 ids <- grs_score(
   file     = c(
     grs_a = "weights/grs_a_weights.txt",
@@ -159,6 +164,7 @@ When running from RAP RStudio with weights already at the project root,
 the upload step is skipped automatically:
 
 ``` r
+
 # On RAP: weights already at /mnt/project/grs_a_weights.txt
 ids <- grs_score(
   file     = c(grs_a = "/mnt/project/grs_a_weights.txt"),
@@ -186,6 +192,7 @@ GRS column so that effect estimates are interpretable as per-SD
 associations.
 
 ``` r
+
 # Auto-detect all columns containing "grs" (case-insensitive)
 cohort <- grs_standardize(cohort)
 #> Auto-detected 2 GRS column(s): 'GRS_a', 'GRS_b'
@@ -194,6 +201,7 @@ cohort <- grs_standardize(cohort)
 ```
 
 ``` r
+
 # Or specify columns explicitly
 cohort <- grs_standardize(cohort, grs_cols = c("GRS_a", "GRS_b"))
 ```
@@ -221,6 +229,7 @@ runs four complementary validation analyses for each GRS:
 ### Logistic (cross-sectional)
 
 ``` r
+
 res <- grs_validate(
   data        = cohort,
   grs_cols    = c("GRS_a_z", "GRS_b_z"),
@@ -240,6 +249,7 @@ res$discrimination
 ### Cox (survival)
 
 ``` r
+
 res <- grs_validate(
   data        = cohort,
   grs_cols    = c("GRS_a_z", "GRS_b_z"),
@@ -256,12 +266,12 @@ res$discrimination  # C-index with 95% CI
 
 **Return value:** a named list with four `data.table` elements.
 
-| Element          | Columns (logistic)                                                   | Columns (Cox)                            |
-|------------------|----------------------------------------------------------------------|------------------------------------------|
-| `per_sd`         | `exposure`, `term`, `model`, `OR`, `CI_lower`, `CI_upper`, `p_value` | same with `HR`                           |
-| `high_vs_low`    | same as `per_sd`                                                     | same with `HR`                           |
-| `trend`          | `exposure`, `model`, `p_trend`                                       | same                                     |
-| `discrimination` | `GRS`, `AUC`, `CI_lower`, `CI_upper`                                 | `GRS`, `C_index`, `CI_lower`, `CI_upper` |
+| Element | Columns (logistic) | Columns (Cox) |
+|----|----|----|
+| `per_sd` | `exposure`, `term`, `model`, `OR`, `CI_lower`, `CI_upper`, `p_value` | same with `HR` |
+| `high_vs_low` | same as `per_sd` | same with `HR` |
+| `trend` | `exposure`, `model`, `p_trend` | same |
+| `discrimination` | `GRS`, `AUC`, `CI_lower`, `CI_upper` | `GRS`, `C_index`, `CI_lower`, `CI_upper` |
 
 > AUC calculation requires the `pROC` package. Install with
 > `install.packages("pROC")` if needed.
@@ -271,6 +281,7 @@ res$discrimination  # C-index with 95% CI
 ## Complete Pipeline Example
 
 ``` r
+
 library(ukbflow)
 
 # 1. Validate weights (local)

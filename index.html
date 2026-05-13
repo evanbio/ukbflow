@@ -18,9 +18,9 @@
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="ukbflow">
-<meta name="description" content="An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Covers phenotype extraction, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
+<meta name="description" content="A workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP). Covers phenotype extraction, variable derivation, survival and association analysis, genetic risk score computation, audit records, and publication-quality visualization.
 ">
-<meta property="og:description" content="An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP). Covers phenotype extraction, variable derivation, survival and association analysis, genetic risk score computation, and publication-quality visualization.
+<meta property="og:description" content="A workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP). Covers phenotype extraction, variable derivation, survival and association analysis, genetic risk score computation, audit records, and publication-quality visualization.
 ">
 <meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png">
 <meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis">
@@ -28,7 +28,7 @@
 <meta name="twitter:creator" content="@evanbio">
 <meta name="twitter:site" content="@evanbio">
 <meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics">
-<meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)">
+<meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)">
 <meta name="author" content="Evan Zhou">
 <!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png">
@@ -124,6 +124,7 @@
     <li><a class="dropdown-item" href="articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -160,7 +161,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><strong>ukbflow</strong> provides a streamlined, RAP-native R workflow for UK Biobank analysis — from phenotype extraction and disease derivation to association analysis and publication-quality figures. It is designed to support workflows on the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a> under the 2024+ data policy requiring individual-level data to remain in the cloud; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.</p>
+<p><strong>ukbflow</strong> is an R-native, RAP-aware workflow system for UK Biobank controlled-data analysis. It provides a coherent workflow layer for phenotype extraction, disease derivation, association analysis, audit records, and publication-quality outputs. It is designed to support workflows on the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a> under the 2024+ data policy requiring individual-level data to remain in the cloud; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -187,7 +188,69 @@
 <p><strong>Association Analysis</strong> — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (<code>assoc_coxph</code>, <code>assoc_logistic</code>, <code>assoc_subgroup</code>)</p>
 <p><strong>Genomic Scoring</strong> — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardization (<code>grs_bgen2pgen</code>, <code>grs_score</code>, <code>grs_standardize</code>)</p>
 <p><strong>Visualization</strong> — Publication-ready forest plots and Table 1 outputs in common manuscript formats (<code>plot_forest</code>, <code>plot_tableone</code>)</p>
-<p><strong>Utilities</strong> — Verify environment before analysis; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (<code>ops_setup</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>, <code>ops_withdraw</code>)</p>
+<p><strong>Utilities</strong> — Verify environment before analysis; search approved project fields and look up common UKB field IDs; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (<code>ops_setup</code>, <code>ops_fields</code>, <code>ops_fields_common</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>, <code>ops_withdraw</code>)</p>
+<p><strong>Analysis Audit</strong> — Create lightweight JSON manifests for reproducibility: field IDs, dataset snapshots, derived phenotype summaries, model result tables, RAP jobs, and session metadata (<code>audit_start</code>, <code>audit_fields</code>, <code>audit_snapshot</code>, <code>audit_pheno</code>, <code>audit_model</code>, <code>audit_job</code>, <code>audit_write</code>)</p>
+</div>
+<div class="section level2">
+<h2 id="supported-phenotype-sources">Supported Phenotype Sources<a class="anchor" aria-label="anchor" href="#supported-phenotype-sources"></a>
+</h2>
+<p><code>ukbflow</code> currently focuses on common UK Biobank disease-phenotype sources that are routinely available in phenotype extraction workflows:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Source</th>
+<th>Code system / field type</th>
+<th>Main function(s)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Self-reported illness / cancer</td>
+<td>UKB fields <code>20002</code> / <code>20001</code>
+</td>
+<td><code><a href="reference/derive_selfreport.html">derive_selfreport()</a></code></td>
+</tr>
+<tr>
+<td>HES inpatient diagnoses</td>
+<td>ICD-10, any-position field <code>41270</code> with dates from <code>41280</code>; primary/secondary position is not currently configurable</td>
+<td><code><a href="reference/derive_hes.html">derive_hes()</a></code></td>
+</tr>
+<tr>
+<td>First Occurrence fields</td>
+<td>UKB precomputed <code>p131xxx</code> dates</td>
+<td><code><a href="reference/derive_first_occurrence.html">derive_first_occurrence()</a></code></td>
+</tr>
+<tr>
+<td>Cancer registry</td>
+<td>ICD-10, histology, behaviour, diagnosis date</td>
+<td><code><a href="reference/derive_cancer_registry.html">derive_cancer_registry()</a></code></td>
+</tr>
+<tr>
+<td>Death registry</td>
+<td>ICD-10 primary / secondary cause of death</td>
+<td><code><a href="reference/derive_death_registry.html">derive_death_registry()</a></code></td>
+</tr>
+<tr>
+<td>Multi-source ICD-10 phenotype</td>
+<td>HES, death, First Occurrence, cancer registry</td>
+<td><code><a href="reference/derive_icd10.html">derive_icd10()</a></code></td>
+</tr>
+<tr>
+<td>Final case definition</td>
+<td>Self-report plus ICD-10-derived status/date</td>
+<td><code><a href="reference/derive_case.html">derive_case()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems are not part of the current public API.</p>
+</div>
+<div class="section level2">
+<h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
+</h2>
+<p><code>ukbflow</code> is a workflow system, not a replacement for the underlying RAP and statistical tools. It orchestrates and records common analysis steps around dx-toolkit / DNAnexus jobs, R modelling functions, plotting packages, and PLINK2-based GRS workflows. It does not provide a general DAG scheduler, estimate RAP costs, replace the DNAnexus interface, or determine study design, covariate choice, phenotype validity, or causal interpretation. Current public phenotype helpers focus on the UKB sources listed above and do not cover GP / primary-care code systems.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
@@ -240,6 +303,8 @@
 <strong><a href="https://ukbflow.evanzhou.org" class="external-link">ukbflow Book</a></strong> — Practical RAP-native workflows, examples, and module notes</li>
 <li>
 <strong><a href="articles/get-started.html">Get Started</a></strong> — Installation and end-to-end workflow</li>
+<li>
+<strong><a href="articles/audit.html">Analysis Audit</a></strong> — Lightweight manifests for reproducible analyses</li>
 <li>
 <strong><a href="reference/index.html">Function Reference</a></strong> — Complete API documentation</li>
 <li>

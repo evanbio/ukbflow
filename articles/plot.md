@@ -5,10 +5,10 @@
 Two functions produce publication-ready figures and tables with minimal
 post-processing:
 
-| Function                                                                          | Output                               | Typical use                         |
-|-----------------------------------------------------------------------------------|--------------------------------------|-------------------------------------|
-| [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)     | Forest plot (PNG / PDF / JPG / TIFF) | Regression results from `assoc_*()` |
-| [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md) | Table 1 (DOCX / HTML / PDF / PNG)    | Baseline characteristics            |
+| Function | Output | Typical use |
+|----|----|----|
+| [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md) | Forest plot (PNG / PDF / JPG / TIFF) | Regression results from `assoc_*()` |
+| [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md) | Table 1 (DOCX / HTML / PDF / PNG) | Baseline characteristics |
 
 When `save = TRUE`, both functions write all supported formats in a
 single call and return the plot/table object invisibly for further
@@ -26,6 +26,7 @@ additional display columns. The CI graphic and formatted `OR (95% CI)`
 text column are inserted automatically.
 
 ``` r
+
 library(ukbflow)
 
 df <- data.frame(
@@ -56,6 +57,7 @@ The output of
 [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md):
 
 ``` r
+
 dt  <- ops_toy(scenario = "association")
 dt  <- dt[dm_timing != 1L]
 
@@ -94,6 +96,7 @@ plot(p)
 **CI appearance**
 
 ``` r
+
 # uses df, est, lower, upper from the minimal example above
 p <- plot_forest(
   data      = df,
@@ -110,6 +113,7 @@ p <- plot_forest(
 **Row labels and indentation**
 
 ``` r
+
 # indent = 0 → bold parent row; indent >= 1 → indented sub-row (plain)
 p <- plot_forest(
   data       = df,
@@ -123,6 +127,7 @@ p <- plot_forest(
 **P-value formatting**
 
 ``` r
+
 # p_cols: column names in data that contain raw numeric p-values.
 # Values < 10^(-p_digits) are displayed as e.g. "<0.001".
 # bold_p = TRUE bolds all p < p_threshold (default 0.05).
@@ -145,6 +150,7 @@ the `gap_ci` graphic column and the auto-generated `OR (95% CI)` text
 column. Pass `""` for the gap column position.
 
 ``` r
+
 # data has 3 columns → final table has 5 columns (original 3 + gap_ci + OR label)
 # Layout with ci_column = 3L: item | Cases/N | gap_ci | OR (95% CI) | p_value
 p <- plot_forest(
@@ -161,6 +167,7 @@ columns: `-1` = left, `0` = centre, `1` = right. `NULL` (default)
 left-aligns column 1 and centres the rest.
 
 ``` r
+
 p <- plot_forest(
   data      = df,
   est       = est, lower = lower, upper = upper,
@@ -172,6 +179,7 @@ p <- plot_forest(
 **Background and borders**
 
 ``` r
+
 p <- plot_forest(
   data       = df,
   est        = est, lower = lower, upper = upper,
@@ -186,6 +194,7 @@ p <- plot_forest(
 **Layout and saving**
 
 ``` r
+
 # uses df, est, lower, upper from the minimal example above
 p <- plot_forest(
   data        = df,
@@ -211,6 +220,7 @@ p <- plot_forest(
 ### Minimal example
 
 ``` r
+
 library(gtsummary)
 data(trial)   # built-in gtsummary dataset
 
@@ -225,6 +235,7 @@ plot_tableone(
 ### With SMD, custom labels, and export
 
 ``` r
+
 plot_tableone(
   data    = trial,
   vars    = c("age", "marker", "grade", "stage"),
@@ -243,6 +254,7 @@ plot_tableone(
 **Variable types and statistics**
 
 ``` r
+
 dt <- as.data.frame(ops_toy(scenario = "association"))
 
 plot_tableone(
@@ -267,6 +279,7 @@ variables: Cohen’s *d* (pooled-SD formula) - Categorical variables: RMSD
 of group proportions
 
 ``` r
+
 plot_tableone(
   data    = dt,
   vars    = c("p21022", "p21001_i0", "p31"),
@@ -282,6 +295,7 @@ Use `exclude_labels` to remove specific level rows from the rendered
 table (e.g. a redundant reference category or an “Unknown” level):
 
 ``` r
+
 plot_tableone(
   data           = dt,
   vars           = c("p31", "p20116_i0"),
@@ -295,12 +309,12 @@ plot_tableone(
 
 When `save = TRUE`, four files are written simultaneously:
 
-| Format  | Tool                                                                               | Notes                       |
-|---------|------------------------------------------------------------------------------------|-----------------------------|
-| `.docx` | [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html)                     | Ready for Word submission   |
-| `.html` | [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html)                     | Interactive preview         |
-| `.pdf`  | [`pagedown::chrome_print()`](https://rdrr.io/pkg/pagedown/man/chrome_print.html)   | Requires Chrome / Chromium  |
-| `.png`  | [`webshot2::webshot()`](https://rstudio.github.io/webshot2/reference/webshot.html) | 2x zoom, table element only |
+| Format | Tool | Notes |
+|----|----|----|
+| `.docx` | [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html) | Ready for Word submission |
+| `.html` | [`gt::gtsave()`](https://gt.rstudio.com/reference/gtsave.html) | Interactive preview |
+| `.pdf` | [`pagedown::chrome_print()`](https://rdrr.io/pkg/pagedown/man/chrome_print.html) | Requires Chrome / Chromium |
+| `.png` | [`webshot2::webshot()`](https://rstudio.github.io/webshot2/reference/webshot.html) | 2x zoom, table element only |
 
 > PDF and PNG rendering requires `pagedown` and `webshot2` respectively.
 > Install with `install.packages(c("pagedown", "webshot2"))`.

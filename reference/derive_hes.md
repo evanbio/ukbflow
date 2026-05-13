@@ -47,6 +47,8 @@ derive_hes(
 - disease_cols:
 
   (character or NULL) Name of the `p41270` column. `NULL` = auto-detect.
+  This should be the any-position HES ICD-10 diagnosis field, not the
+  main-only (`p41202`) or secondary-only (`p41204`) summary fields.
 
 - date_cols:
 
@@ -59,6 +61,12 @@ The input `data` with two new columns added in-place: `{name}_hes`
 (logical) and `{name}_hes_date` (IDate). Always returns a `data.table`.
 
 ## Details
+
+**Diagnosis position**: `derive_hes()` uses field `p41270`, which
+represents any recorded HES inpatient ICD-10 diagnosis position. A
+participant is counted as a case if any matching ICD-10 code appears in
+`p41270`. The function does not currently distinguish main/primary
+diagnoses (`p41202`) from secondary diagnoses (`p41204`).
 
 - `{name}_hes`:
 

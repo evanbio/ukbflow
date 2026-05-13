@@ -16,6 +16,8 @@ assoc_coxph(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
+  cluster_col = NULL,
   conf_level = 0.95
 )
 
@@ -27,6 +29,8 @@ assoc_cox(
   covariates = NULL,
   base = TRUE,
   strata = NULL,
+  test = c("wald", "lrt"),
+  cluster_col = NULL,
   conf_level = 0.95
 )
 ```
@@ -71,6 +75,17 @@ assoc_cox(
   (character or NULL) Optional stratification variable. Passed to
   [`survival::strata()`](https://rdrr.io/pkg/survival/man/strata.html)
   in the Cox formula.
+
+- test:
+
+  (character) P-value method for Cox models: `"wald"` (default) or
+  `"lrt"`.
+
+- cluster_col:
+
+  (character or NULL) Optional clustering variable for cluster-robust
+  Cox variance, added to the model as `cluster(cluster_col)`. When
+  supplied, `test` must be `"wald"`.
 
 - conf_level:
 
@@ -124,7 +139,8 @@ model combination, and the following columns:
 
 - `p_value`:
 
-  Wald test p-value.
+  P-value from the method selected by `test`. When `cluster_col` is
+  supplied, this is the cluster-robust Wald p-value.
 
 - `HR_label`:
 
@@ -134,9 +150,9 @@ model combination, and the following columns:
 
 - **Unadjusted** - no covariates (crude).
 
-- **Age and sex adjusted** - age + sex auto-detected from the data via
-  UKB field IDs (21022 and 31). Skipped with a warning if either column
-  cannot be found.
+- **Age and sex adjusted** - age + sex auto-detected from standard UKB
+  names (`p21022`/`p31`) or decoded names (`age_at_recruitment`/`sex`).
+  Errors if either column cannot be found.
 
 - **Fully adjusted** - the covariates supplied via the `covariates`
   argument. Only run when `covariates` is non-NULL.
@@ -153,6 +169,15 @@ internally.
 - *Factor* - produces one `term` row per non-reference level.
 
 - *Numeric* (continuous) - produces one `term` row per model.
+
+**P-value method**: `test = "wald"` returns the term-level Wald p-value
+from `summary.coxph()`. `test = "lrt"` returns the exposure-level
+likelihood-ratio p-value from single-term deletion
+(`drop1(..., test = "Chisq")`); for factor exposures, the same overall
+exposure p-value is repeated across the non-reference level rows. When
+`cluster_col` is supplied, only `test = "wald"` is supported; the Wald
+p-value and confidence interval use the cluster-robust variance from
+`summary.coxph()`.
 
 ## Examples
 

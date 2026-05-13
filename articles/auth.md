@@ -34,6 +34,7 @@ local file that is never committed to git. This keeps the token out of
 your scripts entirely.
 
 ``` r
+
 usethis::edit_r_environ()
 # Add the following line, then save and restart R:
 # DX_API_TOKEN=your_token_here
@@ -50,6 +51,7 @@ automatically.
 ### Local → RAP
 
 ``` r
+
 library(ukbflow)
 
 auth_login()  # reads DX_API_TOKEN from environment
@@ -65,6 +67,7 @@ If you prefer to pass the token directly (e.g., in an interactive
 session), you can do so:
 
 ``` r
+
 auth_login("your_token_here")
 ```
 
@@ -78,6 +81,7 @@ When running inside the RAP RStudio environment, authentication is
 handled automatically by the platform. No login step is required:
 
 ``` r
+
 library(ukbflow)
 
 auth_status()  # verify the current session
@@ -88,6 +92,7 @@ auth_status()  # verify the current session
 ## Checking Authentication Status
 
 ``` r
+
 auth_status()
 #> • User:    "user-XXXXXXXXXXXX"
 #> • Project: "project-XXXXXXXXXXXX"
@@ -102,6 +107,7 @@ session before running any analysis.
 ## Listing Available Projects
 
 ``` r
+
 auth_list_projects()
 #> project-XXXXXXXXXXXX : My UKB Project (CONTRIBUTOR)
 #> project-YYYYYYYYYYYY : Shared Analysis Project (VIEW)
@@ -117,6 +123,7 @@ are required for
 ## Selecting a Project
 
 ``` r
+
 auth_select_project("project-XXXXXXXXXXXX")
 #> ✔ Project selected: "project-XXXXXXXXXXXX"
 ```
@@ -133,6 +140,7 @@ persists across sessions.
 ## Logging Out
 
 ``` r
+
 auth_logout()
 #> ✔ Logged out from DNAnexus.
 ```
@@ -154,6 +162,7 @@ When a token expires:
 - Generate a new token from the DNAnexus platform and log in again:
 
 ``` r
+
 auth_login("your_new_token_here")
 ```
 
@@ -166,6 +175,7 @@ without arguments.
 ## Full Local → RAP Workflow
 
 ``` r
+
 library(ukbflow)
 
 auth_login()                                 # authenticate

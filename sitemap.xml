@@ -5,6 +5,7 @@
 <url><loc>https://evanbio.github.io/ukbflow/LICENSE.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/README_zh.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/assoc.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/articles/audit.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/auth.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/decode.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/articles/derive-survival.html</loc></url>
@@ -30,6 +31,14 @@
 <url><loc>https://evanbio.github.io/ukbflow/reference/assoc_logistic.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/assoc_subgroup.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/assoc_trend.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_cols.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_fields.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_job.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_model.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_pheno.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_snapshot.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_start.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/audit_write.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/auth_list_projects.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/auth_login.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/auth_logout.html</loc></url>
@@ -70,6 +79,8 @@
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_result.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_status.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/job_wait.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_fields.html</loc></url>
+<url><loc>https://evanbio.github.io/ukbflow/reference/ops_fields_common.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/ops_na.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/ops_set_safe_cols.html</loc></url>
 <url><loc>https://evanbio.github.io/ukbflow/reference/ops_setup.html</loc></url>

@@ -5,10 +5,10 @@
 Raw UKB phenotype data contains encoded column names and values that
 need to be converted before analysis.
 
-| Source                                                                            | Column names      | Column values                                                                                                                    |
-|-----------------------------------------------------------------------------------|-------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | `participant.p31` | Raw integer codes — needs [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)                      |
-| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | `p31`, `p53_i0`   | Usually already decoded — [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md) typically not needed |
+| Source | Column names | Column values |
+|----|----|----|
+| [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md) | `participant.p31` | Raw integer codes — needs [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md) |
+| [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md) | `p31`, `p53_i0` | Usually already decoded — [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md) typically not needed |
 
 Both outputs need
 [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
@@ -28,6 +28,7 @@ to convert field ID column names to human-readable snake_case.
 ## Recommended Workflow
 
 ``` r
+
 library(ukbflow)
 
 df <- extract_pheno(c(31, 54, 20116, 21022))
@@ -45,6 +46,7 @@ fields that have UKB encoding mappings. Continuous, date, text, and
 already-decoded fields are left unchanged.
 
 ``` r
+
 df <- decode_values(df)
 #> ✔ Decoded 3 categorical columns; 2 non-categorical columns unchanged.
 ```
@@ -53,6 +55,7 @@ It requires two metadata files from the UKB Showcase. Download them once
 with:
 
 ``` r
+
 fetch_metadata(dest_dir = "data/metadata")
 ```
 
@@ -62,6 +65,7 @@ to the same directory (default matches
 [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)):
 
 ``` r
+
 df <- decode_values(df, metadata_dir = "data/metadata")
 ```
 
@@ -85,6 +89,7 @@ renames columns from field ID format to snake_case labels using the
 approved UKB field dictionary available to your project.
 
 ``` r
+
 df <- decode_names(df)
 #> ✔ Renamed 5 columns.
 ```
@@ -113,6 +118,7 @@ characters are flagged with a warning (default: 60). Lower the threshold
 to catch more aggressively:
 
 ``` r
+
 df <- decode_names(df, max_nchar = 30)
 #> ! 1 column name longer than 30 characters - consider renaming manually:
 #> • date_of_attending_assessment_centre_i0
@@ -121,6 +127,7 @@ df <- decode_names(df, max_nchar = 30)
 Rename manually to something concise:
 
 ``` r
+
 names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"
 ```
 

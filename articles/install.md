@@ -24,12 +24,14 @@ two working modes:
 ### From CRAN *(recommended)*
 
 ``` r
+
 install.packages("ukbflow")
 ```
 
 ### From GitHub *(latest development version)*
 
 ``` r
+
 # Using pak (faster)
 install.packages("pak")
 pak::pkg_install("evanbio/ukbflow")
@@ -81,6 +83,7 @@ These packages are not installed automatically. Install them only if you
 need the corresponding features:
 
 ``` r
+
 # PDF export from plot_tableone() (requires Chrome / Chromium)
 install.packages("pagedown")
 
@@ -120,6 +123,7 @@ Settings \> API Tokens**. Store it in your `.Renviron` file (never in
 your script):
 
 ``` r
+
 usethis::edit_r_environ()
 # Add the following line, then save and restart R:
 # DX_API_TOKEN=your_token_here
@@ -128,6 +132,7 @@ usethis::edit_r_environ()
 Then authenticate:
 
 ``` r
+
 library(ukbflow)
 
 auth_login()                                 # reads DX_API_TOKEN automatically
@@ -146,6 +151,7 @@ Authentication is automatic inside the RAP environment. Verify the
 session with:
 
 ``` r
+
 library(ukbflow)
 
 auth_status()  # confirms user and active project
@@ -156,6 +162,7 @@ auth_status()  # confirms user and active project
 ## Verify Installation
 
 ``` r
+
 library(ukbflow)
 
 packageVersion("ukbflow")
@@ -169,12 +176,14 @@ ops_setup()   # checks R version, dxpy, DX_API_TOKEN, and key package versions
 ### From GitHub
 
 ``` r
+
 remotes::install_github("evanbio/ukbflow", force = TRUE)
 ```
 
 ### From CRAN
 
 ``` r
+
 update.packages("ukbflow")
 ```
 
@@ -198,6 +207,7 @@ DNAnexus API tokens have a limited validity period. If authentication
 fails, generate a new token from the DNAnexus platform and log in again:
 
 ``` r
+
 auth_login("your_new_token_here")
 ```
 
@@ -212,6 +222,7 @@ that require compilation.
 **Solution**: Configure a proxy before installing:
 
 ``` r
+
 Sys.setenv(http_proxy  = "http://your-proxy:port")
 Sys.setenv(https_proxy = "https://your-proxy:port")
 ```
@@ -221,6 +232,7 @@ Sys.setenv(https_proxy = "https://your-proxy:port")
 ## Uninstall
 
 ``` r
+
 remove.packages("ukbflow")
 ```
 

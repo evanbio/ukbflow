@@ -5,7 +5,7 @@ variable and returns a tidy result table with subdistribution hazard ratios
 (SHR)."><meta property="og:description" content="Fits a Fine-Gray subdistribution hazard model (via
 survival::finegray() + weighted coxph()) for each exposure
 variable and returns a tidy result table with subdistribution hazard ratios
-(SHR)."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+(SHR)."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -92,6 +92,7 @@ variable and returns a tidy result table with subdistribution hazard ratios
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -194,8 +195,9 @@ if <code>base = TRUE</code>) are run.</p></dd>
 
 
 <dt id="arg-base">base<a class="anchor" aria-label="anchor" href="#arg-base"></a></dt>
-<dd><p>(logical) Whether to auto-detect age and sex columns and include
-an Age and sex adjusted model. Default: <code>TRUE</code>.</p></dd>
+<dd><p>(logical) Whether to auto-detect age and sex columns from
+standard UKB or decoded names and include an Age and sex adjusted model.
+Default: <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
@@ -266,8 +268,8 @@ priority. Example: <code>outcome_col = "copd_status"</code>,
 <code>c("censor", "event", "compete")</code> before being passed to
 <code>finegray()</code>.</p>
 <p>Three adjustment models are produced (where data allow):</p><ul><li><p><strong>Unadjusted</strong> - always included.</p></li>
-<li><p><strong>Age and sex adjusted</strong> - when <code>base = TRUE</code> and
-age/sex columns are detected.</p></li>
+<li><p><strong>Age and sex adjusted</strong> - when <code>base = TRUE</code>; age/sex
+must be detectable from standard UKB or decoded names.</p></li>
 <li><p><strong>Fully adjusted</strong> - when <code>covariates</code> is non-NULL.</p></li>
 </ul></div>
 

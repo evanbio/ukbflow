@@ -20,6 +20,7 @@ assoc_subgroup(
   exposure_col,
   by,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   interaction = TRUE,
   conf_level = 0.95
@@ -32,6 +33,7 @@ assoc_sub(
   exposure_col,
   by,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   interaction = TRUE,
   conf_level = 0.95
@@ -73,6 +75,12 @@ assoc_sub(
 
   (character) Regression method: `"coxph"` (default), `"logistic"`, or
   `"linear"`.
+
+- test:
+
+  (character) P-value method for subgroup-specific main associations:
+  `"wald"` (default) or `"lrt"`. For `method = "linear"`, `"lrt"` uses
+  the conventional nested-model F test.
 
 - covariates:
 
@@ -147,6 +155,10 @@ appended as `p_interaction`. LRT is preferred over Wald because it
 handles factor, binary, and continuous `by` variables uniformly without
 requiring the user to recode the `by` variable.
 
+**P-value method**: `test` controls the subgroup-specific main
+association p-values. It does not change `p_interaction`, which remains
+an interaction LRT.
+
 ## Examples
 
 ``` r
@@ -166,7 +178,7 @@ res <- assoc_subgroup(
 #> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
 #> 
 #> ── assoc_subgroup ──────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models x 2 subgroups (p31)
+#> ℹ 1 exposure x 2 models x 2 subgroups (p31) | test: wald
 #> ℹ Computing interaction LRT (exposure x p31) on full data ...
 #> ℹ   Unadjusted | p20116_i0: p_interaction = 0.852
 #> ℹ   Fully adjusted | p20116_i0: p_interaction = 0.864

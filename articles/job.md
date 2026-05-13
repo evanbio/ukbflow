@@ -13,6 +13,7 @@ load results once the job completes.
 ## Typical Workflow
 
 ``` r
+
 library(ukbflow)
 
 # 1. Submit extraction job
@@ -35,6 +36,7 @@ df <- job_result(job_id)
 returns the current state of a job:
 
 ``` r
+
 job_status(job_id)
 #> job-XXXXXXXXXXXX
 #>            done
@@ -54,6 +56,7 @@ Possible states:
 For failed jobs, the error message is accessible via:
 
 ``` r
+
 s <- job_status(job_id)
 if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 ```
@@ -64,6 +67,7 @@ if (s == "failed") cli::cli_inform(attr(s, "failure_message"))
 polls at regular intervals until the job reaches a terminal state:
 
 ``` r
+
 job_wait(job_id)                    # wait indefinitely (default)
 job_wait(job_id, interval = 60)     # poll every 60 seconds
 job_wait(job_id, timeout = 7200)    # give up after 2 hours
@@ -75,6 +79,7 @@ chain it with
 [`job_result()`](https://evanbio.github.io/ukbflow/reference/job_result.md):
 
 ``` r
+
 job_wait(job_id)
 df <- job_result(job_id)
 ```
@@ -89,6 +94,7 @@ df <- job_result(job_id)
 returns the `/mnt/project/` path of the output CSV on RAP:
 
 ``` r
+
 path <- job_path(job_id)
 #> "/mnt/project/results/ukb_demographics.csv"
 ```
@@ -96,6 +102,7 @@ path <- job_path(job_id)
 Use this to read the file directly or pass it to other tools:
 
 ``` r
+
 df <- data.table::fread(job_path(job_id))
 ```
 
@@ -107,6 +114,7 @@ combines
 and `fread()` in one step. Must be run inside the RAP environment:
 
 ``` r
+
 df <- job_result(job_id)
 # returns a data.table, e.g. 502353 rows x 5 cols (incl. eid)
 ```
@@ -119,6 +127,7 @@ df <- job_result(job_id)
 returns a summary of recent jobs:
 
 ``` r
+
 job_ls()          # last 20 jobs
 job_ls(n = 5)     # last 5 jobs
 

@@ -142,7 +142,7 @@ res <- grs_validate(
 #> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
 #> 
 #> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models (categorical + trend model per combination)
+#> ℹ 1 exposure x 2 models (categorical + trend model per combination) | test: wald
 #> 
 #> ── grs_bmi_z_quad ──
 #> 
@@ -201,7 +201,7 @@ if (requireNamespace("pROC", quietly = TRUE)) {
 #> 
 #> ── assoc_logistic ──────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 2 models = 2 logistic regressions
-#> ℹ Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
+#> ℹ Input cohort: 500 participants | test: wald | CI method: wald (n/n_cases reflect each model's actual analysis set)
 #> 
 #> ── grs_bmi_z ──
 #> 
@@ -213,7 +213,7 @@ if (requireNamespace("pROC", quietly = TRUE)) {
 #> 
 #> ── assoc_logistic ──────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 2 models = 2 logistic regressions
-#> ℹ Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
+#> ℹ Input cohort: 500 participants | test: wald | CI method: wald (n/n_cases reflect each model's actual analysis set)
 #> 
 #> ── grs_bmi_z_tri ──
 #> 
@@ -227,7 +227,7 @@ if (requireNamespace("pROC", quietly = TRUE)) {
 #> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
 #> 
 #> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 2 models (categorical + trend model per combination)
+#> ℹ 1 exposure x 2 models (categorical + trend model per combination) | test: wald
 #> 
 #> ── grs_bmi_z_quad ──
 #> 

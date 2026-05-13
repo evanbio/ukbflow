@@ -14,6 +14,7 @@ assoc_trend(
   time_col = NULL,
   exposure_col,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   base = TRUE,
   scores = NULL,
@@ -26,6 +27,7 @@ assoc_tr(
   time_col = NULL,
   exposure_col,
   method = c("coxph", "logistic", "linear"),
+  test = c("wald", "lrt"),
   covariates = NULL,
   base = TRUE,
   scores = NULL,
@@ -58,6 +60,10 @@ assoc_tr(
 
   (character) Regression method: `"coxph"` (default), `"logistic"`, or
   `"linear"`.
+
+- test:
+
+  (character) P-value method: `"wald"` (default) or `"lrt"`.
 
 - covariates:
 
@@ -153,6 +159,10 @@ Unadjusted and Age-and-sex-adjusted models are included by default
 (`base = TRUE`); a Fully adjusted model is added when `covariates` is
 non-NULL.
 
+**P-value method**: `test` controls both categorical-model `p_value` and
+trend-model `p_trend`. For `method = "linear"`, `"lrt"` uses the
+conventional nested-model F test.
+
 ## Examples
 
 ``` r
@@ -173,7 +183,7 @@ res <- assoc_trend(
 #> ℹ outcome_col dm_status: logical detected, converting TRUE/FALSE -> 1/0
 #> 
 #> ── assoc_trend ─────────────────────────────────────────────────────────────────
-#> ℹ 1 exposure x 1 model (categorical + trend model per combination)
+#> ℹ 1 exposure x 1 model (categorical + trend model per combination) | test: wald
 #> 
 #> ── bmi_cat ──
 #> 

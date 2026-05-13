@@ -6,18 +6,34 @@ The `derive_*` functions convert raw UKB columns into analysis-ready
 variables. This vignette covers the disease phenotype derivation
 pipeline:
 
-| Step | Function(s)                                                                                           | Purpose                                               |
-|------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------------|
-| 1    | [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md)                   | Handle “Do not know” / “Prefer not to answer”         |
-| 2    | [`derive_covariate()`](https://evanbio.github.io/ukbflow/reference/derive_covariate.md)               | Convert types; summarise covariates                   |
-| 3    | [`derive_cut()`](https://evanbio.github.io/ukbflow/reference/derive_cut.md)                           | Bin continuous variables into groups                  |
-| 4    | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md)             | Self-reported disease status + date                   |
-| 5    | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md)                           | HES inpatient ICD-10 status + date                    |
-| 6    | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) | First Occurrence field status + date                  |
-| 7    | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md)   | Cancer registry status + date                         |
-| 8    | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md)     | Death registry ICD-10 status + date                   |
-| 9    | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md)                       | Combine any subset of sources (wrapper)               |
-| 10   | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)                         | Merge self-report + ICD-10 into final case definition |
+| Step | Function(s) | Purpose |
+|----|----|----|
+| 1 | [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md) | Handle “Do not know” / “Prefer not to answer” |
+| 2 | [`derive_covariate()`](https://evanbio.github.io/ukbflow/reference/derive_covariate.md) | Convert types; summarise covariates |
+| 3 | [`derive_cut()`](https://evanbio.github.io/ukbflow/reference/derive_cut.md) | Bin continuous variables into groups |
+| 4 | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md) | Self-reported disease status + date |
+| 5 | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) | HES inpatient ICD-10 status + date |
+| 6 | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) | First Occurrence field status + date |
+| 7 | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md) | Cancer registry status + date |
+| 8 | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) | Death registry ICD-10 status + date |
+| 9 | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md) | Combine any subset of sources (wrapper) |
+| 10 | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) | Merge self-report + ICD-10 into final case definition |
+
+Current phenotype-source support is intentionally scoped to the common
+UKB sources below:
+
+| Source | Code system / field type | Main function(s) |
+|----|----|----|
+| Self-reported illness / cancer | UKB fields `20002` / `20001` | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md) |
+| HES inpatient diagnoses | ICD-10, any-position field `41270` with dates from `41280` | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
+| First Occurrence fields | UKB precomputed `p131xxx` dates | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) |
+| Cancer registry | ICD-10, histology, behaviour, diagnosis date | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md) |
+| Death registry | ICD-10 primary / secondary cause of death | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
+| Multi-source ICD-10 phenotype | HES, death, First Occurrence, cancer registry | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md) |
+| Final case definition | Self-report plus ICD-10-derived status/date | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
+
+ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems
+are not part of the current public API.
 
 All functions accept a `data.frame` or `data.table` and return a
 `data.table`. For `data.table` input, new columns are added **by
@@ -46,6 +62,7 @@ internally before modification.
 ## Setup
 
 ``` r
+
 library(ukbflow)
 
 df <- ops_toy(n = 500)
@@ -62,6 +79,7 @@ converts these to `NA` (default) or retains them as `"Unknown"` for
 modelling.
 
 ``` r
+
 df <- derive_missing(df)
 ```
 
@@ -75,12 +93,14 @@ df <- derive_missing(df)
 To keep non-response as a model category:
 
 ``` r
+
 df <- derive_missing(df, action = "unknown")
 ```
 
 To add custom labels beyond the built-in list:
 
 ``` r
+
 df <- derive_missing(df, extra_labels = "Not applicable")
 ```
 
@@ -93,6 +113,7 @@ converts categorical columns to `factor` and prints a distribution
 summary for each.
 
 ``` r
+
 df <- derive_covariate(
   df,
   as_factor = c(
@@ -115,6 +136,7 @@ creates a new factor column by binning a continuous variable into
 quantile-based or custom groups.
 
 ``` r
+
 df <- derive_cut(
   df,
   col    = "p21001_i0",                              # body_mass_index_bmi_i0
@@ -144,6 +166,7 @@ binary status and the earliest report date. Column detection is
 automatic from field IDs.
 
 ``` r
+
 # Non-cancer: type 2 diabetes (field 20002)
 df <- derive_selfreport(df,
   name  = "dm",
@@ -152,6 +175,7 @@ df <- derive_selfreport(df,
 ```
 
 ``` r
+
 # Cancer: lung cancer (field 20001)
 df <- derive_selfreport(df,
   name  = "lung_cancer",
@@ -176,7 +200,15 @@ scans UKB Hospital Episode Statistics ICD-10 codes (field 41270, stored
 as a JSON array per participant) and matches the earliest corresponding
 date from field 41280.
 
+Field 41270 contains any recorded HES inpatient ICD-10 diagnosis
+position.
+[`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md)
+therefore treats any matching ICD-10 code in this field as a case. It
+does not currently distinguish main/primary diagnoses (field 41202) from
+secondary diagnoses (field 41204).
+
 ``` r
+
 # Prefix match: codes starting with "I10" (hypertension)
 df <- derive_hes(df, name = "htn", icd10 = "I10")
 
@@ -189,11 +221,11 @@ df <- derive_hes(df, name = "dm_broad", icd10 = "^E1[01]", match = "regex")
 
 The `match` argument controls how codes are compared:
 
-| `match`              | Behaviour                | Example                            |
-|----------------------|--------------------------|------------------------------------|
+| `match` | Behaviour | Example |
+|----|----|----|
 | `"prefix"` (default) | Code starts with pattern | `"E11"` matches `"E110"`, `"E119"` |
-| `"exact"`            | Full 3- or 4-digit match | `"E11"` matches only `"E11"`       |
-| `"regex"`            | Full regular expression  | `"^E1[01]"`                        |
+| `"exact"` | Full 3- or 4-digit match | `"E11"` matches only `"E11"` |
+| `"regex"` | Full regular expression | `"^E1[01]"` |
 
 ------------------------------------------------------------------------
 
@@ -206,6 +238,7 @@ up your disease in the [UKB Field
 Finder](https://biobank.ndph.ox.ac.uk/showcase/search.cgi).
 
 ``` r
+
 # ops_toy includes p131742 as a representative First Occurrence column
 df <- derive_first_occurrence(df, name = "htn", field = 131742L, col = "p131742")
 ```
@@ -219,6 +252,7 @@ searches the cancer registry ICD-10 field (40006) and optionally filters
 by histology (field 40011) and behaviour (field 40012).
 
 ``` r
+
 # ICD-10 only
 df <- derive_cancer_registry(df,
   name  = "skin_cancer",
@@ -243,6 +277,7 @@ searches primary (field 40001) and secondary (field 40002) causes of
 death for ICD-10 codes.
 
 ``` r
+
 df <- derive_death_registry(df, name = "mi",   icd10 = "I21")
 df <- derive_death_registry(df, name = "dm",   icd10 = "E11")
 df <- derive_death_registry(df, name = "lung", icd10 = "C34")
@@ -259,6 +294,7 @@ status column and earliest date. This is the recommended approach for
 multi-source ascertainment.
 
 ``` r
+
 # Non-cancer disease: HES + death + First Occurrence
 df <- derive_icd10(df,
   name   = "dm",
@@ -295,12 +331,53 @@ Intermediate source columns are retained alongside the combined result:
 ## Step 10: Final Case Definition
 
 [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
-merges the self-report and ICD-10 flags into a unified case status, with
-the earliest date across both sources taken via
-[`pmin()`](https://rdrr.io/r/base/Extremes.html).
+applies an any-source reconciliation rule by default. The final status
+is `TRUE` if either the ICD-10-derived status or the self-report status
+is `TRUE`; this is an OR rule, not a medical-record confirmation rule.
+The final date is the earliest available date across the included
+sources, computed with [`pmin()`](https://rdrr.io/r/base/Extremes.html).
+
+Use `derive_icd10(source = ...)` to control which medical / registry
+sources enter the ICD-10-derived status before calling
+[`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md).
+If only one of `{name}_icd10` or `{name}_selfreport` is present,
+[`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
+uses that available source alone and prints a warning.
 
 ``` r
+
 df <- derive_case(df, name = "dm")
+```
+
+Single-source case definitions are also possible. For an ICD-10-derived
+medical / registry definition, run
+[`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md)
+for a distinct `name` and do not create the matching self-report
+columns:
+
+``` r
+
+df <- derive_icd10(df,
+  name   = "dm_medical",
+  icd10  = "E11",
+  source = c("hes", "death", "first_occurrence"),
+  fo_col = "p131742"
+)
+df <- derive_case(df, name = "dm_medical")
+```
+
+For a self-report-only definition, run
+[`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md)
+for a distinct `name` and do not create the matching ICD-10-derived
+columns:
+
+``` r
+
+df <- derive_selfreport(df,
+  name  = "dm_selfonly",
+  regex = "type 2 diabetes"
+)
+df <- derive_case(df, name = "dm_selfonly")
 ```
 
 Output columns:

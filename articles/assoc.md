@@ -6,16 +6,16 @@ The `assoc_*` functions fit regression models for each exposure variable
 and return tidy result tables suitable for downstream forest plots and
 publication tables.
 
-| Function                                                                              | Alias                                                                            | Model                                 | Effect measure           |
-|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|---------------------------------------|--------------------------|
-| [`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)         | [`assoc_cox()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md)      | Cox proportional hazards              | HR                       |
-| [`assoc_logistic()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md)   | [`assoc_logit()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md) | Logistic regression                   | OR                       |
-| [`assoc_linear()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md)       | [`assoc_lm()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md)      | Linear regression                     | beta                     |
-| [`assoc_coxph_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md) | [`assoc_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md)  | Schoenfeld residual PH test           | chisq / p                |
-| [`assoc_subgroup()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)   | [`assoc_sub()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md)   | Stratified analysis + LRT interaction | HR / OR / beta           |
-| [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)         | [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)       | Dose-response trend                   | HR / OR / beta + p_trend |
-| [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)   | Fine-Gray competing risks             | SHR                      |
-| [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)             | —                                                                                | Cox lag sensitivity analysis          | HR                       |
+| Function | Alias | Model | Effect measure |
+|----|----|----|----|
+| [`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md) | [`assoc_cox()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md) | Cox proportional hazards | HR |
+| [`assoc_logistic()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md) | [`assoc_logit()`](https://evanbio.github.io/ukbflow/reference/assoc_logistic.md) | Logistic regression | OR |
+| [`assoc_linear()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md) | [`assoc_lm()`](https://evanbio.github.io/ukbflow/reference/assoc_linear.md) | Linear regression | beta |
+| [`assoc_coxph_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md) | [`assoc_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md) | Schoenfeld residual PH test | chisq / p |
+| [`assoc_subgroup()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md) | [`assoc_sub()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md) | Stratified analysis + LRT interaction | HR / OR / beta |
+| [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md) | [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md) | Dose-response trend | HR / OR / beta + p_trend |
+| [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | Fine-Gray competing risks | SHR |
+| [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md) | — | Cox lag sensitivity analysis | HR |
 
 > **Prerequisite**: the analysis dataset should already contain derived
 > case status, follow-up time, and covariates produced by the `derive_*`
@@ -25,6 +25,7 @@ publication tables.
 > [`vignette("derive-survival")`](https://evanbio.github.io/ukbflow/articles/derive-survival.md).
 
 ``` r
+
 library(ukbflow)
 
 # ops_toy(scenario = "association") returns a pre-derived analysis-ready table:
@@ -41,11 +42,11 @@ dt <- dt[dm_timing != 1L]   # incident analysis: exclude prevalent DM cases
 All main functions automatically produce up to three adjustment levels
 without requiring manual formula construction:
 
-| Model                    | Covariates                                        | When included                 |
-|--------------------------|---------------------------------------------------|-------------------------------|
-| **Unadjusted**           | None (crude)                                      | Always (when `base = TRUE`)   |
-| **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When both columns are found   |
-| **Fully adjusted**       | User-supplied `covariates`                        | When `covariates` is non-NULL |
+| Model | Covariates | When included |
+|----|----|----|
+| **Unadjusted** | None (crude) | Always (when `base = TRUE`) |
+| **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When both columns are found |
+| **Fully adjusted** | User-supplied `covariates` | When `covariates` is non-NULL |
 
 Age and sex columns are located automatically by scanning the dataset’s
 column names for standard UKB naming patterns (`p21022_*` for age at
@@ -65,6 +66,7 @@ is the primary function for time-to-event outcomes. It accepts logical
 row per exposure x term x model combination.
 
 ``` r
+
 # Crude + age-sex adjusted (automatic); p21022 and p31 auto-detected
 res <- assoc_coxph(
   data         = dt,
@@ -75,6 +77,7 @@ res <- assoc_coxph(
 ```
 
 ``` r
+
 # Add a Fully adjusted model
 res <- assoc_coxph(
   data         = dt,
@@ -88,15 +91,15 @@ res <- assoc_coxph(
 
 Output columns:
 
-| Column         | Description                                                          |
-|----------------|----------------------------------------------------------------------|
-| `exposure`     | Exposure variable name                                               |
-| `term`         | Coefficient name from `coxph`                                        |
-| `model`        | Ordered factor: Unadjusted \< Age and sex adjusted \< Fully adjusted |
-| `n`            | Participants in model (after NA removal)                             |
-| `n_events`     | Events in model                                                      |
-| `person_years` | Total person-years (rounded)                                         |
-| `HR`           | Hazard ratio                                                         |
+| Column | Description |
+|----|----|
+| `exposure` | Exposure variable name |
+| `term` | Coefficient name from `coxph` |
+| `model` | Ordered factor: Unadjusted \< Age and sex adjusted \< Fully adjusted |
+| `n` | Participants in model (after NA removal) |
+| `n_events` | Events in model |
+| `person_years` | Total person-years (rounded) |
+| `HR` | Hazard ratio |
 
 > `n`, `n_events`, and `person_years` all reflect the model-specific
 > complete-case analysis set — participants with any missing value
@@ -116,6 +119,7 @@ is for binary outcomes without a time dimension (e.g. case-control or
 cross-sectional designs).
 
 ``` r
+
 res <- assoc_logistic(
   data         = dt,
   outcome_col  = "dm_status",
@@ -128,6 +132,7 @@ For sparse data or small samples, use profile likelihood confidence
 intervals:
 
 ``` r
+
 res <- assoc_logistic(
   data         = dt,
   outcome_col  = "dm_status",
@@ -150,6 +155,7 @@ is for continuous outcomes (e.g. biomarker levels, BMI). The standard
 error of beta is included to support downstream meta-analysis.
 
 ``` r
+
 # Continuous outcome (BMI); smoking and GRS as exposures
 res <- assoc_linear(
   data         = dt,
@@ -178,6 +184,7 @@ residuals (`cox.zph()`). Use it alongside
 to validate model assumptions.
 
 ``` r
+
 zph <- assoc_coxph_zph(
   data         = dt,
   outcome_col  = "dm_status",
@@ -209,6 +216,7 @@ exposure x subgroup interaction is computed on the full dataset and
 appended as `p_interaction`.
 
 ``` r
+
 # Subgroup by sex; p31 is automatically excluded from within-stratum models
 res <- assoc_subgroup(
   data         = dt,
@@ -244,11 +252,13 @@ exposure, returning per-category estimates alongside a p-value for
 linear trend.
 
 ``` r
+
 # assoc_trend() requires an ordered factor; make bmi_cat ordered in-place
 dt[, bmi_cat := factor(bmi_cat, levels = levels(bmi_cat), ordered = TRUE)]
 ```
 
 ``` r
+
 res <- assoc_trend(
   data         = dt,
   outcome_col  = "dm_status",
@@ -262,6 +272,7 @@ res <- assoc_trend(
 Supply custom scores reflecting approximate median BMI per category:
 
 ``` r
+
 res <- assoc_trend(
   data         = dt,
   outcome_col  = "dm_status",
@@ -295,6 +306,7 @@ Two input modes are supported:
 **Mode A** — a single column encodes all event types:
 
 ``` r
+
 # Construct a combined event column: 0 = censored, 1 = DM, 2 = HTN (competing)
 dt_cr <- dt[htn_timing != 1L]   # also exclude prevalent HTN
 dt_cr[, event_type := data.table::fcase(
@@ -317,6 +329,7 @@ res <- assoc_competing(
 **Mode B** — separate 0/1 columns for primary and competing events:
 
 ``` r
+
 res <- assoc_competing(
   data         = dt_cr,
   outcome_col  = "dm_status",        # primary event
@@ -339,6 +352,7 @@ All functions return a `data.table` that feeds directly into
 [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md):
 
 ``` r
+
 res <- assoc_coxph(
   data         = dt,
   outcome_col  = "dm_status",
@@ -368,6 +382,7 @@ bias). For each lag, participants whose follow-up time is less than
 `lag_years` are excluded; follow-up is kept on its original scale.
 
 ``` r
+
 res <- assoc_lag(
   data         = dt,
   outcome_col  = "dm_status",

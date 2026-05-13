@@ -6,11 +6,11 @@ After disease case definitions have been derived (see
 [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md)),
 three additional functions prepare the data for time-to-event analysis:
 
-| Function                                                                              | Output columns                                 | Purpose                                 |
-|---------------------------------------------------------------------------------------|------------------------------------------------|-----------------------------------------|
-| [`derive_timing()`](https://evanbio.github.io/ukbflow/reference/derive_timing.md)     | `{name}_timing`                                | Classify prevalent vs. incident disease |
-| [`derive_age()`](https://evanbio.github.io/ukbflow/reference/derive_age.md)           | `age_at_{name}`                                | Age at event (years)                    |
-| [`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md) | `{name}_followup_end`, `{name}_followup_years` | Follow-up end date and duration         |
+| Function | Output columns | Purpose |
+|----|----|----|
+| [`derive_timing()`](https://evanbio.github.io/ukbflow/reference/derive_timing.md) | `{name}_timing` | Classify prevalent vs. incident disease |
+| [`derive_age()`](https://evanbio.github.io/ukbflow/reference/derive_age.md) | `age_at_{name}` | Age at event (years) |
+| [`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md) | `{name}_followup_end`, `{name}_followup_years` | Follow-up end date and duration |
 
 > **Prerequisite**: `{name}_status` and `{name}_date` must already be
 > present — produced by
@@ -37,6 +37,7 @@ assigns each participant to one of four categories:
 | `NA`  | Case with no recorded date; timing cannot be determined |
 
 ``` r
+
 library(ukbflow)
 
 # Build on the derive pipeline from vignette("derive")
@@ -49,6 +50,7 @@ df <- derive_case(df, name = "dm")
 ```
 
 ``` r
+
 # Uses {name}_status and {name}_date by default
 df <- derive_timing(df, name = "dm", baseline_col = "p53_i0")
 ```
@@ -56,6 +58,7 @@ df <- derive_timing(df, name = "dm", baseline_col = "p53_i0")
 Supply explicit column names when the defaults do not apply:
 
 ``` r
+
 df <- derive_timing(df,
   name         = "dm",
   status_col   = "dm_status",
@@ -75,12 +78,15 @@ and once per individual source (HES, self-report, etc.).
 computes age at the time of the event for cases, and returns `NA` for
 non-cases and cases without a date.
 
-$$\text{age\_at\_event} = \text{age\_at\_recruitment} + \frac{\text{event\_date} - \text{baseline\_date}}{365.25}$$
+``` math
+\text{age\_at\_event} = \text{age\_at\_recruitment} + \frac{\text{event\_date} - \text{baseline\_date}}{365.25}
+```
 
 The divisor 365.25 accounts for leap years, ensuring sub-monthly
 precision in age calculation across the full UKB follow-up window.
 
 ``` r
+
 # Auto-detects {name}_date and {name}_status; produces age_at_{name} column.
 df <- derive_age(df,
   name         = "dm",
@@ -93,6 +99,7 @@ Supply explicit column mappings when names do not follow the default
 `{name}_date` / `{name}_status` pattern:
 
 ``` r
+
 df <- derive_age(df,
   name         = "dm",
   baseline_col = "p53_i0",
@@ -117,6 +124,7 @@ computes the follow-up end date as the **earliest** of:
 Follow-up time in years is then derived from the baseline date.
 
 ``` r
+
 df <- derive_followup(df,
   name         = "dm",
   event_col    = "dm_date",
@@ -152,6 +160,7 @@ looks them up automatically from the field cache (UKB fields 40000 and
 191). Pass `FALSE` to explicitly disable a competing event:
 
 ``` r
+
 df <- derive_followup(df,
   name         = "dm",
   event_col    = "dm_date",
@@ -170,6 +179,7 @@ After completing all three steps, the data contains everything needed to
 fit a Cox proportional hazards model:
 
 ``` r
+
 library(survival)
 
 # Incident analysis: exclude prevalent cases and those with undetermined timing

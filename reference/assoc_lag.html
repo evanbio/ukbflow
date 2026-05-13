@@ -9,7 +9,7 @@ whether associations are robust to the exclusion of early events. For each
 lag, participants whose follow-up time is less than lag_years are
 removed from the analysis dataset; follow-up time is kept on its original
 scale (not shifted). This mirrors the approach used in UK Biobank sensitivity
-analyses to address reverse causation and detection bias."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+analyses to address reverse causation and detection bias."><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -96,6 +96,7 @@ analyses to address reverse causation and detection bias."><meta property="og:im
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -138,6 +139,7 @@ analyses to address reverse causation and detection bias.</p>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  strata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wald"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -175,13 +177,18 @@ model. When <code>NULL</code>, only Unadjusted (and Age and sex adjusted if
 
 
 <dt id="arg-base">base<a class="anchor" aria-label="anchor" href="#arg-base"></a></dt>
-<dd><p>(logical) Auto-detect age and sex and include an Age and sex
-adjusted model. Default: <code>TRUE</code>.</p></dd>
+<dd><p>(logical) Auto-detect age and sex from standard UKB or decoded
+names and include an Age and sex adjusted model. Default: <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-strata">strata<a class="anchor" aria-label="anchor" href="#arg-strata"></a></dt>
 <dd><p>(character or NULL) Optional stratification variable passed to
 <code><a href="https://rdrr.io/pkg/survival/man/strata.html" class="external-link">survival::strata()</a></code>.</p></dd>
+
+
+<dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
+<dd><p>(character) P-value method: <code>"wald"</code> (default) or
+<code>"lrt"</code>.</p></dd>
 
 
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
@@ -212,6 +219,10 @@ lagged results can be compared.</p>
 <p>The same three adjustment models produced by <code><a href="assoc_coxph.html">assoc_coxph</a></code> are
 available here (<strong>Unadjusted</strong>, <strong>Age and sex adjusted</strong>,
 <strong>Fully adjusted</strong>).</p>
+<p><strong>P-value method</strong>: <code>test = "wald"</code> returns term-level Wald
+p-values from <code>summary.coxph()</code>. <code>test = "lrt"</code> returns the
+exposure-level likelihood-ratio p-value from single-term deletion within
+each lag-specific analysis set.</p>
     </div>
 
     <div class="section level2">
@@ -232,7 +243,7 @@ available here (<strong>Unadjusted</strong>, <strong>Age and sex adjusted</stron
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_lag</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 3 lag periods x 1 exposure x 1 model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 3 lag periods x 1 exposure x 1 model | test: wald</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Lag: 0 years</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>

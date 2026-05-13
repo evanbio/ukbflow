@@ -13,7 +13,7 @@ its siblings, there is no automatic age-and-sex-adjusted model: at the
 subgroup level the variable that defines the stratum would have zero
 variance, making the auto-detected adjustment meaningless. Accordingly,
 this function does not accept a base argument. Instead, two
-models are available:"><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+models are available:"><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -100,6 +100,7 @@ models are available:"><meta property="og:image" content="https://evanbio.github
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -142,6 +143,7 @@ models are available:</p>
 <span>  <span class="va">exposure_col</span>,</span>
 <span>  <span class="va">by</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coxph"</span>, <span class="st">"logistic"</span>, <span class="st">"linear"</span><span class="op">)</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wald"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  interaction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
@@ -154,6 +156,7 @@ models are available:</p>
 <span>  <span class="va">exposure_col</span>,</span>
 <span>  <span class="va">by</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coxph"</span>, <span class="st">"logistic"</span>, <span class="st">"linear"</span><span class="op">)</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wald"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  interaction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
@@ -194,6 +197,13 @@ version (e.g. via <code><a href="derive_cut.html">derive_cut</a></code>) instead
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>(character) Regression method: <code>"coxph"</code> (default),
 <code>"logistic"</code>, or <code>"linear"</code>.</p></dd>
+
+
+<dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
+<dd><p>(character) P-value method for subgroup-specific main
+associations: <code>"wald"</code> (default) or <code>"lrt"</code>. For
+<code>method = "linear"</code>, <code>"lrt"</code> uses the conventional
+nested-model F test.</p></dd>
 
 
 <dt id="arg-covariates">covariates<a class="anchor" aria-label="anchor" href="#arg-covariates"></a></dt>
@@ -262,6 +272,9 @@ computed on the <em>full</em> dataset for each exposure \(\times\) model
 combination and appended as <code>p_interaction</code>. LRT is preferred over
 Wald because it handles factor, binary, and continuous <code>by</code> variables
 uniformly without requiring the user to recode the <code>by</code> variable.</p>
+<p><strong>P-value method</strong>: <code>test</code> controls the subgroup-specific main
+association p-values. It does not change <code>p_interaction</code>, which remains
+an interaction LRT.</p>
     </div>
 
     <div class="section level2">
@@ -282,7 +295,7 @@ uniformly without requiring the user to recode the <code>by</code> variable.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> outcome_col <span style="color: #00BB00;">dm_status</span>: logical detected, converting TRUE/FALSE -&gt; 1/0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_subgroup</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models x 2 subgroups (<span style="color: #00BB00;">p31</span>)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 2 models x 2 subgroups (<span style="color: #00BB00;">p31</span>) | test: wald</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing interaction LRT (exposure x <span style="color: #00BB00;">p31</span>) on full data ...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Unadjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.852</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span>   Fully adjusted | <span style="color: #00BB00;">p20116_i0</span>: p_interaction = 0.864</span>

@@ -19,6 +19,7 @@ your R session.
 Ensure you are authenticated before using any `fetch_*` functions:
 
 ``` r
+
 library(ukbflow)
 
 auth_login()
@@ -40,6 +41,7 @@ lists the contents of a remote RAP directory, returning a structured
 data frame:
 
 ``` r
+
 # List project root
 fetch_ls()
 #>                  name   type    size            modified
@@ -75,6 +77,7 @@ The returned data frame has four columns:
 prints a tree-like view of the remote project structure:
 
 ``` r
+
 # Top-level overview
 fetch_tree()
 
@@ -96,6 +99,7 @@ Useful for passing to downstream tools or scripting metadata and results
 workflows without triggering a full download.
 
 ``` r
+
 # Single file
 fetch_url("Showcase metadata/field.tsv")
 
@@ -125,6 +129,7 @@ directory within the RAP environment.
 > remain on the platform.
 
 ``` r
+
 # Download a single file
 fetch_file("Showcase metadata/field.tsv", dest_dir = "data/")
 
@@ -144,6 +149,7 @@ for efficiency.
 Two convenience wrappers are provided for commonly used UKB files:
 
 ``` r
+
 # Download all Showcase metadata files (field.tsv, encoding.tsv, etc.)
 fetch_metadata(dest_dir = "data/metadata")
 
@@ -162,12 +168,12 @@ are thin wrappers around
 [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
 so all three share the same download-control arguments:
 
-| Argument    | Default | Description                                                              |
-|-------------|---------|--------------------------------------------------------------------------|
-| `dest_dir`  | —       | Destination directory (created if needed). Must be specified explicitly. |
-| `overwrite` | `FALSE` | Overwrite existing local files                                           |
-| `resume`    | `FALSE` | Resume an interrupted download                                           |
-| `verbose`   | `TRUE`  | Show download progress                                                   |
+| Argument | Default | Description |
+|----|----|----|
+| `dest_dir` | — | Destination directory (created if needed). Must be specified explicitly. |
+| `overwrite` | `FALSE` | Overwrite existing local files |
+| `resume` | `FALSE` | Resume an interrupted download |
+| `verbose` | `TRUE` | Show download progress |
 
 ------------------------------------------------------------------------
 

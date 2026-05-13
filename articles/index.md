@@ -4,6 +4,8 @@
 
 - [Association Analysis for UKB
   Outcomes](https://evanbio.github.io/ukbflow/articles/assoc.md):
+- [Analysis Audit and
+  Reproducibility](https://evanbio.github.io/ukbflow/articles/audit.md):
 - [Authentication and Project
   Setup](https://evanbio.github.io/ukbflow/articles/auth.md):
 - [Decoding UKB Column Names and

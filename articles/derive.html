@@ -19,7 +19,7 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Deriving Disease Phenotypes from UKB Data">
 <meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics">
-<meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)">
+<meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)">
 <meta name="author" content="Evan Zhou">
 <!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png">
@@ -115,6 +115,7 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -219,6 +220,62 @@ derivation pipeline:</p>
 </tr>
 </tbody>
 </table>
+<p>Current phenotype-source support is intentionally scoped to the
+common UKB sources below:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Source</th>
+<th>Code system / field type</th>
+<th>Main function(s)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Self-reported illness / cancer</td>
+<td>UKB fields <code>20002</code> / <code>20001</code>
+</td>
+<td><code><a href="../reference/derive_selfreport.html">derive_selfreport()</a></code></td>
+</tr>
+<tr class="even">
+<td>HES inpatient diagnoses</td>
+<td>ICD-10, any-position field <code>41270</code> with dates from
+<code>41280</code>
+</td>
+<td><code><a href="../reference/derive_hes.html">derive_hes()</a></code></td>
+</tr>
+<tr class="odd">
+<td>First Occurrence fields</td>
+<td>UKB precomputed <code>p131xxx</code> dates</td>
+<td><code><a href="../reference/derive_first_occurrence.html">derive_first_occurrence()</a></code></td>
+</tr>
+<tr class="even">
+<td>Cancer registry</td>
+<td>ICD-10, histology, behaviour, diagnosis date</td>
+<td><code><a href="../reference/derive_cancer_registry.html">derive_cancer_registry()</a></code></td>
+</tr>
+<tr class="odd">
+<td>Death registry</td>
+<td>ICD-10 primary / secondary cause of death</td>
+<td><code><a href="../reference/derive_death_registry.html">derive_death_registry()</a></code></td>
+</tr>
+<tr class="even">
+<td>Multi-source ICD-10 phenotype</td>
+<td>HES, death, First Occurrence, cancer registry</td>
+<td><code><a href="../reference/derive_icd10.html">derive_icd10()</a></code></td>
+</tr>
+<tr class="odd">
+<td>Final case definition</td>
+<td>Self-report plus ICD-10-derived status/date</td>
+<td><code><a href="../reference/derive_case.html">derive_case()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code
+systems are not part of the current public API.</p>
 <p>All functions accept a <code>data.frame</code> or
 <code>data.table</code> and return a <code>data.table</code>. For
 <code>data.table</code> input, new columns are added <strong>by
@@ -359,6 +416,11 @@ earliest report date. Column detection is automatic from field IDs.</p>
 <p><code><a href="../reference/derive_hes.html">derive_hes()</a></code> scans UKB Hospital Episode Statistics
 ICD-10 codes (field 41270, stored as a JSON array per participant) and
 matches the earliest corresponding date from field 41280.</p>
+<p>Field 41270 contains any recorded HES inpatient ICD-10 diagnosis
+position. <code><a href="../reference/derive_hes.html">derive_hes()</a></code> therefore treats any matching ICD-10
+code in this field as a case. It does not currently distinguish
+main/primary diagnoses (field 41202) from secondary diagnoses (field
+41204).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prefix match: codes starting with "I10" (hypertension)</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_hes.html">derive_hes</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"htn"</span>, icd10 <span class="op">=</span> <span class="st">"I10"</span><span class="op">)</span></span>
@@ -533,11 +595,40 @@ result:</p>
 <div class="section level2">
 <h2 id="step-10-final-case-definition">Step 10: Final Case Definition<a class="anchor" aria-label="anchor" href="#step-10-final-case-definition"></a>
 </h2>
-<p><code><a href="../reference/derive_case.html">derive_case()</a></code> merges the self-report and ICD-10 flags
-into a unified case status, with the earliest date across both sources
-taken via <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin()</a></code>.</p>
+<p><code><a href="../reference/derive_case.html">derive_case()</a></code> applies an any-source reconciliation rule
+by default. The final status is <code>TRUE</code> if either the
+ICD-10-derived status or the self-report status is <code>TRUE</code>;
+this is an OR rule, not a medical-record confirmation rule. The final
+date is the earliest available date across the included sources,
+computed with <code><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin()</a></code>.</p>
+<p>Use <code>derive_icd10(source = ...)</code> to control which medical
+/ registry sources enter the ICD-10-derived status before calling
+<code><a href="../reference/derive_case.html">derive_case()</a></code>. If only one of <code>{name}_icd10</code> or
+<code>{name}_selfreport</code> is present, <code><a href="../reference/derive_case.html">derive_case()</a></code>
+uses that available source alone and prints a warning.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm"</span><span class="op">)</span></span></code></pre></div>
+<p>Single-source case definitions are also possible. For an
+ICD-10-derived medical / registry definition, run
+<code><a href="../reference/derive_icd10.html">derive_icd10()</a></code> for a distinct <code>name</code> and do not
+create the matching self-report columns:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_icd10.html">derive_icd10</a></span><span class="op">(</span><span class="va">df</span>,</span>
+<span>  name   <span class="op">=</span> <span class="st">"dm_medical"</span>,</span>
+<span>  icd10  <span class="op">=</span> <span class="st">"E11"</span>,</span>
+<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hes"</span>, <span class="st">"death"</span>, <span class="st">"first_occurrence"</span><span class="op">)</span>,</span>
+<span>  fo_col <span class="op">=</span> <span class="st">"p131742"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm_medical"</span><span class="op">)</span></span></code></pre></div>
+<p>For a self-report-only definition, run
+<code><a href="../reference/derive_selfreport.html">derive_selfreport()</a></code> for a distinct <code>name</code> and do
+not create the matching ICD-10-derived columns:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_selfreport.html">derive_selfreport</a></span><span class="op">(</span><span class="va">df</span>,</span>
+<span>  name  <span class="op">=</span> <span class="st">"dm_selfonly"</span>,</span>
+<span>  regex <span class="op">=</span> <span class="st">"type 2 diabetes"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_case.html">derive_case</a></span><span class="op">(</span><span class="va">df</span>, name <span class="op">=</span> <span class="st">"dm_selfonly"</span><span class="op">)</span></span></code></pre></div>
 <p>Output columns:</p>
 <table class="table">
 <thead><tr class="header">

@@ -13,6 +13,7 @@ assoc_logistic(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   ci_method = c("wald", "profile"),
   conf_level = 0.95
 )
@@ -23,6 +24,7 @@ assoc_logit(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   ci_method = c("wald", "profile"),
   conf_level = 0.95
 )
@@ -51,6 +53,11 @@ assoc_logit(
 
   (logical) Include **Unadjusted** and **Age and sex adjusted** models.
   Default: `TRUE`.
+
+- test:
+
+  (character) P-value method for logistic models: `"wald"` (default) or
+  `"lrt"`.
 
 - ci_method:
 
@@ -100,7 +107,7 @@ model combination, and columns:
 
 - `p_value`:
 
-  Wald test p-value.
+  P-value from the method selected by `test`.
 
 - `OR_label`:
 
@@ -110,9 +117,9 @@ model combination, and columns:
 
 - **Unadjusted** - no covariates (crude).
 
-- **Age and sex adjusted** - age + sex auto-detected from the data via
-  UKB field IDs (21022 and 31). Skipped with a warning if either column
-  cannot be found.
+- **Age and sex adjusted** - age + sex auto-detected from standard UKB
+  names (`p21022`/`p31`) or decoded names (`age_at_recruitment`/`sex`).
+  Errors if either column cannot be found.
 
 - **Fully adjusted** - the covariates supplied via the `covariates`
   argument. Only run when `covariates` is non-NULL.
@@ -127,6 +134,14 @@ internally.
 
 - `"profile"` - profile likelihood CI via `confint.glm()`; slower but
   more accurate for small or sparse data.
+
+**P-value method**: `test = "wald"` returns coefficient-level Wald
+p-values from
+[`summary.glm()`](https://rdrr.io/r/stats/summary.glm.html).
+`test = "lrt"` returns the exposure-level likelihood-ratio p-value from
+single-term deletion (`drop1(..., test = "Chisq")`); for factor
+exposures, the same overall exposure p-value is repeated across the
+non-reference level rows.
 
 ## Examples
 
@@ -145,7 +160,7 @@ res <- assoc_logistic(
 #> 
 #> ── assoc_logistic ──────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 1 model = 1 logistic regression
-#> ℹ Input cohort: 500 participants | CI method: wald (n/n_cases reflect each model's actual analysis set)
+#> ℹ Input cohort: 500 participants | test: wald | CI method: wald (n/n_cases reflect each model's actual analysis set)
 #> 
 #> ── p20116_i0 ──
 #> 

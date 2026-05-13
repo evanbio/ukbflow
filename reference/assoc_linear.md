@@ -13,6 +13,7 @@ assoc_linear(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 
@@ -22,6 +23,7 @@ assoc_lm(
   exposure_col,
   covariates = NULL,
   base = TRUE,
+  test = c("wald", "lrt"),
   conf_level = 0.95
 )
 ```
@@ -49,6 +51,11 @@ assoc_lm(
 
   (logical) Include **Unadjusted** and **Age and sex adjusted** models.
   Default: `TRUE`.
+
+- test:
+
+  (character) P-value method for linear models: `"wald"` (default) or
+  `"lrt"`. For `lm`, `"lrt"` uses the conventional nested-model F test.
 
 - conf_level:
 
@@ -94,7 +101,7 @@ model combination, and columns:
 
 - `p_value`:
 
-  t-test p-value.
+  P-value from the method selected by `test`.
 
 - `beta_label`:
 
@@ -104,9 +111,9 @@ model combination, and columns:
 
 - **Unadjusted** - no covariates (crude).
 
-- **Age and sex adjusted** - age + sex auto-detected from the data via
-  UKB field IDs (21022 and 31). Skipped with a warning if either column
-  cannot be found.
+- **Age and sex adjusted** - age + sex auto-detected from standard UKB
+  names (`p21022`/`p31`) or decoded names (`age_at_recruitment`/`sex`).
+  Errors if either column cannot be found.
 
 - **Fully adjusted** - the covariates supplied via the `covariates`
   argument. Only run when `covariates` is non-NULL.
@@ -127,6 +134,13 @@ as profile likelihood does not apply to `lm`.
 **SE column**: the standard error of \\\beta\\ is included to support
 downstream meta-analysis and GWAS-style summary statistics.
 
+**P-value method**: `test = "wald"` returns coefficient-level t-test
+p-values from [`summary.lm()`](https://rdrr.io/r/stats/summary.lm.html).
+`test = "lrt"` returns an exposure-level nested-model p-value from
+single-term deletion (`drop1(..., test = "F")`); for factor exposures,
+the same overall exposure p-value is repeated across the non-reference
+level rows.
+
 ## Examples
 
 ``` r
@@ -143,7 +157,7 @@ res <- assoc_linear(
 #> 
 #> ── assoc_linear ────────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 1 model = 1 linear regression
-#> ℹ Input cohort: 500 participants (n reflects each model's actual analysis set)
+#> ℹ Input cohort: 500 participants | test: wald (n reflects each model's actual analysis set)
 #> 
 #> ── p20116_i0 ──
 #> 

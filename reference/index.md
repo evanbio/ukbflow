@@ -157,11 +157,15 @@ risk scores with plink2.
 
 ## Utilities & Diagnostics
 
-Environment checks, synthetic data generation, missing-value summaries,
-pipeline snapshots, and cohort management.
+Environment checks, field discovery, synthetic data generation,
+missing-value summaries, pipeline snapshots, and cohort management.
 
 - [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
   : Check the ukbflow operating environment
+- [`ops_fields()`](https://evanbio.github.io/ukbflow/reference/ops_fields.md)
+  : Search approved UKB fields in the current project
+- [`ops_fields_common()`](https://evanbio.github.io/ukbflow/reference/ops_fields_common.md)
+  : Common UK Biobank fields for quick reference
 - [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
   : Generate toy UKB-like data for testing and development
 - [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) :
@@ -178,6 +182,28 @@ pipeline snapshots, and cohort management.
   : Register additional safe columns protected from snapshot-based drops
 - [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
   : Exclude withdrawn participants from a dataset
+
+## Analysis Audit
+
+Lightweight analysis manifests for fields, data snapshots, derived
+phenotypes, model results, and session metadata.
+
+- [`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
+  : Start a ukbflow audit record
+- [`audit_fields()`](https://evanbio.github.io/ukbflow/reference/audit_fields.md)
+  : Record UKB field IDs used for extraction
+- [`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
+  : Record a data snapshot in a ukbflow audit object
+- [`audit_cols()`](https://evanbio.github.io/ukbflow/reference/audit_cols.md)
+  : Retrieve column names from an audit snapshot
+- [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
+  : Record a derived phenotype audit summary
+- [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+  : Record an association model result
+- [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
+  : Record a DNAnexus job in an audit manifest
+- [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+  : Write a ukbflow audit manifest
 
 ## Visualisation
 

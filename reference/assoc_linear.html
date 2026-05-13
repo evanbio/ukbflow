@@ -3,7 +3,7 @@
 returns a tidy result table. By default, two standard adjustment models are
 always included:"><meta property="og:description" content="Fits one or more linear regression models for each exposure variable and
 returns a tidy result table. By default, two standard adjustment models are
-always included:"><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R package for UK Biobank cloud-based analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
+always included:"><meta property="og:image" content="https://evanbio.github.io/ukbflow/reference/figures/logo.png"><meta property="og:image:alt" content="ukbflow: RAP-native R workflow for UK Biobank analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@evanbio"><meta name="twitter:site" content="@evanbio"><meta name="keywords" content="R package, UK Biobank, RAP, genetic risk score, survival analysis, association analysis, bioinformatics"><meta name="description" content="ukbflow: An R-native, RAP-aware workflow system for UK Biobank controlled-data analysis on the Research Analysis Platform (RAP)"><meta name="author" content="Evan Zhou"><!-- Enhanced Favicon --><link rel="icon" type="image/png" sizes="32x32" href="/ukbflow/man/figures/logo.png"><link rel="icon" type="image/png" sizes="16x16" href="/ukbflow/man/figures/logo.png"><link rel="apple-touch-icon" sizes="180x180" href="/ukbflow/man/figures/logo.png"><!-- Enhanced CSS for professional appearance --><style>
   /* Navigation styling */
   .navbar-brand { font-size: 1.5rem; font-weight: 600; }
   .navbar-brand img { height: 36px; margin-right: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
@@ -90,6 +90,7 @@ always included:"><meta property="og:image" content="https://evanbio.github.io/u
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -126,6 +127,7 @@ always included:</p>
 <span>  <span class="va">exposure_col</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wald"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -135,6 +137,7 @@ always included:</p>
 <span>  <span class="va">exposure_col</span>,</span>
 <span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wald"</span>, <span class="st">"lrt"</span><span class="op">)</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -163,6 +166,12 @@ always included:</p>
 <dt id="arg-base">base<a class="anchor" aria-label="anchor" href="#arg-base"></a></dt>
 <dd><p>(logical) Include <strong>Unadjusted</strong> and <strong>Age and sex
 adjusted</strong> models. Default: <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
+<dd><p>(character) P-value method for linear models: <code>"wald"</code>
+(default) or <code>"lrt"</code>. For <code>lm</code>, <code>"lrt"</code> uses the
+conventional nested-model F test.</p></dd>
 
 
 <dt id="arg-conf-level">conf_level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
@@ -198,7 +207,8 @@ adjusted</strong> models. Default: <code>TRUE</code>.</p></dd>
 <dd><p>Upper confidence bound.</p></dd>
 
 <dt><code>p_value</code></dt>
-<dd><p>t-test p-value.</p></dd>
+<dd><p>P-value from the method selected by
+<code>test</code>.</p></dd>
 
 <dt><code>beta_label</code></dt>
 <dd><p>Formatted string, e.g.
@@ -210,9 +220,10 @@ adjusted</strong> models. Default: <code>TRUE</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
 
 <ul><li><p><strong>Unadjusted</strong> - no covariates (crude).</p></li>
-<li><p><strong>Age and sex adjusted</strong> - age + sex auto-detected from the
-data via UKB field IDs (21022 and 31). Skipped with a warning if either
-column cannot be found.</p></li>
+<li><p><strong>Age and sex adjusted</strong> - age + sex auto-detected from
+standard UKB names (<code>p21022</code>/<code>p31</code>) or decoded names
+(<code>age_at_recruitment</code>/<code>sex</code>). Errors if either column cannot
+be found.</p></li>
 <li><p><strong>Fully adjusted</strong> - the covariates supplied via the
 <code>covariates</code> argument. Only run when <code>covariates</code> is non-NULL.</p></li>
 </ul><p><strong>Outcome</strong>: intended for continuous numeric variables. Passing a
@@ -224,6 +235,11 @@ which is exact under the normal linear model assumption. There is no
 likelihood does not apply to <code>lm</code>.</p>
 <p><strong>SE column</strong>: the standard error of \(\beta\) is included to
 support downstream meta-analysis and GWAS-style summary statistics.</p>
+<p><strong>P-value method</strong>: <code>test = "wald"</code> returns coefficient-level
+t-test p-values from <code><a href="https://rdrr.io/r/stats/summary.lm.html" class="external-link">summary.lm()</a></code>. <code>test = "lrt"</code> returns an
+exposure-level nested-model p-value from single-term deletion
+(<code>drop1(..., test = "F")</code>); for factor exposures, the same overall
+exposure p-value is repeated across the non-reference level rows.</p>
     </div>
 
     <div class="section level2">
@@ -241,7 +257,7 @@ support downstream meta-analysis and GWAS-style summary statistics.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">assoc_linear</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 1 exposure x 1 model = 1 linear regression</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants (n reflects each model's actual analysis set)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Input cohort: 500 participants | test: wald (n reflects each model's actual analysis set)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── <span style="color: #00BB00; font-weight: bold;">p20116_i0</span> ──</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>

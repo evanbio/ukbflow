@@ -41,6 +41,7 @@ Research Analysis Platform:
 
 Download them once with:
 
+
     fetch_metadata(dest_dir = "data/metadata")
 
 Both files are cached in the session after the first read.

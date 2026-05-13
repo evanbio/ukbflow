@@ -7,12 +7,12 @@ outside the main analysis pipeline. They help you verify your
 environment before starting, explore data quality, and track how your
 cohort changes at each processing step.
 
-| Function                                                                        | Purpose                                                      |
-|---------------------------------------------------------------------------------|--------------------------------------------------------------|
-| [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)       | Check dx CLI, RAP authentication, and R package dependencies |
-| [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)           | Generate synthetic UKB-like data for development and testing |
-| [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md)             | Summarise missing values (NA and `""`) across all columns    |
-| [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md) | Record pipeline checkpoints and track dataset changes        |
+| Function | Purpose |
+|----|----|
+| [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md) | Check dx CLI, RAP authentication, and R package dependencies |
+| [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md) | Generate synthetic UKB-like data for development and testing |
+| [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) | Summarise missing values (NA and `""`) across all columns |
+| [`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md) | Record pipeline checkpoints and track dataset changes |
 
 [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
 may query dx CLI and RAP authentication status as part of its health
@@ -36,6 +36,7 @@ once after installing ukbflow to confirm that all required components
 are in place before starting a real analysis.
 
 ``` r
+
 library(ukbflow)
 
 ops_setup()
@@ -61,6 +62,7 @@ For programmatic use (e.g. inside scripts or CI), set `verbose = FALSE`
 and inspect the returned list:
 
 ``` r
+
 result <- ops_setup(verbose = FALSE)
 result$summary
 #> $pass
@@ -77,6 +79,7 @@ stopifnot(result$summary$fail == 0)
 Individual checks can be disabled when only a subset is needed:
 
 ``` r
+
 # Check R package dependencies only (skip dx and RAP auth)
 ops_setup(check_dx = FALSE, check_auth = FALSE)
 ```
@@ -97,6 +100,7 @@ The default `"cohort"` scenario produces a wide participant-level table
 that covers all major UKB data domains:
 
 ``` r
+
 dt <- ops_toy()
 #> ✔ ops_toy: 1000 participants | 75 columns | scenario = "cohort" | seed = 42
 
@@ -111,19 +115,19 @@ names(dt)
 
 Column groups included:
 
-| Group               | Columns                                                                        |
-|---------------------|--------------------------------------------------------------------------------|
-| Demographics        | `eid`, `p31`, `p34`, `p53_i0`, `p21022`                                        |
-| Covariates          | `p21001_i0`, `p20116_i0`, `p1558_i0`, `p21000_i0`, `p22189`, `p54_i0`          |
-| Genetic PCs         | `p22009_a1` – `p22009_a10`                                                     |
-| Self-report disease | `p20002_i0_a0` – `a4`, `p20008_i0_a0` – `a4`                                   |
-| Self-report cancer  | `p20001_i0_a0` – `a4`, `p20006_i0_a0` – `a4`                                   |
-| HES                 | `p41270` (JSON array), `p41280_a0` – `a8`                                      |
-| Cancer registry     | `p40006_i0` – `i2`, `p40011_i0` – `i2`, `p40012_i0` – `i2`, `p40005_i0` – `i2` |
-| Death registry      | `p40001_i0`, `p40002_i0_a0` – `a2`, `p40000_i0`                                |
-| First occurrence    | `p131742`                                                                      |
-| GRS columns         | `grs_bmi`, `grs_raw`, `grs_finngen`                                            |
-| Messy columns       | `messy_allna`, `messy_empty`, `messy_label`                                    |
+| Group | Columns |
+|----|----|
+| Demographics | `eid`, `p31`, `p34`, `p53_i0`, `p21022` |
+| Covariates | `p21001_i0`, `p20116_i0`, `p1558_i0`, `p21000_i0`, `p22189`, `p54_i0` |
+| Genetic PCs | `p22009_a1` – `p22009_a10` |
+| Self-report disease | `p20002_i0_a0` – `a4`, `p20008_i0_a0` – `a4` |
+| Self-report cancer | `p20001_i0_a0` – `a4`, `p20006_i0_a0` – `a4` |
+| HES | `p41270` (JSON array), `p41280_a0` – `a8` |
+| Cancer registry | `p40006_i0` – `i2`, `p40011_i0` – `i2`, `p40012_i0` – `i2`, `p40005_i0` – `i2` |
+| Death registry | `p40001_i0`, `p40002_i0_a0` – `a2`, `p40000_i0` |
+| First occurrence | `p131742` |
+| GRS columns | `grs_bmi`, `grs_raw`, `grs_finngen` |
+| Messy columns | `messy_allna`, `messy_empty`, `messy_label` |
 
 The messy columns deliberately stress-test
 [`derive_missing()`](https://evanbio.github.io/ukbflow/reference/derive_missing.md)
@@ -134,6 +138,7 @@ non-standard missing labels).
 Feed the output directly into the derive pipeline:
 
 ``` r
+
 dt <- ops_toy()
 dt <- derive_missing(dt)
 dt <- derive_covariate(dt,
@@ -151,6 +156,7 @@ useful for developing and testing
 without running a real Cox model:
 
 ``` r
+
 dt_forest <- ops_toy(scenario = "forest")
 #> ✔ ops_toy: 24 rows | 11 columns | scenario = "forest" | seed = 42
 
@@ -168,6 +174,7 @@ Results are reproducible by default (`seed = 42`). Pass `seed = NULL`
 for a different dataset on every call:
 
 ``` r
+
 dt1 <- ops_toy(seed = 1)
 dt2 <- ops_toy(seed = 1)
 identical(dt1, dt2)   # TRUE
@@ -193,6 +200,7 @@ to understand the data quality profile of a freshly extracted UKB
 dataset.
 
 ``` r
+
 dt <- ops_toy()
 ops_na(dt)
 #> ── ops_na ──────────────────────────────────────────────────────────────────
@@ -218,6 +226,7 @@ listing when the dataset has many columns. The summary block and
 returned data.table are always complete.
 
 ``` r
+
 # Only list columns with > 50% missing in the console output
 ops_na(dt, threshold = 50)
 
@@ -231,6 +240,7 @@ ops_na(dt, threshold = 99)
 returns a `data.table` invisibly, regardless of `threshold`:
 
 ``` r
+
 result <- ops_na(dt, verbose = FALSE)
 result
 #>           column  n_na pct_na
@@ -257,6 +267,7 @@ track how rows, columns, and missingness change through the pipeline.
 ### Recording snapshots
 
 ``` r
+
 dt <- ops_toy()
 ops_snapshot(dt, label = "raw")
 #> ── snapshot: raw ───────────────────────────────────────────────────────────
@@ -301,6 +312,7 @@ Call
 with no arguments to print and return the complete history data.table:
 
 ``` r
+
 ops_snapshot()
 #> ── ops_snapshot history ────────────────────────────────────────────────────
 #>    idx                label timestamp  nrow  ncol n_na_cols size_mb
@@ -316,12 +328,14 @@ Set `verbose = FALSE` to record a snapshot without printing anything —
 useful inside functions or automated scripts:
 
 ``` r
+
 ops_snapshot(dt, label = "pre_assoc", verbose = FALSE)
 ```
 
 ### Resetting history
 
 ``` r
+
 ops_snapshot(reset = TRUE)
 #> ✔ Snapshot history cleared.
 ```
@@ -344,6 +358,7 @@ The primary use is building a drop vector after the raw columns are no
 longer needed.
 
 ``` r
+
 raw_cols <- ops_snapshot_cols("raw")
 # raw_cols is a character vector of droppable column names
 ```
@@ -351,6 +366,7 @@ raw_cols <- ops_snapshot_cols("raw")
 Pass `keep` to protect additional columns beyond the defaults:
 
 ``` r
+
 raw_cols <- ops_snapshot_cols("raw", keep = "p53_i0")
 ```
 
@@ -360,6 +376,7 @@ Returns lists of columns added and removed between two snapshots —
 useful for auditing what `derive_*` functions produced.
 
 ``` r
+
 result <- ops_snapshot_diff("raw", "after_derive_missing")
 result$added    # columns added in this step
 result$removed  # columns dropped in this step
@@ -372,6 +389,7 @@ derived columns added since. Built-in safe columns (`eid`, etc.) and
 columns supplied in `keep` are always retained.
 
 ``` r
+
 # After deriving, drop the original raw columns
 dt <- ops_snapshot_remove(dt, from = "raw")
 #> ✔ ops_snapshot_remove: dropped 60 raw columns, 15 remaining.
@@ -389,6 +407,7 @@ or
 [`ops_snapshot_remove()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot_remove.md).
 
 ``` r
+
 ops_set_safe_cols(c("date_baseline", "age_at_recruitment"))
 
 # Clear registered safe cols
@@ -407,6 +426,7 @@ matching rows from your dataset. Two snapshots (`before_withdraw` /
 `after_withdraw`) are recorded automatically.
 
 ``` r
+
 dt <- ops_withdraw(dt, file = "withdraw.csv")
 #> ── snapshot: before_withdraw ───────────────────────────────────────────────
 #>   rows      502,492
@@ -430,6 +450,7 @@ The four `ops_*` functions form a natural bookend around the core
 pipeline:
 
 ``` r
+
 library(ukbflow)
 
 # 1. Verify environment before starting

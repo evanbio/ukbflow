@@ -15,10 +15,11 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 
 ## Overview
 
-**ukbflow** provides a streamlined, RAP-native R workflow for UK Biobank
-analysis — from phenotype extraction and disease derivation to
-association analysis and publication-quality figures. It is designed to
-support workflows on the [UK Biobank Research Analysis Platform
+**ukbflow** is an R-native, RAP-aware workflow system for UK Biobank
+controlled-data analysis. It provides a coherent workflow layer for
+phenotype extraction, disease derivation, association analysis, audit
+records, and publication-quality outputs. It is designed to support
+workflows on the [UK Biobank Research Analysis Platform
 (RAP)](https://ukbiobank.dnanexus.com) under the 2024+ data policy
 requiring individual-level data to remain in the cloud; users remain
 responsible for ensuring that only permitted summary-level outputs are
@@ -27,6 +28,7 @@ downloaded.
 ## Installation
 
 ``` r
+
 # From CRAN (recommended)
 install.packages("ukbflow")
 
@@ -74,14 +76,52 @@ standardization (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
 **Visualization** — Publication-ready forest plots and Table 1 outputs
 in common manuscript formats (`plot_forest`, `plot_tableone`)
 
-**Utilities** — Verify environment before analysis; generate synthetic
+**Utilities** — Verify environment before analysis; search approved
+project fields and look up common UKB field IDs; generate synthetic
 UKB-like data for development; diagnose missing values; track cohort
 changes across pipeline steps; exclude withdrawn participants
-(`ops_setup`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
+(`ops_setup`, `ops_fields`, `ops_fields_common`, `ops_toy`, `ops_na`,
+`ops_snapshot`, `ops_withdraw`)
+
+**Analysis Audit** — Create lightweight JSON manifests for
+reproducibility: field IDs, dataset snapshots, derived phenotype
+summaries, model result tables, RAP jobs, and session metadata
+(`audit_start`, `audit_fields`, `audit_snapshot`, `audit_pheno`,
+`audit_model`, `audit_job`, `audit_write`)
+
+## Supported Phenotype Sources
+
+`ukbflow` currently focuses on common UK Biobank disease-phenotype
+sources that are routinely available in phenotype extraction workflows:
+
+| Source | Code system / field type | Main function(s) |
+|----|----|----|
+| Self-reported illness / cancer | UKB fields `20002` / `20001` | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md) |
+| HES inpatient diagnoses | ICD-10, any-position field `41270` with dates from `41280`; primary/secondary position is not currently configurable | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
+| First Occurrence fields | UKB precomputed `p131xxx` dates | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) |
+| Cancer registry | ICD-10, histology, behaviour, diagnosis date | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md) |
+| Death registry | ICD-10 primary / secondary cause of death | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
+| Multi-source ICD-10 phenotype | HES, death, First Occurrence, cancer registry | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md) |
+| Final case definition | Self-report plus ICD-10-derived status/date | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
+
+ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems
+are not part of the current public API.
+
+## Limitations
+
+`ukbflow` is a workflow system, not a replacement for the underlying RAP
+and statistical tools. It orchestrates and records common analysis steps
+around dx-toolkit / DNAnexus jobs, R modelling functions, plotting
+packages, and PLINK2-based GRS workflows. It does not provide a general
+DAG scheduler, estimate RAP costs, replace the DNAnexus interface, or
+determine study design, covariate choice, phenotype validity, or causal
+interpretation. Current public phenotype helpers focus on the UKB
+sources listed above and do not cover GP / primary-care code systems.
 
 ## Quick Start
 
 ``` r
+
 library(ukbflow)
 
 # Simulate UKB-style data locally (on RAP: replace with extract_batch() + job_wait())
@@ -129,6 +169,9 @@ plot_forest(
 - **[Get
   Started](https://evanbio.github.io/ukbflow/articles/get-started.md)**
   — Installation and end-to-end workflow
+- **[Analysis
+  Audit](https://evanbio.github.io/ukbflow/articles/audit.md)** —
+  Lightweight manifests for reproducible analyses
 - **[Function
   Reference](https://evanbio.github.io/ukbflow/reference/index.md)** —
   Complete API documentation
