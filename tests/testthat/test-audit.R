@@ -300,6 +300,68 @@ test_that("audit_pheno() validates inputs", {
 
 
 # ===========================================================================
+# audit_model()
+# ===========================================================================
+
+test_that("audit_model() records result table and covariates", {
+  aud <- audit_start("example_analysis")
+  res <- data.frame(
+    exposure = "smoking_ever",
+    term = "smoking_everEver",
+    model = factor("Fully adjusted"),
+    n = 100L,
+    n_events = 10L,
+    HR = 1.2,
+    CI_lower = 1.0,
+    CI_upper = 1.4,
+    p_value = 0.04
+  )
+
+  aud <- audit_model(
+    aud,
+    res,
+    label = "smoking_lung_cox",
+    covariates = c("age", "sex")
+  )
+
+  expect_length(aud$models, 1L)
+  rec <- aud$models[[1L]]
+  expect_equal(rec$label, "smoking_lung_cox")
+  expect_equal(rec$method, "coxph")
+  expect_equal(rec$n_rows, 1L)
+  expect_equal(rec$exposures, "smoking_ever")
+  expect_equal(rec$models, "Fully adjusted")
+  expect_equal(rec$covariates, c("age", "sex"))
+  expect_s3_class(rec$results, "data.frame")
+  expect_equal(rec$results$model, "Fully adjusted")
+})
+
+test_that("audit_model() creates default labels and infers common methods", {
+  aud <- audit_start("example_analysis")
+
+  aud <- audit_model(aud, data.frame(exposure = "x", OR = 1.1))
+  aud <- audit_model(aud, data.frame(exposure = "x", beta = 0.1))
+  aud <- audit_model(aud, data.frame(exposure = "x", SHR = 1.2))
+  aud <- audit_model(aud, data.frame(exposure = "x", estimate = 1.2))
+
+  expect_equal(vapply(aud$models, `[[`, "", "label"),
+               paste0("model_", 1:4))
+  expect_equal(vapply(aud$models, `[[`, "", "method"),
+               c("logistic", "linear", "competing", "unknown"))
+})
+
+test_that("audit_model() validates inputs", {
+  aud <- audit_start("example_analysis")
+  res <- data.frame(exposure = "x", HR = 1.1)
+
+  expect_error(audit_model(list(), res), "ukbflow_audit")
+  expect_error(audit_model(aud, "not data"), "data.frame")
+  expect_error(audit_model(aud, res, label = 1), "label")
+  expect_error(audit_model(aud, res, covariates = 1), "covariates")
+})
+
+
+# ===========================================================================
 # audit_write()
 # ===========================================================================
 
@@ -317,6 +379,12 @@ test_that("audit_write() writes a JSON manifest", {
     data.frame(eid = 1:2, lung_status = c(TRUE, FALSE)),
     "lung"
   )
+  aud <- audit_model(
+    aud,
+    data.frame(exposure = "x", model = "m1", HR = 1.1),
+    "cox_model",
+    covariates = "age"
+  )
   file <- withr::local_tempfile(fileext = ".json")
 
   out <- suppressMessages(audit_write(aud, file))
@@ -328,6 +396,8 @@ test_that("audit_write() writes a JSON manifest", {
   expect_equal(manifest$snapshots$label, "raw")
   expect_equal(manifest$phenotypes$name, "lung")
   expect_equal(manifest$phenotypes$combined$n_cases, 1L)
+  expect_equal(manifest$models$label, "cox_model")
+  expect_equal(manifest$models$results[[1L]]$HR, 1.1)
   expect_type(manifest$session_info, "character")
 })
 
@@ -428,6 +498,11 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
     ),
     "lung"
   )
+  aud <- audit_model(
+    aud,
+    data.frame(exposure = "smoking", model = "Fully adjusted", HR = 1.2),
+    "cox_model"
+  )
 
   visible <- NULL
   out <- capture.output(
@@ -443,4 +518,6 @@ test_that("summary.ukbflow_audit() prints a short audit summary", {
   expect_true(any(grepl("analysis_ready: 3 rows x 2 cols", out, fixed = TRUE)))
   expect_true(any(grepl("phenotypes: 1", out, fixed = TRUE)))
   expect_true(any(grepl("lung: 3 rows, 2 cases, timing 0/1/2 = 1/1/1", out, fixed = TRUE)))
+  expect_true(any(grepl("models: 1", out, fixed = TRUE)))
+  expect_true(any(grepl("cox_model: coxph, 1 exposure, 1 result row", out, fixed = TRUE)))
 })

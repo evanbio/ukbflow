@@ -295,6 +295,69 @@ audit_pheno <- function(audit, data, name) {
 }
 
 
+#' Record an association model result
+#'
+#' Stores a model result table returned by the \code{assoc_*} family in the
+#' audit manifest. The result table is recorded directly because it is usually
+#' small and contains the most useful analysis summary. Optional covariates can
+#' be supplied when they already exist as a vector in the analysis script.
+#'
+#' @param audit A \code{ukbflow_audit} object created by
+#'   \code{\link{audit_start}}.
+#' @param result A data.frame or data.table result table, typically returned by
+#'   \code{assoc_coxph}, \code{assoc_logistic}, \code{assoc_linear}, or related
+#'   helpers.
+#' @param label (character or NULL) Optional label for this model record.
+#'   Default: \code{NULL}, which creates \code{"model_N"}.
+#' @param covariates (character or NULL) Optional covariate column names used
+#'   in the model. Default: \code{NULL}.
+#'
+#' @return The updated \code{ukbflow_audit} object.
+#' @export
+#'
+#' @examples
+#' aud <- audit_start("example_analysis")
+#' res <- data.frame(
+#'   exposure = "smoking",
+#'   term = "smokingEver",
+#'   model = "Fully adjusted",
+#'   n = 100,
+#'   HR = 1.2,
+#'   CI_lower = 1.0,
+#'   CI_upper = 1.4,
+#'   p_value = 0.04
+#' )
+#' aud <- audit_model(aud, res, "smoking_model", covariates = c("age", "sex"))
+audit_model <- function(audit, result, label = NULL, covariates = NULL) {
+
+  .assert_audit(audit)
+  .assert_data_frame(result)
+  if (!is.null(label)) .assert_scalar_string(label)
+  if (!is.null(covariates)) .assert_character(covariates)
+
+  models <- audit$models
+  idx <- if (is.null(models)) 1L else length(models) + 1L
+  if (is.null(label)) label <- paste0("model_", idx)
+
+  result_df <- .audit_result_as_data_frame(result)
+
+  record <- list(
+    label       = label,
+    method      = .audit_infer_model_method(result_df),
+    n_rows      = nrow(result_df),
+    exposures   = if ("exposure" %in% names(result_df)) unique(result_df$exposure) else character(0),
+    models      = if ("model" %in% names(result_df)) unique(result_df$model) else character(0),
+    covariates  = if (is.null(covariates)) character(0) else covariates,
+    results     = result_df,
+    recorded_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")
+  )
+
+  if (is.null(audit$models)) audit$models <- list()
+  audit$models[[length(audit$models) + 1L]] <- record
+  audit
+}
+
+
 #' Write a ukbflow audit manifest
 #'
 #' Writes a \code{ukbflow_audit} object to a JSON manifest. The manifest is a
@@ -426,6 +489,18 @@ summary.ukbflow_audit <- function(object, ...) {
         ""
       }
       cli::cli_inform("  - {record$name}: {record$n} rows{case_info}{timing_info}")
+    }
+  }
+
+  models <- object$models
+  n_models <- if (is.null(models)) 0L else length(models)
+  cli::cli_inform("models: {n_models}")
+  if (n_models > 0L) {
+    for (record in models) {
+      n_exposures <- length(record$exposures)
+      cli::cli_inform(
+        "  - {record$label}: {record$method}, {n_exposures} exposure{?s}, {record$n_rows} result row{?s}"
+      )
     }
   }
 

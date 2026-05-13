@@ -58,6 +58,12 @@
     audit$phenotypes
   }
 
+  models <- if (is.null(audit$models)) {
+    list()
+  } else {
+    audit$models
+  }
+
   list(
     name            = audit$name,
     start_time      = audit$start_time,
@@ -67,7 +73,8 @@
     session_info    = session_info,
     extraction      = extraction,
     snapshots       = snapshots,
-    phenotypes      = phenotypes
+    phenotypes      = phenotypes,
+    models          = models
   )
 }
 
@@ -165,4 +172,36 @@
     min           = if (has_years && n_years > 0L) min(years, na.rm = TRUE) else NA_real_,
     max           = if (has_years && n_years > 0L) max(years, na.rm = TRUE) else NA_real_
   )
+}
+
+
+#' @keywords internal
+#' @noRd
+.audit_result_as_data_frame <- function(result) {
+  out <- as.data.frame(result, stringsAsFactors = FALSE)
+  for (col in names(out)) {
+    if (is.factor(out[[col]])) {
+      out[[col]] <- as.character(out[[col]])
+    }
+  }
+  rownames(out) <- NULL
+  out
+}
+
+
+#' @keywords internal
+#' @noRd
+.audit_infer_model_method <- function(result) {
+  cols <- names(result)
+  if ("SHR" %in% cols) {
+    "competing"
+  } else if ("HR" %in% cols) {
+    "coxph"
+  } else if ("OR" %in% cols) {
+    "logistic"
+  } else if ("beta" %in% cols) {
+    "linear"
+  } else {
+    "unknown"
+  }
 }
