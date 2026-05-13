@@ -257,3 +257,47 @@ print.ukbflow_audit <- function(x, ...) {
 
   invisible(x)
 }
+
+
+#' @export
+summary.ukbflow_audit <- function(object, ...) {
+
+  .assert_audit(object)
+
+  fmt_label <- function(x, fallback = "unlabeled") {
+    if (length(x) != 1L || is.na(x) || !nzchar(x)) fallback else x
+  }
+
+  cli::cli_h1("ukbflow audit summary")
+  cli::cli_inform("name: {.val {object$name}}")
+  cli::cli_inform("started: {.val {object$start_time}}")
+  cli::cli_inform("ukbflow_version: {.val {object$ukbflow_version}}")
+  cli::cli_inform("dx_user: {.val {if (is.na(object$dx_user)) 'NA' else object$dx_user}}")
+  cli::cli_inform("dx_project: {.val {if (is.na(object$dx_project)) 'NA' else object$dx_project}}")
+
+  extraction <- object$extraction
+  n_extraction <- if (is.null(extraction)) 0L else length(extraction)
+  cli::cli_inform("field records: {n_extraction}")
+  if (n_extraction > 0L) {
+    for (record in extraction) {
+      label <- fmt_label(record$label)
+      dataset <- fmt_label(record$dataset, fallback = "no dataset")
+      cli::cli_inform("  - {label}: {record$n_fields} field{?s} ({dataset})")
+    }
+  }
+
+  snapshots <- object$snapshots
+  n_snapshots <- if (is.null(snapshots)) 0L else length(snapshots)
+  cli::cli_inform("snapshots: {n_snapshots}")
+  if (n_snapshots > 0L) {
+    for (record in snapshots) {
+      cli::cli_inform(
+        "  - {record$label}: {record$nrow} rows x {record$ncol} cols"
+      )
+    }
+  }
+
+  cli::cli_inform("session_info: recorded")
+
+  invisible(object)
+}

@@ -306,3 +306,32 @@ test_that("print.ukbflow_audit() returns audit object invisibly", {
   expect_false(visible$visible)
   expect_identical(visible$value, aud)
 })
+
+
+# ===========================================================================
+# summary.ukbflow_audit()
+# ===========================================================================
+
+test_that("summary.ukbflow_audit() prints a short audit summary", {
+  aud <- audit_start("example_analysis")
+  aud <- audit_fields(aud, c(31, 53), label = "core_fields")
+  aud <- audit_snapshot(
+    aud,
+    data.frame(eid = 1:3, x = c(1, NA, 3)),
+    "analysis_ready",
+    verbose = FALSE
+  )
+
+  visible <- NULL
+  out <- capture.output(
+    visible <- withVisible(summary(aud)),
+    type = "message"
+  )
+
+  expect_false(visible$visible)
+  expect_identical(visible$value, aud)
+  expect_true(any(grepl("field records: 1", out, fixed = TRUE)))
+  expect_true(any(grepl("core_fields: 2 fields", out, fixed = TRUE)))
+  expect_true(any(grepl("snapshots: 1", out, fixed = TRUE)))
+  expect_true(any(grepl("analysis_ready: 3 rows x 2 cols", out, fixed = TRUE)))
+})
