@@ -117,6 +117,7 @@ plot_tableone(
 | Plot | `plot_forest()`, `plot_tableone()` | `vignette("plot")` |
 | GRS | `grs_check()`, `grs_score()`, `grs_validate()` | `vignette("grs")` |
 | Ops | `ops_setup()`, `ops_toy()`, `ops_snapshot()` | `vignette("ops")` |
+| Audit | `audit_start()`, `audit_snapshot()`, `audit_write()` | `vignette("audit")` |
 
 ## End-to-End Case Study
 

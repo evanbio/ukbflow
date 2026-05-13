@@ -272,6 +272,8 @@ navbar:
         href: articles/grs.html
       - text: "Utilities & Diagnostics (ops_* Series)"
         href: articles/ops.html
+      - text: "Analysis Audit and Reproducibility"
+        href: articles/audit.html
       - text: "--------"
       - text: "Case Study: Smoking and Lung Cancer Risk"
         href: articles/smoking_lung_cancer.html
@@ -415,6 +417,20 @@ reference:
   - ops_snapshot_remove
   - ops_set_safe_cols
   - ops_withdraw
+
+- title: "Analysis Audit"
+  desc: >
+    Lightweight analysis manifests for fields, data snapshots, derived
+    phenotypes, model results, and session metadata.
+  contents:
+  - audit_start
+  - audit_fields
+  - audit_snapshot
+  - audit_cols
+  - audit_pheno
+  - audit_model
+  - audit_write
+  - summary.ukbflow_audit
 
 - title: "Visualisation"
   desc: >

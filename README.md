@@ -109,6 +109,7 @@ GRS workflows additionally require `plink2` availability in the RAP job environm
 | **Genomic Scoring** | `grs_bgen2pgen`, `grs_score`, `grs_standardize` | Distributed plink2 scoring on RAP worker nodes |
 | **Visualization** | `plot_forest`, `plot_tableone` | Publication-ready figures & tables |
 | **Utilities** | `ops_setup`, `ops_fields`, `ops_fields_common`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw` | Environment check, project field search, common field reference, synthetic data, pipeline diagnostics, and cohort management |
+| **Audit** | `audit_start`, `audit_fields`, `audit_snapshot`, `audit_pheno`, `audit_model`, `audit_write` | Lightweight analysis manifests for fields, snapshots, phenotypes, model results, and session metadata |
 
 ---
 
@@ -224,6 +225,20 @@ part of the current public API.
 - `ops_snapshot_remove()` — remove columns added after a given snapshot
 - `ops_set_safe_cols()` — define protected columns that ops_snapshot_remove will not drop
 - `ops_withdraw()` — exclude UKB withdrawn participants from a cohort
+
+</details>
+
+<details>
+<summary><b>Analysis Audit</b></summary>
+
+- `audit_start()` — start an analysis audit record with package/session metadata
+- `audit_fields()` — record UKB field IDs used for extraction
+- `audit_snapshot()` — record cohort size, column count, missingness count, and full column names
+- `audit_cols()` — retrieve column names from an audit snapshot
+- `audit_pheno()` — summarise derived phenotype columns from standard `derive_*` names
+- `audit_model()` — record association result tables and optional covariates
+- `audit_write()` — write the audit manifest to JSON
+- `summary()` — print a short audit overview
 
 </details>
 

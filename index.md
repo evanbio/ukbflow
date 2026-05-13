@@ -53,6 +53,8 @@ GRS workflows additionally require `plink2` availability in the RAP job environm
 
 **Utilities** — Verify environment before analysis; search approved project fields and look up common UKB field IDs; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (`ops_setup`, `ops_fields`, `ops_fields_common`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
 
+**Analysis Audit** — Create lightweight JSON manifests for reproducibility: field IDs, dataset snapshots, derived phenotype summaries, model result tables, and session metadata (`audit_start`, `audit_fields`, `audit_snapshot`, `audit_pheno`, `audit_model`, `audit_write`)
+
 ## Supported Phenotype Sources
 
 `ukbflow` currently focuses on common UK Biobank disease-phenotype sources that
@@ -118,6 +120,7 @@ plot_forest(
 
 - **[ukbflow Book](https://ukbflow.evanzhou.org)** — Practical RAP-native workflows, examples, and module notes
 - **[Get Started](articles/get-started.html)** — Installation and end-to-end workflow
+- **[Analysis Audit](articles/audit.html)** — Lightweight manifests for reproducible analyses
 - **[Function Reference](reference/index.html)** — Complete API documentation
 - **[Vignettes](articles/index.html)** — Module-by-module tutorials
 
