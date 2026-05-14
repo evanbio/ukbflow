@@ -93,7 +93,13 @@ The validated weights are also returned invisibly for inspection.
 
 UKB imputed genotype data is stored in BGEN format on RAP. `grs_bgen2pgen()`
 submits one Swiss Army Knife job per chromosome to convert BGEN files to the
-faster PGEN format with a MAF filter applied via plink2.
+plink2-native PGEN format with a MAF filter applied via plink2. This staged
+workflow separates one-time genotype conversion from repeated GRS scoring, so
+the converted PGEN files can be reused across multiple score files.
+
+The trade-off is additional RAP project storage: PGEN outputs should be kept
+only when they will be reused, and removed according to the project's storage
+and cost policy when no longer needed.
 
 This function is called from your local machine or RAP RStudio -- the heavy
 lifting runs entirely in the cloud.
