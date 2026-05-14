@@ -90,7 +90,7 @@ plink2-compatible space-delimited output ready for upload to UKB RAP."><meta pro
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul></li>
@@ -174,7 +174,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">weights</span>, <span class="va">tmp_in</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu">grs_check</span><span class="op">(</span><span class="va">tmp_in</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpbrX5SN/file22525bab6290.csv</span>: 3 rows, 3 columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpYOSA2p/file220a7423ead7.csv</span>: 3 rows, 3 columns.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No NA values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No duplicate SNPs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All SNP IDs match rs[0-9]+ format.</span>
@@ -196,7 +196,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-in"><span><span class="co"># Save validated weights to a file</span></span></span>
 <span class="r-in"><span><span class="va">tmp_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">grs_check</span><span class="op">(</span><span class="va">tmp_in</span>, dest <span class="op">=</span> <span class="va">tmp_out</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpbrX5SN/file22525bab6290.csv</span>: 3 rows, 3 columns.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Read <span style="color: #0000BB;">/tmp/RtmpYOSA2p/file220a7423ead7.csv</span>: 3 rows, 3 columns.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No NA values.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> No duplicate SNPs.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> All SNP IDs match rs[0-9]+ format.</span>
@@ -208,7 +208,7 @@ columns are ignored):</p><dl><dt><code>snp</code></dt>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Negative : 1 (33.3%)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Zero : 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Weights file passed checks: <span style="font-weight: bold;">3 SNPs</span> ready for UKB RAP.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Saved: <span style="color: #0000BB;">/tmp/RtmpbrX5SN/file2252d7cf23a.txt</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Saved: <span style="color: #0000BB;">/tmp/RtmpYOSA2p/file220a7c0657dc.txt</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

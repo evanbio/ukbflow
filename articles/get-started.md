@@ -60,7 +60,7 @@ df <- df |>
 
 res <- assoc_coxph(
   data         = df,
-  outcome_coll  = "t2dm_status",
+  outcome_col  = "t2dm_status",
   time_col     = "t2dm_followup_years",
   exposure_col = "p21001_i0",   # BMI (continuous)
   covariates   = c("p21022",    # age_at_recruitment
@@ -116,7 +116,7 @@ covering data loading, phenotype derivation, cohort assembly, Cox
 regression, and publication-ready visualisation — see:
 
 [`vignette("smoking_lung_cancer")`](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md)
-— **Smoking and Lung Cancer Risk: A Complete Analysis Workflow**
+— **Smoking and Lung Cancer Risk: A Synthetic Workflow Demonstration**
 
 ## Additional Resources
 
@@ -127,6 +127,6 @@ regression, and publication-ready visualisation — see:
   or
   [`help(package = "ukbflow")`](https://evanbio.github.io/ukbflow/reference)
 
-> *“All models are wrong, but some are publishable.”*
+> *“All models are wrong, but some are useful.”*
 >
-> — after George Box
+> — George E. P. Box

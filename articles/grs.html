@@ -117,7 +117,7 @@
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul>
@@ -271,8 +271,13 @@ plink2-compatible space-delimited output.</p>
 </h2>
 <p>UKB imputed genotype data is stored in BGEN format on RAP.
 <code><a href="../reference/grs_bgen2pgen.html">grs_bgen2pgen()</a></code> submits one Swiss Army Knife job per
-chromosome to convert BGEN files to the faster PGEN format with a MAF
-filter applied via plink2.</p>
+chromosome to convert BGEN files to the plink2-native PGEN format with a
+MAF filter applied via plink2. This staged workflow separates one-time
+genotype conversion from repeated GRS scoring, so the converted PGEN
+files can be reused across multiple score files.</p>
+<p>The trade-off is additional RAP project storage: PGEN outputs should
+be kept only when they will be reused, and removed according to the
+project’s storage and cost policy when no longer needed.</p>
 <p>This function is called from your local machine or RAP RStudio – the
 heavy lifting runs entirely in the cloud.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">

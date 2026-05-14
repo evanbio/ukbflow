@@ -117,7 +117,7 @@
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul>
@@ -261,7 +261,7 @@ levels without requiring manual formula construction:</p>
 <tr class="even">
 <td><strong>Age and sex adjusted</strong></td>
 <td>Age (field 21022) + sex (field 31), auto-detected</td>
-<td>When both columns are found</td>
+<td>When one age column and one sex column are found</td>
 </tr>
 <tr class="odd">
 <td><strong>Fully adjusted</strong></td>
@@ -271,14 +271,15 @@ levels without requiring manual formula construction:</p>
 </tr>
 </tbody>
 </table>
-<p>Age and sex columns are located automatically by scanning the
-dataset’s column names for standard UKB naming patterns
-(<code>p21022_*</code> for age at recruitment, <code>p31_*</code> for
-sex). As a fallback, any column starting with <code>"age"</code> or
-named <code>"sex"</code> is also recognised. No prerequisite pipeline
-step is required — the detection works on any data.frame whose columns
-follow UKB or ukbflow naming conventions. Set <code>base = FALSE</code>
-to skip the first two models and run only the Fully adjusted model.</p>
+<p>Age and sex columns are located automatically from a small set of
+standard UKB and ukbflow names: <code>age_at_recruitment</code>,
+<code>p21022</code>, <code>21022</code>, or
+<code>participant.p21022</code> for age, and <code>sex</code>,
+<code>p31</code>, <code>31</code>, or <code>participant.p31</code> for
+sex. If these columns were manually renamed, set
+<code>base = FALSE</code> and pass the intended age and sex columns
+through <code>covariates</code>. Set <code>base = FALSE</code> to skip
+the first two models and run only the Fully adjusted model.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -347,6 +348,21 @@ adjusted</td>
 <td><code>HR</code></td>
 <td>Hazard ratio</td>
 </tr>
+<tr class="even">
+<td>
+<code>CI_lower</code>, <code>CI_upper</code>
+</td>
+<td>Confidence interval bounds</td>
+</tr>
+<tr class="odd">
+<td><code>p_value</code></td>
+<td>P-value from the selected test method</td>
+</tr>
+<tr class="even">
+<td><code>HR_label</code></td>
+<td>Formatted string, e.g. <code>"1.43 (1.28-1.60)"</code>
+</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
@@ -354,12 +370,15 @@ adjusted</td>
 all reflect the model-specific complete-case analysis set — participants
 with any missing value across outcome, time, exposure, or covariates are
 dropped before fitting. These counts therefore differ between models
-(e.g. Fully adjusted typically has fewer participants than Unadjusted).
-| <code>CI_lower</code>, <code>CI_upper</code> | Confidence interval
-bounds | | <code>p_value</code> | Wald test p-value | |
-<code>HR_label</code> | Formatted string,
-e.g. <code>"1.43 (1.28-1.60)"</code> |</p>
+(e.g. Fully adjusted typically has fewer participants than
+Unadjusted).</p>
 </blockquote>
+<p>By default, <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> uses
+<code>test = "wald"</code> for term-level Wald p-values. Set
+<code>test = "lrt"</code> to return an exposure-level likelihood-ratio
+p-value from single-term deletion. When <code>cluster_col</code> is
+supplied for cluster-robust Cox variance, only
+<code>test = "wald"</code> is supported.</p>
 <hr>
 </div>
 <div class="section level2">

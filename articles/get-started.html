@@ -117,7 +117,7 @@
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Case Study: Smoking and Lung Cancer Risk</a></li>
+    <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/">All Articles</a></li>
   </ul>
@@ -210,7 +210,7 @@ testing.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
 <span>  data         <span class="op">=</span> <span class="va">df</span>,</span>
-<span>  outcome_coll  <span class="op">=</span> <span class="st">"t2dm_status"</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"t2dm_status"</span>,</span>
 <span>  time_col     <span class="op">=</span> <span class="st">"t2dm_followup_years"</span>,</span>
 <span>  exposure_col <span class="op">=</span> <span class="st">"p21001_i0"</span>,   <span class="co"># BMI (continuous)</span></span>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>,    <span class="co"># age_at_recruitment</span></span>
@@ -359,7 +359,7 @@ testing.</p>
 covering data loading, phenotype derivation, cohort assembly, Cox
 regression, and publication-ready visualisation — see:</p>
 <p><code><a href="../articles/smoking_lung_cancer.html">vignette("smoking_lung_cancer")</a></code> — <strong>Smoking and
-Lung Cancer Risk: A Complete Analysis Workflow</strong></p>
+Lung Cancer Risk: A Synthetic Workflow Demonstration</strong></p>
 </div>
 <div class="section level2">
 <h2 id="additional-resources">Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"></a>
@@ -373,8 +373,8 @@ site</a></li>
 </li>
 </ul>
 <blockquote>
-<p><em>“All models are wrong, but some are publishable.”</em></p>
-<p>— after George Box</p>
+<p><em>“All models are wrong, but some are useful.”</em></p>
+<p>— George E. P. Box</p>
 </blockquote>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

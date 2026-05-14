@@ -1,4 +1,4 @@
-# Smoking and Lung Cancer Risk: A Complete Analysis Workflow
+# Smoking and Lung Cancer Risk: A Synthetic Workflow Demonstration
 
 ## 1 Introduction
 

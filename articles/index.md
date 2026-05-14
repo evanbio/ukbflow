@@ -30,5 +30,5 @@
   Tracking](https://evanbio.github.io/ukbflow/articles/ops.md):
 - [Publication-Ready
   Visualisation](https://evanbio.github.io/ukbflow/articles/plot.md):
-- [Smoking and Lung Cancer Risk: A Complete Analysis
-  Workflow](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md):
+- [Smoking and Lung Cancer Risk: A Synthetic Workflow
+  Demonstration](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md):
