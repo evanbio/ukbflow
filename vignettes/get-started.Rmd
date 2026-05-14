@@ -133,6 +133,6 @@ publication-ready visualisation — see:
 - [GitHub](https://github.com/evanbio/ukbflow)
 - View all functions: `?ukbflow` or `help(package = "ukbflow")`
 
-> *"All models are wrong, but some are publishable."*
+> *"All models are wrong, but some are useful."*
 >
-> — after George Box
+> — George E. P. Box
