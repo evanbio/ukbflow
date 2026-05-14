@@ -71,7 +71,7 @@ df <- df |>
 ```{r assoc}
 res <- assoc_coxph(
   data         = df,
-  outcome_coll  = "t2dm_status",
+  outcome_col  = "t2dm_status",
   time_col     = "t2dm_followup_years",
   exposure_col = "p21001_i0",   # BMI (continuous)
   covariates   = c("p21022",    # age_at_recruitment
