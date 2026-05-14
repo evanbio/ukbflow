@@ -125,7 +125,7 @@ For a complete worked example using a simulated UK Biobank cohort — covering
 data loading, phenotype derivation, cohort assembly, Cox regression, and
 publication-ready visualisation — see:
 
-`vignette("smoking_lung_cancer")` — **Smoking and Lung Cancer Risk: A Complete Analysis Workflow**
+`vignette("smoking_lung_cancer")` — **Smoking and Lung Cancer Risk: A Synthetic Workflow Demonstration**
 
 ## Additional Resources
 

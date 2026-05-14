@@ -1,8 +1,8 @@
 ---
-title: "Smoking and Lung Cancer Risk: A Complete Analysis Workflow"
+title: "Smoking and Lung Cancer Risk: A Synthetic Workflow Demonstration"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Smoking and Lung Cancer Risk: A Complete Analysis Workflow}
+  %\VignetteIndexEntry{Smoking and Lung Cancer Risk: A Synthetic Workflow Demonstration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
