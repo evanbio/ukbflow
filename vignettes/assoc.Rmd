@@ -56,16 +56,15 @@ requiring manual formula construction:
 | Model | Covariates | When included |
 |---|---|---|
 | **Unadjusted** | None (crude) | Always (when `base = TRUE`) |
-| **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When both columns are found |
+| **Age and sex adjusted** | Age (field 21022) + sex (field 31), auto-detected | When one age column and one sex column are found |
 | **Fully adjusted** | User-supplied `covariates` | When `covariates` is non-NULL |
 
-Age and sex columns are located automatically by scanning the dataset's column
-names for standard UKB naming patterns (`p21022_*` for age at recruitment,
-`p31_*` for sex). As a fallback, any column starting with `"age"` or named
-`"sex"` is also recognised. No prerequisite pipeline step is required — the
-detection works on any data.frame whose columns follow UKB or ukbflow naming
-conventions. Set `base = FALSE` to skip the first two models and run only the
-Fully adjusted model.
+Age and sex columns are located automatically from a small set of standard UKB
+and ukbflow names: `age_at_recruitment`, `p21022`, `21022`, or
+`participant.p21022` for age, and `sex`, `p31`, `31`, or `participant.p31` for
+sex. If these columns were manually renamed, set `base = FALSE` and pass the
+intended age and sex columns through `covariates`. Set `base = FALSE` to skip
+the first two models and run only the Fully adjusted model.
 
 ---
 
@@ -108,15 +107,20 @@ Output columns:
 | `n_events` | Events in model |
 | `person_years` | Total person-years (rounded) |
 | `HR` | Hazard ratio |
+| `CI_lower`, `CI_upper` | Confidence interval bounds |
+| `p_value` | P-value from the selected test method |
+| `HR_label` | Formatted string, e.g. `"1.43 (1.28-1.60)"` |
 
 > `n`, `n_events`, and `person_years` all reflect the model-specific
 > complete-case analysis set — participants with any missing value across
 > outcome, time, exposure, or covariates are dropped before fitting. These
 > counts therefore differ between models (e.g. Fully adjusted typically has
 > fewer participants than Unadjusted).
-| `CI_lower`, `CI_upper` | Confidence interval bounds |
-| `p_value` | Wald test p-value |
-| `HR_label` | Formatted string, e.g. `"1.43 (1.28-1.60)"` |
+
+By default, `assoc_coxph()` uses `test = "wald"` for term-level Wald p-values.
+Set `test = "lrt"` to return an exposure-level likelihood-ratio p-value from
+single-term deletion. When `cluster_col` is supplied for cluster-robust Cox
+variance, only `test = "wald"` is supported.
 
 ---
 
