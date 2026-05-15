@@ -164,6 +164,9 @@ home:
   - text: "Deriving Disease Phenotypes from UKB Data"
     href: articles/derive.html
     desc: "Case definitions from HES, cancer registry, and self-report"
+  - text: "Supported Phenotype Sources"
+    href: articles/phenotype-scope.html
+    desc: "Current phenotype-source support, defaults, and limitations"
   - text: "Survival Analysis Setup for UKB Outcomes"
     href: articles/derive-survival.html
     desc: "Follow-up time, event dates, and timing classification"
@@ -222,6 +225,7 @@ navbar:
       - install
       - intro
       - vignettes
+      - scope
       - reference
       - news
     right:
@@ -280,6 +284,12 @@ navbar:
       - text: "--------"
       - text: "All Articles"
         href: articles/
+
+    scope:
+      text: "Scope"
+      menu:
+      - text: "Phenotype Sources"
+        href: articles/phenotype-scope.html
 
     reference:
       text: "Reference"
