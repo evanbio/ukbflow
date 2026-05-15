@@ -36,5 +36,5 @@ Invisibly returns the normalized output path.
 aud <- audit_start("example_analysis")
 outfile <- tempfile(fileext = ".json")
 audit_write(aud, outfile)
-#> ✔ audit manifest written: /tmp/RtmpYOSA2p/file220a3c6c868c.json
+#> ✔ audit manifest written: /tmp/Rtmp0MkjCT/file21e621b7d006.json
 ```

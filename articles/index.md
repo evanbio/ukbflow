@@ -28,6 +28,8 @@
   Jobs](https://evanbio.github.io/ukbflow/articles/job.md):
 - [Operational Utilities: Setup, Diagnostics, and Pipeline
   Tracking](https://evanbio.github.io/ukbflow/articles/ops.md):
+- [Supported Phenotype Sources and Current
+  Limitations](https://evanbio.github.io/ukbflow/articles/phenotype-scope.md):
 - [Publication-Ready
   Visualisation](https://evanbio.github.io/ukbflow/articles/plot.md):
 - [Smoking and Lung Cancer Risk: A Synthetic Workflow
