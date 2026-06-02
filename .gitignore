@@ -22,5 +22,8 @@ docs/
 # testthat auto-generated directories
 tests/testthat/_snaps/
 tests/testthat/data/
-AGENTS.md
 PLANNING.md
+
+# Codex
+AGENTS.md
+.codex/

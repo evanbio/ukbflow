@@ -18,3 +18,4 @@
 ^tests/testthat/data$
 ^AGENTS\.md$
 ^PLANNING\.md$
+^\.codex$
