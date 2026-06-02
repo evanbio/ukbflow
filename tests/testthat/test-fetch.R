@@ -152,6 +152,7 @@ test_that("fetch_ls() returns empty data.frame when pattern matches nothing", {
 # ===========================================================================
 
 test_that("fetch_url() returns a named character vector for a single file", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_url, ".dx_probe_path",
                 function(...) list(is_folder = FALSE, is_file = TRUE, exists = TRUE, stdout = ""))
   mockery::stub(fetch_url, ".dx_make_url",
@@ -164,6 +165,7 @@ test_that("fetch_url() returns a named character vector for a single file", {
 })
 
 test_that("fetch_url() returns named vector for a folder", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   fake_files <- data.frame(
     name = c("field.tsv", "encoding.tsv"),
     type = "file", size = NA, modified = as.POSIXct(NA),
@@ -178,6 +180,7 @@ test_that("fetch_url() returns named vector for a folder", {
 })
 
 test_that("fetch_url() returns character(0) for empty folder", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_url, "fetch_ls",
                 function(...) data.frame(name = character(0), type = character(0),
                                          size = character(0),
@@ -188,15 +191,22 @@ test_that("fetch_url() returns character(0) for empty folder", {
 })
 
 test_that("fetch_url() validates path and duration", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   expect_error(fetch_url(path = 1), "single non-empty string")
   expect_error(fetch_url("Showcase metadata/field.tsv", duration = NA_character_),
                "single non-empty string")
 })
 
 test_that("fetch_url() aborts when remote path is missing", {
+  local_mocked_bindings(.is_on_rap = function() TRUE, .package = "ukbflow")
   mockery::stub(fetch_url, ".dx_probe_path",
                 function(...) list(is_folder = FALSE, is_file = FALSE, exists = FALSE, stdout = ""))
   expect_error(fetch_url("missing.tsv"), "Remote path not found")
+})
+
+test_that("fetch_url() aborts when not called from within the RAP", {
+  local_mocked_bindings(.is_on_rap = function() FALSE, .package = "ukbflow")
+  expect_error(fetch_url("Showcase metadata/field.tsv"), class = "rlang_error")
 })
 
 # ===========================================================================

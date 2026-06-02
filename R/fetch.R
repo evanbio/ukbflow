@@ -61,7 +61,9 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 #'
 #' Generates temporary HTTPS URLs for files on the DNAnexus Research Analysis
 #' Platform. For a single file, returns one URL. For a folder, lists all files
-#' inside and returns a named character vector of URLs.
+#' inside and returns a named character vector of URLs. This function must be
+#' called from within RAP, as a pre-authenticated URL is itself a means of
+#' retrieving the underlying file.
 #'
 #' @param path (character) Remote file path or folder path, e.g.
 #'   \code{"Showcase metadata/field.tsv"} or \code{"Showcase metadata/"}.
@@ -82,6 +84,7 @@ fetch_ls <- function(path = ".", type = "all", pattern = NULL) {
 #' fetch_url("Showcase metadata/", duration = "7d")
 #' }
 fetch_url <- function(path, duration = "1d") {
+  .assert_on_rap()
   .assert_scalar_string(path)
   .assert_scalar_string(duration)
 
