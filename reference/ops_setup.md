@@ -51,7 +51,7 @@ errors, because the check itself does not require a live RAP connection.
 ``` r
 ops_setup(check_dx = FALSE, check_auth = FALSE)
 #> ── ukbflow environment check ───────────────────────────────────────────────────
-#> ℹ ukbflow 0.3.4 | R 4.6.0 | 2026-05-15
+#> ℹ ukbflow 0.3.4 | R 4.6.0 | 2026-06-02
 #> ── 3. R packages ───────────────────────────────────────────────────────────────
 #> ✔ cli  3.6.6  [core]
 #> ✔ data.table  1.18.4  [core]
@@ -64,9 +64,9 @@ ops_setup(check_dx = FALSE, check_auth = FALSE)
 #> ✔ dplyr  1.2.1  [assoc / derive]
 #> ✔ tidyselect  1.2.1  [assoc / derive]
 #> ✔ forestploter  1.1.4  [plot_forest]
-#> ✔ broom  1.0.12  [plot_tableone]
+#> ✔ broom  1.0.13  [plot_tableone]
 #> ✔ gt  1.3.0  [plot_tableone]
-#> ✔ gtsummary  2.5.0  [plot_tableone]
+#> ✔ gtsummary  2.5.1  [plot_tableone]
 #> ✔ pROC  1.19.0.1  [assoc (optional)]
 #> ✔ knitr  1.51  [vignettes]
 #> ✔ rmarkdown  2.31  [vignettes]
