@@ -267,6 +267,12 @@ avoid long waits on large projects.</p>
 URLs for remote files. Useful for passing to downstream tools or
 scripting metadata and results workflows without triggering a full
 download.</p>
+<blockquote>
+<p><strong>Note</strong>: Like <code><a href="../reference/fetch_file.html">fetch_file()</a></code>,
+<code><a href="../reference/fetch_url.html">fetch_url()</a></code> can only be called from within the RAP
+environment. A pre-authenticated URL is itself a means of retrieving the
+underlying file, so the same data-governance guard applies.</p>
+</blockquote>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Single file</span></span>
 <span><span class="fu"><a href="../reference/fetch_url.html">fetch_url</a></span><span class="op">(</span><span class="st">"Showcase metadata/field.tsv"</span><span class="op">)</span></span>
@@ -286,11 +292,11 @@ download.</p>
 <p><code><a href="../reference/fetch_file.html">fetch_file()</a></code> downloads a file or an entire folder to the
 current or a specified directory within the RAP environment.</p>
 <blockquote>
-<p><strong>Note</strong>: <code><a href="../reference/fetch_file.html">fetch_file()</a></code>,
-<code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and <code><a href="../reference/fetch_field.html">fetch_field()</a></code> can only
-be called from within the RAP environment. Calling them locally will
-produce an error, as individual-level UKB data must remain on the
-platform.</p>
+<p><strong>Note</strong>: <code><a href="../reference/fetch_url.html">fetch_url()</a></code>,
+<code><a href="../reference/fetch_file.html">fetch_file()</a></code>, <code><a href="../reference/fetch_metadata.html">fetch_metadata()</a></code>, and
+<code><a href="../reference/fetch_field.html">fetch_field()</a></code> can only be called from within the RAP
+environment. Calling them locally will produce an error, as
+individual-level UKB data must remain on the platform.</p>
 </blockquote>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download a single file</span></span>

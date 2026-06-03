@@ -3,6 +3,8 @@
 Generates temporary HTTPS URLs for files on the DNAnexus Research
 Analysis Platform. For a single file, returns one URL. For a folder,
 lists all files inside and returns a named character vector of URLs.
+This function must be called from within RAP, as a pre-authenticated URL
+is itself a means of retrieving the underlying file.
 
 ## Usage
 

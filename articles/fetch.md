@@ -98,6 +98,13 @@ generates temporary pre-authenticated HTTPS URLs for remote files.
 Useful for passing to downstream tools or scripting metadata and results
 workflows without triggering a full download.
 
+> **Note**: Like
+> [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
+> [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)
+> can only be called from within the RAP environment. A
+> pre-authenticated URL is itself a means of retrieving the underlying
+> file, so the same data-governance guard applies.
+
 ``` r
 
 # Single file
@@ -120,6 +127,7 @@ downloads a file or an entire folder to the current or a specified
 directory within the RAP environment.
 
 > **Note**:
+> [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md),
 > [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md),
 > [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md),
 > and

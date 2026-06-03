@@ -38,7 +38,7 @@ aud
 #> 
 #> ── ukbflow audit ───────────────────────────────────────────────────────────────
 #> name: "example_analysis"
-#> start_time: "2026-06-02T11:50:28+0000"
+#> start_time: "2026-06-03T05:46:43+0000"
 #> ukbflow_version: "0.3.4"
 #> dx_user: "NA"
 #> dx_project: "NA"
