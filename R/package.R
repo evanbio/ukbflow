@@ -4,7 +4,7 @@
 ## usethis namespace: start
 #' @import data.table
 #' @importFrom stats confint anova relevel setNames rnorm runif
-#' @importFrom utils object.size
+#' @importFrom utils object.size capture.output
 ## usethis namespace: end
 
 utils::globalVariables(c(
@@ -25,7 +25,7 @@ utils::globalVariables(c(
   "hist_code", "behv_code",
   "death_date",
   # data.table column references — ops_*
-  "pct_na"
+  "pct_na", "field_name", "title", "field_id", "base_title"
 ))
 
 NULL
