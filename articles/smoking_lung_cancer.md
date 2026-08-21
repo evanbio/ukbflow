@@ -24,84 +24,30 @@ analysis.
 library(ukbflow)
 
 data <- ops_toy(n = 500000, seed = 2026)
-#> ✔ ops_toy: 500000 participants | 107 columns | scenario = "cohort" | seed = 2026
+#> ✔ ops_toy: 500000 participants | 75 columns | scenario = "cohort" | seed = 2026
 ```
 
-An analysis in ukbflow can carry a lightweight **audit manifest**
-alongside it, recording the field IDs, data snapshots, phenotype
-definitions, and model results as the script runs. We open one now with
-[`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
-and thread it through the rest of this vignette; the full API is covered
-in
-[`vignette("audit")`](https://evanbio.github.io/ukbflow/articles/audit.md).
+## 3 Decode Column Names
 
-``` r
-
-aud <- audit_start("smoking_lung_cancer", check_dx = FALSE)
-aud
-#> ── ukbflow audit ───────────────────────────────────────────────────────────
-#> name: "smoking_lung_cancer"
-#> start_time: "2026-08-11T18:57:24+0800"
-#> ukbflow_version: "0.3.4"
-#> dx_user: "NA"
-#> dx_project: "NA"
-#> fields: 0
-#> recipes: 0
-#> snapshots: 0
-#> phenotypes: 0
-#> models: 0
-#> jobs: 0
-#> session_info: recorded
-```
-
-In a real RAP workflow the field IDs are already in a vector before
-extraction; record that same vector so the manifest documents exactly
-what was requested. Here we list the fields this synthetic analysis
-draws on.
-
-``` r
-
-fields <- c(31, 53, 21022, 21001, 20116, 1558, 22189, 54,
-            22009, 20001, 20006, 40006, 40011, 40012, 40005, 40000)
-aud <- audit_fields(aud, fields, label = "analysis_fields")
-```
-
-## 3 Name Columns Semantically
-
-On the RAP,
+In a real RAP session,
 [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
-reads the project’s own field dictionary and renames every column at
-once (`p31` → `sex`, `p21022` → `age_at_recruitment`, and so on). It
-needs that dictionary, so it only works inside the RAP environment:
+translates UKB field IDs into human-readable snake_case column names
+(e.g. `p31` → `sex`, `p21022` → `age_at_recruitment`).
 
 ``` r
 
 data <- decode_names(data)
-```
-
-This vignette runs entirely offline, so it renames the handful of
-columns the analysis touches with an explicit mapping instead. The
-result is the same: everything below refers to columns by meaning rather
-than by field ID.
-
-``` r
-
-name_map <- c(
-  p31       = "sex",
-  p53_i0    = "date_of_attending_assessment_centre_i0",
-  p21022    = "age_at_recruitment",
-  p21001_i0 = "body_mass_index_bmi_i0",
-  p20116_i0 = "smoking_status_i0",
-  p1558_i0  = "alcohol_intake_frequency_i0",
-  p22189    = "townsend_deprivation_index_at_recruitment",
-  p54_i0    = "uk_biobank_assessment_centre_i0",
-  p40000_i0 = "date_of_death_i0"
-)
-setnames(data, names(name_map), unname(name_map))
-
-# Genetic principal components: p22009_a1 ... p22009_a10 -> pc1 ... pc10
-pc_raw <- paste0("p22009_a", 1:10)
-setnames(data, pc_raw, paste0("pc", 1:10))
+#> Field dictionary not cached - calling `extract_ls()` to populate it.
+#> Using dataset: "XXXXXXXXXXXXXXXXXXXXXXX"
+#> Fetching approved fields... (cached after first call)
+#> 29951 fields available. Assign to a variable or use pattern= to search.
+#> ✔ Renamed 68 columns.
+#> ! 5 column names longer than 60 characters - consider renaming manually:
+#> • interpolated_year_when_non_cancer_illness_first_diagnosed_i0_a0
+#> • interpolated_year_when_non_cancer_illness_first_diagnosed_i0_a1
+#> • interpolated_year_when_non_cancer_illness_first_diagnosed_i0_a2
+#> • interpolated_year_when_non_cancer_illness_first_diagnosed_i0_a3
+#> • interpolated_year_when_non_cancer_illness_first_diagnosed_i0_a4
 ```
 
 ## 4 Derive Phenotypes
@@ -113,7 +59,7 @@ We first handle non-informative missing codes (e.g. “Do not know”,
 ``` r
 
 data <- derive_missing(data)
-#> ✔ derive_missing: replaced 279782 values across 3 columns (action = "na").
+#> ✔ derive_missing: replaced 279650 values across 3 columns (action = "na").
 ```
 
 Next, convert categorical columns to factors with
@@ -124,44 +70,21 @@ Next, convert categorical columns to factors with
 data <- derive_covariate(
   data,
   as_factor = c(
-    "sex",
-    "smoking_status_i0",
-    "alcohol_intake_frequency_i0",
-    "uk_biobank_assessment_centre_i0"
+    "p31",        # sex
+    "p20116_i0",  # smoking_status_i0
+    "p1558_i0",   # alcohol_intake_frequency_i0
+    "p54_i0"      # uk_biobank_assessment_centre_i0
   )
 )
-#> ── Factor ──────────────────────────────────────────────────────────────────
+#> ── Factor ───────────────────────────────────────────────────────────────────
 #> sex [2 levels]
-#> Female: n=270191 (54%)
-#> Male: n=229809 (46%)
-#> <NA>: n=0 (0%)
+#>   Female: n=270191 (54%)  |  Male: n=229809 (46%)  |  <NA>: n=0 (0%)
 #> smoking_status_i0 [3 levels]
-#> Current: n=69867 (14%)
-#> Never: n=260458 (52.1%)
-#> Previous: n=154871 (31%)
-#> <NA>: n=14804 (3%)
+#>   Current: n=69867 (14%)  |  Never: n=260458 (52.1%)  |  Previous: n=154871 (31%)  |  <NA>: n=14804 (3%)
 #> ! alcohol_intake_frequency_i0: 6 levels > max_levels (5), consider collapsing categories.
-#> alcohol_intake_frequency_i0 [6 levels]
-#> Daily or almost daily: n=40113 (8%)
-#> Never: n=45207 (9%)
-#> Once or twice a week: n=140335 (28.1%)
-#> One to three times a month: n=84580 (16.9%)
-#> Special occasions only: n=70118 (14%)
-#> Three or four times a week: n=104674 (20.9%)
-#> <NA>: n=14973 (3%)
+#>   Daily or almost daily: n=40113 (8%)  |  Never: n=45207 (9%)  |  ...  |  <NA>: n=14973 (3%)
 #> ! uk_biobank_assessment_centre_i0: 10 levels > max_levels (5), consider collapsing categories.
-#> uk_biobank_assessment_centre_i0 [10 levels]
-#> Birmingham: n=49709 (9.9%)
-#> Bristol: n=49832 (10%)
-#> Edinburgh: n=50212 (10%)
-#> Leeds: n=49710 (9.9%)
-#> Liverpool: n=50338 (10.1%)
-#> Manchester: n=50095 (10%)
-#> Newcastle: n=50237 (10%)
-#> Nottingham: n=49848 (10%)
-#> Oxford: n=49726 (9.9%)
-#> Sheffield: n=50293 (10.1%)
-#> <NA>: n=0 (0%)
+#>   Birmingham: n=49709 (9.9%)  |  Bristol: n=49832 (10%)  |  ...  |  Sheffield: n=50293 (10.1%)
 ```
 
 We then bin BMI and Townsend Deprivation Index (TDI) into categories
@@ -172,40 +95,32 @@ using
 
 data <- derive_cut(
   data,
-  col    = "body_mass_index_bmi_i0",
+  col    = "p21001_i0",                              # body_mass_index_bmi_i0
   n      = 4,
   breaks = c(18.5, 25, 30),
   labels = c("Underweight", "Normal", "Overweight", "Obese"),
   name   = "bmi_cat"
 )
+#> ── Source: body_mass_index_bmi_i0 ───────────────────────────────────────────
+#>   mean=26.21, median=26.19, sd=5.48, Q1=22.48, Q3=29.9, NA=0% (n=0)
+#> ── New column: bmi_cat ──────────────────────────────────────────────────────
+#> bmi_cat [4 levels]
+#>   Underweight: n=40238 (8%)  |  Normal: n=166710 (33.3%)
+#>   Overweight:  n=170794 (34.2%)  |  Obese: n=122258 (24.5%)  |  <NA>: n=0 (0%)
 
 data <- derive_cut(
   data,
-  col    = "townsend_deprivation_index_at_recruitment",
+  col    = "p22189",                                 # townsend_deprivation_index_at_recruitment
   n      = 4,
   labels = c("Q1 (least deprived)", "Q2", "Q3", "Q4 (most deprived)"),
   name   = "tdi_cat"
 )
-#> ── Source: body_mass_index_bmi_i0 ──────────────────────────────────────────
-#> body_mass_index_bmi_i0: mean=26.21, median=26.19, sd=5.48, Q1=22.48,
-#> Q3=29.9, NA=0% (n=0)
-#> ── New column: bmi_cat ─────────────────────────────────────────────────────
-#> bmi_cat [4 levels]
-#> Underweight: n=40238 (8%)
-#> Normal: n=166710 (33.3%)
-#> Overweight: n=170794 (34.2%)
-#> Obese: n=122258 (24.5%)
-#> <NA>: n=0 (0%)
-#> ── Source: townsend_deprivation_index_at_recruitment ───────────────────────
-#> townsend_deprivation_index_at_recruitment: mean=-1.25, median=-1.3, sd=3.1,
-#> Q1=-3.46, Q3=0.86, NA=0% (n=0)
-#> ── New column: tdi_cat ─────────────────────────────────────────────────────
+#> ── Source: townsend_deprivation_index_at_recruitment ────────────────────────
+#>   mean=-1.25, median=-1.3, sd=3.1, Q1=-3.46, Q3=0.86, NA=0% (n=0)
+#> ── New column: tdi_cat ──────────────────────────────────────────────────────
 #> tdi_cat [4 levels]
-#> Q1 (least deprived): n=125290 (25.1%)
-#> Q2: n=124831 (25%)
-#> Q3: n=125102 (25%)
-#> Q4 (most deprived): n=124777 (25%)
-#> <NA>: n=0 (0%)
+#>   Q1 (least deprived): n=125290 (25.1%)  |  Q2: n=124831 (25%)
+#>   Q3: n=125102 (25%)  |  Q4 (most deprived): n=124777 (25%)  |  <NA>: n=0 (0%)
 ```
 
 Self-reported lung cancer (field 20001) is derived with
@@ -220,8 +135,7 @@ data <- derive_selfreport(
   regex = "lung cancer",
   field = "cancer"
 )
-#> ! derive_selfreport: no visit columns for field 53.
-#> ✔ derive_selfreport (lung_cancer): 6622 cases, 6622 with dates.
+#> ✔ derive_selfreport (lung_cancer): 6700 cases, 6700 with dates.
 ```
 
 ICD-10 diagnoses in the UK Biobank can be ascertained from four sources:
@@ -240,8 +154,8 @@ data <- derive_icd10(
   source    = "cancer_registry",
   behaviour = 3L
 )
-#> ✔ derive_cancer_registry (lung): 2497 cases, 2497 with date.
-#> ✔ derive_icd10 (lung): 2497 cases across 1 source, 2497 with date.
+#> ✔ derive_cancer_registry (lung): 2449 cases, 2449 with date.
+#> ✔ derive_icd10 (lung): 2449 cases across 1 source, 2449 with date.
 ```
 
 [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
@@ -256,8 +170,8 @@ data <- derive_case(
   selfreport_col      = "lung_cancer_selfreport",
   selfreport_date_col = "lung_cancer_selfreport_date"
 )
-#> ✔ derive_case (lung): 9085 cases, 9085 with date.
-#> ℹ   Both sources (lung_icd10 & lung_cancer_selfreport): 34
+#> ✔ derive_case (lung): 9110 cases, 9110 with date.
+#> ℹ   Both sources (lung_icd10 & lung_cancer_selfreport): 39
 ```
 
 Finally,
@@ -268,11 +182,11 @@ analysis.
 
 ``` r
 
-data <- derive_timing(data, name = "lung", baseline_col = "date_of_attending_assessment_centre_i0")
+data <- derive_timing(data, name = "lung", baseline_col = "p53_i0")  # date_of_attending_assessment_centre_i0
 #> ✔ derive_timing (lung_timing):
-#> ℹ   0 (no disease): 490915
-#> ℹ   1 (prevalent):  5045
-#> ℹ   2 (incident):   4040
+#> ℹ   0 (no disease): 490890
+#> ℹ   1 (prevalent):  5056
+#> ℹ   2 (incident):   4054
 #> ℹ   NA (no date):   0
 ```
 
@@ -287,25 +201,14 @@ data <- derive_followup(
   data,
   name         = "lung",
   event_col    = "lung_date",
-  baseline_col = "date_of_attending_assessment_centre_i0",
+  baseline_col = "p53_i0",         # date_of_attending_assessment_centre_i0
   censor_date  = as.Date("2022-10-31"),
-  death_col    = "date_of_death_i0",
+  death_col    = "p40000_i0",      # date_of_death_i0
   lost_col     = FALSE             # lost-to-follow-up not available in this dataset
 )
 #> ✔ derive_followup (lung):
 #> ℹ   lung_followup_end: 500000 / 500000 non-missing
-#> ℹ   lung_followup_years: mean=13.72, median=14.09, range=[0, 16.83]
-```
-
-With the phenotype fully derived,
-[`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
-records a summary of the `lung_*` columns — self-report and ICD-10
-components, combined status, timing, and follow-up — into the manifest.
-It reads whichever components exist and needs only the phenotype prefix.
-
-``` r
-
-aud <- audit_pheno(aud, data, "lung")
+#> ℹ   lung_followup_years: mean=13.71, median=14.09, range=[0, 16.83]
 ```
 
 ## 5 Exposure Definition
@@ -317,7 +220,7 @@ cleaner binary contrast, we collapse Previous and Current into a single
 ``` r
 
 data[, smoking_ever := factor(
-  ifelse(smoking_status_i0 == "Never", "Never", "Ever"),
+  ifelse(p20116_i0 == "Never", "Never", "Ever"),
   levels = c("Never", "Ever")   # Never = reference
 )]
 ```
@@ -326,15 +229,18 @@ data[, smoking_ever := factor(
 
 We exclude prevalent lung cancer cases and participants with missing
 exposure or follow-up time to arrive at the final analysis cohort.
-[`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
-records the cohort size and column structure at each step into the audit
-manifest — and, as we show below, that history exports directly as the
-cohort flow diagram for your methods section.
+[`ops_snapshot()`](https://evanbio.github.io/ukbflow/reference/ops_snapshot.md)
+is a handy utility for recording cohort size at each step — the snapshot
+history can directly inform the flow diagram in your methods section.
 
 ``` r
 
-aud <- audit_snapshot(aud, data, "raw")
-#> ✔ audit snapshot "raw": 500000 rows x 121 cols.
+ops_snapshot(data, label = "raw")
+#> ── snapshot: raw ────────────────────────────────────────────────────────────
+#>   rows      500,000
+#>   cols           89
+#>   NA cols        59
+#>   size       293 MB
 ```
 
 Exclude participants with prevalent lung cancer (diagnosed at or before
@@ -343,8 +249,12 @@ baseline) — they are not eligible for the incident analysis.
 ``` r
 
 data <- data[lung_timing != 1 | is.na(lung_timing)]
-aud <- audit_snapshot(aud, data, "after excluding prevalent cases")
-#> ✔ audit snapshot "after excluding prevalent cases": 494955 rows x 121 cols.
+ops_snapshot(data, label = "after excluding prevalent cases")
+#> ── snapshot: after excluding prevalent cases ─────────────────────────────────
+#>   rows      494,944  (-5,056)
+#>   cols           89  (= 0)
+#>   NA cols        58  (-1)
+#>   size       290.1 MB  (-2.95 MB)
 ```
 
 Exclude participants with missing values in the exposure or any
@@ -353,38 +263,40 @@ covariate.
 ``` r
 
 data <- data[!is.na(smoking_ever)  &
-             !is.na(sex)           &
-             !is.na(age_at_recruitment)        &
+             !is.na(p31)           &   # sex
+             !is.na(p21022)        &   # age_at_recruitment
              !is.na(bmi_cat)       &   # bmi category
-             !is.na(alcohol_intake_frequency_i0) &
+             !is.na(p1558_i0)      &   # alcohol_intake_frequency_i0
              !is.na(tdi_cat)       &   # townsend deprivation category
-             !is.na(uk_biobank_assessment_centre_i0) &
-             !is.na(pc1)     &
-             !is.na(pc2)     &
-             !is.na(pc3)     &
-             !is.na(pc4)     &
-             !is.na(pc5)     &
-             !is.na(pc6)     &
-             !is.na(pc7)     &
-             !is.na(pc8)     &
-             !is.na(pc9)     &
-             !is.na(pc10)]
-aud <- audit_snapshot(aud, data, "after excluding missing covariates")
-#> ✔ audit snapshot "after excluding missing covariates": 465927 rows x 121 cols.
+             !is.na(p54_i0)        &   # assessment_centre
+             !is.na(p22009_a1)     &   # PC1
+             !is.na(p22009_a2)     &   # PC2
+             !is.na(p22009_a3)     &   # PC3
+             !is.na(p22009_a4)     &   # PC4
+             !is.na(p22009_a5)     &   # PC5
+             !is.na(p22009_a6)     &   # PC6
+             !is.na(p22009_a7)     &   # PC7
+             !is.na(p22009_a8)     &   # PC8
+             !is.na(p22009_a9)     &   # PC9
+             !is.na(p22009_a10)]       # PC10
+ops_snapshot(data, label = "after excluding missing covariates")
+#> ── snapshot: after excluding missing covariates ──────────────────────────────
+#>   rows      465,937  (-29,007)
+#>   cols           89  (= 0)
+#>   NA cols        55  (-3)
+#>   size       273.3 MB  (-16.75 MB)
 ```
 
-The recorded snapshots export directly as a cohort attrition table with
-[`audit_flowchart()`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md).
-Each step’s parent is the previous one, and a drop in row count is
-emitted as a sibling `exclusion` row — exactly the shape a flow-diagram
-package needs, with no manual bookkeeping.
+Review the full exclusion history.
 
 ``` r
 
-audit_flowchart(aud)
-#> raw: 500000
-#> after excluding prevalent cases: 494955 (excluded 5045)
-#> after excluding missing covariates: 465927 (excluded 29028)
+ops_snapshot()
+#> ── ops_snapshot history ─────────────────────────────────────────────────────
+#>    idx                              label timestamp   nrow  ncol n_na_cols size_mb
+#>  1:  1                                raw  15:35:24 500000    89        59  293.03
+#>  2:  2    after excluding prevalent cases  15:35:51 494944    89        58  290.08
+#>  3:  3 after excluding missing covariates  15:36:18 465937    89        55  273.33
 ```
 
 Before running the association analysis, we take a quick look at the
@@ -396,26 +308,26 @@ follow-up time.
 # Exposure distribution
 data[, .N, by = smoking_ever]
 
+#>    smoking_ever      N
+#>          <fctr>  <int>
+#>  1:        Ever 215893
+#>  2:       Never 250044
 
 # Outcome: incident cases and timing
 data[, .N, by = lung_timing]
+#>    lung_timing      N
+#>          <int>  <int>
+#>  1:          0 462110
+#>  2:          2   3827
 
 # Follow-up time in years
 data[, .(mean   = round(mean(lung_followup_years),   2),
          median = round(median(lung_followup_years), 2),
          min    = round(min(lung_followup_years),    2),
          max    = round(max(lung_followup_years),    2))]
-#>    smoking_ever      N
-#>          <fctr>  <int>
-#> 1:         Ever 215902
-#> 2:        Never 250025
-#>    lung_timing      N
-#>          <int>  <int>
-#> 1:           0 462114
-#> 2:           2   3813
-#>     mean median   min   max
+#>     mean median min    max
 #>    <num>  <num> <num> <num>
-#> 1: 13.72  14.09     0 16.83
+#>  1: 13.71  14.09     0 16.83
 ```
 
 ## 7 Association Analysis
@@ -432,34 +344,23 @@ res <- assoc_coxph(
   outcome_col  = "lung_status",
   time_col     = "lung_followup_years",
   exposure_col = "smoking_ever",
-  covariates   = c("age_at_recruitment",
-                   "sex",
+  covariates   = c("p21022",              # age_at_recruitment
+                   "p31",                 # sex
                    "bmi_cat",
                    "tdi_cat",
-                   "alcohol_intake_frequency_i0",
-                   "uk_biobank_assessment_centre_i0",
-                   paste0("pc", 1:10))
+                   "p1558_i0",            # alcohol_intake_frequency_i0
+                   "p54_i0",              # uk_biobank_assessment_centre_i0
+                   paste0("p22009_a", 1:10))  # genetic PCs 1-10
 )
 #> ℹ outcome_col lung_status: logical detected, converting TRUE/FALSE -> 1/0
-#> ── assoc_coxph ─────────────────────────────────────────────────────────────
+#> ── assoc_coxph ──────────────────────────────────────────────────────────────
 #> ℹ 1 exposure x 3 models = 3 Cox regressions
-#> ℹ Input cohort: 465927 participants (n/n_events/person_years reflect each model's actual analysis set)
-#> ── smoking_ever ──
-#> ✔   Unadjusted | smoking_everEver: HR 1.04 (0.98-1.11), p = 0.203
-#> ✔   Age and sex adjusted | smoking_everEver: HR 1.04 (0.98-1.11), p = 0.201
-#> ✔   Fully adjusted | smoking_everEver: HR 1.04 (0.98-1.11), p = 0.201
+#> ℹ Input cohort: 465937 participants (n/n_events/person_years reflect each model's actual analysis set)
+#> ── smoking_ever ─────────────────────────────────────────────────────────────
+#>   ✔ Unadjusted             | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.834
+#>   ✔ Age and sex adjusted   | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.838
+#>   ✔ Fully adjusted         | smoking_everEver: HR 0.99 (0.93-1.06), p = 0.829
 #> ✔ Done: 3 result rows across 1 exposure and 3 models.
-```
-
-[`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-stores the result table in the manifest. It picks up the outcome column,
-time column, covariates, and exposure reference levels automatically
-from an attribute `assoc_*` attaches to its own return value — nothing
-needs to be re-typed, and `res` prints and plots exactly as before.
-
-``` r
-
-aud <- audit_model(aud, result = res, label = "smoking_lung_cox")
 ```
 
 The results reflect the absence of a built-in exposure–outcome
@@ -474,56 +375,76 @@ We first inspect the result table returned by
 ``` r
 
 print(res)
+#>        exposure             term                model      n n_events person_years        HR  CI_lower
+#>          <char>           <char>                <ord>  <int>    <num>        <num>     <num>     <num>
+#>  1: smoking_ever smoking_everEver           Unadjusted 465937     3827      6388195 0.9932076 0.9320517
+#>  2: smoking_ever smoking_everEver Age and sex adjusted 465937     3827      6388195 0.9933735 0.9322072
+#>  3: smoking_ever smoking_everEver       Fully adjusted 465937     3827      6388195 0.9930029 0.9318576
+#>     CI_upper   p_value         HR_label
+#>        <num>     <num>           <char>
+#>  1: 1.058376 0.8335146 0.99 (0.93-1.06)
+#>  2: 1.058553 0.8375372 0.99 (0.93-1.06)
+#>  3: 1.058160 0.8285626 0.99 (0.93-1.06)
 
 class(res)
-#>        exposure             term                model      n n_events
-#>          <char>           <char>                <ord>  <int>    <num>
-#> 1: smoking_ever smoking_everEver           Unadjusted 465927     3813
-#> 2: smoking_ever smoking_everEver Age and sex adjusted 465927     3813
-#> 3: smoking_ever smoking_everEver       Fully adjusted 465927     3813
-#>    person_years       HR  CI_lower CI_upper   p_value         HR_label
-#>           <num>    <num>     <num>    <num>     <num>           <char>
-#> 1:      6391737 1.042196 0.9780063 1.110599 0.2025609 1.04 (0.98-1.11)
-#> 2:      6391737 1.042301 0.9781046 1.110711 0.2014650 1.04 (0.98-1.11)
-#> 3:      6391737 1.042351 0.9781498 1.110767 0.2009548 1.04 (0.98-1.11)
 #> [1] "data.table" "data.frame"
 ```
 
-The quickest path is to pass `res` straight to
-[`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md).
-With `est` / `lower` / `upper` omitted, it auto-detects the Cox result
-and derives the estimate and CI columns, reference line, display
-columns, header, and x-axis range for you:
-
-``` r
-
-plot(plot_forest(res))
-#> ✔ plot_forest: detected HR result: 3 rows, reference line at 1.
-```
-
-Because `smoking_ever` is binary, the figure shows one row per
-adjustment model. (A categorical exposure would instead keep each
-level’s models grouped together, with a `Term` column added
-automatically.) Anything you pass explicitly overrides the auto value —
-for example, to widen the axis or pick which columns to display:
-
-``` r
-
-plot(plot_forest(
-  res,
-  show_cols = c("n_events", "person_years", "p_value"),
-  xlim      = c(0.5, 1.5)
-))
-```
-
-For a fully bespoke layout — custom labels, an exposure header row,
-hand-picked columns — build the display frame yourself and supply the
-vectors directly. Here we prepend a row with `NA` estimates as a bold
-section header:
+[`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
+relies on dplyr internally, so we convert the result to a plain
+data.frame first.
 
 ``` r
 
 res_df <- as.data.frame(res)
+```
+
+`res_df` can be used directly with
+[`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
+to produce a forest plot.
+
+``` r
+
+p <- plot_forest(
+  data       = res_df,
+  est        = res_df$HR,
+  lower      = res_df$CI_lower,
+  upper      = res_df$CI_upper,
+  ci_column  = 2L,          # forest plot rendered in column 2 (HR_label)
+  p_cols     = "p_value",
+  ref_line   = 1,
+  xlim       = c(0, 2.0),
+  ticks_at   = c(0, 0.5, 1.0, 1.5, 2.0)
+)
+
+plot(p)
+```
+
+Or we can reshape `res_df` or add equal-length vectors to produce a
+publication-ready figure.
+
+``` r
+
+p2 <- plot_forest(
+  data       = res_df[, c("model", "n_events", "n", "p_value")],
+  est        = res_df$HR,
+  lower      = res_df$CI_lower,
+  upper      = res_df$CI_upper,
+  ci_column  = 4L,
+  p_cols     = "p_value",
+  ref_line   = 1,
+  xlim       = c(0, 2.0),
+  ticks_at   = c(0.5, 0.75, 1.0, 1.25, 1.5),
+  header     = c("Model", "Cases", "N", "", "HR (95% CI)", "P value")
+)
+
+plot(p2)
+```
+
+To add a header row with an exposure label, prepend a row with `NA`
+estimates.
+
+``` r
 
 res_pub <- rbind(
   data.frame(model = "Ever vs. Never", HR_label = "", p_value = NA,
@@ -561,35 +482,6 @@ and saving to file — see
 > [forestploter](https://cran.r-project.org/package=forestploter)
 > package. We thank its author for the excellent work.
 
-Alongside the adjusted hazard ratios above,
-[`plot_survival()`](https://evanbio.github.io/ukbflow/reference/plot_survival.md)
-draws the **unadjusted** Kaplan-Meier curves straight from the same
-follow-up-time and status columns
-([`derive_followup()`](https://evanbio.github.io/ukbflow/reference/derive_followup.md)
-/
-[`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
-output) — no [`Surv()`](https://rdrr.io/pkg/survival/man/Surv.html)
-object needed. It reuses the exact `time_col` / `status_col` / `strata`
-vocabulary of
-[`assoc_coxph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md).
-
-``` r
-
-plot_survival(
-  data       = data,
-  time_col   = "lung_followup_years",
-  status_col = "lung_status",
-  strata     = "smoking_ever",
-  xlab       = "Follow-up (years)",
-  title      = "Lung-cancer-free survival by smoking status"
-)
-```
-
-The figure ships with a confidence-interval ribbon, a numbers-at-risk
-table, and a log-rank p-value by default. Use `type = "risk"` for
-cumulative incidence, or the `add_*` switches to toggle layers — see
-[`?plot_survival`](https://evanbio.github.io/ukbflow/reference/plot_survival.md).
-
 The package also provides
 [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
 for generating publication-ready baseline characteristic tables. Here we
@@ -600,88 +492,20 @@ show a demo — for more advanced usage see
 
 t1 <- plot_tableone(
   data    = as.data.frame(data),
-  vars    = c("age_at_recruitment", "sex", "bmi_cat", "tdi_cat", "alcohol_intake_frequency_i0"),
+  vars    = c("p21022", "p31", "bmi_cat", "tdi_cat", "p1558_i0"),
   strata  = "smoking_ever",
   label   = list(
-    age_at_recruitment   ~ "Age at recruitment (years)",
-    sex      ~ "Sex",
+    p21022   ~ "Age at recruitment (years)",
+    p31      ~ "Sex",
     bmi_cat  ~ "BMI category",
     tdi_cat  ~ "Townsend deprivation index",
-    alcohol_intake_frequency_i0 ~ "Alcohol intake frequency"
+    p1558_i0 ~ "Alcohol intake frequency"
   ),
   add_p   = TRUE,
   save    = FALSE
 )
 
 print(t1)
-```
-
-## 9 Audit Trail
-
-Throughout the analysis we appended records to `aud`.
-[`summary()`](https://rdrr.io/r/base/summary.html) gives a
-directory-style overview of every layer — the fields requested, the
-cohort snapshots, the phenotype summary, and the model — each with a
-one-line preview.
-
-``` r
-
-summary(aud)
-#> ── ukbflow audit summary ───────────────────────────────────────────────────
-#> name: "smoking_lung_cancer"
-#> started: "2026-08-11T18:57:24+0800"
-#> ukbflow_version: "0.3.4"
-#> dx_user: "NA"
-#> dx_project: "NA"
-#> fields: 1
-#> - analysis_fields: 16 fields (no dataset): 31, 53, 21022, 21001, 20116,
-#> 1558, +10 more
-#> recipes: 0
-#> snapshots: 3
-#> - raw: 500000 rows x 121 cols: eid, sex, p34,
-#> date_of_attending_assessment_centre_i0, age_at_recruitment,
-#> body_mass_index_bmi_i0, +115 more
-#> - after excluding prevalent cases: 494955 rows x 121 cols: eid, sex, p34,
-#> date_of_attending_assessment_centre_i0, age_at_recruitment,
-#> body_mass_index_bmi_i0, +115 more
-#> - after excluding missing covariates: 465927 rows x 121 cols: eid, sex,
-#> p34, date_of_attending_assessment_centre_i0, age_at_recruitment,
-#> body_mass_index_bmi_i0, +115 more
-#> phenotypes: 1
-#> - lung: 500000 rows, 9085 cases, timing 0/1/2 = 490915/5045/4040
-#> models: 1
-#> - smoking_lung_cox: coxph; exposures: smoking_ever; covariates:
-#> age_at_recruitment, sex, bmi_cat, tdi_cat, alcohol_intake_frequency_i0,
-#> uk_biobank_assessment_centre_i0, +10 more; 3 result rows
-#> jobs: 0
-#> session_info: recorded
-```
-
-Write the manifest as JSON alongside your analysis outputs.
-[`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
-validates the object first, so the file is either complete and
-well-formed or not written at all.
-
-``` r
-
-audit_write(aud, "smoking_lung_cancer_audit.json", overwrite = TRUE)
-#> ✔ audit manifest written: '<working directory>/smoking_lung_cancer_audit.json'
-```
-
-A saved manifest can be read back with
-[`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
-and compared — against the current analysis, or against a manifest from
-a previous run — with
-[`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md).
-This is how you check that a re-run still matches a published analysis,
-without re-running it.
-
-``` r
-
-aud_saved <- audit_read("smoking_lung_cancer_audit.json")
-
-# What changed across the cohort snapshots?
-audit_diff(aud_saved, layer = "snapshots")
 ```
 
 ## Getting Help
@@ -698,26 +522,15 @@ audit_diff(aud_saved, layer = "snapshots")
   [`?derive_timing`](https://evanbio.github.io/ukbflow/reference/derive_timing.md),
   [`?derive_followup`](https://evanbio.github.io/ukbflow/reference/derive_followup.md)
 - [`?assoc_coxph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md),
-  [`?assoc_rcs`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md),
-  [`?assoc_evalue`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md),
   [`?plot_forest`](https://evanbio.github.io/ukbflow/reference/plot_forest.md),
-  [`?plot_survival`](https://evanbio.github.io/ukbflow/reference/plot_survival.md),
-  [`?plot_rcs`](https://evanbio.github.io/ukbflow/reference/plot_rcs.md),
   [`?plot_tableone`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
-- [`?audit_start`](https://evanbio.github.io/ukbflow/reference/audit_start.md),
-  [`?audit_snapshot`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md),
-  [`?audit_pheno`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md),
-  [`?audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md),
-  [`?audit_flowchart`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md),
-  [`?audit_write`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
 - [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md),
   [`vignette("derive-survival")`](https://evanbio.github.io/ukbflow/articles/derive-survival.md),
   [`vignette("assoc")`](https://evanbio.github.io/ukbflow/articles/assoc.md),
-  [`vignette("plot")`](https://evanbio.github.io/ukbflow/articles/plot.md),
-  [`vignette("audit")`](https://evanbio.github.io/ukbflow/articles/audit.md)
+  [`vignette("plot")`](https://evanbio.github.io/ukbflow/articles/plot.md)
 - [GitHub Issues](https://github.com/evanbio/ukbflow/issues)
 
-## 10 Session Info
+## 9 Session Info
 
 Session Info
 
@@ -743,7 +556,7 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base
 #>
 #> other attached packages:
-#> [1] ukbflow_0.3.4  testthat_3.2.3
+#> [1] ukbflow_0.3.0  testthat_3.2.3
 #>
 #> loaded via a namespace (and not attached):
 #>  [1] gt_1.0.0            sass_0.4.10         tidyr_1.3.1         generics_0.1.4      gtsummary_2.4.0
@@ -761,7 +574,7 @@ sessionInfo()
 #> [61] rmarkdown_2.29      compiler_4.5.1      markdown_2.0
 ```
 
-## 11 References
+## 10 References
 
 - Xu C (2023). *forestploter: Create Flexible Forest Plot*. R package
   version 1.1.3. <https://CRAN.R-project.org/package=forestploter>

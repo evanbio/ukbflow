@@ -34,7 +34,7 @@ The updated `ukbflow_audit` object.
 ## Examples
 
 ``` r
-aud <- audit_start("example_analysis", check_dx = FALSE)
+aud <- audit_start("example_analysis")
 if (FALSE) { # \dontrun{
 job_id <- extract_batch(c(31, 53, 21022))
 aud <- audit_job(aud, job_id, "phenotype_extraction")

@@ -2,7 +2,7 @@
 
 Returns a data.frame of all fields available for extraction in the
 current UKB project dataset. Fields reflect what has been approved for
-your project – not all UKB fields are present.
+your project — not all UKB fields are present.
 
 ## Usage
 
@@ -15,9 +15,7 @@ extract_ls(dataset = NULL, pattern = NULL, refresh = FALSE)
 - dataset:
 
   (character) Dataset file name, e.g. `"app12345_20260101.dataset"`.
-  Default: `NULL` (auto-detect). A name given here becomes the session
-  dataset, so later calls that auto-detect use it instead of probing the
-  project again.
+  Default: `NULL` (auto-detect).
 
 - pattern:
 
@@ -41,12 +39,6 @@ A data.frame with columns:
 
   Human-readable field description, e.g. `"Sex"`,
   `"Date of attending assessment centre | Instance 0"`.
-
-Visibility depends on `pattern`. Without one the full table runs to tens
-of thousands of rows, so it is returned **invisibly** and only a
-one-line count is printed – assign it to a variable to use it. With a
-`pattern` the filtered result is returned **visibly**, so an interactive
-field search prints its matches directly.
 
 ## Details
 

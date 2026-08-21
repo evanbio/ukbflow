@@ -134,15 +134,6 @@ model, containing:
   P-value for linear trend from the trend model. Shared across all
   levels within the same exposure \\\times\\ model.
 
-The returned table also carries a hidden attribute recording `method`,
-`outcome_col`, `time_col`, `covariates`, exposure levels, `test`, and
-`conf_level`, plus `exposure_scores`: the numeric trend score actually
-used per exposure, including auto-generated `0, 1, 2, ...` scores when
-`scores` is `NULL` – this is not otherwise recoverable from the result
-table above.
-[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-reads all of this automatically.
-
 ## Details
 
 1.  **Categorical model** - exposure treated as a factor; produces one

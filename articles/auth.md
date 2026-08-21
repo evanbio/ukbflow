@@ -184,11 +184,9 @@ auth_list_projects()                         # find your project ID
 auth_select_project("project-XXXXXXXXXXXX")  # set active project
 
 # ... run your analysis ...
-```
 
-[`auth_logout()`](https://evanbio.github.io/ukbflow/reference/auth_logout.md)
-is not part of this workflow. It deletes the token on the DNAnexus
-platform, and a new token must be generated before logging in again.
+auth_logout()                                # optional: clear session
+```
 
 ------------------------------------------------------------------------
 

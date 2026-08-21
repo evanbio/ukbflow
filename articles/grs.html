@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,8 +115,6 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -128,15 +126,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -429,8 +425,8 @@ columns <code>IID</code> and the GRS score named
 <h2 id="step-4-standardise-grs-columns-grs_standardize">Step 4: Standardise GRS Columns –
 <code>grs_standardize()</code><a class="anchor" aria-label="anchor" href="#step-4-standardise-grs-columns-grs_standardize"></a>
 </h2>
-<p>With the GRS score CSVs written by <code><a href="../reference/grs_score.html">grs_score()</a></code> on RAP
-and merged into your analysis dataset (both stay on the platform),
+<p>After downloading the score CSVs from RAP (via
+<code><a href="../reference/fetch_file.html">fetch_file()</a></code>) and merging them into your analysis dataset,
 Z-score standardise each GRS column so that effect estimates are
 interpretable as per-SD associations.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -594,10 +590,12 @@ analyses for each GRS:</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/job_wait.html">job_wait</a></span><span class="op">(</span><span class="va">score_ids</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Read the score CSV from its RAP location, merge, and standardise</span></span>
-<span><span class="co">#    (project files are mounted at /mnt/project on a RAP worker)</span></span>
+<span><span class="co"># 4. Download score CSV from RAP</span></span>
+<span><span class="fu"><a href="../reference/fetch_file.html">fetch_file</a></span><span class="op">(</span><span class="st">"/grs/GRS_a_scores.csv"</span>, dest <span class="op">=</span> <span class="st">"GRS_a_scores.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 5. Merge into analysis dataset and standardise</span></span>
 <span><span class="co"># cohort: your analysis data.table with IID and phenotype columns</span></span>
-<span><span class="va">scores</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"/mnt/project/grs/GRS_a_scores.csv"</span><span class="op">)</span>  <span class="co"># IID, GRS_a</span></span>
+<span><span class="va">scores</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"GRS_a_scores.csv"</span><span class="op">)</span>   <span class="co"># columns: IID, GRS_a</span></span>
 <span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="va">scores</span><span class="op">[</span><span class="va">cohort</span>, on <span class="op">=</span> <span class="st">"IID"</span><span class="op">]</span>               <span class="co"># right-join: keep all cohort rows</span></span>
 <span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/grs_standardize.html">grs_standardize</a></span><span class="op">(</span><span class="va">cohort</span>, grs_cols <span class="op">=</span> <span class="st">"GRS_a"</span><span class="op">)</span></span>
 <span></span>

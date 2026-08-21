@@ -69,7 +69,7 @@ before/after row counts are recorded in the session snapshot history."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,6 @@ before/after row counts are recorded in the session snapshot history."><meta pro
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -103,12 +101,10 @@ before/after row counts are recorded in the session snapshot history."><meta pro
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -168,23 +164,23 @@ Default <code>"eid"</code>.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 107 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span><span class="va">withdraw_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">dt</span><span class="op">$</span><span class="va">eid</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>, <span class="va">withdraw_file</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_withdraw</span><span class="op">(</span><span class="va">dt</span>, file <span class="op">=</span> <span class="va">withdraw_file</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: before_withdraw ───────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 107</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols (skipped)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.14 MB</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: after_withdraw ────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rows 95 (-5)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 107 (= 0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75 (= 0)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols (skipped)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.13 MB (-0.01 MB)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB (= 0)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Withdrawal file: <span style="color: #0000BB;">file20cd3822fd3d.csv</span> (5 IDs)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Withdrawal file: <span style="color: #0000BB;">file21123c1e87e9.csv</span> (5 IDs)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Excluded: 5 participants found in data</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Remaining: 95 participants</span>
 <span class="r-in"><span></span></span>

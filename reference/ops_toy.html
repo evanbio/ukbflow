@@ -67,7 +67,7 @@ assoc_*, and plot_* functions without requiring real UKB data access."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,8 +90,6 @@ assoc_*, and plot_* functions without requiring real UKB data access."><meta pro
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -101,12 +99,10 @@ assoc_*, and plot_* functions without requiring real UKB data access."><meta pro
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -138,7 +134,7 @@ phenotype data on the RAP. Useful for developing and testing <code>derive_*</cod
 
 <dl><dt id="arg-scenario">scenario<a class="anchor" aria-label="anchor" href="#arg-scenario"></a></dt>
 <dd><p>(character) Data structure to generate:</p><ul><li><p><code>"cohort"</code>: wide participant-level table with raw UKB field columns for
-the full <code>derive_*</code> -&gt; <code>assoc_*</code> -&gt; <code>plot_*</code> pipeline.</p></li>
+the full <code>derive_*</code> → <code>assoc_*</code> → <code>plot_*</code> pipeline.</p></li>
 <li><p><code>"association"</code>: analysis-ready table with covariates already as factors,
 BMI/TDI binned, and two pre-derived disease outcomes (<code>dm_*</code>, <code>htn_*</code>)
 including status, date, timing, and follow-up columns. Use this for
@@ -149,11 +145,9 @@ for testing <code><a href="plot_forest.html">plot_forest()</a></code>. <code>n</
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
-<dd><p>(integer) Number of participants – or of exposures for
-<code>"forest"</code>, and of participants in the matching cohort for <code>"gp"</code>, where
-the table returned has many more rows than <code>n</code>. Default <code>1000L</code> for
-<code>"cohort"</code>, <code>2000L</code> for <code>"association"</code>, <code>8L</code> for <code>"forest"</code>, <code>1000L</code> for
-<code>"gp"</code>.</p></dd>
+<dd><p>(integer) Number of participants (or exposures for <code>"forest"</code>).
+Default <code>1000L</code> for <code>"cohort"</code>, <code>2000L</code> for <code>"association"</code>, <code>8L</code> for
+<code>"forest"</code>.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -176,35 +170,17 @@ columns included in each scenario.</p>
 <p>Includes the following column groups:</p><ul><li><p><strong>Demographics</strong>: <code>eid</code>, <code>p31</code>, <code>p34</code>, <code>p53_i0</code>, <code>p21022</code></p></li>
 <li><p><strong>Covariates</strong>: <code>p21001_i0</code>, <code>p20116_i0</code>, <code>p1558_i0</code>, <code>p21000_i0</code>,
 <code>p22189</code>, <code>p54_i0</code></p></li>
-<li><p><strong>Genetic PCs</strong>: <code>p22009_a1</code> - <code>p22009_a10</code></p></li>
-<li><p><strong>Self-report disease</strong>: <code>p20002_i0_a0-a4</code>, <code>p20008_i0_a0-a4</code></p></li>
-<li><p><strong>Self-report cancer</strong>: <code>p20001_i0_a0-a4</code>, <code>p20006_i0_a0-a4</code></p></li>
-<li><p><strong>HES (any position)</strong>: <code>p41270</code> (JSON array), <code>p41280_a0-a8</code></p></li>
-<li><p><strong>HES ICD-9 (any position)</strong>: <code>p41271</code> (JSON array), <code>p41281_a0-a2</code></p></li>
-<li><p><strong>HES OPCS-4 (any position)</strong>: <code>p41272</code> (JSON array), <code>p41282_a0-a2</code></p></li>
-<li><p><strong>HES (main position)</strong>: <code>p41202</code> / <code>p41262_a0-a8</code> (ICD-10),
-<code>p41203</code> / <code>p41263_a0-a2</code> (ICD-9), <code>p41200</code> / <code>p41260_a0-a2</code> (OPCS-4).
-Each is generated as a subset of the matching any-position field, so
-<code>derive_hes(position = "main")</code> always returns a subset of
-<code>derive_hes(position = "any")</code>.</p></li>
-<li><p><strong>Cancer registry</strong>: <code>p40006_i0-i2</code>, <code>p40011_i0-i2</code>, <code>p40012_i0-i2</code>,
-<code>p40005_i0-i2</code></p></li>
-<li><p><strong>Death registry</strong>: <code>p40001_i0</code>, <code>p40002_i0_a0-a2</code>, <code>p40000_i0</code></p></li>
-<li><p><strong>Follow-up censoring</strong>: <code>p191</code> (date lost to follow-up)</p></li>
+<li><p><strong>Genetic PCs</strong>: <code>p22009_a1</code> – <code>p22009_a10</code></p></li>
+<li><p><strong>Self-report disease</strong>: <code>p20002_i0_a0–a4</code>, <code>p20008_i0_a0–a4</code></p></li>
+<li><p><strong>Self-report cancer</strong>: <code>p20001_i0_a0–a4</code>, <code>p20006_i0_a0–a4</code></p></li>
+<li><p><strong>HES</strong>: <code>p41270</code> (JSON array), <code>p41280_a0–a8</code></p></li>
+<li><p><strong>Cancer registry</strong>: <code>p40006_i0–i2</code>, <code>p40011_i0–i2</code>, <code>p40012_i0–i2</code>,
+<code>p40005_i0–i2</code></p></li>
+<li><p><strong>Death registry</strong>: <code>p40001_i0</code>, <code>p40002_i0_a0–a2</code>, <code>p40000_i0</code></p></li>
 <li><p><strong>First occurrence</strong>: <code>p131742</code></p></li>
-<li><p><strong>Algorithmic outcome</strong>: <code>p42018</code> (dementia). Correlated with the HES and
-self-report dementia records but deliberately not reducible to them: the
-algorithm rejects some code-positive participants and admits some
-code-negative ones, and includes UKB's <code>1900-01-01</code> sentinel.</p></li>
 <li><p><strong>GRS</strong>: <code>grs_bmi</code>, <code>grs_raw</code>, <code>grs_finngen</code></p></li>
 <li><p><strong>Messy columns</strong>: <code>messy_allna</code>, <code>messy_empty</code>, <code>messy_label</code></p></li>
-</ul><p>Disease codes are sampled with roughly equal frequency, so event rates in
-the toy data run well above their real-world prevalence and rare conditions
-are no rarer than common ones. This is deliberate: at realistic prevalence a
-toy cohort of a few hundred yields too few events for <code>assoc_*</code> to fit
-without unstable or non-estimable coefficients. Use the toy data to check
-that a pipeline runs, never to read anything into the effect sizes.</p>
-</div>
+</ul></div>
 
 <div class="section">
 <h3 id="scenario-association-">scenario = "association"<a class="anchor" aria-label="anchor" href="#scenario-association-"></a></h3>
@@ -217,7 +193,7 @@ consistent relationships:</p><ul><li><p><strong>Demographics</strong>: <code>eid
 <code>p20116_i0</code> (factor), <code>p1558_i0</code> (factor), <code>p21000_i0</code> (factor),
 <code>p22189</code>, <code>tdi_cat</code> (factor, derived from <code>p22189</code> quartiles), <code>p54_i0</code>
 (factor)</p></li>
-<li><p><strong>Genetic PCs</strong>: <code>p22009_a1</code> - <code>p22009_a10</code></p></li>
+<li><p><strong>Genetic PCs</strong>: <code>p22009_a1</code> – <code>p22009_a10</code></p></li>
 <li><p><strong>GRS</strong>: <code>grs_bmi</code> (continuous exposure)</p></li>
 <li><p><strong>DM outcome</strong>: <code>dm_status</code>, <code>dm_date</code>, <code>dm_timing</code>, <code>dm_followup_end</code>,
 <code>dm_followup_years</code> (type 2 diabetes, ~12% prevalence)</p></li>
@@ -230,38 +206,15 @@ consistent relationships:</p><ul><li><p><strong>Demographics</strong>: <code>eid
 <li><p><code>dm_followup_years</code> is <code>NA</code> for prevalent cases (<code>dm_timing == 1</code>)</p></li>
 </ul></div>
 
-<div class="section">
-<h3 id="scenario-gp-">scenario = "gp"<a class="anchor" aria-label="anchor" href="#scenario-gp-"></a></h3>
-
-
-<p>A primary-care long table with one row per clinical event, matching the
-columns <code>extract_gp(table = "gp_clinical")</code> returns: <code>eid</code>,
-<code>data_provider</code>, <code>read_2</code>, <code>read_3</code>, <code>event_dt</code>. Pass it as the <code>gp</code>
-argument of <code><a href="derive_gp_read2.html">derive_gp_read2()</a></code>, <code><a href="derive_gp_ctv3.html">derive_gp_ctv3()</a></code> or <code><a href="derive_recipe.html">derive_recipe()</a></code>.</p>
-<p>Unlike the other scenarios, <code>n</code> is the number of participants in the
-matching cohort, not the number of rows returned: roughly 45% of them have
-linked primary-care data and each of those contributes several events, so
-<code><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow()</a></code> exceeds <code>n</code>. Use the same <code>n</code> and <code>seed</code> as the <code>"cohort"</code> call it
-will be joined to, so the <code>eid</code> values line up.</p>
-<p><code>data_provider</code> decides which code column a row populates – England (TPP)
-records CTV3 in <code>read_3</code>, the other providers record Read v2 in <code>read_2</code> –
-so the two coding systems never appear on the same row. Event dates include
-the UKB Coding 819 placeholders (<code>1900-01-01</code> and friends), which count
-towards status but are excluded from the earliest-event date.</p>
-<p>Codes are synthetic. Codes that match a shipped recipe are taken from that
-recipe's code list so <code><a href="derive_recipe.html">derive_recipe()</a></code> returns real cases; the background
-codes are fabricated in the correct shape and are not a curated code list.</p>
-</div>
-
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># cohort: raw UKB-style columns, feed into derive pipeline</span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 107 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 48 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 47 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># association: analysis-ready, feed directly into assoc_* functions</span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
@@ -271,14 +224,6 @@ codes are fabricated in the correct shape and are not a curated code list.</p>
 <span class="r-in"><span><span class="co"># forest: results table for plot_forest()</span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"forest"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 24 rows | 11 columns | scenario = <span style="color: #0000BB;">"forest"</span> | seed = 42</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># gp: primary-care long table, matched to a cohort by n and seed</span></span></span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 200 participants | 107 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 1</span>
-<span class="r-in"><span><span class="va">gp</span> <span class="op">&lt;-</span> <span class="fu">ops_toy</span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"gp"</span>, n <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 83 linked participants | 952 records | 5 columns | scenario = <span style="color: #0000BB;">"gp"</span> | seed = 1</span>
-<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="derive_gp_read2.html">derive_gp_read2</a></span><span class="op">(</span><span class="va">dt</span>, <span class="st">"t2d"</span>, read2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1041"</span>, <span class="st">"C10F6"</span><span class="op">)</span>, gp <span class="op">=</span> <span class="va">gp</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_gp_read2 (t2d): 2 cases, 2 with date.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

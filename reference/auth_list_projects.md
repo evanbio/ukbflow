@@ -10,9 +10,7 @@ auth_list_projects()
 
 ## Value
 
-Invisibly, a character vector of project names and IDs, one entry per
-project. The same list is printed to the console. Returns an empty
-character vector when no projects are accessible.
+A character vector of project names and IDs.
 
 ## Examples
 

@@ -69,16 +69,12 @@ auto-uploads to `dest` on completion. Output files per chromosome:
 - `"standard"`:
 
   `mem2_ssd1_v2_x4`: 4 cores, 12 GB RAM. Suitable for smaller
-  chromosomes (roughly chr 17-22).
+  chromosomes (roughly chr 17–22).
 
 - `"large"`:
 
   `mem2_ssd2_v2_x8`: 8 cores, 28 GB RAM, 640 GB SSD. Required for large
-  chromosomes (roughly chr 1-16) where standard storage is insufficient.
-
-Must be run inside the RAP environment. Arguments are validated first,
-so a bad `chr` or `maf` is reported as such wherever you call from; the
-environment check happens before anything is uploaded or submitted.
+  chromosomes (roughly chr 1–16) where standard storage is insufficient.
 
 ## Examples
 

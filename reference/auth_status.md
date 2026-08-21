@@ -10,8 +10,7 @@ auth_status()
 
 ## Value
 
-Invisibly, a named list with `user` and `project`. The same information
-is printed to the console.
+A named list with `user` and `project`.
 
 ## Examples
 

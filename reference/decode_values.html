@@ -69,7 +69,7 @@ Continuous, text, date, and already-decoded columns are left unchanged."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,6 @@ Continuous, text, date, and already-decoded columns are left unchanged."><meta p
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -103,12 +101,10 @@ Continuous, text, date, and already-decoded columns are left unchanged."><meta p
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -156,12 +152,11 @@ labels. Returns a <code>data.table</code> if the input is a <code>data.table</co
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function requires two UKB Showcase encoding tables:</p><ul><li><p><code>field.tsv</code> - maps field IDs to encoding IDs and value types.</p></li>
+    <p>This function requires two metadata files downloaded from the UKB Research
+Analysis Platform:</p><ul><li><p><code>field.tsv</code> - maps field IDs to encoding IDs and value types.</p></li>
 <li><p><code>esimpint.tsv</code> - maps encoding ID + integer code to label.</p></li>
-</ul><p>Both are UKB Showcase metadata files, available on the Research Analysis
-Platform alongside your project data. Point <code>metadata_dir</code> at the
-directory that holds them; the files are cached in the session after the
-first read.</p>
+</ul><p>Download them once with:</p><div class="sourceCode"><pre><code><span></span>
+<span><span class="fu"><a href="../reference/fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></code></pre></div><p>Both files are cached in the session after the first read.</p>
 <p><strong>Call order</strong>: use <code>decode_values()</code> <em>before</em>
 <code><a href="decode_names.html">decode_names</a></code>, so that column names still contain the numeric
 field ID needed to look up the encoding.</p>
@@ -170,13 +165,13 @@ field ID needed to look up the encoding.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># field.tsv / esimpint.tsv live in the Showcase metadata directory on RAP;</span></span></span>
-<span class="r-in"><span><span class="co"># point metadata_dir there (default "data/metadata/").</span></span></span>
+<span class="r-in"><span><span class="co"># Download metadata once</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="fetch_metadata.html">fetch_metadata</a></span><span class="op">(</span>dest_dir <span class="op">=</span> <span class="st">"data/metadata"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Recommended call order</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="extract_pheno.html">extract_pheno</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span>, <span class="fl">54</span>, <span class="fl">20116</span>, <span class="fl">21000</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">decode_values</span><span class="op">(</span><span class="va">df</span><span class="op">)</span>                  <span class="co"># 0/1 -&gt; "Female"/"Male", etc.</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="decode_names.html">decode_names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>                   <span class="co"># participant.p31 -&gt; sex</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">decode_values</span><span class="op">(</span><span class="va">df</span><span class="op">)</span>                  <span class="co"># 0/1 → "Female"/"Male", etc.</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="decode_names.html">decode_names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>                   <span class="co"># participant.p31 → sex</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

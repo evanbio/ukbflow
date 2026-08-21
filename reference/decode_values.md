@@ -32,16 +32,19 @@ Returns a `data.table` if the input is a `data.table`.
 
 ## Details
 
-This function requires two UKB Showcase encoding tables:
+This function requires two metadata files downloaded from the UKB
+Research Analysis Platform:
 
 - `field.tsv` - maps field IDs to encoding IDs and value types.
 
 - `esimpint.tsv` - maps encoding ID + integer code to label.
 
-Both are UKB Showcase metadata files, available on the Research Analysis
-Platform alongside your project data. Point `metadata_dir` at the
-directory that holds them; the files are cached in the session after the
-first read.
+Download them once with:
+
+
+    fetch_metadata(dest_dir = "data/metadata")
+
+Both files are cached in the session after the first read.
 
 **Call order**: use `decode_values()` *before*
 [`decode_names`](https://evanbio.github.io/ukbflow/reference/decode_names.md),
@@ -52,12 +55,12 @@ up the encoding.
 
 ``` r
 if (FALSE) { # \dontrun{
-# field.tsv / esimpint.tsv live in the Showcase metadata directory on RAP;
-# point metadata_dir there (default "data/metadata/").
+# Download metadata once
+fetch_metadata(dest_dir = "data/metadata")
 
 # Recommended call order
 df <- extract_pheno(c(31, 54, 20116, 21000))
-df <- decode_values(df)                  # 0/1 -> "Female"/"Male", etc.
-df <- decode_names(df)                   # participant.p31 -> sex
+df <- decode_values(df)                  # 0/1 → "Female"/"Male", etc.
+df <- decode_names(df)                   # participant.p31 → sex
 } # }
 ```

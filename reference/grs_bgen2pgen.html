@@ -69,7 +69,7 @@ chromosomes."><meta property="og:image" content="https://evanbio.github.io/ukbfl
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,6 @@ chromosomes."><meta property="og:image" content="https://evanbio.github.io/ukbfl
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -103,12 +101,10 @@ chromosomes."><meta property="og:image" content="https://evanbio.github.io/ukbfl
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -188,18 +184,15 @@ auto-uploads to <code>dest</code> on completion. Output files per chromosome:
 <code>chr{N}_maf001.pgen/.pvar/.psam/.log</code>.</p>
 <p><strong>Instance types:</strong></p><dl><dt><code>"standard"</code></dt>
 <dd><p><code>mem2_ssd1_v2_x4</code>: 4 cores, 12 GB RAM.
-Suitable for smaller chromosomes (roughly chr 17-22).</p></dd>
+Suitable for smaller chromosomes (roughly chr 17–22).</p></dd>
 
 <dt><code>"large"</code></dt>
 <dd><p><code>mem2_ssd2_v2_x8</code>: 8 cores, 28 GB RAM,
-640 GB SSD. Required for large chromosomes (roughly chr 1-16) where
+640 GB SSD. Required for large chromosomes (roughly chr 1–16) where
 standard storage is insufficient.</p></dd>
 
 
-</dl><p>Must be run inside the RAP environment. Arguments are validated first, so a
-bad <code>chr</code> or <code>maf</code> is reported as such wherever you call from; the
-environment check happens before anything is uploaded or submitted.</p>
-    </div>
+</dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

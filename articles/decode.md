@@ -51,12 +51,18 @@ df <- decode_values(df)
 #> ✔ Decoded 3 categorical columns; 2 non-categorical columns unchanged.
 ```
 
-It requires two UKB Showcase encoding tables — `field.tsv` and
-`esimpint.tsv` — which are available on the Research Analysis Platform
-alongside your project data. Point
+It requires two metadata files from the UKB Showcase. Download them once
+with:
+
+``` r
+
+fetch_metadata(dest_dir = "data/metadata")
+```
+
+Then point
 [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
-at the directory that holds them via `metadata_dir` (default
-`"data/metadata/"`):
+to the same directory (default matches
+[`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)):
 
 ``` r
 

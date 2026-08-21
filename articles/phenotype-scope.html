@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,8 +115,6 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
-    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -128,15 +126,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
-    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -215,68 +211,13 @@ earliest report date</td>
 <tr class="odd">
 <td>HES inpatient diagnoses</td>
 <td>
-<code>41270</code> / <code>41280</code> (any), <code>41202</code> /
-<code>41262</code> (main)</td>
-<td>ICD-10 diagnosis fields</td>
+<code>41270</code> with dates from <code>41280</code>
+</td>
+<td>ICD-10 any-position diagnosis field</td>
 <td><code><a href="../reference/derive_hes.html">derive_hes()</a></code></td>
-<td>Counts a matching ICD-10 code in any diagnosis position by default;
-<code>position = "main"</code> restricts to primary diagnoses.
-Secondary-only is not offered (UKB has no aligned date field for
-it)</td>
-</tr>
-<tr class="even">
-<td>HES inpatient diagnoses (ICD-9)</td>
-<td>
-<code>41271</code> / <code>41281</code> (any), <code>41203</code> /
-<code>41263</code> (main)</td>
-<td>ICD-9 diagnosis fields (legacy minority, mostly pre-1996 Scottish
-records)</td>
-<td><code><a href="../reference/derive_hes_icd9.html">derive_hes_icd9()</a></code></td>
-<td>Same matching / <code>position</code> semantics as
-<code><a href="../reference/derive_hes.html">derive_hes()</a></code>, on the parallel ICD-9 field pair.
-Secondary-only is not offered (UKB has no aligned date field for
-<code>41205</code> either)</td>
-</tr>
-<tr class="odd">
-<td>HES inpatient procedures (OPCS-4)</td>
-<td>
-<code>41272</code> / <code>41282</code> (any), <code>41200</code> /
-<code>41260</code> (main)</td>
-<td>OPCS-4 operation / procedure fields</td>
-<td><code><a href="../reference/derive_opcs.html">derive_opcs()</a></code></td>
-<td>Same matching / <code>position</code> semantics as
-<code><a href="../reference/derive_hes.html">derive_hes()</a></code>, on the OPCS-4 operative field pair. OPCS-4 is
-stored dotted like ICD-10 (<code>K40</code>, <code>K23.4</code>).
-Secondary-only is not offered (<code>41210</code> has no aligned date
-field)</td>
-</tr>
-<tr class="even">
-<td>GP primary-care diagnoses (Read v2)</td>
-<td>
-<code>gp_clinical</code> record table (field <code>42040</code>),
-<code>read_2</code> column</td>
-<td>Read v2 primary-care codes</td>
-<td><code><a href="../reference/derive_gp_read2.html">derive_gp_read2()</a></code></td>
-<td>Matches a Read v2 code list against the <code>gp_clinical</code>
-long table (~118M rows, ~45% of the cohort; Read v2 = England Vision,
-Scotland, Wales). The table is fetched with <code><a href="../reference/extract_gp.html">extract_gp()</a></code>
-and passed in as <code>gp</code> (loaded once, reused). Matches with
-hashed <code>%chin%</code>, <code>case-sensitive</code>; default
-<code>match = "exact"</code> (prefix is valid for Read v2’s positional
-hierarchy). UKB placeholder dates (Coding 819) count for status but
-supply no date</td>
-</tr>
-<tr class="odd">
-<td>GP primary-care diagnoses (CTV3)</td>
-<td>
-<code>gp_clinical</code> record table (field <code>42040</code>),
-<code>read_3</code> column</td>
-<td>CTV3 (Read v3) primary-care codes</td>
-<td><code><a href="../reference/derive_gp_ctv3.html">derive_gp_ctv3()</a></code></td>
-<td>CTV3 counterpart of <code><a href="../reference/derive_gp_read2.html">derive_gp_read2()</a></code> (CTV3 = England
-TPP, the largest GP source). CTV3 codes are opaque identifiers, so
-<code>match = "exact"</code> is required — a shared prefix is not a
-hierarchy relationship, unlike Read v2</td>
+<td>Treats any matching ICD-10 code in <code>41270</code> as a case;
+primary / secondary diagnosis position is not currently
+configurable</td>
 </tr>
 <tr class="even">
 <td>First Occurrence</td>
@@ -284,9 +225,8 @@ hierarchy relationship, unlike Read v2</td>
 <code>p131xxx</code> date fields</td>
 <td>UKB precomputed first occurrence fields</td>
 <td><code><a href="../reference/derive_first_occurrence.html">derive_first_occurrence()</a></code></td>
-<td>Uses the supplied First Occurrence date field as an event source. No
-ICD-9 counterpart exists: UKB computes this field from multiple linked
-sources internally</td>
+<td>Uses the supplied First Occurrence date field as an event
+source</td>
 </tr>
 <tr class="odd">
 <td>Cancer registry</td>
@@ -300,44 +240,14 @@ sources internally</td>
 filters</td>
 </tr>
 <tr class="even">
-<td>Cancer registry (ICD-9)</td>
-<td>
-<code>40013</code> (code); shares <code>40011</code> /
-<code>40012</code> / <code>40005</code> with the ICD-10 arm</td>
-<td>ICD-9 cancer-type code, plus the same histology / behaviour /
-diagnosis-date fields</td>
-<td><code><a href="../reference/derive_cancer_registry_icd9.html">derive_cancer_registry_icd9()</a></code></td>
-<td>Same histology / behaviour filtering as
-<code><a href="../reference/derive_cancer_registry.html">derive_cancer_registry()</a></code>. A registration instance carries a
-code in <em>either</em> <code>40006</code> or <code>40013</code>;
-instances are matched by registration number, not array position, so
-<code>40013</code>’s smaller instance range (UKB caps it lower than
-<code>40006</code>) does not cause a mismatch</td>
-</tr>
-<tr class="odd">
 <td>Death registry</td>
 <td>
 <code>40001</code>, <code>40002</code>, <code>40000</code>
 </td>
 <td>ICD-10 primary / secondary cause of death</td>
 <td><code><a href="../reference/derive_death_registry.html">derive_death_registry()</a></code></td>
-<td>Searches primary and secondary death-cause fields by default;
-<code>cause = "primary"</code> / <code>"secondary"</code> restricts to
-the underlying or contributory cause. Returns status plus death date. No
-ICD-9 counterpart exists: UK death certification has used ICD-10
-exclusively since 2001</td>
-</tr>
-<tr class="even">
-<td>Algorithmically-defined outcomes</td>
-<td>
-<code>p420xx</code> date fields (Category 42)</td>
-<td>UKB adjudicated outcome date fields</td>
-<td><code><a href="../reference/derive_algorithm.html">derive_algorithm()</a></code></td>
-<td>Uses a UKB algorithmically-defined outcome date as an event source;
-filters the <code>1900-01-01</code> self-report sentinel to
-<code>NA</code>. No ICD-9 counterpart exists: an ADO already reconciles
-HES (both code systems), self-report, and death internally into one date
-field</td>
+<td>Searches primary and secondary death-cause fields and returns status
+plus death date</td>
 </tr>
 <tr class="odd">
 <td>Multi-source ICD-10 phenotype</td>
@@ -348,74 +258,12 @@ field</td>
 status and earliest date</td>
 </tr>
 <tr class="even">
-<td>Multi-source ICD-9 phenotype</td>
-<td>HES (ICD-9), cancer registry (ICD-9)</td>
-<td>ICD-9-derived sources</td>
-<td><code><a href="../reference/derive_icd9.html">derive_icd9()</a></code></td>
-<td>Combines the two ICD-9-capable source helpers into one ICD-9-derived
-status and earliest date. Only two sources are offered (vs. four for
-<code><a href="../reference/derive_icd10.html">derive_icd10()</a></code>), since death registry and First Occurrence
-have no ICD-9 counterpart in UKB</td>
-</tr>
-<tr class="odd">
-<td>ICD-9 rules in bundled recipes</td>
-<td>
-<code>hes_icd9</code> / <code>cancer_registry_icd9</code> recipe
-source slots, dispatching to <code><a href="../reference/derive_hes_icd9.html">derive_hes_icd9()</a></code> /
-<code><a href="../reference/derive_cancer_registry_icd9.html">derive_cancer_registry_icd9()</a></code>
-</td>
-<td>Recipe-level ICD-9</td>
-<td><code><a href="../reference/derive_recipe.html">derive_recipe()</a></code></td>
-<td>The recipe schema supports ICD-9 rules exactly like the ICD-10
-slots. A recipe’s ICD-9 codes are populated only where the published
-definition specifies them precisely enough to reproduce
-(e.g. <code>dementia</code>); where a paper only gives an illustrative
-example rather than a full code list, the recipe records that example in
-<code>notes</code> instead of guessing a rule
-(e.g. <code>type_2_diabetes_wirler</code>)</td>
-</tr>
-<tr class="even">
-<td>OPCS-4 rules in bundled recipes</td>
-<td>
-<code>opcs</code> recipe source slot, dispatching to
-<code><a href="../reference/derive_opcs.html">derive_opcs()</a></code>
-</td>
-<td>Recipe-level OPCS-4</td>
-<td><code><a href="../reference/derive_recipe.html">derive_recipe()</a></code></td>
-<td>The recipe schema supports an <code>opcs</code> slot like the
-diagnosis slots. Populated where a published definition specifies
-procedure codes precisely enough to reproduce (e.g. the coronary
-revascularisation arm of the <code>coronary_heart_disease</code>
-recipes)</td>
-</tr>
-<tr class="odd">
-<td>GP rules in bundled recipes</td>
-<td>
-<code>gp_read2</code> / <code>gp_ctv3</code> recipe source slots,
-dispatching to <code><a href="../reference/derive_gp_read2.html">derive_gp_read2()</a></code> /
-<code><a href="../reference/derive_gp_ctv3.html">derive_gp_ctv3()</a></code>
-</td>
-<td>Recipe-level primary care</td>
-<td><code><a href="../reference/derive_recipe.html">derive_recipe()</a></code></td>
-<td>The recipe schema carries the Read v2 and CTV3 code lists as two
-separate slots (like ICD-10 vs ICD-9). A GP recipe requires the
-<code>gp_clinical</code> table to be passed to
-<code>derive_recipe(gp = ...)</code>; it errors early if absent.
-Populated where a paper gives explicit code lists
-(e.g. <code>dementia</code>, <code>type_2_diabetes_chong</code>)</td>
-</tr>
-<tr class="even">
 <td>Final case definition</td>
-<td>Self-report plus ICD-10-derived plus optional ICD-9-, OPCS-4- and GP
-(Read v2 / CTV3)-derived status/date</td>
+<td>Self-report plus ICD-10-derived status/date</td>
 <td>Source reconciliation</td>
 <td><code><a href="../reference/derive_case.html">derive_case()</a></code></td>
-<td>Uses an any-source OR rule by default: self-report, ICD-10-derived,
-ICD-9-derived, OPCS-4-derived, or GP-derived status can define a case.
-The optional ICD-9 (<code>icd9_col</code>), OPCS-4
-(<code>opcs_col</code>) and GP (<code>read2_col</code> /
-<code>ctv3_col</code>) arms are folded in only when present — their
-absence is expected for most phenotypes and produces no warning</td>
+<td>Uses an any-source OR rule by default: self-report or ICD-10-derived
+status can define a case</td>
 </tr>
 </tbody>
 </table>
@@ -424,17 +272,16 @@ absence is expected for most phenotypes and produces no warning</td>
 <h2 id="default-reconciliation">Default Reconciliation<a class="anchor" aria-label="anchor" href="#default-reconciliation"></a>
 </h2>
 <p><code><a href="../reference/derive_case.html">derive_case()</a></code> applies an any-source reconciliation rule
-by default. The final status is <code>TRUE</code> if any of the
-ICD-10-derived, ICD-9-derived, OPCS-4-derived, GP (Read v2 /
-CTV3)-derived, or self-report status is <code>TRUE</code>. The final
-date is the earliest available date across included sources.</p>
+by default. The final status is <code>TRUE</code> if either the
+ICD-10-derived status or the self-report status is <code>TRUE</code>.
+The final date is the earliest available date across included
+sources.</p>
 <p>This default is a workflow convention, not a medical-record
 confirmation rule. For stricter case definitions, users should construct
 source-specific phenotypes explicitly, for example by using an
 ICD-10-derived <code>name</code> without matching self-report columns,
 or by controlling the sources passed to
-<code>derive_icd10(source = ...)</code> /
-<code>derive_icd9(source = ...)</code>.</p>
+<code>derive_icd10(source = ...)</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="not-currently-supported">Not Currently Supported<a class="anchor" aria-label="anchor" href="#not-currently-supported"></a>
@@ -452,26 +299,28 @@ current public API:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>GP clinical diagnoses (Read v2 / CTV3)</td>
-<td>Supported: fetch <code>gp_clinical</code> with
-<code><a href="../reference/extract_gp.html">extract_gp()</a></code>, then <code><a href="../reference/derive_gp_read2.html">derive_gp_read2()</a></code> /
-<code><a href="../reference/derive_gp_ctv3.html">derive_gp_ctv3()</a></code>
-</td>
+<td>ICD-9</td>
+<td>Not currently supported</td>
 </tr>
 <tr class="even">
-<td>GP prescriptions (<code>gp_scripts</code>, BNF / dm+d codes)</td>
+<td>OPCS-4 procedure codes</td>
 <td>Not currently supported</td>
 </tr>
 <tr class="odd">
-<td>GP numeric measurement values
-(<code>value1</code>-<code>value3</code>)</td>
+<td>Read v2 primary-care codes</td>
 <td>Not currently supported</td>
 </tr>
 <tr class="even">
-<td>HES secondary-only diagnosis position (ICD-10 or ICD-9)</td>
-<td>Not offered: UKB has no aligned date field for secondary diagnoses
-(<code>41204</code> / <code>41205</code>). Any-position (default) and
-<code>position = "main"</code> are supported</td>
+<td>CTV3 primary-care codes</td>
+<td>Not currently supported</td>
+</tr>
+<tr class="odd">
+<td>General GP / primary-care phenotype parsing</td>
+<td>Not currently supported</td>
+</tr>
+<tr class="even">
+<td>HES primary / secondary diagnosis-position selection</td>
+<td>Not currently exposed as a public argument</td>
 </tr>
 </tbody>
 </table>
@@ -516,10 +365,6 @@ event, and follow-up.</li>
 <li>
 <code><a href="../articles/decode.html">vignette("decode")</a></code> covers UKB column-name and value
 decoding.</li>
-<li>
-<code><a href="../articles/recipe.html">vignette("recipe")</a></code> covers the library of reproducible
-phenotype definitions, which records definitions built from these same
-sources, and how to write one.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

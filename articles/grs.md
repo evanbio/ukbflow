@@ -192,11 +192,11 @@ GRS score named `GRS_<name>`.
 
 ## Step 4: Standardise GRS Columns – `grs_standardize()`
 
-With the GRS score CSVs written by
-[`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)
-on RAP and merged into your analysis dataset (both stay on the
-platform), Z-score standardise each GRS column so that effect estimates
-are interpretable as per-SD associations.
+After downloading the score CSVs from RAP (via
+[`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md))
+and merging them into your analysis dataset, Z-score standardise each
+GRS column so that effect estimates are interpretable as per-SD
+associations.
 
 ``` r
 
@@ -308,10 +308,12 @@ score_ids <- grs_score(
 )
 job_wait(score_ids)
 
-# 4. Read the score CSV from its RAP location, merge, and standardise
-#    (project files are mounted at /mnt/project on a RAP worker)
+# 4. Download score CSV from RAP
+fetch_file("/grs/GRS_a_scores.csv", dest = "GRS_a_scores.csv")
+
+# 5. Merge into analysis dataset and standardise
 # cohort: your analysis data.table with IID and phenotype columns
-scores <- data.table::fread("/mnt/project/grs/GRS_a_scores.csv")  # IID, GRS_a
+scores <- data.table::fread("GRS_a_scores.csv")   # columns: IID, GRS_a
 cohort <- scores[cohort, on = "IID"]               # right-join: keep all cohort rows
 cohort <- grs_standardize(cohort, grs_cols = "GRS_a")
 

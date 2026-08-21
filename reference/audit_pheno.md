@@ -34,7 +34,7 @@ The updated `ukbflow_audit` object.
 ## Examples
 
 ``` r
-aud <- audit_start("example_analysis", check_dx = FALSE)
+aud <- audit_start("example_analysis")
 dt <- data.frame(
   eid = 1:3,
   lung_status = c(TRUE, FALSE, TRUE),

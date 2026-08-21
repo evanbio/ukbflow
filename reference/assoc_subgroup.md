@@ -66,7 +66,7 @@ assoc_sub(
   categorical or binary variable with a small number of levels (e.g.
   sex, smoking status). Continuous variables are technically permitted
   and the interaction LRT will still run, but per-unique-value
-  subgrouping is rarely meaningful in practice – use a pre-categorised
+  subgrouping is rarely meaningful in practice — use a pre-categorised
   version (e.g. via
   [`derive_cut`](https://evanbio.github.io/ukbflow/reference/derive_cut.md))
   instead.
@@ -139,14 +139,6 @@ A `data.table` with one row per subgroup level \\\times\\ exposure
   dataset. Shared across all subgroup levels for the same exposure
   \\\times\\ model. `NA` when the interaction model fails. Only present
   when `interaction = TRUE`.
-
-The returned table also carries a hidden attribute recording `method`
-(the resolved `coxph`/`logistic`/`linear` choice), `outcome_col`,
-`time_col`, `covariates`, exposure levels, `test`, and `conf_level`;
-[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-reads this automatically. `by` and `interaction` do not need separate
-recording – they are already visible in the `subgroup` and
-`p_interaction` columns above.
 
 ## Details
 

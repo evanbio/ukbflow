@@ -51,7 +51,7 @@ errors, because the check itself does not require a live RAP connection.
 ``` r
 ops_setup(check_dx = FALSE, check_auth = FALSE)
 #> ── ukbflow environment check ───────────────────────────────────────────────────
-#> ℹ ukbflow 0.4.0 | R 4.6.1 | 2026-08-21
+#> ℹ ukbflow 0.3.4 | R 4.6.1 | 2026-08-21
 #> ── 3. R packages ───────────────────────────────────────────────────────────────
 #> ✔ cli  3.6.6  [core]
 #> ✔ data.table  1.18.4  [core]

@@ -110,11 +110,6 @@ model combination, and columns:
 
   Global p-value for the whole model.
 
-The returned table also carries a hidden attribute recording
-`outcome_col`, `time_col`, `covariates`, exposure levels, and `strata`;
-[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-reads this automatically.
-
 ## Details
 
 A non-significant p-value (p \> 0.05) indicates the PH assumption is

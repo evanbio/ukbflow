@@ -93,11 +93,6 @@ and the GRS score (named `GRS_<name>`).
 
   `mem2_ssd2_v2_x8`: 8 cores, 28 GB RAM.
 
-Must be run inside the RAP environment. Arguments are validated first,
-so a missing weights file or bad `dest` is reported as such wherever you
-call from; the environment check happens before anything is uploaded or
-submitted.
-
 ## Examples
 
 ``` r

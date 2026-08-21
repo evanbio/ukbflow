@@ -27,7 +27,7 @@ job_wait(job_id, interval = 30, timeout = Inf, verbose = TRUE)
 
   (numeric) Maximum wait time in seconds. Default: `Inf` (wait
   indefinitely). On UKB RAP, jobs can stay in `"runnable"` for several
-  hours during peak times – set a finite value (e.g. `7200`) only if you
+  hours during peak times — set a finite value (e.g. `7200`) only if you
   need a hard deadline.
 
 - verbose:

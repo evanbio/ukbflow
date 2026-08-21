@@ -56,8 +56,6 @@ Invisibly returns the job ID string (e.g. `"job-XXXX"`).
 The job runs on the cloud and typically completes in 20-40 minutes.
 Monitor progress and retrieve results using the `job_` series.
 
-Must be run inside the RAP environment.
-
 ## Examples
 
 ``` r

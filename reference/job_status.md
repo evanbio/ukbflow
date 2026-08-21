@@ -20,7 +20,7 @@ job_status(job_id)
 
 ## Value
 
-A named character string – the job state. Possible values:
+A named character string — the job state. Possible values:
 
 - `"idle"`:
 

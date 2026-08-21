@@ -39,12 +39,6 @@ Column labels are taken from the UKB field title dictionary via
 Both the dataset name and field list are cached after the first call, so
 subsequent calls to `decode_names()` involve no network requests.
 
-Because the titles come from the project's own field dictionary, the
-first call must be run inside the RAP environment.
-[`decode_values`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
-has no such requirement – it reads Showcase metadata files, which are
-public and can sit anywhere you point `metadata_dir`.
-
 When an auto-generated name exceeds `max_nchar` characters it is flagged
 with a warning so you can decide whether to shorten it manually with
 `names(data)[...] <- ...`. The function never truncates names
@@ -57,10 +51,10 @@ context that only you know.
 if (FALSE) { # \dontrun{
 df <- extract_pheno(c(31, 53, 21022))
 df <- decode_names(df)
-# participant.eid    -> eid
-# participant.p31    -> sex
-# participant.p21022 -> age_at_recruitment
-# participant.p53_i0 -> date_of_attending_assessment_centre_i0  (warned if > 60)
+# participant.eid    → eid
+# participant.p31    → sex
+# participant.p21022 → age_at_recruitment
+# participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if > 60)
 
 # Shorten a long name afterwards
 names(df)[names(df) == "date_of_attending_assessment_centre_i0"] <- "date_baseline"

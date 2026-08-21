@@ -14,10 +14,8 @@ publication tables.
 | [`assoc_coxph_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md) | [`assoc_zph()`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md) | Schoenfeld residual PH test | chisq / p |
 | [`assoc_subgroup()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md) | [`assoc_sub()`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md) | Stratified analysis + LRT interaction | HR / OR / beta |
 | [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md) | [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md) | Dose-response trend | HR / OR / beta + p_trend |
-| [`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md) | — | Restricted cubic spline dose-response | HR / OR / beta + p-nonlinear |
 | [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md) | Fine-Gray competing risks | SHR |
 | [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md) | — | Cox lag sensitivity analysis | HR |
-| [`assoc_evalue()`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md) | — | E-value for unmeasured confounding | E-value |
 
 > **Prerequisite**: the analysis dataset should already contain derived
 > case status, follow-up time, and covariates produced by the `derive_*`
@@ -302,61 +300,7 @@ self-contained and easy to filter or export.
 
 ------------------------------------------------------------------------
 
-## Step 7: Non-Linear Dose-Response (Restricted Cubic Splines)
-
-Where
-[`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)
-summarises an *ordered categorical* exposure with a single linear-trend
-estimate,
-[`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md)
-models the full — possibly non-linear — shape of a **continuous**
-exposure using restricted cubic splines. It returns a prediction *curve*
-(one row per grid point) together with an overall-association p-value
-and a **p-value for non-linearity**, capturing U-shaped, J-shaped,
-threshold, or plateau relationships that a single linear term would
-miss.
-
-It supports the same three methods (`"coxph"`, `"logistic"`, `"linear"`)
-and the same base / covariates adjustment logic as the rest of the
-`assoc_*` family. The exposure must be **continuous**; the reference
-value (`ref`, default the median) is where the effect equals 1 (HR / OR)
-or 0 (mean difference).
-
-``` r
-
-res <- assoc_rcs(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p21001_i0",              # BMI (continuous)
-  method       = "coxph",
-  covariates   = c("p21022", "p31", "tdi_cat", "p20116_i0"),
-  knots        = 4,                        # Harrell quantile knots (3-5 typical)
-  ref          = 25                        # centre the curve at BMI 25 (HR = 1)
-)
-```
-
-The result holds the fitted curve (`x`, `estimate`, `conf_low`,
-`conf_high`), the `p_overall` and `p_nonlinear` values (repeated within
-each model), plus hidden `measure` / `knots` / `ref` attributes. When
-`base = TRUE` (default), one curve is returned per adjustment model.
-Pass the result straight to
-[`plot_rcs()`](https://evanbio.github.io/ukbflow/reference/plot_rcs.md)
-to draw the dose-response curve — see
-[`vignette("plot")`](https://evanbio.github.io/ukbflow/articles/plot.md).
-
-> **Requires the `rms` package** (a `Suggests` dependency):
-> [`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md)
-> fits the spline through
-> [`rms::cph()`](https://rdrr.io/pkg/rms/man/cph.html) /
-> [`rms::lrm()`](https://rdrr.io/pkg/rms/man/lrm.html) /
-> [`rms::ols()`](https://rdrr.io/pkg/rms/man/ols.html), so the
-> non-linearity test follows the canonical Harrell RCS workflow. Install
-> it with `install.packages("rms")`.
-
-------------------------------------------------------------------------
-
-## Step 8: Fine-Gray Competing Risks
+## Step 7: Fine-Gray Competing Risks
 
 [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
 fits a Fine-Gray subdistribution hazard model via
@@ -424,8 +368,8 @@ res <- assoc_coxph(
   covariates   = c("bmi_cat", "tdi_cat", "p1558_i0")
 )
 
-# Pass directly to plot_forest() — est/CI/columns auto-derived
-plot_forest(res)
+# Pass directly to plot_forest()
+plot_forest(as.data.frame(res))
 
 # Filter to a single model
 res[model == "Fully adjusted"]
@@ -436,7 +380,7 @@ data.table::fwrite(res, "assoc_results.csv")
 
 ------------------------------------------------------------------------
 
-## Step 9: Lag Sensitivity Analysis
+## Step 8: Lag Sensitivity Analysis
 
 [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
 re-runs the same Cox models at one or more lag periods to assess whether
@@ -471,60 +415,6 @@ result:
 
 ------------------------------------------------------------------------
 
-## Step 10: E-value Sensitivity Analysis
-
-Observational associations can always be questioned on the grounds of
-unmeasured confounding.
-[`assoc_evalue()`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md)
-quantifies that concern with the E-value (VanderWeele & Ding, 2017): the
-minimum strength of association — on the risk-ratio scale — that an
-unmeasured confounder would need with **both** the exposure and the
-outcome, beyond the measured covariates, to fully explain away the
-observed effect. A larger E-value means a more robust finding; you
-benchmark it against how strongly the measured confounders (and any
-plausible unmeasured one) associate with the outcome.
-
-It reports two numbers per estimate: the E-value for the point estimate,
-and the E-value for the confidence limit closest to the null (which is 1
-when the interval already spans the null).
-
-Pass a Cox or logistic result straight in — the `HR`/`OR` and CI columns
-are read automatically, and two columns (`evalue_point`, `evalue_ci`)
-are appended:
-
-``` r
-
-res <- assoc_coxph(
-  data         = dt,
-  outcome_col  = "dm_status",
-  time_col     = "dm_followup_years",
-  exposure_col = "p20116_i0"            # smoking status
-)
-
-assoc_evalue(res)
-```
-
-The **rare-outcome assumption** matters: the E-value is defined on the
-risk-ratio scale, so a hazard or odds ratio is used directly only when
-the outcome is rare; for a common outcome it is first converted to an
-RR. In result mode the prevalence is inferred from `n_events`/`n` (or
-`n_cases`/`n`) and the outcome is treated as rare below 15%; use
-`rare = TRUE`/`FALSE` to override.
-
-You can also evaluate a single hand-entered estimate — e.g. one reported
-in another paper — with argument names matching
-[`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md):
-
-``` r
-
-assoc_evalue(est = 2.0, lower = 1.5, upper = 2.7, measure = "HR", rare = TRUE)
-```
-
-Linear (`beta`) and competing-risks (`SHR`) results are not supported;
-the E-value needs a ratio effect measure.
-
-------------------------------------------------------------------------
-
 ## Getting Help
 
 - [`?assoc_coxph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph.md),
@@ -533,10 +423,8 @@ the E-value needs a ratio effect measure.
 - [`?assoc_coxph_zph`](https://evanbio.github.io/ukbflow/reference/assoc_coxph_zph.md),
   [`?assoc_subgroup`](https://evanbio.github.io/ukbflow/reference/assoc_subgroup.md),
   [`?assoc_trend`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md),
-  [`?assoc_rcs`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md),
   [`?assoc_competing`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md),
-  [`?assoc_lag`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md),
-  [`?assoc_evalue`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md)
+  [`?assoc_lag`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
 - [`vignette("derive-survival")`](https://evanbio.github.io/ukbflow/articles/derive-survival.md)
   — follow-up time and event derivation
 - [`vignette("derive")`](https://evanbio.github.io/ukbflow/articles/derive.md)

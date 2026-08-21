@@ -17,13 +17,13 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 
 **ukbflow** is an R-native, RAP-aware workflow system for UK Biobank
 controlled-data analysis. It provides a coherent workflow layer for
-phenotype extraction, disease derivation, association analysis,
-reproducible phenotype recipes, audit records, and publication-quality
-outputs. It is designed to support workflows on the [UK Biobank Research
-Analysis Platform (RAP)](https://ukbiobank.dnanexus.com) under the 2024+
-data policy requiring individual-level data to remain in the cloud;
-users remain responsible for ensuring that only permitted summary-level
-outputs are downloaded.
+phenotype extraction, disease derivation, association analysis, audit
+records, and publication-quality outputs. It is designed to support
+workflows on the [UK Biobank Research Analysis Platform
+(RAP)](https://ukbiobank.dnanexus.com) under the 2024+ data policy
+requiring individual-level data to remain in the cloud; users remain
+responsible for ensuring that only permitted summary-level outputs are
+downloaded.
 
 ## Installation
 
@@ -55,10 +55,9 @@ environment.
 **Connection** — Authenticate to RAP via dx-toolkit and manage project
 selection (`auth_login`, `auth_select_project`)
 
-**Data Access** — Retrieve phenotype, primary-care, proteomic and
-metabolomic data from UKB dataset on RAP; monitor asynchronous jobs
-(`extract_batch`, `extract_gp`, `extract_olink`, `extract_nmr`,
-`job_wait`, `job_result`)
+**Data Access** — Retrieve phenotype data from UKB dataset on RAP;
+monitor asynchronous jobs (`fetch_metadata`, `extract_batch`,
+`job_wait`)
 
 **Data Processing** — Harmonize multi-source records and derive
 analysis-ready cohort: decode field IDs and value codes, build ICD-10
@@ -67,44 +66,28 @@ case definitions, compute follow-up time (`decode_names`,
 
 **Association Analysis** — Cox, logistic, and linear regression with
 automatic three-model adjustment framework; subgroup analysis,
-categorical and spline dose-response, Fine-Gray competing risks, and
-E-value sensitivity to unmeasured confounding (`assoc_coxph`,
-`assoc_logistic`, `assoc_subgroup`, `assoc_rcs`, `assoc_evalue`)
+dose-response trend, and Fine-Gray competing risks (`assoc_coxph`,
+`assoc_logistic`, `assoc_subgroup`)
 
 **Genomic Scoring** — Distributed plink2 scoring on RAP worker nodes:
 BGEN → PGEN conversion, multi-chromosome GRS computation, and
 standardization (`grs_bgen2pgen`, `grs_score`, `grs_standardize`)
 
-**Visualization** — Publication-ready forest plots, Kaplan-Meier curves,
-spline dose-response curves, and Table 1 outputs in common manuscript
-formats (`plot_forest`, `plot_survival`, `plot_rcs`, `plot_tableone`)
+**Visualization** — Publication-ready forest plots and Table 1 outputs
+in common manuscript formats (`plot_forest`, `plot_tableone`)
 
 **Utilities** — Verify environment before analysis; search approved
-project fields, and look up field IDs offline — common fields plus the
-blood count, blood biochemistry and NMR panels in full; find the field
-IDs behind a First Occurrence or algorithmically-defined outcome; browse
-common covariate presets as decoded column names; generate synthetic
+project fields and look up common UKB field IDs; generate synthetic
 UKB-like data for development; diagnose missing values; track cohort
 changes across pipeline steps; exclude withdrawn participants
-(`ops_setup`, `ops_fields`, `ops_fields_common`, `ops_fo`, `ops_alg`,
-`ops_covariates`, `ops_toy`, `ops_na`, `ops_snapshot`, `ops_withdraw`)
-
-**Phenotype Recipes** — Browse, inspect, and flatten a versioned library
-of reproducible phenotype definitions, each recording how a phenotype
-was operationally defined (sources, codes, logic, caveats); apply one to
-a cohort in a single call, and author a new definition without
-hand-writing YAML (`recipe_list`, `recipe_get`, `recipe_sources`,
-`derive_recipe`, `recipe_rule`, `recipe_new`, `recipe_write`)
+(`ops_setup`, `ops_fields`, `ops_fields_common`, `ops_toy`, `ops_na`,
+`ops_snapshot`, `ops_withdraw`)
 
 **Analysis Audit** — Create lightweight JSON manifests for
 reproducibility: field IDs, dataset snapshots, derived phenotype
-summaries, versioned phenotype recipes, model result tables, RAP jobs,
-and session metadata; read a manifest back and compare labelled records
-or two whole audit objects; export a cohort attrition table for a
-flowchart-rendering package (`audit_start`, `audit_fields`,
-`audit_snapshot`, `audit_pheno`, `audit_recipe`, `audit_model`,
-`audit_job`, `audit_write`, `audit_read`, `audit_diff`,
-`audit_flowchart`)
+summaries, model result tables, RAP jobs, and session metadata
+(`audit_start`, `audit_fields`, `audit_snapshot`, `audit_pheno`,
+`audit_model`, `audit_job`, `audit_write`)
 
 ## Supported Phenotype Sources
 
@@ -114,23 +97,15 @@ sources that are routinely available in phenotype extraction workflows:
 | Source | Code system / field type | Main function(s) |
 |----|----|----|
 | Self-reported illness / cancer | UKB fields `20002` / `20001` | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md) |
-| HES inpatient diagnoses | ICD-10 diagnoses; `position` selects any-position (`41270`) or main/primary (`41202`) | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
-| HES inpatient diagnoses (ICD-9) | Legacy minority code system; `41271`/`41281` (any), `41203`/`41263` (main) | [`derive_hes_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_hes_icd9.md) |
-| HES inpatient procedures (OPCS-4) | `41272`/`41282` (any), `41200`/`41260` (main) | [`derive_opcs()`](https://evanbio.github.io/ukbflow/reference/derive_opcs.md) |
-| GP primary care (Read v2) | `gp_clinical` record table, `read_2` column (fetch with [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md)) | [`derive_gp_read2()`](https://evanbio.github.io/ukbflow/reference/derive_gp_read2.md) |
-| GP primary care (CTV3) | `gp_clinical` record table, `read_3` column (fetch with [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md)) | [`derive_gp_ctv3()`](https://evanbio.github.io/ukbflow/reference/derive_gp_ctv3.md) |
+| HES inpatient diagnoses | ICD-10, any-position field `41270` with dates from `41280`; primary/secondary position is not currently configurable | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
 | First Occurrence fields | UKB precomputed `p131xxx` dates | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) |
-| Algorithmically-defined outcomes | UKB Category 42 adjudicated date fields, e.g. `42018` (dementia); self-contained, not routed through [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) | [`derive_algorithm()`](https://evanbio.github.io/ukbflow/reference/derive_algorithm.md) |
 | Cancer registry | ICD-10, histology, behaviour, diagnosis date | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md) |
-| Cancer registry (ICD-9) | ICD-9 code (`40013`), sharing histology/behaviour/date with the ICD-10 arm | [`derive_cancer_registry_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry_icd9.md) |
-| Death registry | ICD-10 underlying / contributory cause of death; `cause` selects primary, secondary, or either | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
+| Death registry | ICD-10 primary / secondary cause of death | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
 | Multi-source ICD-10 phenotype | HES, death, First Occurrence, cancer registry | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md) |
-| Multi-source ICD-9 phenotype | HES (ICD-9), cancer registry (ICD-9) | [`derive_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_icd9.md) |
-| Final case definition | Self-report plus ICD-10-derived plus optional ICD-9-, OPCS-4- and GP (Read v2 / CTV3)-derived status/date | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
+| Final case definition | Self-report plus ICD-10-derived status/date | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
 
-GP prescriptions (`gp_scripts`) and numeric measurement values are not
-part of the current public API. UKB’s death registry and First
-Occurrence fields have no ICD-9 or OPCS-4 counterpart.
+ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems
+are not part of the current public API.
 
 ## Limitations
 
@@ -141,17 +116,13 @@ packages, and PLINK2-based GRS workflows. It does not provide a general
 DAG scheduler, estimate RAP costs, replace the DNAnexus interface, or
 determine study design, covariate choice, phenotype validity, or causal
 interpretation. Current public phenotype helpers focus on the UKB
-sources listed above, including primary-care diagnoses (Read v2 / CTV3);
-GP prescriptions and numeric measurements are not covered.
+sources listed above and do not cover GP / primary-care code systems.
 
 ## Quick Start
 
 ``` r
 
 library(ukbflow)
-
-# Open an audit manifest: it records what the analysis did as it runs
-aud <- audit_start("smoking_lung_cancer")
 
 # Simulate UKB-style data locally (on RAP: replace with extract_batch() + job_wait())
 data <- ops_toy(n = 5000, seed = 2026) |>
@@ -180,26 +151,24 @@ res <- assoc_coxph(data,
   exposure_col = "smoking_ever",
   covariates   = c("p21022", "p31", "p22189"))
 
-# Forest plot — pass the result straight in; est/CI/columns auto-derived
-plot_forest(res)
-
-# Record the model and write the manifest: field IDs, cohort snapshots,
-# phenotype summaries, model results and session metadata, as JSON
-aud <- audit_model(aud, res)
-audit_write(aud, "smoking_lung_cancer_audit.json")
+# Forest plot
+res_df <- as.data.frame(res)
+plot_forest(
+  data      = res_df,
+  est       = res_df$HR,
+  lower     = res_df$CI_lower,
+  upper     = res_df$CI_upper,
+  ci_column = 2L
+)
 ```
 
 ## Documentation
 
+- **[ukbflow Book](https://ukbflow.evanzhou.org)** — Practical
+  RAP-native workflows, examples, and module notes
 - **[Get
   Started](https://evanbio.github.io/ukbflow/articles/get-started.md)**
   — Installation and end-to-end workflow
-- **[Phenotype
-  Recipes](https://evanbio.github.io/ukbflow/articles/recipe.md)** —
-  Reproducible, versioned phenotype definitions
-- **[One Phenotype, Many
-  Definitions](https://evanbio.github.io/ukbflow/articles/phenotype-reproducibility.md)**
-  — Case study on how published UK Biobank phenotype definitions diverge
 - **[Analysis
   Audit](https://evanbio.github.io/ukbflow/articles/audit.md)** —
   Lightweight manifests for reproducible analyses
@@ -208,13 +177,6 @@ audit_write(aud, "smoking_lung_cancer_audit.json")
   Complete API documentation
 - **[Vignettes](https://evanbio.github.io/ukbflow/articles/index.md)** —
   Module-by-module tutorials
-
-## Visual Resources
-
-- **[Tessera](https://folio.evanzhou.org/tessera)** — Browse palettes,
-  example datasets, and reproducible R figure recipes.
-- **[Palette Lab](https://folio.evanzhou.org/apps/palette-lab)** —
-  Compare palettes across a consistent set of graphical displays.
 
 ## Getting Help
 
@@ -249,12 +211,21 @@ project selection.
 
 ## Fetch — RAP File System
 
-Browse and list files in RAP project storage.
+Explore and retrieve files from RAP project storage.
 
 - [`fetch_ls()`](https://evanbio.github.io/ukbflow/reference/fetch_ls.md)
   : List files and folders at a remote RAP path
 - [`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)
   : Print a remote RAP directory tree
+- [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)
+  : Get pre-authenticated download URL(s) for a remote RAP file or
+  folder
+- [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
+  : Download a file from RAP project storage
+- [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
+  : Download the Showcase metadata folder
+- [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
+  : Download the UKB field dictionary file
 
 ## Extract — Phenotype Data
 
@@ -266,12 +237,6 @@ Extract UKB fields from the RAP dataset into R.
   : Extract phenotype data from a UKB dataset
 - [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
   : Submit a large-scale phenotype extraction job via table-exporter
-- [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md)
-  : Extract a UK Biobank primary-care (GP) record table
-- [`extract_olink()`](https://evanbio.github.io/ukbflow/reference/extract_olink.md)
-  : Export the UK Biobank Olink proteomics data
-- [`extract_nmr()`](https://evanbio.github.io/ukbflow/reference/extract_nmr.md)
-  : Export the UK Biobank Nightingale NMR metabolomics data
 
 ## Decode — Column Names and Values
 
@@ -284,43 +249,25 @@ Convert raw UKB column names and coded values to human-readable labels.
 
 ## Derive — Disease Phenotypes
 
-Build case definitions from HES, cancer registry, self-report, First
-Occurrence, death registry, and algorithmically-defined outcomes.
+Build case definitions from HES, cancer registry, self-report, and First
+Occurrence data sources.
 
 - [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md)
   : Define a self-reported phenotype from UKB touchscreen data
 - [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md)
   : Derive a binary disease flag from UKB HES inpatient diagnoses
-- [`derive_hes_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_hes_icd9.md)
-  : Derive a binary disease flag from UKB HES inpatient diagnoses
-  (ICD-9)
-- [`derive_opcs()`](https://evanbio.github.io/ukbflow/reference/derive_opcs.md)
-  : Derive a binary procedure flag from UKB HES operative procedures
-  (OPCS-4)
-- [`derive_gp_read2()`](https://evanbio.github.io/ukbflow/reference/derive_gp_read2.md)
-  : Derive a disease flag from GP clinical events (Read v2)
-- [`derive_gp_ctv3()`](https://evanbio.github.io/ukbflow/reference/derive_gp_ctv3.md)
-  : Derive a disease flag from GP clinical events (CTV3 / Read v3)
 - [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md)
   : Derive a binary disease flag from UKB cancer registry
-- [`derive_cancer_registry_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry_icd9.md)
-  : Derive a binary disease flag from UKB cancer registry (ICD-9)
 - [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md)
   : Derive a binary disease flag from UKB death registry
 - [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md)
   : Derive a binary disease flag from UKB First Occurrence fields
-- [`derive_algorithm()`](https://evanbio.github.io/ukbflow/reference/derive_algorithm.md)
-  : Derive a binary disease flag from UKB algorithmically-defined
-  outcomes
 - [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md)
   : Derive a unified ICD-10 disease flag across multiple UKB data
   sources
-- [`derive_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_icd9.md)
-  : Derive a unified ICD-9 disease flag across multiple UKB data sources
 - [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
-  : Combine per-source flags into a unified case definition
-- [`derive_recipe()`](https://evanbio.github.io/ukbflow/reference/derive_recipe.md)
-  : Apply a phenotype recipe to UKB data
+  : Combine self-report and ICD-10 sources into a unified case
+  definition
 
 ## Derive — Covariates and Timing
 
@@ -378,15 +325,11 @@ adjustment framework.
 - [`assoc_trend()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)
   [`assoc_tr()`](https://evanbio.github.io/ukbflow/reference/assoc_trend.md)
   : Dose-response trend analysis
-- [`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md)
-  : Restricted cubic spline dose-response analysis
 - [`assoc_competing()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
   [`assoc_fg()`](https://evanbio.github.io/ukbflow/reference/assoc_competing.md)
   : Fine-Gray competing risks association analysis
 - [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
   : Cox regression lag sensitivity analysis
-- [`assoc_evalue()`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md)
-  : E-value for unmeasured confounding
 
 ## GRS — Genetic Risk Scores
 
@@ -407,10 +350,8 @@ risk scores with plink2.
 
 ## Utilities & Diagnostics
 
-Environment checks, field discovery, First Occurrence and
-algorithmically-defined outcome lookups, covariate presets, synthetic
-data generation, missing-value summaries, pipeline snapshots, and cohort
-management.
+Environment checks, field discovery, synthetic data generation,
+missing-value summaries, pipeline snapshots, and cohort management.
 
 - [`ops_setup()`](https://evanbio.github.io/ukbflow/reference/ops_setup.md)
   : Check the ukbflow operating environment
@@ -418,12 +359,6 @@ management.
   : Search approved UKB fields in the current project
 - [`ops_fields_common()`](https://evanbio.github.io/ukbflow/reference/ops_fields_common.md)
   : Common UK Biobank fields for quick reference
-- [`ops_fo()`](https://evanbio.github.io/ukbflow/reference/ops_fo.md) :
-  First Occurrence health outcome fields (offline lookup)
-- [`ops_alg()`](https://evanbio.github.io/ukbflow/reference/ops_alg.md)
-  : Algorithmically-defined outcome fields (offline lookup)
-- [`ops_covariates()`](https://evanbio.github.io/ukbflow/reference/ops_covariates.md)
-  : Common covariate presets for UK Biobank analysis
 - [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
   : Generate toy UKB-like data for testing and development
 - [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) :
@@ -441,36 +376,12 @@ management.
 - [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
   : Exclude withdrawn participants from a dataset
 
-## Phenotype Recipes
-
-A versioned library of reproducible UK Biobank phenotype definitions:
-browse the library, inspect a definition, and flatten it to a tidy rule
-table. Authoring helpers build and save a definition without
-hand-writing YAML. To apply a recipe to data, see derive_recipe() under
-“Derive — Disease Phenotypes”.
-
-- [`recipe_list()`](https://evanbio.github.io/ukbflow/reference/recipe_list.md)
-  : List available phenotype recipes
-- [`recipe_get()`](https://evanbio.github.io/ukbflow/reference/recipe_get.md)
-  [`print(`*`<ukbflow_recipe>`*`)`](https://evanbio.github.io/ukbflow/reference/recipe_get.md)
-  : Retrieve a single phenotype recipe
-- [`recipe_sources()`](https://evanbio.github.io/ukbflow/reference/recipe_sources.md)
-  : Flatten a recipe's source rules into a table
-- [`recipe_rule()`](https://evanbio.github.io/ukbflow/reference/recipe_rule.md)
-  : Build one source rule for a recipe
-- [`recipe_new()`](https://evanbio.github.io/ukbflow/reference/recipe_new.md)
-  : Build a phenotype recipe
-- [`recipe_write()`](https://evanbio.github.io/ukbflow/reference/recipe_write.md)
-  : Write a recipe to a YAML file
-
 ## Analysis Audit
 
 Lightweight analysis manifests for fields, data snapshots, derived
-phenotypes, phenotype recipes, model results, and session metadata.
+phenotypes, model results, and session metadata.
 
 - [`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
-  [`print(`*`<ukbflow_audit>`*`)`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
-  [`summary(`*`<ukbflow_audit>`*`)`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
   : Start a ukbflow audit record
 - [`audit_fields()`](https://evanbio.github.io/ukbflow/reference/audit_fields.md)
   : Record UKB field IDs used for extraction
@@ -480,33 +391,19 @@ phenotypes, phenotype recipes, model results, and session metadata.
   : Retrieve column names from an audit snapshot
 - [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
   : Record a derived phenotype audit summary
-- [`audit_recipe()`](https://evanbio.github.io/ukbflow/reference/audit_recipe.md)
-  : Record a phenotype recipe in an audit manifest
 - [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
   : Record an association model result
 - [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
   : Record a DNAnexus job in an audit manifest
 - [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
   : Write a ukbflow audit manifest
-- [`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
-  : Read a ukbflow audit manifest back into a ukbflow_audit object
-- [`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
-  : Compare recorded audit entries along a chosen sequence, or two audit
-  objects as a whole
-- [`audit_flowchart()`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md)
-  : Export a cohort flowchart table from recorded snapshots
 
 ## Visualisation
 
-Publication-quality forest plots, Kaplan-Meier curves, and Table 1 for
-manuscripts.
+Publication-quality forest plots and Table 1 for manuscripts.
 
 - [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
   : Publication-ready forest plot
-- [`plot_survival()`](https://evanbio.github.io/ukbflow/reference/plot_survival.md)
-  : Publication-ready Kaplan-Meier survival plot
-- [`plot_rcs()`](https://evanbio.github.io/ukbflow/reference/plot_rcs.md)
-  : Plot a restricted cubic spline dose-response curve
 - [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
   : Publication-ready Table 1 (Baseline Characteristics)
 
@@ -540,16 +437,9 @@ manuscripts.
   Jobs](https://evanbio.github.io/ukbflow/articles/job.md):
 - [Operational Utilities: Setup, Diagnostics, and Pipeline
   Tracking](https://evanbio.github.io/ukbflow/articles/ops.md):
-- [One Phenotype, Many Definitions: A Reproducibility and Comparability
-  Case
-  Study](https://evanbio.github.io/ukbflow/articles/phenotype-reproducibility.md):
 - [Supported Phenotype Sources and Current
   Limitations](https://evanbio.github.io/ukbflow/articles/phenotype-scope.md):
 - [Publication-Ready
   Visualisation](https://evanbio.github.io/ukbflow/articles/plot.md):
-- [Recipe Catalog: The Phenotype Definition
-  Library](https://evanbio.github.io/ukbflow/articles/recipe-catalog.md):
-- [Phenotype Definition
-  Recipes](https://evanbio.github.io/ukbflow/articles/recipe.md):
 - [Smoking and Lung Cancer Risk: A Synthetic Workflow
   Demonstration](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md):

@@ -43,6 +43,6 @@ The updated `ukbflow_audit` object.
 ## Examples
 
 ``` r
-aud <- audit_start("example_analysis", check_dx = FALSE)
+aud <- audit_start("example_analysis")
 aud <- audit_fields(aud, c(31, 53, 21022), label = "core_fields")
 ```

@@ -37,7 +37,7 @@ ops_snapshot_remove(data, from, keep = NULL, verbose = TRUE)
 
 A `data.table` with the specified columns removed. For `data.table`
 input the operation is performed by reference (in-place); for
-`data.frame` input the data is first converted to a new `data.table` –
+`data.frame` input the data is first converted to a new `data.table` —
 the original `data.frame` is not modified.
 
 ## Examples
@@ -46,28 +46,28 @@ the original `data.frame` is not modified.
 ops_snapshot(reset = TRUE, verbose = FALSE)
 
 dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 107 columns | scenario = "cohort" | seed = 42
+#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
 ops_snapshot(dt, label = "raw")
 #> ── snapshot: raw ───────────────────────────────────────────────────────────────
 #> rows 100
-#> cols 107
-#> NA cols 83
-#> size 0.14 MB
+#> cols 75
+#> NA cols 51
+#> size 0.09 MB
 #> ────────────────────────────────────────────────────────────────────────────────
 dt <- derive_missing(dt)
-#> ✔ derive_missing: replaced 48 values across 3 columns (action = "na").
+#> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
 ops_snapshot(dt, label = "derived")
 #> ── snapshot: derived ───────────────────────────────────────────────────────────
 #> rows 100 (= 0)
-#> cols 107 (= 0)
-#> NA cols 85 (+2)
-#> size 0.14 MB (= 0)
+#> cols 75 (= 0)
+#> NA cols 53 (+2)
+#> size 0.09 MB (= 0)
 #> ────────────────────────────────────────────────────────────────────────────────
 ops_snapshot_diff("raw", "derived")
 #> Columns added (0):
 #> Columns removed (0):
 dt <- ops_snapshot_remove(dt, from = "raw")
-#> ✔ ops_snapshot_remove: dropped 106 raw columns, 1 remaining.
+#> ✔ ops_snapshot_remove: dropped 74 raw columns, 1 remaining.
 
 ops_snapshot(reset = TRUE, verbose = FALSE)
 ```

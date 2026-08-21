@@ -32,7 +32,7 @@ A character vector of column names.
 ## Examples
 
 ``` r
-aud <- audit_start("example_analysis", check_dx = FALSE)
+aud <- audit_start("example_analysis")
 dt <- data.frame(eid = 1:3, x = c(1, NA, 3))
 aud <- audit_snapshot(aud, dt, "raw", verbose = FALSE)
 audit_cols(aud, "raw")

@@ -69,7 +69,7 @@ original variable point to the same memory.
 
 ``` r
 dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 107 columns | scenario = "cohort" | seed = 42
+#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
 derive_first_occurrence(dt, name = "outcome", field = 131742L, col = "p131742")
-#> ✔ derive_first_occurrence (outcome): 13 cases with valid date.
+#> ✔ derive_first_occurrence (outcome): 5 cases with valid date.
 ```
