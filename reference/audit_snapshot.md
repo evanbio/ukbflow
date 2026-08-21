@@ -59,7 +59,7 @@ The updated `ukbflow_audit` object.
 ## Examples
 
 ``` r
-aud <- audit_start("example_analysis")
+aud <- audit_start("example_analysis", check_dx = FALSE)
 dt <- data.frame(eid = 1:3, x = c(1, NA, 3))
 aud <- audit_snapshot(aud, dt, "raw")
 #> ✔ audit snapshot "raw": 3 rows x 2 cols.

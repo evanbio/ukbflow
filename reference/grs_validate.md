@@ -7,7 +7,7 @@ For each GRS column, computes four sets of validation metrics:
 2.  **High vs Low** - OR / HR comparing top 20\\ (extreme tertile
     grouping: Low / Mid / High).
 
-3.  **Trend test** - P-trend across quartiles (Q1–Q4).
+3.  **Trend test** - P-trend across quartiles (Q1-Q4).
 
 4.  **Discrimination** - AUC (logistic) or C-index (Cox).
 
@@ -59,7 +59,7 @@ A named `list` with four `data.table` elements:
 
 - `high_vs_low`: OR / HR for High vs Low extreme tertile.
 
-- `trend`: P-trend across Q1–Q4 quartiles.
+- `trend`: P-trend across Q1-Q4 quartiles.
 
 - `discrimination`: AUC (logistic) or C-index (Cox) with 95\\
 
@@ -81,7 +81,6 @@ adjusted model is added when `covariates` is non-`NULL`.
 ## Examples
 
 ``` r
-# \donttest{
 dt <- ops_toy(scenario = "association", n = 500)
 #> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
 dt <- grs_standardize(dt, grs_cols = "grs_bmi")
@@ -248,5 +247,4 @@ if (requireNamespace("pROC", quietly = TRUE)) {
 #>          GRS       AUC  CI_lower  CI_upper
 #>       <char>     <num>     <num>     <num>
 #> 1: grs_bmi_z 0.5103253 0.4291761 0.5914745
-# }
 ```

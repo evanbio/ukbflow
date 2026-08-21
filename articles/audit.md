@@ -15,9 +15,19 @@ A typical audit captures:
 - dataset snapshots at key stages, including row count, column count,
   missingness count, object size, and complete column names;
 - derived phenotype summaries from standard `derive_*` column names;
+- the versioned phenotype recipes a definition came from;
 - association result tables returned by `assoc_*`;
 - DNAnexus job IDs and lightweight job metadata when available;
 - a JSON manifest that can be saved with the analysis outputs.
+
+The audit object has a fixed structure from the moment it is created: a
+`schema_version`, a `meta` block (analysis name, ukbflow and R versions,
+platform, session information, and DNAnexus context), and the record
+layers `fields`, `recipes`, `snapshots`, `phenotypes`, `models`, and
+`jobs`. Each helper appends to one of these layers; the object is
+validated against this schema before the manifest is written, so a
+structurally broken audit fails loudly rather than producing a corrupt
+file.
 
 The examples below use synthetic data from
 [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
@@ -37,7 +47,7 @@ Start one audit object near the beginning of the analysis.
 
 library(ukbflow)
 
-aud <- audit_start("smoking_lung_cancer")
+aud <- audit_start("smoking_lung_cancer", check_dx = FALSE)
 aud
 ```
 
@@ -73,9 +83,9 @@ label, the number of fields, and a timestamp.
 
 [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
 records the DNAnexus job ID and any lightweight metadata available from
-`dx describe job-XXXX --json`, such as job state and output file ID. It
-does not estimate RAP cost; use the DNAnexus / RAP billing interface for
-cost review.
+`dx describe job-XXXX --json`, such as job name, state, creation time,
+and failure message. It does not estimate RAP cost; use the DNAnexus /
+RAP billing interface for cost review.
 
 ------------------------------------------------------------------------
 
@@ -156,9 +166,34 @@ aud <- audit_snapshot(aud, data, "after_phenotype")
 ```
 
 [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
-records whichever components exist: self-report, ICD-10, per-source
-ICD-10 columns, combined status/date, timing, and follow-up. Missing
-components are marked as not present rather than treated as errors.
+records whichever components exist: self-report, ICD-10, ICD-9,
+algorithmically defined outcome, per-source columns (HES, HES ICD-9,
+death registry, first occurrence, cancer registry, cancer registry
+ICD-9), combined status/date, timing, and follow-up. Missing components
+are marked as not present rather than treated as errors.
+
+------------------------------------------------------------------------
+
+## Record the Phenotype Definition
+
+Where
+[`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
+summarises the *result* of a phenotype in your data,
+[`audit_recipe()`](https://evanbio.github.io/ukbflow/reference/audit_recipe.md)
+records the *definition* it came from. Pass a recipe id (see
+[`vignette("recipe")`](https://evanbio.github.io/ukbflow/articles/recipe.md));
+the record captures the recipe id and version plus a self-contained
+snapshot of the definition (sources, logic, and notes), stored in its
+own `recipes` layer.
+
+``` r
+
+aud <- audit_recipe(aud, "cscc")
+```
+
+Keeping the definition separate from the realised summary means the
+manifest can reproduce *how* a phenotype was specified — independent of
+any dataset, and even if the bundled recipe library later changes.
 
 ------------------------------------------------------------------------
 
@@ -214,8 +249,12 @@ aud <- audit_snapshot(aud, data, "after_withdraw")
 Association result tables are usually small and already contain the most
 useful model summary.
 [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-stores the result table directly. If the covariate vector already exists
-in your script, pass it along.
+stores the result table directly. When `result` comes straight from an
+`assoc_*` call, the outcome column, time column, covariates, exposure
+reference levels, and other call details are picked up automatically
+from a hidden attribute that `assoc_*` attaches to its own return value
+– nothing needs to be re-typed, and the result table itself is
+unaffected (it prints and plots exactly as before).
 
 ``` r
 
@@ -234,27 +273,107 @@ res <- assoc_coxph(
   covariates   = covars
 )
 
-aud <- audit_model(
-  aud,
-  result     = res,
-  label      = "smoking_lung_cox",
-  covariates = covars
-)
+aud <- audit_model(aud, result = res, label = "smoking_lung_cox")
 ```
 
-The model record stores the full result table, inferred method,
-exposures, model labels, optional covariates, and a timestamp.
+The model record stores the full result table, the inferred method,
+exposures (with reference levels), model labels, the outcome/time
+columns and covariates picked up from `res`, and a timestamp. If
+`result` does not carry this attribute (e.g. a hand-built data.frame),
+the corresponding fields are recorded as `NA` or empty rather than
+failing.
+
+------------------------------------------------------------------------
+
+## Compare Snapshots, Fields, or Models
+
+[`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+walks an ordered sequence of labels within one layer and reports what
+changed between each consecutive pair. It is read-only: it does not
+append anything to `aud`.
+
+``` r
+
+audit_diff(aud, layer = "snapshots")
+```
+
+For `layer = "snapshots"` and `layer = "fields"`, each step reports the
+added and removed columns (or field IDs). For `layer = "models"`, each
+step reports covariate and exposure changes, plus a term-aligned
+side-by-side of the most-adjusted model’s effect estimate and p-value –
+useful for sensitivity analyses where the same exposure/outcome is
+re-run with a different covariate set.
+
+``` r
+
+aud <- audit_model(aud, result = res_minimal, label = "smoking_lung_minimal")
+aud <- audit_model(aud, result = res_full, label = "smoking_lung_full")
+audit_diff(aud, layer = "models", label = c("smoking_lung_minimal", "smoking_lung_full"))
+```
+
+No delta is computed automatically between the two effect estimates:
+HR/OR/SHR are ratio-scale and beta is difference-scale, so a single
+formula would not suit both.
+
+------------------------------------------------------------------------
+
+## Export a Cohort Flowchart Table
+
+[`audit_flowchart()`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md)
+turns the `snapshots` layer into a data.frame in the shape a flowchart
+renderer expects — five columns, `id`/`parent`/`n`/`label`/`type` —
+without committing to any particular renderer. It only produces the
+data; it does not render anything itself.
+
+The same `id` on several rows is a **merge** (each row contributes one
+upstream node); the same `parent` on several rows is a **branch**.
+`label` stays plain text and the count stays in `n`, so the renderer
+composes `"(n = 1,272)"` once, in whatever style the figure calls for.
+
+``` r
+
+audit_flowchart(aud)
+```
+
+By default each snapshot’s parent is the previous label in recording
+order – a simple linear attrition chain – and a row count decrease
+between parent and child is inserted as a sibling `type = "exclusion"`
+row (even when the decrease is zero), matching the convention where an
+exclusion box sits alongside the continuing step rather than replacing
+it.
+
+For a genuine branch (e.g. randomisation into two arms), declare the
+second and later branches’ true parent with `parent`, since the default
+assumption (“parent = previous label”) is wrong for anything but the
+first branch:
+
+``` r
+
+aud <- audit_snapshot(aud, vaccine_arm_data, "vaccine_arm", verbose = FALSE)
+aud <- audit_snapshot(aud, placebo_arm_data, "placebo_arm", verbose = FALSE)
+audit_flowchart(aud, parent = c(placebo_arm = "randomized"))
+```
+
+A branch never gets an automatic exclusion row (a split is not an
+exclusion), but its children’s counts are checked against the parent’s
+and a warning is issued if they do not sum to it – likewise if a single
+child’s count is somehow larger than its parent’s, since that is not a
+valid exclusion either.
 
 ------------------------------------------------------------------------
 
 ## Review and Write the Manifest
 
-Use [`summary()`](https://rdrr.io/r/base/summary.html) for a short
-directory-style overview.
+Use [`summary()`](https://rdrr.io/r/base/summary.html) for a
+directory-style overview of every layer (record counts plus a one-line
+preview of each record’s content), or
+[`print()`](https://rdrr.io/r/base/print.html) for a lighter skeleton
+view (just the record counts).
 
 ``` r
 
 summary(aud)
+print(aud)
 ```
 
 Write the manifest as JSON alongside the analysis outputs.
@@ -264,9 +383,65 @@ Write the manifest as JSON alongside the analysis outputs.
 audit_write(aud, "ukbflow-audit.json", overwrite = TRUE)
 ```
 
-The resulting JSON contains the audit metadata, extraction field
-records, snapshots, phenotype summaries, model result records, and
-session information.
+The resulting JSON mirrors the audit schema: a `schema_version`, a
+`meta` block, and the `fields`, `recipes`, `snapshots`, `phenotypes`,
+`models`, and `jobs` record layers.
+[`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+validates the object before serialising, so the manifest is either
+complete and well-formed or not written at all.
+
+------------------------------------------------------------------------
+
+## Read Back a Saved Manifest
+
+[`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
+parses a manifest written by
+[`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+back into a usable `ukbflow_audit` object – the same class
+[`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
+produces – so a past analysis’s audit trail can be inspected, or
+compared, without re-running the analysis.
+
+``` r
+
+aud_reloaded <- audit_read("ukbflow-audit.json")
+audit_cols(aud_reloaded, "raw")
+```
+
+Restoration is exact for the `fields`, `snapshots`, `models`, and `jobs`
+layers and the `meta` block. The `recipes` and `phenotypes` layers are
+passed through without this per-field restoration, since neither is
+currently read by
+[`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+or
+[`audit_cols()`](https://evanbio.github.io/ukbflow/reference/audit_cols.md).
+
+------------------------------------------------------------------------
+
+## Compare Two Analyses
+
+Passing a second audit object as `audit2` switches
+[`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+into a different mode: instead of walking labels within one object, it
+summarises `meta` and all six record layers for both objects side by
+side. This does not attempt to match or diff individual records across
+the two objects – there is no reliable way to tell which record in one
+audit “corresponds to” which in the other – it only shows what each
+object contains, reusing the same per-record summaries
+[`summary()`](https://rdrr.io/r/base/summary.html) prints, so you can
+eyeball the difference.
+
+``` r
+
+aud_paper <- audit_read("published_study_manifest.json")
+audit_diff(aud, audit2 = aud_paper)
+```
+
+`audit2` must always be passed by name. Sides are labelled by each
+object’s `meta$name` when both are present and distinct, falling back to
+`"audit1"`/`"audit2"` otherwise. This is the natural way to check “what
+does my reproduction of a published phenotype/model actually differ on”
+against a manifest saved from an earlier analysis.
 
 ------------------------------------------------------------------------
 
@@ -284,16 +459,23 @@ For most analyses, these are enough:
     and
     [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
     after phenotype derivation.
-5.  [`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
-    after each major cohort exclusion.
+5.  [`audit_recipe()`](https://evanbio.github.io/ukbflow/reference/audit_recipe.md)
+    for each recipe-based phenotype definition used.
 6.  [`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
+    after each major cohort exclusion.
+7.  [`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
     immediately before modelling.
-7.  [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+8.  [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
     after each main association result.
-8.  [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
+9.  [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
     next to long-running RAP jobs when a job ID is available.
-9.  [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+10. [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
     at the end of the script.
+11. [`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
+    and
+    [`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+    when checking a saved manifest against the current analysis, or
+    against a manifest from a previous run.
 
 Keep the audit close to the real workflow. Do not duplicate logic just
 for the manifest; record objects that already exist in the analysis.

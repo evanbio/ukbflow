@@ -29,6 +29,13 @@ grs_zscore(data, grs_cols = NULL)
 The input `data` as a `data.table` with one additional `_z` column per
 GRS column appended after its source column.
 
+## Details
+
+**Unlike the `derive_*` functions, this one does not modify its input by
+reference.** It always builds and returns a new `data.table`, so a bare
+`grs_standardize(dt)` leaves `dt` without its `_z` columns however `dt`
+was stored – assign the result back.
+
 ## Examples
 
 ``` r
@@ -37,26 +44,21 @@ dt <- data.frame(
   GRS_a = c(0.12, 0.34, 0.56, 0.23, 0.45),
   GRS_b = c(1.1,  0.9,  1.3,  0.8,  1.0)
 )
-grs_standardize(dt)
+dt <- grs_standardize(dt)   # assign back: dt is not modified in place
 #> Auto-detected 2 GRS column(s): "GRS_a" and "GRS_b"
 #> ✔ GRS_a -> GRS_a_z  [mean=0.34, sd=0.1739]
 #> ✔ GRS_b -> GRS_b_z  [mean=1.02, sd=0.1924]
-#>      IID GRS_a    GRS_a_z GRS_b    GRS_b_z
-#>    <int> <num>      <num> <num>      <num>
-#> 1:     1  0.12 -1.2649111   1.1  0.4159002
-#> 2:     2  0.34  0.0000000   0.9 -0.6238503
-#> 3:     3  0.56  1.2649111   1.3  1.4556507
-#> 4:     4  0.23 -0.6324555   0.8 -1.1437255
-#> 5:     5  0.45  0.6324555   1.0 -0.1039750
-grs_zscore(dt)   # identical
-#> Auto-detected 2 GRS column(s): "GRS_a" and "GRS_b"
+names(dt)
+#> [1] "IID"     "GRS_a"   "GRS_a_z" "GRS_b"   "GRS_b_z"
+
+grs_zscore(dt[, c("IID", "GRS_a")])   # grs_zscore() is the same function
+#> Auto-detected 1 GRS column(s): "GRS_a"
 #> ✔ GRS_a -> GRS_a_z  [mean=0.34, sd=0.1739]
-#> ✔ GRS_b -> GRS_b_z  [mean=1.02, sd=0.1924]
-#>      IID GRS_a    GRS_a_z GRS_b    GRS_b_z
-#>    <int> <num>      <num> <num>      <num>
-#> 1:     1  0.12 -1.2649111   1.1  0.4159002
-#> 2:     2  0.34  0.0000000   0.9 -0.6238503
-#> 3:     3  0.56  1.2649111   1.3  1.4556507
-#> 4:     4  0.23 -0.6324555   0.8 -1.1437255
-#> 5:     5  0.45  0.6324555   1.0 -0.1039750
+#>      IID GRS_a    GRS_a_z
+#>    <int> <num>      <num>
+#> 1:     1  0.12 -1.2649111
+#> 2:     2  0.34  0.0000000
+#> 3:     3  0.56  1.2649111
+#> 4:     4  0.23 -0.6324555
+#> 5:     5  0.45  0.6324555
 ```

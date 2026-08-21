@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,8 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -126,13 +128,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -213,16 +217,28 @@ forest plots and publication tables.</p>
 <td>HR / OR / beta + p_trend</td>
 </tr>
 <tr class="odd">
+<td><code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code></td>
+<td>—</td>
+<td>Restricted cubic spline dose-response</td>
+<td>HR / OR / beta + p-nonlinear</td>
+</tr>
+<tr class="even">
 <td><code><a href="../reference/assoc_competing.html">assoc_competing()</a></code></td>
 <td><code><a href="../reference/assoc_competing.html">assoc_fg()</a></code></td>
 <td>Fine-Gray competing risks</td>
 <td>SHR</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code><a href="../reference/assoc_lag.html">assoc_lag()</a></code></td>
 <td>—</td>
 <td>Cox lag sensitivity analysis</td>
 <td>HR</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/assoc_evalue.html">assoc_evalue()</a></code></td>
+<td>—</td>
+<td>E-value for unmeasured confounding</td>
+<td>E-value</td>
 </tr>
 </tbody>
 </table>
@@ -537,7 +553,53 @@ to filter or export.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="step-7-fine-gray-competing-risks">Step 7: Fine-Gray Competing Risks<a class="anchor" aria-label="anchor" href="#step-7-fine-gray-competing-risks"></a>
+<h2 id="step-7-non-linear-dose-response-restricted-cubic-splines">Step 7: Non-Linear Dose-Response (Restricted Cubic Splines)<a class="anchor" aria-label="anchor" href="#step-7-non-linear-dose-response-restricted-cubic-splines"></a>
+</h2>
+<p>Where <code><a href="../reference/assoc_trend.html">assoc_trend()</a></code> summarises an <em>ordered
+categorical</em> exposure with a single linear-trend estimate,
+<code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code> models the full — possibly non-linear — shape
+of a <strong>continuous</strong> exposure using restricted cubic
+splines. It returns a prediction <em>curve</em> (one row per grid point)
+together with an overall-association p-value and a <strong>p-value for
+non-linearity</strong>, capturing U-shaped, J-shaped, threshold, or
+plateau relationships that a single linear term would miss.</p>
+<p>It supports the same three methods (<code>"coxph"</code>,
+<code>"logistic"</code>, <code>"linear"</code>) and the same base /
+covariates adjustment logic as the rest of the <code>assoc_*</code>
+family. The exposure must be <strong>continuous</strong>; the reference
+value (<code>ref</code>, default the median) is where the effect equals
+1 (HR / OR) or 0 (mean difference).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_rcs.html">assoc_rcs</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p21001_i0"</span>,              <span class="co"># BMI (continuous)</span></span>
+<span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
+<span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span>
+<span>  knots        <span class="op">=</span> <span class="fl">4</span>,                        <span class="co"># Harrell quantile knots (3-5 typical)</span></span>
+<span>  ref          <span class="op">=</span> <span class="fl">25</span>                        <span class="co"># centre the curve at BMI 25 (HR = 1)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The result holds the fitted curve (<code>x</code>,
+<code>estimate</code>, <code>conf_low</code>, <code>conf_high</code>),
+the <code>p_overall</code> and <code>p_nonlinear</code> values (repeated
+within each model), plus hidden <code>measure</code> /
+<code>knots</code> / <code>ref</code> attributes. When
+<code>base = TRUE</code> (default), one curve is returned per adjustment
+model. Pass the result straight to <code><a href="../reference/plot_rcs.html">plot_rcs()</a></code> to draw the
+dose-response curve — see <code><a href="../articles/plot.html">vignette("plot")</a></code>.</p>
+<blockquote>
+<p><strong>Requires the <code>rms</code> package</strong> (a
+<code>Suggests</code> dependency): <code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code> fits the
+spline through <code><a href="https://rdrr.io/pkg/rms/man/cph.html" class="external-link">rms::cph()</a></code> / <code><a href="https://rdrr.io/pkg/rms/man/lrm.html" class="external-link">rms::lrm()</a></code> /
+<code><a href="https://rdrr.io/pkg/rms/man/ols.html" class="external-link">rms::ols()</a></code>, so the non-linearity test follows the canonical
+Harrell RCS workflow. Install it with
+<code>install.packages("rms")</code>.</p>
+</blockquote>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="step-8-fine-gray-competing-risks">Step 8: Fine-Gray Competing Risks<a class="anchor" aria-label="anchor" href="#step-8-fine-gray-competing-risks"></a>
 </h2>
 <p><code><a href="../reference/assoc_competing.html">assoc_competing()</a></code> fits a Fine-Gray subdistribution
 hazard model via <code><a href="https://rdrr.io/pkg/survival/man/finegray.html" class="external-link">survival::finegray()</a></code> +
@@ -546,7 +608,7 @@ a competing event (e.g. death) can preclude the outcome of interest.</p>
 <p>Two input modes are supported:</p>
 <p><strong>Mode A</strong> — a single column encodes all event
 types:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Construct a combined event column: 0 = censored, 1 = DM, 2 = HTN (competing)</span></span>
 <span><span class="va">dt_cr</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">htn_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span>   <span class="co"># also exclude prevalent HTN</span></span>
 <span><span class="va">dt_cr</span><span class="op">[</span>, <span class="va">event_type</span> <span class="op">:=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fcase.html" class="external-link">fcase</a></span><span class="op">(</span></span>
@@ -566,7 +628,7 @@ types:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Mode B</strong> — separate 0/1 columns for primary and
 competing events:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_competing.html">assoc_competing</a></span><span class="op">(</span></span>
 <span>  data         <span class="op">=</span> <span class="va">dt_cr</span>,</span>
 <span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,        <span class="co"># primary event</span></span>
@@ -585,7 +647,7 @@ competing events:</p>
 </h2>
 <p>All functions return a <code>data.table</code> that feeds directly
 into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
 <span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
@@ -594,8 +656,8 @@ into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Pass directly to plot_forest()</span></span>
-<span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Pass directly to plot_forest() — est/CI/columns auto-derived</span></span>
+<span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter to a single model</span></span>
 <span><span class="va">res</span><span class="op">[</span><span class="va">model</span> <span class="op">==</span> <span class="st">"Fully adjusted"</span><span class="op">]</span></span>
@@ -605,14 +667,14 @@ into <code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="step-8-lag-sensitivity-analysis">Step 8: Lag Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#step-8-lag-sensitivity-analysis"></a>
+<h2 id="step-9-lag-sensitivity-analysis">Step 9: Lag Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#step-9-lag-sensitivity-analysis"></a>
 </h2>
 <p><code><a href="../reference/assoc_lag.html">assoc_lag()</a></code> re-runs the same Cox models at one or more
 lag periods to assess whether associations are driven by early events
 (reverse causation or detection bias). For each lag, participants whose
 follow-up time is less than <code>lag_years</code> are excluded;
 follow-up is kept on its original scale.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_lag.html">assoc_lag</a></span><span class="op">(</span></span>
 <span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
@@ -648,6 +710,51 @@ result:</p>
 <hr>
 </div>
 <div class="section level2">
+<h2 id="step-10-e-value-sensitivity-analysis">Step 10: E-value Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#step-10-e-value-sensitivity-analysis"></a>
+</h2>
+<p>Observational associations can always be questioned on the grounds of
+unmeasured confounding. <code><a href="../reference/assoc_evalue.html">assoc_evalue()</a></code> quantifies that
+concern with the E-value (VanderWeele &amp; Ding, 2017): the minimum
+strength of association — on the risk-ratio scale — that an unmeasured
+confounder would need with <strong>both</strong> the exposure and the
+outcome, beyond the measured covariates, to fully explain away the
+observed effect. A larger E-value means a more robust finding; you
+benchmark it against how strongly the measured confounders (and any
+plausible unmeasured one) associate with the outcome.</p>
+<p>It reports two numbers per estimate: the E-value for the point
+estimate, and the E-value for the confidence limit closest to the null
+(which is 1 when the interval already spans the null).</p>
+<p>Pass a Cox or logistic result straight in — the
+<code>HR</code>/<code>OR</code> and CI columns are read automatically,
+and two columns (<code>evalue_point</code>, <code>evalue_ci</code>) are
+appended:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_coxph.html">assoc_coxph</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>            <span class="co"># smoking status</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/assoc_evalue.html">assoc_evalue</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<p>The <strong>rare-outcome assumption</strong> matters: the E-value is
+defined on the risk-ratio scale, so a hazard or odds ratio is used
+directly only when the outcome is rare; for a common outcome it is first
+converted to an RR. In result mode the prevalence is inferred from
+<code>n_events</code>/<code>n</code> (or
+<code>n_cases</code>/<code>n</code>) and the outcome is treated as rare
+below 15%; use <code>rare = TRUE</code>/<code>FALSE</code> to
+override.</p>
+<p>You can also evaluate a single hand-entered estimate — e.g. one
+reported in another paper — with argument names matching
+<code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/assoc_evalue.html">assoc_evalue</a></span><span class="op">(</span>est <span class="op">=</span> <span class="fl">2.0</span>, lower <span class="op">=</span> <span class="fl">1.5</span>, upper <span class="op">=</span> <span class="fl">2.7</span>, measure <span class="op">=</span> <span class="st">"HR"</span>, rare <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Linear (<code>beta</code>) and competing-risks (<code>SHR</code>)
+results are not supported; the E-value needs a ratio effect measure.</p>
+<hr>
+</div>
+<div class="section level2">
 <h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
 <ul>
@@ -657,8 +764,9 @@ result:</p>
 </li>
 <li>
 <code><a href="../reference/assoc_coxph_zph.html">?assoc_coxph_zph</a></code>, <code><a href="../reference/assoc_subgroup.html">?assoc_subgroup</a></code>,
-<code><a href="../reference/assoc_trend.html">?assoc_trend</a></code>, <code><a href="../reference/assoc_competing.html">?assoc_competing</a></code>,
-<code><a href="../reference/assoc_lag.html">?assoc_lag</a></code>
+<code><a href="../reference/assoc_trend.html">?assoc_trend</a></code>, <code><a href="../reference/assoc_rcs.html">?assoc_rcs</a></code>,
+<code><a href="../reference/assoc_competing.html">?assoc_competing</a></code>, <code><a href="../reference/assoc_lag.html">?assoc_lag</a></code>,
+<code><a href="../reference/assoc_evalue.html">?assoc_evalue</a></code>
 </li>
 <li>
 <code><a href="../articles/derive-survival.html">vignette("derive-survival")</a></code> — follow-up time and event
@@ -676,7 +784,7 @@ Issues</a></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

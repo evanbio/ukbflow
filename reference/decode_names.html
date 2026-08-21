@@ -71,7 +71,7 @@ date_of_attending_assessment_centre_i0)."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,6 +94,8 @@ date_of_attending_assessment_centre_i0)."><meta property="og:image" content="htt
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -103,10 +105,12 @@ date_of_attending_assessment_centre_i0)."><meta property="og:image" content="htt
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -159,6 +163,10 @@ labels. Returns a <code>data.table</code> if the input is a <code>data.table</co
 <code><a href="extract_ls.html">extract_ls</a></code>. Both the dataset name and field list are cached
 after the first call, so subsequent calls to <code>decode_names()</code> involve
 no network requests.</p>
+<p>Because the titles come from the project's own field dictionary, the first
+call must be run inside the RAP environment. <code><a href="decode_values.html">decode_values</a></code> has
+no such requirement – it reads Showcase metadata files, which are public
+and can sit anywhere you point <code>metadata_dir</code>.</p>
 <p>When an auto-generated name exceeds <code>max_nchar</code> characters it is
 flagged with a warning so you can decide whether to shorten it manually
 with <code>names(data)[...] &lt;- ...</code>. The function never truncates names
@@ -171,10 +179,10 @@ that only you know.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="extract_pheno.html">extract_pheno</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">31</span>, <span class="fl">53</span>, <span class="fl">21022</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">decode_names</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># participant.eid    → eid</span></span></span>
-<span class="r-in"><span><span class="co"># participant.p31    → sex</span></span></span>
-<span class="r-in"><span><span class="co"># participant.p21022 → age_at_recruitment</span></span></span>
-<span class="r-in"><span><span class="co"># participant.p53_i0 → date_of_attending_assessment_centre_i0  (warned if &gt; 60)</span></span></span>
+<span class="r-in"><span><span class="co"># participant.eid    -&gt; eid</span></span></span>
+<span class="r-in"><span><span class="co"># participant.p31    -&gt; sex</span></span></span>
+<span class="r-in"><span><span class="co"># participant.p21022 -&gt; age_at_recruitment</span></span></span>
+<span class="r-in"><span><span class="co"># participant.p53_i0 -&gt; date_of_attending_assessment_centre_i0  (warned if &gt; 60)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Shorten a long name afterwards</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">==</span> <span class="st">"date_of_attending_assessment_centre_i0"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"date_baseline"</span></span></span>
@@ -186,7 +194,7 @@ that only you know.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

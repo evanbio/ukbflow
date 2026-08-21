@@ -1,5 +1,161 @@
 # Changelog
 
+## ukbflow 0.4.0
+
+*Released: August 2026*
+
+### New Features
+
+#### Phenotype Recipes
+
+A recipe is a versioned, shareable record of how a study defined a
+phenotype — its sources, codes, combination logic, and the caveats
+needed to reproduce it.
+
+- [`recipe_list()`](https://evanbio.github.io/ukbflow/reference/recipe_list.md),
+  [`recipe_get()`](https://evanbio.github.io/ukbflow/reference/recipe_get.md),
+  [`recipe_sources()`](https://evanbio.github.io/ukbflow/reference/recipe_sources.md)
+  — browse, read and flatten the bundled library, now 67 definitions
+  drawn from published UK Biobank analyses, several of them competing
+  definitions of the same phenotype
+- [`derive_recipe()`](https://evanbio.github.io/ukbflow/reference/derive_recipe.md)
+  — apply a recipe end-to-end, adding only `{id}_status` and `{id}_date`
+  however many sources it draws on
+- [`recipe_rule()`](https://evanbio.github.io/ukbflow/reference/recipe_rule.md),
+  [`recipe_new()`](https://evanbio.github.io/ukbflow/reference/recipe_new.md),
+  [`recipe_write()`](https://evanbio.github.io/ukbflow/reference/recipe_write.md)
+  — author a definition without hand-writing YAML
+- Contribution path for external definitions: a submission form that
+  opens a pull request, and a lightweight CI check for recipe-only
+  changes
+
+#### Analysis Audit
+
+- [`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
+  and the
+  [`audit_fields()`](https://evanbio.github.io/ukbflow/reference/audit_fields.md)
+  /
+  [`audit_snapshot()`](https://evanbio.github.io/ukbflow/reference/audit_snapshot.md)
+  /
+  [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
+  /
+  [`audit_recipe()`](https://evanbio.github.io/ukbflow/reference/audit_recipe.md)
+  /
+  [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+  /
+  [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
+  family record what an analysis did as it runs, against a fixed schema
+  validated before writing
+- [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+  /
+  [`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
+  — JSON manifests that round-trip exactly;
+  [`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+  compares labelled records or two whole audits
+- [`audit_cols()`](https://evanbio.github.io/ukbflow/reference/audit_cols.md)
+  retrieves columns from a snapshot;
+  [`audit_flowchart()`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md)
+  exports a cohort attrition table
+- `assoc_*()` results carry their call metadata, so
+  [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+  records the model without being told
+
+#### Phenotype Sources
+
+- ICD-9:
+  [`derive_hes_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_hes_icd9.md),
+  [`derive_cancer_registry_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry_icd9.md),
+  [`derive_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_icd9.md)
+- OPCS-4 procedures:
+  [`derive_opcs()`](https://evanbio.github.io/ukbflow/reference/derive_opcs.md)
+- Primary care:
+  [`derive_gp_read2()`](https://evanbio.github.io/ukbflow/reference/derive_gp_read2.md)
+  and
+  [`derive_gp_ctv3()`](https://evanbio.github.io/ukbflow/reference/derive_gp_ctv3.md),
+  with
+  [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md)
+  to load the `gp_clinical` record table
+- Algorithmically-defined outcomes (Category 42):
+  [`derive_algorithm()`](https://evanbio.github.io/ukbflow/reference/derive_algorithm.md)
+- `position` selects any-position or main HES diagnoses; `cause` selects
+  the underlying or contributory cause of death
+- [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
+  folds ICD-9, OPCS-4 and primary-care arms in when present
+
+#### Data Access
+
+- [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md),
+  [`extract_olink()`](https://evanbio.github.io/ukbflow/reference/extract_olink.md),
+  [`extract_nmr()`](https://evanbio.github.io/ukbflow/reference/extract_nmr.md)
+  — export the primary-care, proteomic and NMR metabolomic panels from
+  RAP
+
+#### Analysis and Visualisation
+
+- [`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md)
+  and
+  [`plot_rcs()`](https://evanbio.github.io/ukbflow/reference/plot_rcs.md)
+  — restricted cubic spline dose-response with a non-linearity test
+- [`assoc_evalue()`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md)
+  — E-value sensitivity to unmeasured confounding
+- [`plot_survival()`](https://evanbio.github.io/ukbflow/reference/plot_survival.md)
+  — Kaplan-Meier curves
+- [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
+  accepts an `assoc_*()` result table directly
+
+#### Offline Lookups
+
+- [`ops_fields()`](https://evanbio.github.io/ukbflow/reference/ops_fields.md)
+  searches approved project fields;
+  [`ops_fields_common()`](https://evanbio.github.io/ukbflow/reference/ops_fields_common.md)
+  is an offline reference covering 14 groups, including the blood count,
+  blood biochemistry and NMR panels in full
+- [`ops_fo()`](https://evanbio.github.io/ukbflow/reference/ops_fo.md)
+  and
+  [`ops_alg()`](https://evanbio.github.io/ukbflow/reference/ops_alg.md)
+  look up the field IDs behind the 1,165 First Occurrence outcomes and
+  19 algorithmically-defined outcomes
+- [`ops_covariates()`](https://evanbio.github.io/ukbflow/reference/ops_covariates.md)
+  lists common covariate presets as decoded column names
+
+### Improvements
+
+- [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
+  covers the main-position HES fields, an algorithmically-defined
+  outcome, loss to follow-up, and a new `"gp"` scenario returning a
+  `gp_clinical` long table, so the whole phenotype pipeline can be
+  exercised offline
+- `assoc_*()` gained explicit column resolution, likelihood-ratio tests
+  and cluster-robust Cox variance
+- `\donttest{}` removed from examples that run in well under a second,
+  putting them back in the default check path
+- The four `fetch_*` download helpers are removed; individual-level data
+  stays on the platform
+
+### Bug Fixes
+
+- An empty or missing code list is now rejected rather than matched
+  against every record. Previously `derive_hes(icd10 = NULL)` —
+  reachable from a recipe rule with a misspelled code field — flagged
+  every participant holding any HES record instead of none
+- Recipe rules are validated on read as well as on construction: an
+  unknown field, a missing code field, or an out-of-vocabulary `match`
+  is reported against the recipe rather than surfacing later as an
+  implausible case count
+- [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
+  writes at full numeric precision; effect estimates and p-values
+  previously lost precision on the way into the manifest
+- Every `derive_*()` returns invisibly, rather than depending on whether
+  any case was found
+- [`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md),
+  [`grs_bgen2pgen()`](https://evanbio.github.io/ukbflow/reference/grs_bgen2pgen.md),
+  [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)
+  and
+  [`job_path()`](https://evanbio.github.io/ukbflow/reference/job_path.md)
+  now check for the RAP environment, as their siblings already did
+
+------------------------------------------------------------------------
+
 ## ukbflow 0.3.4
 
 CRAN release: 2026-04-08
@@ -148,8 +304,7 @@ CRAN release: 2026-04-07
 
 ### Bug Fixes
 
-- [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-  — enforce RAP-only guard; updated tests
+- `fetch_file()` — enforce RAP-only guard; updated tests
 - [`grs_score()`](https://evanbio.github.io/ukbflow/reference/grs_score.md)
   — fix `-icmd` argument format; skip script upload if file already
   exists on RAP
@@ -249,14 +404,11 @@ analysis.
   /
   [`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)
   — browse RAP project file structure
-- [`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-  — download files from RAP to local
-- [`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)
-  — generate pre-signed download URLs
-- [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)
-  — retrieve UKB field metadata (field.tsv, encoding.tsv)
-- [`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
-  — download the UKB field dictionary file
+- `fetch_file()` — download files from RAP to local
+- `fetch_url()` — generate pre-signed download URLs
+- `fetch_metadata()` — retrieve UKB field metadata (field.tsv,
+  encoding.tsv)
+- `fetch_field()` — download the UKB field dictionary file
 - [`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)
   — list available UKB datasets on RAP
 - [`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)

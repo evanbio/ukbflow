@@ -135,6 +135,13 @@ model combination:
 
   Formatted string, e.g. `"1.23 (1.05-1.44)"`.
 
+The returned table also carries a hidden attribute recording
+`outcome_col`, `time_col`, `covariates`, exposure levels, `conf_level`,
+and how the competing event was encoded (`compete_col`, `event_val`,
+`compete_val`);
+[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+reads this automatically.
+
 ## Details
 
 Two input modes are supported depending on how the outcome is coded in
@@ -172,7 +179,6 @@ Three adjustment models are produced (where data allow):
 ## Examples
 
 ``` r
-# \donttest{
 dt <- ops_toy(scenario = "association", n = 500)
 #> ✔ ops_toy: 500 participants | 33 columns | scenario = "association" | seed = 42
 dt <- dt[dm_timing != 1L & htn_timing != 1L]
@@ -194,5 +200,4 @@ res <- assoc_competing(
 #> ℹ   Model: Age and sex adjusted
 #> ℹ   Model: Fully adjusted
 #> ✔ Done: 6 result rows across 1 exposure and 3 models.
-# }
 ```

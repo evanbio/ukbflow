@@ -1,8 +1,9 @@
 # Publication-ready Table 1 (Baseline Characteristics)
 
 Generates a publication-quality baseline-characteristics table (Table 1)
-using gtsummary, with optional SMD column, *Lancet*-style theming, and
-automatic export to four formats.
+using gtsummary, with optional SMD column, a clean three-line
+`"default"` theme (or *Lancet*-style shading), and automatic export to
+four formats.
 
 ## Usage
 
@@ -21,7 +22,7 @@ plot_tableone(
   add_smd = FALSE,
   overall = FALSE,
   exclude_labels = NULL,
-  theme = "lancet",
+  theme = "default",
   label_width = 200,
   stat_width = 140,
   pvalue_width = 100,
@@ -103,9 +104,10 @@ plot_tableone(
 
 - theme:
 
-  Character. Visual theme preset. Only `"lancet"` (default) is currently
-  supported. Controls alternating row shading (`#f8e8e7` / white),
-  three-line borders, and 15 px font size.
+  Character. Visual theme preset. `"default"` (default) is a clean
+  three-line table with no cell shading, suited to journal submission.
+  `"lancet"` adds alternating pink row shading (`#f8e8e7` / white) and a
+  shaded header. Both share three-line borders and 15 px font size.
 
 - label_width:
 

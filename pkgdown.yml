@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   assoc: assoc.html
@@ -15,10 +15,13 @@ articles:
   install: install.html
   job: job.html
   ops: ops.html
+  phenotype-reproducibility: phenotype-reproducibility.html
   phenotype-scope: phenotype-scope.html
   plot: plot.html
+  recipe-catalog: recipe-catalog.html
+  recipe: recipe.html
   smoking_lung_cancer: smoking_lung_cancer.html
-last_built: 2026-06-03T05:46Z
+last_built: 2026-08-21T07:32Z
 urls:
   reference: https://evanbio.github.io/ukbflow/reference
   article: https://evanbio.github.io/ukbflow/articles

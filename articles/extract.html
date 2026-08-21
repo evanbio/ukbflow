@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,8 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -126,13 +128,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -165,7 +169,7 @@ format on the RAP and cannot be read directly. The
 approved fields and extracting phenotype data via the DNAnexus
 <code>dx extract_dataset</code> and <code>table-exporter</code>
 tools.</p>
-<p>Two workflows are available:</p>
+<p>Five workflows are available:</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -192,12 +196,48 @@ tools.</p>
 <td>Small (quick checks)</td>
 <td>data.table in memory</td>
 </tr>
+<tr class="odd">
+<td><code><a href="../reference/extract_gp.html">extract_gp()</a></code></td>
+<td>Async job (waits by default)</td>
+<td>GP record tables (<code>gp_clinical</code>, etc.)</td>
+<td>data.table in memory</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/extract_olink.html">extract_olink()</a></code></td>
+<td>Async job (waits by default)</td>
+<td>Olink proteomics entity (~2900 proteins)</td>
+<td>data.table in memory</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/extract_nmr.html">extract_nmr()</a></code></td>
+<td>Async job (waits by default)</td>
+<td>249 Nightingale NMR biomarkers</td>
+<td>data.table in memory</td>
+</tr>
 </tbody>
 </table>
 <p><strong><code><a href="../reference/extract_batch.html">extract_batch()</a></code> is the recommended
 approach</strong> for any serious analysis. <code><a href="../reference/extract_pheno.html">extract_pheno()</a></code>
 is provided for quick interactive inspection inside the RAP environment
 only.</p>
+<p>The distinction that decides which function you need is
+<strong>fields versus record-table entities</strong>:</p>
+<ul>
+<li>
+<code><a href="../reference/extract_batch.html">extract_batch()</a></code>, <code><a href="../reference/extract_pheno.html">extract_pheno()</a></code> and
+<code><a href="../reference/extract_nmr.html">extract_nmr()</a></code> pull participant-level
+<strong>fields</strong> (<code>p31</code>, <code>p53_i0</code>,
+<code>p23400_i0</code>, …), matched by field ID.</li>
+<li>
+<code><a href="../reference/extract_gp.html">extract_gp()</a></code> and <code><a href="../reference/extract_olink.html">extract_olink()</a></code> export a
+whole <strong>record-table entity</strong> — <code>gp_clinical</code>,
+<code>olink_instance_0</code> — whose columns are not participant fields
+at all, so there is no field-ID matching to do.</li>
+</ul>
+<p>NMR sits on the field side despite being an assay panel: each of the
+249 biomarkers is an ordinary instanced field. Olink does not, which is
+why it needs its own function rather than a long
+<code><a href="../reference/extract_batch.html">extract_batch()</a></code> call.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -329,6 +369,84 @@ reproduced, use <code><a href="../reference/extract_batch.html">extract_batch()<
 values</strong> (e.g. <code>1</code>/<code>0</code> for Sex, numeric
 codes for diseases). Use the <code>decode_*</code> series to convert
 codes to human-readable labels.</p>
+</div>
+<div class="section level3">
+<h3 id="primary-care-gp-records-extract_gp">Primary care (GP) records: <code>extract_gp()</code><a class="anchor" aria-label="anchor" href="#primary-care-gp-records-extract_gp"></a>
+</h3>
+<p>Primary-care data is not a set of participant fields — it lives in
+separate <strong>record-table entities</strong>
+(<code>gp_clinical</code>, <code>gp_scripts</code>,
+<code>gp_registrations</code>), one row per clinical event.
+<code><a href="../reference/extract_gp.html">extract_gp()</a></code> exports a whole entity via a table-exporter
+job and returns the <strong>raw</strong> long table (no date parsing,
+code matching, or filtering — that is <code><a href="../reference/derive_gp_read2.html">derive_gp_read2()</a></code> /
+<code><a href="../reference/derive_gp_ctv3.html">derive_gp_ctv3()</a></code>’s job). It runs inside the RAP
+environment; the export runs on its own worker instance (default
+<code>mem1_ssd1_v2_x16</code>), which for <code>gp_clinical</code>
+(~118M rows, ~3 GB) typically takes 10-15 minutes.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load gp_clinical once (default columns: eid, data_provider, read_2, read_3,</span></span>
+<span><span class="co"># event_dt; value1-value3 omitted), then derive many phenotypes from it</span></span>
+<span><span class="va">gp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_gp.html">extract_gp</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_gp_read2.html">derive_gp_read2</a></span><span class="op">(</span><span class="va">cohort</span>, <span class="st">"t2d"</span>, read2 <span class="op">=</span> <span class="st">"C10F."</span>, gp <span class="op">=</span> <span class="va">gp</span><span class="op">)</span></span>
+<span><span class="va">cohort</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_gp_ctv3.html">derive_gp_ctv3</a></span><span class="op">(</span><span class="va">cohort</span>,  <span class="st">"t2d"</span>, ctv3  <span class="op">=</span> <span class="st">"XaELP"</span>, gp <span class="op">=</span> <span class="va">gp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Async: submit only, retrieve later with job_wait() / job_result()</span></span>
+<span><span class="va">job_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_gp.html">extract_gp</a></span><span class="op">(</span>wait <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="olink-proteomics-extract_olink">Olink proteomics: <code>extract_olink()</code><a class="anchor" aria-label="anchor" href="#olink-proteomics-extract_olink"></a>
+</h3>
+<p>The Olink NPX data lives in the <code>olink_instance_{0,2,3}</code>
+entities — baseline and the two imaging visits. Each is a wide record
+table: one column per protein (~2900, named by assay,
+e.g. <code>a1bg</code>) plus <code>eid</code>.
+<code><a href="../reference/extract_olink.html">extract_olink()</a></code> discovers the entity’s columns rather than
+hardcoding the protein names, exports them all, and returns the raw wide
+table with <code>eid</code> moved to the front.</p>
+<p><strong>Prerequisite</strong>: field <code>30900</code> (“Number of
+proteins measured”) must be in the project basket to unlock the Olink
+entities. The per-sample QC fields (<code>p30901</code> plate,
+<code>p30902</code> well) are ordinary participant fields — pull them
+with <code><a href="../reference/extract_batch.html">extract_batch()</a></code> if you need them.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Whole baseline panel (~2900 proteins)</span></span>
+<span><span class="va">olink</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_olink.html">extract_olink</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># One of the imaging visits</span></span>
+<span><span class="va">olink_i2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_olink.html">extract_olink</a></span><span class="op">(</span>instance <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># A named subset, skipping column discovery</span></span>
+<span><span class="va">inflam</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_olink.html">extract_olink</a></span><span class="op">(</span>columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"eid"</span>, <span class="st">"crp"</span>, <span class="st">"il6"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="nightingale-nmr-metabolomics-extract_nmr">Nightingale NMR metabolomics: <code>extract_nmr()</code><a class="anchor" aria-label="anchor" href="#nightingale-nmr-metabolomics-extract_nmr"></a>
+</h3>
+<p>The 249 Nightingale biomarkers (168 absolute measures + 81 ratios)
+are UK Biobank fields <code>23400</code>-<code>23648</code>, instanced
+<code>_i0</code> (baseline) and <code>_i1</code> (repeat assessment).
+<code><a href="../reference/extract_nmr.html">extract_nmr()</a></code> matches them like any other field and keeps
+only the requested instance’s column for each.</p>
+<p>Columns come back with their raw UKB names (<code>p23400_i0</code>,
+…). Look a field ID up offline with
+<code>ops_fields_common(group = "nmr")</code>, or decode a whole extract
+to biomarker titles with <code><a href="../reference/decode_names.html">decode_names()</a></code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># All 249 biomarkers at baseline</span></span>
+<span><span class="va">nmr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_nmr.html">extract_nmr</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Repeat assessment — a ~20,000-participant subset</span></span>
+<span><span class="va">nmr_i1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_nmr.html">extract_nmr</a></span><span class="op">(</span>instance <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># A named subset</span></span>
+<span><span class="va">nmr_lipids</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_nmr.html">extract_nmr</a></span><span class="op">(</span>fields <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">23400</span>,   <span class="co"># Total Cholesterol</span></span>
+<span>                                     <span class="fl">23406</span>,   <span class="co"># HDL Cholesterol</span></span>
+<span>                                     <span class="fl">23407</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Total Triglycerides</span></span></code></pre></div>
+<p>Both functions return the <strong>raw</strong> table. Mapping assay
+columns, batch and limit-of-detection adjustment, and the per-biomarker
+QC-flag fields (<code>23700</code>-<code>23948</code>) are downstream
+concerns, not part of the export.</p>
 <hr>
 </div>
 </div>
@@ -395,7 +513,8 @@ codes to human-readable labels.</p>
 <ul>
 <li>
 <code><a href="../reference/extract_ls.html">?extract_ls</a></code>, <code><a href="../reference/extract_pheno.html">?extract_pheno</a></code>,
-<code><a href="../reference/extract_batch.html">?extract_batch</a></code>
+<code><a href="../reference/extract_batch.html">?extract_batch</a></code>, <code><a href="../reference/extract_gp.html">?extract_gp</a></code>,
+<code><a href="../reference/extract_olink.html">?extract_olink</a></code>, <code><a href="../reference/extract_nmr.html">?extract_nmr</a></code>
 </li>
 <li>
 <code><a href="../articles/auth.html">vignette("auth")</a></code> — authentication setup</li>
@@ -410,7 +529,7 @@ Issues</a></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

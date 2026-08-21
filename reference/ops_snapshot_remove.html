@@ -71,7 +71,7 @@ Columns that no longer exist in data are silently skipped.'><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,6 +94,8 @@ Columns that no longer exist in data are silently skipped.'><meta property="og:i
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -103,10 +105,12 @@ Columns that no longer exist in data are silently skipped.'><meta property="og:i
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -162,7 +166,7 @@ the built-in and user-registered safe cols. Default <code>NULL</code>.</p></dd>
     <p>A <code>data.table</code> with the specified columns removed. For
 <code>data.table</code> input the operation is performed by reference (in-place);
 for <code>data.frame</code> input the data is first converted to a new
-<code>data.table</code> — the original <code>data.frame</code> is not modified.</p>
+<code>data.table</code> – the original <code>data.frame</code> is not modified.</p>
     </div>
 
     <div class="section level2">
@@ -170,28 +174,28 @@ for <code>data.frame</code> input the data is first converted to a new
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 107 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: raw ───────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 51</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 107</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 83</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.14 MB</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="derive_missing.html">derive_missing</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 47 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> derive_missing: replaced 48 values across 3 columns (action = <span style="color: #0000BB;">"na"</span>).</span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"derived"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: derived ───────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75 (= 0)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 53 (+2)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB (= 0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 107 (= 0)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 85 (+2)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.14 MB (= 0)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot_diff.html">ops_snapshot_diff</a></span><span class="op">(</span><span class="st">"raw"</span>, <span class="st">"derived"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Columns added (0):</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Columns removed (0):</span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu">ops_snapshot_remove</span><span class="op">(</span><span class="va">dt</span>, from <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_snapshot_remove: dropped 74 raw columns, 1 remaining.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_snapshot_remove: dropped 106 raw columns, 1 remaining.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 </code></pre></div>
@@ -201,7 +205,7 @@ for <code>data.frame</code> input the data is first converted to a new
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

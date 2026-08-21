@@ -99,7 +99,7 @@
 
     <a class="navbar-brand me-2" href="index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,6 +124,8 @@
     <li><a class="dropdown-item" href="articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -135,13 +137,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -167,7 +171,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><strong>ukbflow</strong> is an R-native, RAP-aware workflow system for UK Biobank controlled-data analysis. It provides a coherent workflow layer for phenotype extraction, disease derivation, association analysis, audit records, and publication-quality outputs. It is designed to support workflows on the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a> under the 2024+ data policy requiring individual-level data to remain in the cloud; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.</p>
+<p><strong>ukbflow</strong> is an R-native, RAP-aware workflow system for UK Biobank controlled-data analysis. It provides a coherent workflow layer for phenotype extraction, disease derivation, association analysis, reproducible phenotype recipes, audit records, and publication-quality outputs. It is designed to support workflows on the <a href="https://ukbiobank.dnanexus.com" class="external-link">UK Biobank Research Analysis Platform (RAP)</a> under the 2024+ data policy requiring individual-level data to remain in the cloud; users remain responsible for ensuring that only permitted summary-level outputs are downloaded.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -189,13 +193,14 @@
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
 <p><strong>Connection</strong> — Authenticate to RAP via dx-toolkit and manage project selection (<code>auth_login</code>, <code>auth_select_project</code>)</p>
-<p><strong>Data Access</strong> — Retrieve phenotype data from UKB dataset on RAP; monitor asynchronous jobs (<code>fetch_metadata</code>, <code>extract_batch</code>, <code>job_wait</code>)</p>
+<p><strong>Data Access</strong> — Retrieve phenotype, primary-care, proteomic and metabolomic data from UKB dataset on RAP; monitor asynchronous jobs (<code>extract_batch</code>, <code>extract_gp</code>, <code>extract_olink</code>, <code>extract_nmr</code>, <code>job_wait</code>, <code>job_result</code>)</p>
 <p><strong>Data Processing</strong> — Harmonize multi-source records and derive analysis-ready cohort: decode field IDs and value codes, build ICD-10 case definitions, compute follow-up time (<code>decode_names</code>, <code>decode_values</code>, <code>derive_icd10</code>, <code>derive_followup</code>, <code>derive_case</code>)</p>
-<p><strong>Association Analysis</strong> — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, dose-response trend, and Fine-Gray competing risks (<code>assoc_coxph</code>, <code>assoc_logistic</code>, <code>assoc_subgroup</code>)</p>
+<p><strong>Association Analysis</strong> — Cox, logistic, and linear regression with automatic three-model adjustment framework; subgroup analysis, categorical and spline dose-response, Fine-Gray competing risks, and E-value sensitivity to unmeasured confounding (<code>assoc_coxph</code>, <code>assoc_logistic</code>, <code>assoc_subgroup</code>, <code>assoc_rcs</code>, <code>assoc_evalue</code>)</p>
 <p><strong>Genomic Scoring</strong> — Distributed plink2 scoring on RAP worker nodes: BGEN → PGEN conversion, multi-chromosome GRS computation, and standardization (<code>grs_bgen2pgen</code>, <code>grs_score</code>, <code>grs_standardize</code>)</p>
-<p><strong>Visualization</strong> — Publication-ready forest plots and Table 1 outputs in common manuscript formats (<code>plot_forest</code>, <code>plot_tableone</code>)</p>
-<p><strong>Utilities</strong> — Verify environment before analysis; search approved project fields and look up common UKB field IDs; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (<code>ops_setup</code>, <code>ops_fields</code>, <code>ops_fields_common</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>, <code>ops_withdraw</code>)</p>
-<p><strong>Analysis Audit</strong> — Create lightweight JSON manifests for reproducibility: field IDs, dataset snapshots, derived phenotype summaries, model result tables, RAP jobs, and session metadata (<code>audit_start</code>, <code>audit_fields</code>, <code>audit_snapshot</code>, <code>audit_pheno</code>, <code>audit_model</code>, <code>audit_job</code>, <code>audit_write</code>)</p>
+<p><strong>Visualization</strong> — Publication-ready forest plots, Kaplan-Meier curves, spline dose-response curves, and Table 1 outputs in common manuscript formats (<code>plot_forest</code>, <code>plot_survival</code>, <code>plot_rcs</code>, <code>plot_tableone</code>)</p>
+<p><strong>Utilities</strong> — Verify environment before analysis; search approved project fields, and look up field IDs offline — common fields plus the blood count, blood biochemistry and NMR panels in full; find the field IDs behind a First Occurrence or algorithmically-defined outcome; browse common covariate presets as decoded column names; generate synthetic UKB-like data for development; diagnose missing values; track cohort changes across pipeline steps; exclude withdrawn participants (<code>ops_setup</code>, <code>ops_fields</code>, <code>ops_fields_common</code>, <code>ops_fo</code>, <code>ops_alg</code>, <code>ops_covariates</code>, <code>ops_toy</code>, <code>ops_na</code>, <code>ops_snapshot</code>, <code>ops_withdraw</code>)</p>
+<p><strong>Phenotype Recipes</strong> — Browse, inspect, and flatten a versioned library of reproducible phenotype definitions, each recording how a phenotype was operationally defined (sources, codes, logic, caveats); apply one to a cohort in a single call, and author a new definition without hand-writing YAML (<code>recipe_list</code>, <code>recipe_get</code>, <code>recipe_sources</code>, <code>derive_recipe</code>, <code>recipe_rule</code>, <code>recipe_new</code>, <code>recipe_write</code>)</p>
+<p><strong>Analysis Audit</strong> — Create lightweight JSON manifests for reproducibility: field IDs, dataset snapshots, derived phenotype summaries, versioned phenotype recipes, model result tables, RAP jobs, and session metadata; read a manifest back and compare labelled records or two whole audit objects; export a cohort attrition table for a flowchart-rendering package (<code>audit_start</code>, <code>audit_fields</code>, <code>audit_snapshot</code>, <code>audit_pheno</code>, <code>audit_recipe</code>, <code>audit_model</code>, <code>audit_job</code>, <code>audit_write</code>, <code>audit_read</code>, <code>audit_diff</code>, <code>audit_flowchart</code>)</p>
 </div>
 <div class="section level2">
 <h2 id="supported-phenotype-sources">Supported Phenotype Sources<a class="anchor" aria-label="anchor" href="#supported-phenotype-sources"></a>
@@ -221,8 +226,31 @@
 </tr>
 <tr>
 <td>HES inpatient diagnoses</td>
-<td>ICD-10, any-position field <code>41270</code> with dates from <code>41280</code>; primary/secondary position is not currently configurable</td>
+<td>ICD-10 diagnoses; <code>position</code> selects any-position (<code>41270</code>) or main/primary (<code>41202</code>)</td>
 <td><code><a href="reference/derive_hes.html">derive_hes()</a></code></td>
+</tr>
+<tr>
+<td>HES inpatient diagnoses (ICD-9)</td>
+<td>Legacy minority code system; <code>41271</code>/<code>41281</code> (any), <code>41203</code>/<code>41263</code> (main)</td>
+<td><code><a href="reference/derive_hes_icd9.html">derive_hes_icd9()</a></code></td>
+</tr>
+<tr>
+<td>HES inpatient procedures (OPCS-4)</td>
+<td>
+<code>41272</code>/<code>41282</code> (any), <code>41200</code>/<code>41260</code> (main)</td>
+<td><code><a href="reference/derive_opcs.html">derive_opcs()</a></code></td>
+</tr>
+<tr>
+<td>GP primary care (Read v2)</td>
+<td>
+<code>gp_clinical</code> record table, <code>read_2</code> column (fetch with <code><a href="reference/extract_gp.html">extract_gp()</a></code>)</td>
+<td><code><a href="reference/derive_gp_read2.html">derive_gp_read2()</a></code></td>
+</tr>
+<tr>
+<td>GP primary care (CTV3)</td>
+<td>
+<code>gp_clinical</code> record table, <code>read_3</code> column (fetch with <code><a href="reference/extract_gp.html">extract_gp()</a></code>)</td>
+<td><code><a href="reference/derive_gp_ctv3.html">derive_gp_ctv3()</a></code></td>
 </tr>
 <tr>
 <td>First Occurrence fields</td>
@@ -230,13 +258,24 @@
 <td><code><a href="reference/derive_first_occurrence.html">derive_first_occurrence()</a></code></td>
 </tr>
 <tr>
+<td>Algorithmically-defined outcomes</td>
+<td>UKB Category 42 adjudicated date fields, e.g. <code>42018</code> (dementia); self-contained, not routed through <code><a href="reference/derive_case.html">derive_case()</a></code>
+</td>
+<td><code><a href="reference/derive_algorithm.html">derive_algorithm()</a></code></td>
+</tr>
+<tr>
 <td>Cancer registry</td>
 <td>ICD-10, histology, behaviour, diagnosis date</td>
 <td><code><a href="reference/derive_cancer_registry.html">derive_cancer_registry()</a></code></td>
 </tr>
 <tr>
+<td>Cancer registry (ICD-9)</td>
+<td>ICD-9 code (<code>40013</code>), sharing histology/behaviour/date with the ICD-10 arm</td>
+<td><code><a href="reference/derive_cancer_registry_icd9.html">derive_cancer_registry_icd9()</a></code></td>
+</tr>
+<tr>
 <td>Death registry</td>
-<td>ICD-10 primary / secondary cause of death</td>
+<td>ICD-10 underlying / contributory cause of death; <code>cause</code> selects primary, secondary, or either</td>
 <td><code><a href="reference/derive_death_registry.html">derive_death_registry()</a></code></td>
 </tr>
 <tr>
@@ -245,24 +284,32 @@
 <td><code><a href="reference/derive_icd10.html">derive_icd10()</a></code></td>
 </tr>
 <tr>
+<td>Multi-source ICD-9 phenotype</td>
+<td>HES (ICD-9), cancer registry (ICD-9)</td>
+<td><code><a href="reference/derive_icd9.html">derive_icd9()</a></code></td>
+</tr>
+<tr>
 <td>Final case definition</td>
-<td>Self-report plus ICD-10-derived status/date</td>
+<td>Self-report plus ICD-10-derived plus optional ICD-9-, OPCS-4- and GP (Read v2 / CTV3)-derived status/date</td>
 <td><code><a href="reference/derive_case.html">derive_case()</a></code></td>
 </tr>
 </tbody>
 </table>
-<p>ICD-9, OPCS-4, Read v2, CTV3, and other GP / primary-care code systems are not part of the current public API.</p>
+<p>GP prescriptions (<code>gp_scripts</code>) and numeric measurement values are not part of the current public API. UKB’s death registry and First Occurrence fields have no ICD-9 or OPCS-4 counterpart.</p>
 </div>
 <div class="section level2">
 <h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
 </h2>
-<p><code>ukbflow</code> is a workflow system, not a replacement for the underlying RAP and statistical tools. It orchestrates and records common analysis steps around dx-toolkit / DNAnexus jobs, R modelling functions, plotting packages, and PLINK2-based GRS workflows. It does not provide a general DAG scheduler, estimate RAP costs, replace the DNAnexus interface, or determine study design, covariate choice, phenotype validity, or causal interpretation. Current public phenotype helpers focus on the UKB sources listed above and do not cover GP / primary-care code systems.</p>
+<p><code>ukbflow</code> is a workflow system, not a replacement for the underlying RAP and statistical tools. It orchestrates and records common analysis steps around dx-toolkit / DNAnexus jobs, R modelling functions, plotting packages, and PLINK2-based GRS workflows. It does not provide a general DAG scheduler, estimate RAP costs, replace the DNAnexus interface, or determine study design, covariate choice, phenotype validity, or causal interpretation. Current public phenotype helpers focus on the UKB sources listed above, including primary-care diagnoses (Read v2 / CTV3); GP prescriptions and numeric measurements are not covered.</p>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Open an audit manifest: it records what the analysis did as it runs</span></span>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/audit_start.html">audit_start</a></span><span class="op">(</span><span class="st">"smoking_lung_cancer"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simulate UKB-style data locally (on RAP: replace with extract_batch() + job_wait())</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">5000</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -291,30 +338,40 @@
 <span>  exposure_col <span class="op">=</span> <span class="st">"smoking_ever"</span>,</span>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p31"</span>, <span class="st">"p22189"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Forest plot</span></span>
-<span><span class="va">res_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
-<span>  data      <span class="op">=</span> <span class="va">res_df</span>,</span>
-<span>  est       <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">HR</span>,</span>
-<span>  lower     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_lower</span>,</span>
-<span>  upper     <span class="op">=</span> <span class="va">res_df</span><span class="op">$</span><span class="va">CI_upper</span>,</span>
-<span>  ci_column <span class="op">=</span> <span class="fl">2L</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Forest plot — pass the result straight in; est/CI/columns auto-derived</span></span>
+<span><span class="fu"><a href="reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Record the model and write the manifest: field IDs, cohort snapshots,</span></span>
+<span><span class="co"># phenotype summaries, model results and session metadata, as JSON</span></span>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/audit_model.html">audit_model</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/audit_write.html">audit_write</a></span><span class="op">(</span><span class="va">aud</span>, <span class="st">"smoking_lung_cancer_audit.json"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
 <li>
-<strong><a href="https://ukbflow.evanzhou.org" class="external-link">ukbflow Book</a></strong> — Practical RAP-native workflows, examples, and module notes</li>
-<li>
 <strong><a href="articles/get-started.html">Get Started</a></strong> — Installation and end-to-end workflow</li>
+<li>
+<strong><a href="articles/recipe.html">Phenotype Recipes</a></strong> — Reproducible, versioned phenotype definitions</li>
+<li>
+<strong><a href="articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></strong> — Case study on how published UK Biobank phenotype definitions diverge</li>
 <li>
 <strong><a href="articles/audit.html">Analysis Audit</a></strong> — Lightweight manifests for reproducible analyses</li>
 <li>
 <strong><a href="reference/index.html">Function Reference</a></strong> — Complete API documentation</li>
 <li>
 <strong><a href="articles/index.html">Vignettes</a></strong> — Module-by-module tutorials</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="visual-resources">Visual Resources<a class="anchor" aria-label="anchor" href="#visual-resources"></a>
+</h2>
+<ul>
+<li>
+<strong><a href="https://folio.evanzhou.org/tessera" class="external-link">Tessera</a></strong> — Browse palettes, example datasets, and reproducible R figure recipes.</li>
+<li>
+<strong><a href="https://folio.evanzhou.org/apps/palette-lab" class="external-link">Palette Lab</a></strong> — Compare palettes across a consistent set of graphical displays.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -339,7 +396,6 @@
 <li><a href="https://cloud.r-project.org/package=ukbflow" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/evanbio/ukbflow/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/evanbio/ukbflow/issues" class="external-link">Report a bug</a></li>
-<li><a href="https://ukbflow.evanzhou.org" class="external-link">ukbflow Book</a></li>
 <li><a href="articles/get-started.html">Get Started with ukbflow</a></li>
 <li><a href="articles/auth.html">Authentication and Project Setup</a></li>
 <li><a href="articles/fetch.html">Exploring and Fetching RAP Files</a></li>
@@ -353,6 +409,10 @@
 <li><a href="articles/plot.html">Publication-Ready Visualisation</a></li>
 <li><a href="articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
 <li><a href="articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+<li><a href="articles/recipe.html">Phenotype Definition Recipes</a></li>
+<li><a href="articles/recipe-catalog.html">Recipe Catalog</a></li>
+<li><a href="articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
+<li><a href="articles/audit.html">Analysis Audit and Reproducibility</a></li>
 <li><a href="articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
 <li><a href="reference/">Function Reference</a></li>
 <li><a href="https://github.com/evanbio/ukbflow" class="external-link">GitHub</a></li>
@@ -403,7 +463,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

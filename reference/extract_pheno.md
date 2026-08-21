@@ -35,6 +35,10 @@ A `data.table` with one row per participant. Column names follow the
 `participant.p<id>_i<n>_a<m>` convention. Fields not found are skipped
 with a warning.
 
+## Details
+
+Must be run inside the RAP environment.
+
 ## Examples
 
 ``` r

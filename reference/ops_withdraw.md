@@ -44,23 +44,23 @@ A data.table with withdrawn participants removed.
 ops_snapshot(reset = TRUE, verbose = FALSE)
 
 dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
+#> ✔ ops_toy: 100 participants | 107 columns | scenario = "cohort" | seed = 42
 withdraw_file <- tempfile(fileext = ".csv")
 writeLines(as.character(dt$eid[1:5]), withdraw_file)
 dt <- ops_withdraw(dt, file = withdraw_file)
 #> ── snapshot: before_withdraw ───────────────────────────────────────────────────
 #> rows 100
-#> cols 75
+#> cols 107
 #> NA cols (skipped)
-#> size 0.09 MB
+#> size 0.14 MB
 #> ────────────────────────────────────────────────────────────────────────────────
 #> ── snapshot: after_withdraw ────────────────────────────────────────────────────
 #> rows 95 (-5)
-#> cols 75 (= 0)
+#> cols 107 (= 0)
 #> NA cols (skipped)
-#> size 0.09 MB (= 0)
+#> size 0.13 MB (-0.01 MB)
 #> ────────────────────────────────────────────────────────────────────────────────
-#> ℹ Withdrawal file: file21957bc9da63.csv (5 IDs)
+#> ℹ Withdrawal file: file20cd3822fd3d.csv (5 IDs)
 #> ✖ Excluded: 5 participants found in data
 #> ✔ Remaining: 95 participants
 

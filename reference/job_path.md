@@ -19,8 +19,18 @@ job_path(job_id)
 
 ## Value
 
-A character string — the absolute path to the output CSV under
+A character string – the absolute path to the output CSV under
 `/mnt/project/`.
+
+## Details
+
+Must be run inside the RAP environment: the path it returns lives under
+the `/mnt/project` mount, which exists only there.
+[`job_status`](https://evanbio.github.io/ukbflow/reference/job_status.md),
+[`job_wait`](https://evanbio.github.io/ukbflow/reference/job_wait.md)
+and [`job_ls`](https://evanbio.github.io/ukbflow/reference/job_ls.md)
+query the DNAnexus API rather than the mount and carry no such
+requirement.
 
 ## Examples
 

@@ -10,11 +10,12 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 [![Codecov](https://codecov.io/gh/evanbio/ukbflow/branch/main/graph/badge.svg)](https://app.codecov.io/gh/evanbio/ukbflow?branch=main)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 
-[📚 文档](https://evanbio.github.io/ukbflow/) • [📖
-教程书](https://ukbflow.evanzhou.org) • [🚀
+[📚 文档](https://evanbio.github.io/ukbflow/) • [🚀
 快速开始](https://evanbio.github.io/ukbflow/articles/get-started.html) •
-[💬 问题反馈](https://github.com/evanbio/ukbflow/issues) • [🤝
-贡献指南](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)
+[🎨 Tessera](https://folio.evanzhou.org/tessera) • [🧪 Palette
+Lab](https://folio.evanzhou.org/apps/palette-lab) • [💬
+问题反馈](https://github.com/evanbio/ukbflow/issues) • [🤝
+贡献指南](https://github.com/evanbio/ukbflow/blob/main/.github/CONTRIBUTING.md)
 
 **语言：** [English](https://evanbio.github.io/ukbflow/README.md) \|
 简体中文
@@ -27,7 +28,7 @@ status](https://www.r-pkg.org/badges/version/ukbflow)](https://CRAN.R-project.or
 ## 简介
 
 **ukbflow** 的定位是面向 UK Biobank 受控数据平台的 R-native、RAP-aware
-工作流系统。它为表型提取、疾病衍生、关联分析、审计记录和发表级输出提供统一的工作流层，同时让个体水平数据保留在
+工作流系统。它为表型提取、疾病衍生、关联分析、可复现表型配方、审计记录和发表级输出提供统一的工作流层，同时让个体水平数据保留在
 RAP 环境中。
 
 > **UK Biobank 数据政策（2024+）**：个体水平数据必须保留在 RAP
@@ -37,6 +38,9 @@ RAP 环境中。
 ``` r
 
 library(ukbflow)
+
+# 打开审计 manifest：分析过程中自动记录做了什么
+aud <- audit_start("smoking_lung_cancer")
 
 # 本地生成合成 UKB 数据（在 RAP 上请替换为 extract_batch() + job_wait()）
 data <- ops_toy(n = 5000, seed = 2026) |>
@@ -65,15 +69,13 @@ res <- assoc_coxph(data,
   exposure_col = "smoking_ever",
   covariates   = c("p21022", "p31", "p22189"))
 
-# 森林图
-res_df <- as.data.frame(res)
-plot_forest(
-  data      = res_df,
-  est       = res_df$HR,
-  lower     = res_df$CI_lower,
-  upper     = res_df$CI_upper,
-  ci_column = 2L
-)
+# 森林图 —— 直接传入结果表，自动推导估计值 / 置信区间 / 列 / 坐标轴
+plot_forest(res)
+
+# 记录模型并写出 manifest：字段 ID、队列快照、表型摘要、
+# 模型结果与 session metadata，输出为 JSON
+aud <- audit_model(aud, res)
+audit_write(aud, "smoking_lung_cancer_audit.json")
 ```
 
 ------------------------------------------------------------------------
@@ -109,13 +111,14 @@ GRS 流程还需要 RAP 任务环境中可用的 `plink2`。
 | 层级 | 核心函数 | 说明 |
 |----|----|----|
 | **连接** | `auth_login`、`auth_select_project` | 通过 dx-toolkit 认证并连接 RAP |
-| **数据获取** | `fetch_metadata`、`extract_batch`、`job_wait` | 从 RAP 上的 UKB 数据集提取表型数据 |
-| **数据处理** | `decode_names`、`decode_values`、`derive_icd10`、`derive_followup`、`derive_case` | 多源记录整合；构建分析就绪队列 |
-| **关联分析** | `assoc_coxph`、`assoc_logistic`、`assoc_subgroup` | 三模型框架校正；亚组与趋势分析 |
+| **数据获取** | `extract_batch`、`extract_olink`、`extract_nmr`、`job_wait`、`job_result` | 从 RAP 上的 UKB 数据集提取表型、蛋白组与代谢组数据 |
+| **数据处理** | `decode_names`、`decode_values`、`derive_icd10`、`derive_followup`、`derive_case`、`derive_recipe` | 多源记录整合；构建分析就绪队列 |
+| **关联分析** | `assoc_coxph`、`assoc_logistic`、`assoc_subgroup`、`assoc_rcs`、`assoc_evalue` | 三模型框架校正；亚组、趋势、限制性立方样条剂量反应与 E-value |
 | **基因组评分** | `grs_bgen2pgen`、`grs_score`、`grs_standardize` | 在 RAP 工作节点分布式运行 plink2 评分 |
-| **可视化** | `plot_forest`、`plot_tableone` | 发表级图表输出 |
-| **实用工具** | `ops_setup`、`ops_fields`、`ops_fields_common`、`ops_toy`、`ops_na`、`ops_snapshot`、`ops_withdraw` | 环境检查、项目字段搜索、常见字段速查、合成数据生成、流程诊断与队列管理 |
-| **分析审计** | `audit_start`、`audit_fields`、`audit_snapshot`、`audit_pheno`、`audit_model`、`audit_job`、`audit_write` | 为字段、快照、表型、模型结果、RAP 任务和 session metadata 生成轻量分析 manifest |
+| **可视化** | `plot_forest`、`plot_survival`、`plot_rcs`、`plot_tableone` | 发表级图表输出 |
+| **实用工具** | `ops_setup`、`ops_fields`、`ops_fields_common`、`ops_fo`、`ops_alg`、`ops_covariates`、`ops_toy`、`ops_na`、`ops_snapshot`、`ops_withdraw` | 环境检查、项目字段搜索、离线字段速查（含血常规、血生化、NMR 三个完整 panel）、首次发生结局与算法判定结局字段速查、常用协变量预设、合成数据生成、流程诊断与队列管理 |
+| **表型配方** | `recipe_list`、`recipe_get`、`recipe_sources`、`recipe_new`、`recipe_write`、`derive_recipe` | 版本化的可复现表型定义库；浏览查阅、无需手写 YAML 即可撰写新配方、并用 [`derive_recipe()`](https://evanbio.github.io/ukbflow/reference/derive_recipe.md) 应用到数据 |
+| **分析审计** | `audit_start`、`audit_fields`、`audit_snapshot`、`audit_pheno`、`audit_recipe`、`audit_model`、`audit_job`、`audit_write`、`audit_read`、`audit_diff`、`audit_flowchart` | 为字段、快照、表型、配方、模型结果、RAP 任务和 session metadata 生成轻量分析 manifest；读回并对比 manifest；导出队列衰减表 |
 
 ------------------------------------------------------------------------
 
@@ -127,15 +130,22 @@ GRS 流程还需要 RAP 任务环境中可用的 `plink2`。
 | 来源 | 编码系统 / 字段类型 | 主要函数 |
 |----|----|----|
 | 自报告疾病 / 癌症 | UKB 字段 `20002` / `20001` | [`derive_selfreport()`](https://evanbio.github.io/ukbflow/reference/derive_selfreport.md) |
-| HES 住院诊断 | ICD-10，任意诊断位置字段 `41270`，日期来自 `41280`；暂不区分 primary/secondary position | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
+| HES 住院诊断 | ICD-10 诊断；`position` 可选任意位置（`41270`）或主要诊断（`41202`） | [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md) |
+| HES 住院诊断（ICD-9） | 少数遗留编码体系；`41271`/`41281`（任意位置）、`41203`/`41263`（主诊断） | [`derive_hes_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_hes_icd9.md) |
+| HES 住院手术操作（OPCS-4） | `41272`/`41282`（任意位置）、`41200`/`41260`（主操作） | [`derive_opcs()`](https://evanbio.github.io/ukbflow/reference/derive_opcs.md) |
+| GP 初级保健（Read v2） | `gp_clinical` record 表 `read_2` 列（用 [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md) 取数） | [`derive_gp_read2()`](https://evanbio.github.io/ukbflow/reference/derive_gp_read2.md) |
+| GP 初级保健（CTV3） | `gp_clinical` record 表 `read_3` 列（用 [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md) 取数） | [`derive_gp_ctv3()`](https://evanbio.github.io/ukbflow/reference/derive_gp_ctv3.md) |
 | First Occurrence 字段 | UKB 预计算的 `p131xxx` 日期字段 | [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md) |
+| 算法判定结局（ADO） | UKB Category 42 判定后的日期字段，如 `42018`（痴呆）；自成完整病例定义，不经 [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) | [`derive_algorithm()`](https://evanbio.github.io/ukbflow/reference/derive_algorithm.md) |
 | 癌症注册 | ICD-10、histology、behaviour、诊断日期 | [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md) |
-| 死亡注册 | ICD-10 主要 / 次要死因 | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
+| 癌症注册（ICD-9） | ICD-9 编码（`40013`），与 ICD-10 分支共用 histology/behaviour/诊断日期字段 | [`derive_cancer_registry_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry_icd9.md) |
+| 死亡注册 | ICD-10 主要 / 次要死因；`cause` 可选 primary、secondary 或两者 | [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md) |
 | 多源 ICD-10 表型 | HES、死亡注册、First Occurrence、癌症注册 | [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md) |
-| 最终病例定义 | 自报告 + ICD-10 衍生状态 / 日期 | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
+| 多源 ICD-9 表型 | HES（ICD-9）、癌症注册（ICD-9） | [`derive_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_icd9.md) |
+| 最终病例定义 | 自报告 + ICD-10 衍生 + 可选 ICD-9 / OPCS-4 / GP（Read v2 / CTV3）衍生状态 / 日期 | [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md) |
 
-ICD-9、OPCS-4、Read v2、CTV3 以及其他 GP / primary-care
-编码系统暂不属于当前 public API。
+GP 处方（`gp_scripts`）和数值测量值暂不属于当前 public API。 UKB
+的死亡注册和 First Occurrence 字段没有 ICD-9 或 OPCS-4 对应版本。
 
 ------------------------------------------------------------------------
 
@@ -146,7 +156,8 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
 流程进行封装、编排与记录。 它不提供通用 DAG 调度器，不估算 RAP
 费用，不替代 DNAnexus 界面，也不替代研究设计、
 协变量选择、表型有效性判断或因果解释。当前 public phenotype helpers
-聚焦上表列出的 UKB 数据来源，暂不覆盖 GP / primary-care 编码系统。
+聚焦上表列出的 UKB 数据来源，含初级保健诊断（Read v2 / CTV3）；GP
+处方与数值测量暂不覆盖。
 
 ------------------------------------------------------------------------
 
@@ -156,15 +167,19 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
 
 - [`auth_login()`](https://evanbio.github.io/ukbflow/reference/auth_login.md)、[`auth_status()`](https://evanbio.github.io/ukbflow/reference/auth_status.md)、[`auth_logout()`](https://evanbio.github.io/ukbflow/reference/auth_logout.md)、[`auth_list_projects()`](https://evanbio.github.io/ukbflow/reference/auth_list_projects.md)、[`auth_select_project()`](https://evanbio.github.io/ukbflow/reference/auth_select_project.md)
   — RAP 认证
-- [`fetch_ls()`](https://evanbio.github.io/ukbflow/reference/fetch_ls.md)、[`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)、[`fetch_url()`](https://evanbio.github.io/ukbflow/reference/fetch_url.md)、[`fetch_file()`](https://evanbio.github.io/ukbflow/reference/fetch_file.md)
-  — RAP 文件系统
-- [`fetch_metadata()`](https://evanbio.github.io/ukbflow/reference/fetch_metadata.md)、[`fetch_field()`](https://evanbio.github.io/ukbflow/reference/fetch_field.md)
-  — UKB 元数据快捷下载
+- [`fetch_ls()`](https://evanbio.github.io/ukbflow/reference/fetch_ls.md)、[`fetch_tree()`](https://evanbio.github.io/ukbflow/reference/fetch_tree.md)
+  — 浏览 RAP 文件系统
 
 **提取与解码**
 
 - [`extract_ls()`](https://evanbio.github.io/ukbflow/reference/extract_ls.md)、[`extract_pheno()`](https://evanbio.github.io/ukbflow/reference/extract_pheno.md)、[`extract_batch()`](https://evanbio.github.io/ukbflow/reference/extract_batch.md)
   — 表型提取
+- [`extract_gp()`](https://evanbio.github.io/ukbflow/reference/extract_gp.md)
+  — 导出 GP 初级保健 record 表（gp_clinical 等）
+- [`extract_olink()`](https://evanbio.github.io/ukbflow/reference/extract_olink.md)
+  — 导出 Olink 蛋白组 entity（约 2900 个蛋白，NPX 值）
+- [`extract_nmr()`](https://evanbio.github.io/ukbflow/reference/extract_nmr.md)
+  — 导出 249 个 Nightingale NMR 代谢物
 - [`decode_values()`](https://evanbio.github.io/ukbflow/reference/decode_values.md)
   — 整数编码 → 可读标签
 - [`decode_names()`](https://evanbio.github.io/ukbflow/reference/decode_names.md)
@@ -195,16 +210,32 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
   — 自报告疾病状态 + 日期
 - [`derive_hes()`](https://evanbio.github.io/ukbflow/reference/derive_hes.md)
   — HES 住院 ICD-10
+- [`derive_hes_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_hes_icd9.md)
+  — HES 住院 ICD-9（少数遗留编码体系）
+- [`derive_opcs()`](https://evanbio.github.io/ukbflow/reference/derive_opcs.md)
+  — HES 住院 OPCS-4 手术操作
+- [`derive_gp_read2()`](https://evanbio.github.io/ukbflow/reference/derive_gp_read2.md)
+  — GP 初级保健诊断（Read v2），基于自行提供的 gp_clinical 表
+- [`derive_gp_ctv3()`](https://evanbio.github.io/ukbflow/reference/derive_gp_ctv3.md)
+  — GP 初级保健诊断（CTV3 / Read v3）
 - [`derive_first_occurrence()`](https://evanbio.github.io/ukbflow/reference/derive_first_occurrence.md)
   — First Occurrence 字段
+- [`derive_algorithm()`](https://evanbio.github.io/ukbflow/reference/derive_algorithm.md)
+  — 算法判定结局（Category 42 判定后的日期字段）
 - [`derive_cancer_registry()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry.md)
-  — 癌症注册
+  — 癌症注册（ICD-10）
+- [`derive_cancer_registry_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_cancer_registry_icd9.md)
+  — 癌症注册（ICD-9）
 - [`derive_death_registry()`](https://evanbio.github.io/ukbflow/reference/derive_death_registry.md)
   — 死亡注册
 - [`derive_icd10()`](https://evanbio.github.io/ukbflow/reference/derive_icd10.md)
-  — 多源合并（封装函数）
+  — 多源 ICD-10 合并（封装函数）
+- [`derive_icd9()`](https://evanbio.github.io/ukbflow/reference/derive_icd9.md)
+  — 多源 ICD-9 合并（封装函数）
 - [`derive_case()`](https://evanbio.github.io/ukbflow/reference/derive_case.md)
-  — 自报告 + ICD-10 最终合并
+  — 自报告 + ICD-10 + 可选 ICD-9 / OPCS-4 / GP（Read v2 / CTV3）最终合并
+- [`derive_recipe()`](https://evanbio.github.io/ukbflow/reference/derive_recipe.md)
+  — 一次调用跑完一个内置表型配方
 
 **衍生 — 生存变量**
 
@@ -239,11 +270,19 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
   — Fine-Gray 竞争风险（SHR）
 - [`assoc_lag()`](https://evanbio.github.io/ukbflow/reference/assoc_lag.md)
   — 滞后暴露敏感性分析
+- [`assoc_rcs()`](https://evanbio.github.io/ukbflow/reference/assoc_rcs.md)
+  — 限制性立方样条剂量反应（非线性 + p-nonlinear）
+- [`assoc_evalue()`](https://evanbio.github.io/ukbflow/reference/assoc_evalue.md)
+  — 未测量混杂的 E-value 敏感性分析
 
 **可视化**
 
 - [`plot_forest()`](https://evanbio.github.io/ukbflow/reference/plot_forest.md)
   — 森林图（PNG / PDF / JPG / TIFF，300 dpi）
+- [`plot_survival()`](https://evanbio.github.io/ukbflow/reference/plot_survival.md)
+  — 生存曲线（Kaplan-Meier，PNG / PDF / JPG / TIFF，300 dpi）
+- [`plot_rcs()`](https://evanbio.github.io/ukbflow/reference/plot_rcs.md)
+  — 限制性立方样条剂量反应曲线（PNG / PDF / JPG / TIFF，300 dpi）
 - [`plot_tableone()`](https://evanbio.github.io/ukbflow/reference/plot_tableone.md)
   — 基线特征表（DOCX / HTML / PDF / PNG）
 
@@ -254,7 +293,15 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
 - [`ops_fields()`](https://evanbio.github.io/ukbflow/reference/ops_fields.md)
   — 搜索当前 RAP 项目中已获批的 UKB 字段
 - [`ops_fields_common()`](https://evanbio.github.io/ukbflow/reference/ops_fields_common.md)
-  — 常用 UKB 字段 ID 的小型离线速查表
+  — 离线字段速查表：手选常用字段，外加血常规、血生化、NMR 三个完整 panel
+- [`ops_fo()`](https://evanbio.github.io/ukbflow/reference/ops_fo.md) —
+  1,165 个首次发生（First Occurrence）结局的离线速查表，按 3 字符 ICD-10
+  码给出日期与来源字段号
+- [`ops_alg()`](https://evanbio.github.io/ukbflow/reference/ops_alg.md)
+  — 19 个算法判定结局（Category
+  42）的离线速查表，按结局给出日期与来源字段号
+- [`ops_covariates()`](https://evanbio.github.io/ukbflow/reference/ops_covariates.md)
+  — 常用协变量预设的离线目录，返回解码后的列名
 - [`ops_toy()`](https://evanbio.github.io/ukbflow/reference/ops_toy.md)
   — 生成合成 UKB 风格数据，用于开发与测试
 - [`ops_na()`](https://evanbio.github.io/ukbflow/reference/ops_na.md) —
@@ -272,6 +319,26 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
 - [`ops_withdraw()`](https://evanbio.github.io/ukbflow/reference/ops_withdraw.md)
   — 从队列中排除 UKB 撤回参与者
 
+**表型配方**
+
+- [`recipe_list()`](https://evanbio.github.io/ukbflow/reference/recipe_list.md)
+  — 列出内置的表型定义配方库
+- [`recipe_get()`](https://evanbio.github.io/ukbflow/reference/recipe_get.md)
+  — 读取单个配方为规范化的 `ukbflow_recipe` 对象
+- [`recipe_sources()`](https://evanbio.github.io/ukbflow/reference/recipe_sources.md)
+  — 将配方规则摊平为一行一条规则的整洁表
+- [`recipe_rule()`](https://evanbio.github.io/ukbflow/reference/recipe_rule.md)
+  — 构建单条来源规则
+- [`recipe_new()`](https://evanbio.github.io/ukbflow/reference/recipe_new.md)
+  — 构建并校验配方，无需手写 YAML
+- [`recipe_write()`](https://evanbio.github.io/ukbflow/reference/recipe_write.md)
+  — 将配方对象写出为 YAML 文件
+- [`print()`](https://rdrr.io/r/base/print.html) —
+  以可读形式渲染配方定义
+- [`derive_recipe()`](https://evanbio.github.io/ukbflow/reference/derive_recipe.md)
+  — 将配方应用到数据（归在 `derive_*` 家族；只新增 `{id}_status` /
+  `{id}_date` 两列）
+
 **分析审计**
 
 - [`audit_start()`](https://evanbio.github.io/ukbflow/reference/audit_start.md)
@@ -284,14 +351,26 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
   — 从 audit snapshot 中取回列名
 - [`audit_pheno()`](https://evanbio.github.io/ukbflow/reference/audit_pheno.md)
   — 基于 `derive_*` 标准命名汇总衍生表型
+- [`audit_recipe()`](https://evanbio.github.io/ukbflow/reference/audit_recipe.md)
+  — 记录版本化表型配方，内嵌自包含的定义快照
 - [`audit_model()`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
-  — 记录关联分析结果表和可选协变量
+  — 记录关联分析结果表；outcome/time/协变量等调用细节从 `assoc_*`
+  自动读取
 - [`audit_job()`](https://evanbio.github.io/ukbflow/reference/audit_job.md)
   — 记录 DNAnexus job ID，并在可用时记录轻量任务 metadata
 - [`audit_write()`](https://evanbio.github.io/ukbflow/reference/audit_write.md)
   — 将 audit manifest 写出为 JSON
-- [`summary()`](https://rdrr.io/r/base/summary.html) — 打印简短的 audit
-  总览
+- [`audit_read()`](https://evanbio.github.io/ukbflow/reference/audit_read.md)
+  — 将 JSON manifest 读回成可用的 audit 对象
+- [`audit_diff()`](https://evanbio.github.io/ukbflow/reference/audit_diff.md)
+  — 对比同一个 audit
+  对象内的两条记录（比如快照前后列变化、模型间协变量变化），或对比两个
+  audit 对象的整体结构
+- [`audit_flowchart()`](https://evanbio.github.io/ukbflow/reference/audit_flowchart.md)
+  — 从记录的快照导出队列衰减表，可直接喂给流程图渲染工具
+- [`print()`](https://rdrr.io/r/base/print.html) /
+  [`summary()`](https://rdrr.io/r/base/summary.html) — 打印简短或详细的
+  audit 总览
 
 **GRS 流程**
 
@@ -316,12 +395,19 @@ DNAnexus 任务、R 建模函数、绘图包以及基于 PLINK2 的 GRS
 
 **<https://evanbio.github.io/ukbflow/>**
 
+可视化资源：
+
+- **[Tessera](https://folio.evanzhou.org/tessera)** —
+  配色、示例数据和可复现的 R 作图配方
+- **[Palette Lab](https://folio.evanzhou.org/apps/palette-lab)** —
+  在一组固定图形中快速比较不同配色
+
 ------------------------------------------------------------------------
 
 ## 贡献
 
 欢迎提交 Bug 报告、功能建议和 PR，详见
-[CONTRIBUTING.md](https://github.com/evanbio/ukbflow/blob/main/CONTRIBUTING.md)。
+[CONTRIBUTING.md](https://github.com/evanbio/ukbflow/blob/main/.github/CONTRIBUTING.md)。
 
 ------------------------------------------------------------------------
 

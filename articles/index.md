@@ -28,9 +28,16 @@
   Jobs](https://evanbio.github.io/ukbflow/articles/job.md):
 - [Operational Utilities: Setup, Diagnostics, and Pipeline
   Tracking](https://evanbio.github.io/ukbflow/articles/ops.md):
+- [One Phenotype, Many Definitions: A Reproducibility and Comparability
+  Case
+  Study](https://evanbio.github.io/ukbflow/articles/phenotype-reproducibility.md):
 - [Supported Phenotype Sources and Current
   Limitations](https://evanbio.github.io/ukbflow/articles/phenotype-scope.md):
 - [Publication-Ready
   Visualisation](https://evanbio.github.io/ukbflow/articles/plot.md):
+- [Recipe Catalog: The Phenotype Definition
+  Library](https://evanbio.github.io/ukbflow/articles/recipe-catalog.md):
+- [Phenotype Definition
+  Recipes](https://evanbio.github.io/ukbflow/articles/recipe.md):
 - [Smoking and Lung Cancer Risk: A Synthetic Workflow
   Demonstration](https://evanbio.github.io/ukbflow/articles/smoking_lung_cancer.md):

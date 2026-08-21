@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,8 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -126,13 +128,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -159,7 +163,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Two functions produce publication-ready figures and tables with
+<p>Four functions produce publication-ready figures and tables with
 minimal post-processing:</p>
 <table class="table">
 <colgroup>
@@ -180,13 +184,24 @@ minimal post-processing:</p>
 </td>
 </tr>
 <tr class="even">
+<td><code><a href="../reference/plot_survival.html">plot_survival()</a></code></td>
+<td>Kaplan-Meier curve (PNG / PDF / JPG / TIFF)</td>
+<td>Unadjusted survival by group</td>
+</tr>
+<tr class="odd">
+<td><code><a href="../reference/plot_rcs.html">plot_rcs()</a></code></td>
+<td>Spline dose-response curve (PNG / PDF / JPG / TIFF)</td>
+<td>Non-linear dose-response from <code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code>
+</td>
+</tr>
+<tr class="even">
 <td><code><a href="../reference/plot_tableone.html">plot_tableone()</a></code></td>
 <td>Table 1 (DOCX / HTML / PDF / PNG)</td>
 <td>Baseline characteristics</td>
 </tr>
 </tbody>
 </table>
-<p>When <code>save = TRUE</code>, both functions write all supported
+<p>When <code>save = TRUE</code>, these functions write all supported
 formats in a single call and return the plot/table object invisibly for
 further customisation.</p>
 <hr>
@@ -225,12 +240,16 @@ inserted automatically.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="building-the-input-data-frame-from-assoc_-results">Building the input data frame from <code>assoc_*()</code>
-results<a class="anchor" aria-label="anchor" href="#building-the-input-data-frame-from-assoc_-results"></a>
+<h3 id="straight-from-assoc_-results">Straight from <code>assoc_*()</code> results<a class="anchor" aria-label="anchor" href="#straight-from-assoc_-results"></a>
 </h3>
-<p>The output of <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> (and siblings) can be
-reshaped directly into the format expected by
-<code><a href="../reference/plot_forest.html">plot_forest()</a></code>:</p>
+<p>The fastest path is to pass an <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> /
+<code><a href="../reference/assoc_logistic.html">assoc_logistic()</a></code> / <code><a href="../reference/assoc_linear.html">assoc_linear()</a></code> result table
+directly. When <code>est</code> / <code>lower</code> /
+<code>upper</code> are omitted, <code><a href="../reference/plot_forest.html">plot_forest()</a></code> derives the
+estimate and CI columns (<code>HR</code> / <code>OR</code> /
+<code>beta</code> + <code>CI_lower</code> / <code>CI_upper</code>),
+reference line, display columns, header, and x-axis range
+automatically:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span></span>
 <span><span class="va">dt</span>  <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">[</span><span class="va">dm_timing</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">]</span></span>
@@ -242,23 +261,48 @@ reshaped directly into the format expected by
 <span>  exposure_col <span class="op">=</span> <span class="st">"p20116_i0"</span>,</span>
 <span>  covariates   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bmi_cat"</span>, <span class="st">"tdi_cat"</span>, <span class="st">"p1558_i0"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Rows are grouped by exposure contrast. A binary exposure shows one
+row per model; a categorical exposure (like <code>p20116_i0</code>:
+Never / Previous / Current) keeps each level’s models together — all
+models for <em>Previous</em>, then all for <em>Current</em> — with a
+<code>Term</code> column added so no row is ambiguous.</p>
+<p>Anything you pass explicitly still wins, so you can override just the
+pieces you care about (e.g. a fixed axis or a custom column
+selection):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
+<span>  <span class="va">res</span>,</span>
+<span>  show_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_events"</span>, <span class="st">"person_years"</span>, <span class="st">"p_value"</span><span class="op">)</span>,</span>
+<span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2.5</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="full-manual-control">Full manual control<a class="anchor" aria-label="anchor" href="#full-manual-control"></a>
+</h3>
+<p>For bespoke layouts (custom row labels, spacer/header rows,
+hand-picked columns), build the display frame yourself and supply
+<code>est</code> / <code>lower</code> / <code>upper</code> as
+vectors:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reshape: one row per model, label column first</span></span>
 <span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  item    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Smoking status"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  `N`     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">n</span>, <span class="st">" / "</span>, <span class="va">res</span><span class="op">$</span><span class="va">n_events</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  p_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">res</span><span class="op">$</span><span class="va">p_value</span><span class="op">)</span>,</span>
+<span>  item    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Smoking status"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">res_df</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  `N`     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">res_df</span><span class="op">$</span><span class="va">n</span>, <span class="st">" / "</span>, <span class="va">res_df</span><span class="op">$</span><span class="va">n_events</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  p_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">res_df</span><span class="op">$</span><span class="va">p_value</span><span class="op">)</span>,</span>
 <span>  check.names <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">df2</span>,</span>
-<span>  est       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">HR</span><span class="op">)</span>,</span>
-<span>  lower     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_lower</span><span class="op">)</span>,</span>
-<span>  upper     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res</span><span class="op">$</span><span class="va">CI_upper</span><span class="op">)</span>,</span>
+<span>  est       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res_df</span><span class="op">$</span><span class="va">HR</span><span class="op">)</span>,</span>
+<span>  lower     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res_df</span><span class="op">$</span><span class="va">CI_lower</span><span class="op">)</span>,</span>
+<span>  upper     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>,   <span class="va">res_df</span><span class="op">$</span><span class="va">CI_upper</span><span class="op">)</span>,</span>
 <span>  ci_column <span class="op">=</span> <span class="fl">3L</span>,</span>
-<span>  indent    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>,   <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  indent    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0L</span>,   <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_df</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  p_cols    <span class="op">=</span> <span class="st">"p_value"</span>,</span>
 <span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">2.5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -268,7 +312,7 @@ reshaped directly into the format expected by
 <h3 id="key-parameters">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters"></a>
 </h3>
 <p><strong>CI appearance</strong></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># uses df, est, lower, upper from the minimal example above</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
@@ -281,7 +325,7 @@ reshaped directly into the format expected by
 <span>  xlim      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">5</span><span class="op">)</span>, ticks_at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Row labels and indentation</strong></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># indent = 0 → bold parent row; indent &gt;= 1 → indented sub-row (plain)</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">df</span>,</span>
@@ -291,7 +335,7 @@ reshaped directly into the format expected by
 <span>  bold_label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># explicit control (overrides indent default)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>P-value formatting</strong></p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># p_cols: column names in data that contain raw numeric p-values.</span></span>
 <span><span class="co"># Values &lt; 10^(-p_digits) are displayed as e.g. "&lt;0.001".</span></span>
 <span><span class="co"># bold_p = TRUE bolds all p &lt; p_threshold (default 0.05).</span></span>
@@ -310,7 +354,7 @@ rendered table. The final table always has <code>ncol(data) + 2</code>
 columns: the original columns, plus the <code>gap_ci</code> graphic
 column and the auto-generated <code>OR (95% CI)</code> text column. Pass
 <code>""</code> for the gap column position.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data has 3 columns → final table has 5 columns (original 3 + gap_ci + OR label)</span></span>
 <span><span class="co"># Layout with ci_column = 3L: item | Cases/N | gap_ci | OR (95% CI) | p_value</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
@@ -324,7 +368,7 @@ column and the auto-generated <code>OR (95% CI)</code> text column. Pass
 <code>ncol(data) + 2</code> columns: <code>-1</code> = left,
 <code>0</code> = centre, <code>1</code> = right. <code>NULL</code>
 (default) left-aligns column 1 and centres the rest.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data      <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est       <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
@@ -332,7 +376,7 @@ column and the auto-generated <code>OR (95% CI)</code> text column. Pass
 <span>  align     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1L</span>, <span class="fl">0L</span>, <span class="fl">0L</span>, <span class="fl">0L</span>, <span class="fl">1L</span><span class="op">)</span>   <span class="co"># label left | Cases/N centre | gap | OR centre | p right</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Background and borders</strong></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data       <span class="op">=</span> <span class="va">df</span>,</span>
 <span>  est        <span class="op">=</span> <span class="va">est</span>, lower <span class="op">=</span> <span class="va">lower</span>, upper <span class="op">=</span> <span class="va">upper</span>,</span>
@@ -343,7 +387,7 @@ column and the auto-generated <code>OR (95% CI)</code> text column. Pass
 <span>  border_width <span class="op">=</span> <span class="fl">3</span>            <span class="co"># scalar or length-3 vector (top / mid / bottom)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Layout and saving</strong></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># uses df, est, lower, upper from the minimal example above</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span></span>
 <span>  data        <span class="op">=</span> <span class="va">df</span>,</span>
@@ -372,7 +416,7 @@ object invisibly; display with <code>plot(p)</code> or
 <div class="section level3">
 <h3 id="minimal-example-1">Minimal example<a class="anchor" aria-label="anchor" href="#minimal-example-1"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ddsjoberg/gtsummary" class="external-link">gtsummary</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">trial</span><span class="op">)</span>   <span class="co"># built-in gtsummary dataset</span></span>
 <span></span>
@@ -386,7 +430,7 @@ object invisibly; display with <code>plot(p)</code> or
 <div class="section level3">
 <h3 id="with-smd-custom-labels-and-export">With SMD, custom labels, and export<a class="anchor" aria-label="anchor" href="#with-smd-custom-labels-and-export"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data    <span class="op">=</span> <span class="va">trial</span>,</span>
 <span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"marker"</span>, <span class="st">"grade"</span>, <span class="st">"stage"</span><span class="op">)</span>,</span>
@@ -403,7 +447,7 @@ object invisibly; display with <code>plot(p)</code> or
 <h3 id="key-parameters-1">Key parameters<a class="anchor" aria-label="anchor" href="#key-parameters-1"></a>
 </h3>
 <p><strong>Variable types and statistics</strong></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="../reference/ops_toy.html">ops_toy</a></span><span class="op">(</span>scenario <span class="op">=</span> <span class="st">"association"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
@@ -423,7 +467,7 @@ object invisibly; display with <code>plot(p)</code> or
 <p>The SMD column summarises covariate balance between groups: -
 Continuous variables: Cohen’s <em>d</em> (pooled-SD formula) -
 Categorical variables: RMSD of group proportions</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data    <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  vars    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p21022"</span>, <span class="st">"p21001_i0"</span>, <span class="st">"p31"</span><span class="op">)</span>,</span>
@@ -435,13 +479,27 @@ Categorical variables: RMSD of group proportions</p>
 <p>Use <code>exclude_labels</code> to remove specific level rows from
 the rendered table (e.g. a redundant reference category or an “Unknown”
 level):</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
 <span>  data           <span class="op">=</span> <span class="va">dt</span>,</span>
 <span>  vars           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p31"</span>, <span class="st">"p20116_i0"</span><span class="op">)</span>,</span>
 <span>  strata         <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
 <span>  exclude_labels <span class="op">=</span> <span class="st">"Never"</span>,   <span class="co"># e.g. remove reference category from display</span></span>
 <span>  save           <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><strong>Themes</strong></p>
+<p><code>theme = "default"</code> (the default) renders a clean
+three-line table with no cell shading — the safe choice for journal
+submission. <code>theme = "lancet"</code> adds alternating pink row
+shading and a shaded header. Both keep bold variable labels, three-line
+borders, and a 15 px font.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_tableone.html">plot_tableone</a></span><span class="op">(</span></span>
+<span>  data   <span class="op">=</span> <span class="va">trial</span>,</span>
+<span>  vars   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"marker"</span>, <span class="st">"grade"</span><span class="op">)</span>,</span>
+<span>  strata <span class="op">=</span> <span class="st">"trt"</span>,</span>
+<span>  theme  <span class="op">=</span> <span class="st">"lancet"</span>,   <span class="co"># or "default" (no shading)</span></span>
+<span>  save   <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><strong>Export formats</strong></p>
 <p>When <code>save = TRUE</code>, four files are written
@@ -484,11 +542,172 @@ simultaneously:</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="plot_survival-kaplan-meier-curve">
+<code>plot_survival()</code> — Kaplan-Meier Curve<a class="anchor" aria-label="anchor" href="#plot_survival-kaplan-meier-curve"></a>
+</h2>
+<p><code><a href="../reference/plot_survival.html">plot_survival()</a></code> draws a publication-ready Kaplan-Meier
+curve. It takes the analysis data plus a follow-up-time column and an
+event-status column (and optionally a grouping column); the
+<code>survfit</code> model is fitted internally, so no
+<code><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv()</a></code> object is needed. The interface mirrors
+<code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code>, and the inputs are exactly what
+<code><a href="../reference/derive_followup.html">derive_followup()</a></code> and <code><a href="../reference/derive_case.html">derive_case()</a></code>
+produce.</p>
+<p>This is a <strong>non-parametric, unadjusted</strong> estimate
+computed straight from the three columns — it does not use a Cox model
+or covariates. For adjusted hazard ratios, use
+<code><a href="../reference/plot_forest.html">plot_forest()</a></code> on an <code><a href="../reference/assoc_coxph.html">assoc_coxph()</a></code> result
+instead.</p>
+<p><code><a href="../reference/plot_survival.html">plot_survival()</a></code> builds on <strong>ggsurvfit</strong> (a
+<code>Suggests</code> dependency); install it with
+<code>install.packages(c("ggsurvfit", "ggplot2"))</code>.</p>
+<div class="section level3">
+<h3 id="minimal-example-2">Minimal example<a class="anchor" aria-label="anchor" href="#minimal-example-2"></a>
+</h3>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">lung2</span> <span class="op">&lt;-</span> <span class="va">lung</span></span>
+<span><span class="va">lung2</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">lung2</span><span class="op">$</span><span class="va">sex</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_survival.html">plot_survival</a></span><span class="op">(</span></span>
+<span>  data       <span class="op">=</span> <span class="va">lung2</span>,</span>
+<span>  time_col   <span class="op">=</span> <span class="st">"time"</span>,</span>
+<span>  status_col <span class="op">=</span> <span class="st">"status"</span>,   <span class="co"># 1/2 coding -&gt; auto-normalised to 0/1</span></span>
+<span>  strata     <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>  xlab       <span class="op">=</span> <span class="st">"Time (days)"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>By default the figure includes a confidence-interval ribbon, a
+numbers-at-risk table, and a log-rank p-value. With no
+<code>strata</code>, a single overall curve is drawn and the p-value is
+omitted.</p>
+</div>
+<div class="section level3">
+<h3 id="curve-type">Curve type<a class="anchor" aria-label="anchor" href="#curve-type"></a>
+</h3>
+<p><code>type</code> switches between the descending survival curve and
+the ascending cumulative views:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Cumulative incidence (1 - S)</span></span>
+<span><span class="fu"><a href="../reference/plot_survival.html">plot_survival</a></span><span class="op">(</span><span class="va">lung2</span>, <span class="st">"time"</span>, <span class="st">"status"</span>, strata <span class="op">=</span> <span class="st">"sex"</span>, type <span class="op">=</span> <span class="st">"risk"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Cumulative hazard</span></span>
+<span><span class="fu"><a href="../reference/plot_survival.html">plot_survival</a></span><span class="op">(</span><span class="va">lung2</span>, <span class="st">"time"</span>, <span class="st">"status"</span>, strata <span class="op">=</span> <span class="st">"sex"</span>, type <span class="op">=</span> <span class="st">"cumhaz"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="elements-and-styling">Elements and styling<a class="anchor" aria-label="anchor" href="#elements-and-styling"></a>
+</h3>
+<p>Toggle the optional layers with the <code>add_*</code> switches, and
+adjust the axis, labels, palette, and legend:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_survival.html">plot_survival</a></span><span class="op">(</span></span>
+<span>  <span class="va">lung2</span>, <span class="st">"time"</span>, <span class="st">"status"</span>, strata <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>  add_median  <span class="op">=</span> <span class="cn">TRUE</span>,          <span class="co"># median-survival reference line</span></span>
+<span>  add_censor  <span class="op">=</span> <span class="cn">TRUE</span>,          <span class="co"># censoring marks</span></span>
+<span>  ticks_at    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1000</span>, <span class="fl">250</span><span class="op">)</span>,</span>
+<span>  palette     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#3C5488"</span>, <span class="st">"#F39B7F"</span><span class="op">)</span>,</span>
+<span>  legend_labs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span>,</span>
+<span>  title       <span class="op">=</span> <span class="st">"Overall survival by sex"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The <code>theme</code> preset (<code>"default"</code>) controls the
+overall look — fonts, legend, colour palette, and the risk-table styling
+— as one coherent design. The default palette is used only when it has a
+colour for every group; with more groups than colours it falls back to
+ggsurvfit’s palette.</p>
+</div>
+<div class="section level3">
+<h3 id="saving">Saving<a class="anchor" aria-label="anchor" href="#saving"></a>
+</h3>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Writes &lt;dest&gt;.png / .pdf / .jpg / .tiff at 300 dpi</span></span>
+<span><span class="fu"><a href="../reference/plot_survival.html">plot_survival</a></span><span class="op">(</span><span class="va">lung2</span>, <span class="st">"time"</span>, <span class="st">"status"</span>, strata <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>              save <span class="op">=</span> <span class="cn">TRUE</span>, dest <span class="op">=</span> <span class="st">"km_lung_by_sex"</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="plot_rcs-restricted-cubic-spline-curve">
+<code>plot_rcs()</code> — Restricted Cubic Spline Curve<a class="anchor" aria-label="anchor" href="#plot_rcs-restricted-cubic-spline-curve"></a>
+</h2>
+<p><code><a href="../reference/plot_rcs.html">plot_rcs()</a></code> draws the dose-response curve produced by
+<code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code>: the fitted effect (hazard ratio, odds ratio,
+or mean difference) across the range of a continuous exposure, with a
+confidence band, relative to the analysis reference value. It reads the
+effect measure, reference, and exposure name from the result’s
+attributes, so <code>plot_rcs(res)</code> just works.</p>
+<p><code><a href="../reference/plot_rcs.html">plot_rcs()</a></code> builds on <strong>ggplot2</strong> (a
+<code>Suggests</code> dependency); install it with
+<code>install.packages("ggplot2")</code>. Unlike the other plot
+functions it returns the <code>ggplot</code> object
+<strong>visibly</strong>, so a bare <code>plot_rcs(res)</code> call
+draws the curve.</p>
+<div class="section level3">
+<h3 id="minimal-example-3">Minimal example<a class="anchor" aria-label="anchor" href="#minimal-example-3"></a>
+</h3>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_rcs.html">assoc_rcs</a></span><span class="op">(</span></span>
+<span>  data         <span class="op">=</span> <span class="va">dt</span>,</span>
+<span>  outcome_col  <span class="op">=</span> <span class="st">"dm_status"</span>,</span>
+<span>  time_col     <span class="op">=</span> <span class="st">"dm_followup_years"</span>,</span>
+<span>  exposure_col <span class="op">=</span> <span class="st">"p21001_i0"</span>,          <span class="co"># BMI (continuous)</span></span>
+<span>  method       <span class="op">=</span> <span class="st">"coxph"</span>,</span>
+<span>  base         <span class="op">=</span> <span class="cn">FALSE</span>,                <span class="co"># a single, fully-adjusted curve</span></span>
+<span>  covariates   <span class="op">=</span> <span class="st">"tdi_cat"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_rcs.html">plot_rcs</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<p>The null-effect line (HR / OR = 1, or 0 for a mean difference) is
+drawn automatically, the y-axis is log-scaled for ratio measures, and
+the overall and non-linearity p-values are annotated in the corner as
+<code>P-overall</code> / <code>P-nonlinear</code>. The panel uses a
+clean framed style with a light horizontal grid.</p>
+</div>
+<div class="section level3">
+<h3 id="clinical-reference-lines">Clinical reference lines<a class="anchor" aria-label="anchor" href="#clinical-reference-lines"></a>
+</h3>
+<p><code>vline</code> and <code>hline</code> add user-supplied reference
+lines at clinically meaningful exposure or effect values — dashed grey,
+in the spirit of threshold lines on a GWAS plot:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_rcs.html">plot_rcs</a></span><span class="op">(</span></span>
+<span>  <span class="va">res</span>,</span>
+<span>  vline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.5</span>, <span class="fl">25</span>, <span class="fl">30</span><span class="op">)</span>,   <span class="co"># clinical BMI cut-points (x-axis)</span></span>
+<span>  hline <span class="op">=</span> <span class="fl">1.5</span>,               <span class="co"># an effect threshold (y-axis)</span></span>
+<span>  p_pos <span class="op">=</span> <span class="st">"topleft"</span>,         <span class="co"># move the p-value annotation</span></span>
+<span>  title <span class="op">=</span> <span class="st">"BMI and incident diabetes"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="multiple-models">Multiple models<a class="anchor" aria-label="anchor" href="#multiple-models"></a>
+</h3>
+<p>When the <code><a href="../reference/assoc_rcs.html">assoc_rcs()</a></code> result holds more than one
+adjustment model (the default <code>base = TRUE</code>), the curves are
+overlaid and coloured by model, with a legend at the bottom; the p-value
+annotation then reports the most-adjusted model:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assoc_rcs.html">assoc_rcs</a></span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>, <span class="st">"dm_status"</span>, <span class="st">"dm_followup_years"</span>, <span class="st">"p21001_i0"</span>,   <span class="co"># BMI</span></span>
+<span>  method <span class="op">=</span> <span class="st">"coxph"</span>, covariates <span class="op">=</span> <span class="st">"tdi_cat"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_rcs.html">plot_rcs</a></span><span class="op">(</span><span class="va">res_multi</span>, vline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.5</span>, <span class="fl">25</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="saving-1">Saving<a class="anchor" aria-label="anchor" href="#saving-1"></a>
+</h3>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Writes &lt;dest&gt;.png / .pdf / .jpg / .tiff at 300 dpi</span></span>
+<span><span class="fu"><a href="../reference/plot_rcs.html">plot_rcs</a></span><span class="op">(</span><span class="va">res</span>, save <span class="op">=</span> <span class="cn">TRUE</span>, dest <span class="op">=</span> <span class="st">"rcs_bmi_dm"</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+</div>
+<div class="section level2">
 <h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
 <ul>
 <li>
-<code><a href="../reference/plot_forest.html">?plot_forest</a></code>, <code><a href="../reference/plot_tableone.html">?plot_tableone</a></code>
+<code><a href="../reference/plot_forest.html">?plot_forest</a></code>, <code><a href="../reference/plot_survival.html">?plot_survival</a></code>,
+<code><a href="../reference/plot_rcs.html">?plot_rcs</a></code>, <code><a href="../reference/plot_tableone.html">?plot_tableone</a></code>
 </li>
 <li>
 <code><a href="../articles/assoc.html">vignette("assoc")</a></code> — association analysis producing
@@ -504,7 +723,7 @@ Issues</a></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

@@ -21,9 +21,10 @@ ops_snapshot_diff(label1, label2)
 
 ## Value
 
-A named list with two character vectors: `added` (columns present in
-`label2` but not `label1`) and `removed` (columns present in `label1`
-but not `label2`).
+Invisibly, a named list with two character vectors: `added` (columns
+present in `label2` but not `label1`) and `removed` (columns present in
+`label1` but not `label2`). The comparison is printed to the console, so
+assign the result when you need the vectors themselves.
 
 ## Examples
 
@@ -31,28 +32,28 @@ but not `label2`).
 ops_snapshot(reset = TRUE, verbose = FALSE)
 
 dt <- ops_toy(n = 100)
-#> ✔ ops_toy: 100 participants | 75 columns | scenario = "cohort" | seed = 42
+#> ✔ ops_toy: 100 participants | 107 columns | scenario = "cohort" | seed = 42
 ops_snapshot(dt, label = "raw")
 #> ── snapshot: raw ───────────────────────────────────────────────────────────────
 #> rows 100
-#> cols 75
-#> NA cols 51
-#> size 0.09 MB
+#> cols 107
+#> NA cols 83
+#> size 0.14 MB
 #> ────────────────────────────────────────────────────────────────────────────────
 dt <- derive_missing(dt)
-#> ✔ derive_missing: replaced 47 values across 3 columns (action = "na").
+#> ✔ derive_missing: replaced 48 values across 3 columns (action = "na").
 ops_snapshot(dt, label = "derived")
 #> ── snapshot: derived ───────────────────────────────────────────────────────────
 #> rows 100 (= 0)
-#> cols 75 (= 0)
-#> NA cols 53 (+2)
-#> size 0.09 MB (= 0)
+#> cols 107 (= 0)
+#> NA cols 85 (+2)
+#> size 0.14 MB (= 0)
 #> ────────────────────────────────────────────────────────────────────────────────
 ops_snapshot_diff("raw", "derived")
 #> Columns added (0):
 #> Columns removed (0):
-# $added   — newly derived columns
-# $removed — columns dropped between snapshots
+# $added   -- newly derived columns
+# $removed -- columns dropped between snapshots
 
 ops_snapshot(reset = TRUE, verbose = FALSE)
 ```

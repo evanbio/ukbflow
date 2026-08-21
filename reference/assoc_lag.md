@@ -92,6 +92,13 @@ plus:
 `lag_years` and `n_excluded` are placed immediately after `model` in the
 column order.
 
+The returned table also carries a hidden attribute recording
+`outcome_col`, `time_col`, `covariates`, exposure levels, `strata`,
+`test`, and `conf_level`;
+[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+reads this automatically. `lag_years` does not need separate recording –
+it is already a column in the result table above.
+
 ## Details
 
 Setting `lag_years = 0` (or including `0` in the vector) runs the model

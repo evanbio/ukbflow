@@ -65,7 +65,7 @@ call, optionally excluding columns you wish to keep."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,6 +88,8 @@ call, optionally excluding columns you wish to keep."><meta property="og:image" 
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -97,10 +99,12 @@ call, optionally excluding columns you wish to keep."><meta property="og:image" 
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope"><li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul></div>
@@ -149,46 +153,60 @@ that snapshot). Default <code>NULL</code>.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="ops_toy.html">ops_toy</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 75 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> ops_toy: 100 participants | 107 columns | scenario = <span style="color: #0000BB;">"cohort"</span> | seed = 42</span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span><span class="va">dt</span>, label <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── snapshot: raw ───────────────────────────────────────────────────────────────</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> rows 100</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 75</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 51</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.09 MB</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> cols 107</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> NA cols 83</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> size 0.14 MB</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ────────────────────────────────────────────────────────────────────────────────</span>
 <span class="r-in"><span><span class="fu">ops_snapshot_cols</span><span class="op">(</span><span class="st">"raw"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [51] "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"    "p40006_i1"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [56] "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"    "p40011_i2"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [61] "p40012_i2"    "p40005_i2"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [66] "p40002_i0_a2" "p40000_i0"    "p131742"      "grs_bmi"      "grs_raw"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [71] "grs_finngen"  "messy_allna"  "messy_empty"  "messy_label" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [51] "p41271"       "p41281_a0"    "p41281_a1"    "p41281_a2"    "p41272"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [56] "p41282_a0"    "p41282_a1"    "p41282_a2"    "p41202"       "p41262_a0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [61] "p41262_a1"    "p41262_a2"    "p41262_a3"    "p41262_a4"    "p41262_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [66] "p41262_a6"    "p41262_a7"    "p41262_a8"    "p41203"       "p41263_a0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [71] "p41263_a1"    "p41263_a2"    "p41200"       "p41260_a0"    "p41260_a1"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [76] "p41260_a2"    "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [81] "p40006_i1"    "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [86] "p40011_i2"    "p40012_i2"    "p40005_i2"    "p40013_i3"    "p40011_i3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91] "p40012_i3"    "p40005_i3"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [96] "p40002_i0_a2" "p40000_i0"    "p191"         "p131742"      "p42018"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [101] "grs_bmi"      "grs_raw"      "grs_finngen"  "messy_allna"  "messy_empty" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [106] "messy_label" </span>
 <span class="r-in"><span><span class="fu">ops_snapshot_cols</span><span class="op">(</span><span class="st">"raw"</span>, keep <span class="op">=</span> <span class="st">"eid"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [51] "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"    "p40006_i1"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [56] "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"    "p40011_i2"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [61] "p40012_i2"    "p40005_i2"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [66] "p40002_i0_a2" "p40000_i0"    "p131742"      "grs_bmi"      "grs_raw"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [71] "grs_finngen"  "messy_allna"  "messy_empty"  "messy_label" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] "p31"          "p34"          "p53_i0"       "p21022"       "p21001_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6] "p20116_i0"    "p1558_i0"     "p21000_i0"    "p22189"       "p54_i0"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [11] "p22009_a1"    "p22009_a2"    "p22009_a3"    "p22009_a4"    "p22009_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [16] "p22009_a6"    "p22009_a7"    "p22009_a8"    "p22009_a9"    "p22009_a10"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [21] "p20002_i0_a0" "p20002_i0_a1" "p20002_i0_a2" "p20002_i0_a3" "p20002_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [26] "p20008_i0_a0" "p20008_i0_a1" "p20008_i0_a2" "p20008_i0_a3" "p20008_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [31] "p20001_i0_a0" "p20001_i0_a1" "p20001_i0_a2" "p20001_i0_a3" "p20001_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [36] "p20006_i0_a0" "p20006_i0_a1" "p20006_i0_a2" "p20006_i0_a3" "p20006_i0_a4"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [41] "p41270"       "p41280_a0"    "p41280_a1"    "p41280_a2"    "p41280_a3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [46] "p41280_a4"    "p41280_a5"    "p41280_a6"    "p41280_a7"    "p41280_a8"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [51] "p41271"       "p41281_a0"    "p41281_a1"    "p41281_a2"    "p41272"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [56] "p41282_a0"    "p41282_a1"    "p41282_a2"    "p41202"       "p41262_a0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [61] "p41262_a1"    "p41262_a2"    "p41262_a3"    "p41262_a4"    "p41262_a5"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [66] "p41262_a6"    "p41262_a7"    "p41262_a8"    "p41203"       "p41263_a0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [71] "p41263_a1"    "p41263_a2"    "p41200"       "p41260_a0"    "p41260_a1"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [76] "p41260_a2"    "p40006_i0"    "p40011_i0"    "p40012_i0"    "p40005_i0"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [81] "p40006_i1"    "p40011_i1"    "p40012_i1"    "p40005_i1"    "p40006_i2"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [86] "p40011_i2"    "p40012_i2"    "p40005_i2"    "p40013_i3"    "p40011_i3"   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [91] "p40012_i3"    "p40005_i3"    "p40001_i0"    "p40002_i0_a0" "p40002_i0_a1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [96] "p40002_i0_a2" "p40000_i0"    "p191"         "p131742"      "p42018"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [101] "grs_bmi"      "grs_raw"      "grs_finngen"  "messy_allna"  "messy_empty" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [106] "messy_label" </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="ops_snapshot.html">ops_snapshot</a></span><span class="op">(</span>reset <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 </code></pre></div>
@@ -198,7 +216,7 @@ that snapshot). Default <code>NULL</code>.</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

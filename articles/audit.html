@@ -90,7 +90,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ukbflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,6 +115,8 @@
     <li><a class="dropdown-item" href="../articles/plot.html">Publication-Ready Visualisation</a></li>
     <li><a class="dropdown-item" href="../articles/grs.html">Genetic Risk Score (GRS) Analysis on UKB RAP</a></li>
     <li><a class="dropdown-item" href="../articles/ops.html">Utilities &amp; Diagnostics (ops_* Series)</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe.html">Phenotype Definition Recipes</a></li>
+    <li><a class="dropdown-item" href="../articles/phenotype-reproducibility.html">One Phenotype, Many Definitions</a></li>
     <li><a class="dropdown-item" href="../articles/audit.html">Analysis Audit and Reproducibility</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/smoking_lung_cancer.html">Synthetic Workflow: Smoking and Lung Cancer</a></li>
@@ -126,13 +128,15 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-scope" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Scope</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-scope">
 <li><a class="dropdown-item" href="../articles/phenotype-scope.html">Phenotype Sources</a></li>
+    <li><a class="dropdown-item" href="../articles/recipe-catalog.html">Recipe Catalog</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://ukbflow.evanzhou.org" aria-label="ukbflow Book"><span class="fa fa-book"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/tessera" aria-label="Tessera"><span class="fa fas fa-palette"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://folio.evanzhou.org/apps/palette-lab" aria-label="Palette Lab"><span class="fa fas fa-flask"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evanbio/ukbflow" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://CRAN.R-project.org/package=ukbflow" aria-label="CRAN"><span class="fa fa-cube"></span></a></li>
       </ul>
@@ -172,10 +176,20 @@ optional RAP context;</li>
 missingness count, object size, and complete column names;</li>
 <li>derived phenotype summaries from standard <code>derive_*</code>
 column names;</li>
+<li>the versioned phenotype recipes a definition came from;</li>
 <li>association result tables returned by <code>assoc_*</code>;</li>
 <li>DNAnexus job IDs and lightweight job metadata when available;</li>
 <li>a JSON manifest that can be saved with the analysis outputs.</li>
 </ul>
+<p>The audit object has a fixed structure from the moment it is created:
+a <code>schema_version</code>, a <code>meta</code> block (analysis name,
+ukbflow and R versions, platform, session information, and DNAnexus
+context), and the record layers <code>fields</code>,
+<code>recipes</code>, <code>snapshots</code>, <code>phenotypes</code>,
+<code>models</code>, and <code>jobs</code>. Each helper appends to one
+of these layers; the object is validated against this schema before the
+manifest is written, so a structurally broken audit fails loudly rather
+than producing a corrupt file.</p>
 <p>The examples below use synthetic data from <code><a href="../reference/ops_toy.html">ops_toy()</a></code> and
 can be developed without RAP access. In a real RAP project, the same
 audit calls sit next to <code><a href="../reference/extract_batch.html">extract_batch()</a></code>,
@@ -190,7 +204,7 @@ audit calls sit next to <code><a href="../reference/extract_batch.html">extract_
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evanbio/ukbflow" class="external-link">ukbflow</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_start.html">audit_start</a></span><span class="op">(</span><span class="st">"smoking_lung_cancer"</span><span class="op">)</span></span>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_start.html">audit_start</a></span><span class="op">(</span><span class="st">"smoking_lung_cancer"</span>, check_dx <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">aud</span></span></code></pre></div>
 <p><code><a href="../reference/audit_start.html">audit_start()</a></code> records the analysis name, start time,
 ukbflow version, R session information, and current DNAnexus
@@ -219,9 +233,9 @@ Reuse that object directly in the audit.</p>
 a label, the number of fields, and a timestamp.</p>
 <p><code><a href="../reference/audit_job.html">audit_job()</a></code> records the DNAnexus job ID and any
 lightweight metadata available from
-<code>dx describe job-XXXX --json</code>, such as job state and output
-file ID. It does not estimate RAP cost; use the DNAnexus / RAP billing
-interface for cost review.</p>
+<code>dx describe job-XXXX --json</code>, such as job name, state,
+creation time, and failure message. It does not estimate RAP cost; use
+the DNAnexus / RAP billing interface for cost review.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -290,9 +304,28 @@ the data, and the phenotype prefix.</p>
 <span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_pheno.html">audit_pheno</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">data</span>, <span class="st">"lung"</span><span class="op">)</span></span>
 <span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_snapshot.html">audit_snapshot</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">data</span>, <span class="st">"after_phenotype"</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/audit_pheno.html">audit_pheno()</a></code> records whichever components exist:
-self-report, ICD-10, per-source ICD-10 columns, combined status/date,
-timing, and follow-up. Missing components are marked as not present
-rather than treated as errors.</p>
+self-report, ICD-10, ICD-9, algorithmically defined outcome, per-source
+columns (HES, HES ICD-9, death registry, first occurrence, cancer
+registry, cancer registry ICD-9), combined status/date, timing, and
+follow-up. Missing components are marked as not present rather than
+treated as errors.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="record-the-phenotype-definition">Record the Phenotype Definition<a class="anchor" aria-label="anchor" href="#record-the-phenotype-definition"></a>
+</h2>
+<p>Where <code><a href="../reference/audit_pheno.html">audit_pheno()</a></code> summarises the <em>result</em> of a
+phenotype in your data, <code><a href="../reference/audit_recipe.html">audit_recipe()</a></code> records the
+<em>definition</em> it came from. Pass a recipe id (see
+<code><a href="../articles/recipe.html">vignette("recipe")</a></code>); the record captures the recipe id and
+version plus a self-contained snapshot of the definition (sources,
+logic, and notes), stored in its own <code>recipes</code> layer.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_recipe.html">audit_recipe</a></span><span class="op">(</span><span class="va">aud</span>, <span class="st">"cscc"</span><span class="op">)</span></span></code></pre></div>
+<p>Keeping the definition separate from the realised summary means the
+manifest can reproduce <em>how</em> a phenotype was specified —
+independent of any dataset, and even if the bundled recipe library later
+changes.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -301,7 +334,7 @@ rather than treated as errors.</p>
 <p>Audit snapshots work well for cohort exclusions because they record
 row count, column count, missingness count, and column names at each
 stage.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_snapshot.html">audit_snapshot</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">data</span>, <span class="st">"before_exclusions"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span><span class="va">lung_timing</span> <span class="op">!=</span> <span class="fl">1L</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lung_timing</span><span class="op">)</span><span class="op">]</span></span>
@@ -325,7 +358,7 @@ stage.</p>
 the pipeline and then record an audit snapshot.
 <code><a href="../reference/ops_withdraw.html">ops_withdraw()</a></code> itself records before/after snapshots in the
 session-level <code><a href="../reference/ops_snapshot.html">ops_snapshot()</a></code> history.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">withdraw_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">eid</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, <span class="va">withdraw_file</span><span class="op">)</span></span>
 <span></span>
@@ -338,9 +371,13 @@ session-level <code><a href="../reference/ops_snapshot.html">ops_snapshot()</a><
 </h2>
 <p>Association result tables are usually small and already contain the
 most useful model summary. <code><a href="../reference/audit_model.html">audit_model()</a></code> stores the result
-table directly. If the covariate vector already exists in your script,
-pass it along.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+table directly. When <code>result</code> comes straight from an
+<code>assoc_*</code> call, the outcome column, time column, covariates,
+exposure reference levels, and other call details are picked up
+automatically from a hidden attribute that <code>assoc_*</code> attaches
+to its own return value – nothing needs to be re-typed, and the result
+table itself is unaffected (it prints and plots exactly as before).</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">covars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"p21022"</span>,</span>
 <span>  <span class="st">"p31"</span>,</span>
@@ -356,28 +393,139 @@ pass it along.</p>
 <span>  covariates   <span class="op">=</span> <span class="va">covars</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_model.html">audit_model</a></span><span class="op">(</span></span>
-<span>  <span class="va">aud</span>,</span>
-<span>  result     <span class="op">=</span> <span class="va">res</span>,</span>
-<span>  label      <span class="op">=</span> <span class="st">"smoking_lung_cox"</span>,</span>
-<span>  covariates <span class="op">=</span> <span class="va">covars</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>The model record stores the full result table, inferred method,
-exposures, model labels, optional covariates, and a timestamp.</p>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_model.html">audit_model</a></span><span class="op">(</span><span class="va">aud</span>, result <span class="op">=</span> <span class="va">res</span>, label <span class="op">=</span> <span class="st">"smoking_lung_cox"</span><span class="op">)</span></span></code></pre></div>
+<p>The model record stores the full result table, the inferred method,
+exposures (with reference levels), model labels, the outcome/time
+columns and covariates picked up from <code>res</code>, and a timestamp.
+If <code>result</code> does not carry this attribute (e.g. a hand-built
+data.frame), the corresponding fields are recorded as <code>NA</code> or
+empty rather than failing.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="compare-snapshots-fields-or-models">Compare Snapshots, Fields, or Models<a class="anchor" aria-label="anchor" href="#compare-snapshots-fields-or-models"></a>
+</h2>
+<p><code><a href="../reference/audit_diff.html">audit_diff()</a></code> walks an ordered sequence of labels within
+one layer and reports what changed between each consecutive pair. It is
+read-only: it does not append anything to <code>aud</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/audit_diff.html">audit_diff</a></span><span class="op">(</span><span class="va">aud</span>, layer <span class="op">=</span> <span class="st">"snapshots"</span><span class="op">)</span></span></code></pre></div>
+<p>For <code>layer = "snapshots"</code> and
+<code>layer = "fields"</code>, each step reports the added and removed
+columns (or field IDs). For <code>layer = "models"</code>, each step
+reports covariate and exposure changes, plus a term-aligned side-by-side
+of the most-adjusted model’s effect estimate and p-value – useful for
+sensitivity analyses where the same exposure/outcome is re-run with a
+different covariate set.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_model.html">audit_model</a></span><span class="op">(</span><span class="va">aud</span>, result <span class="op">=</span> <span class="va">res_minimal</span>, label <span class="op">=</span> <span class="st">"smoking_lung_minimal"</span><span class="op">)</span></span>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_model.html">audit_model</a></span><span class="op">(</span><span class="va">aud</span>, result <span class="op">=</span> <span class="va">res_full</span>, label <span class="op">=</span> <span class="st">"smoking_lung_full"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit_diff.html">audit_diff</a></span><span class="op">(</span><span class="va">aud</span>, layer <span class="op">=</span> <span class="st">"models"</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"smoking_lung_minimal"</span>, <span class="st">"smoking_lung_full"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>No delta is computed automatically between the two effect estimates:
+HR/OR/SHR are ratio-scale and beta is difference-scale, so a single
+formula would not suit both.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="export-a-cohort-flowchart-table">Export a Cohort Flowchart Table<a class="anchor" aria-label="anchor" href="#export-a-cohort-flowchart-table"></a>
+</h2>
+<p><code><a href="../reference/audit_flowchart.html">audit_flowchart()</a></code> turns the <code>snapshots</code> layer
+into a data.frame in the shape a flowchart renderer expects — five
+columns,
+<code>id</code>/<code>parent</code>/<code>n</code>/<code>label</code>/<code>type</code>
+— without committing to any particular renderer. It only produces the
+data; it does not render anything itself.</p>
+<p>The same <code>id</code> on several rows is a <strong>merge</strong>
+(each row contributes one upstream node); the same <code>parent</code>
+on several rows is a <strong>branch</strong>. <code>label</code> stays
+plain text and the count stays in <code>n</code>, so the renderer
+composes <code>"(n = 1,272)"</code> once, in whatever style the figure
+calls for.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/audit_flowchart.html">audit_flowchart</a></span><span class="op">(</span><span class="va">aud</span><span class="op">)</span></span></code></pre></div>
+<p>By default each snapshot’s parent is the previous label in recording
+order – a simple linear attrition chain – and a row count decrease
+between parent and child is inserted as a sibling
+<code>type = "exclusion"</code> row (even when the decrease is zero),
+matching the convention where an exclusion box sits alongside the
+continuing step rather than replacing it.</p>
+<p>For a genuine branch (e.g. randomisation into two arms), declare the
+second and later branches’ true parent with <code>parent</code>, since
+the default assumption (“parent = previous label”) is wrong for anything
+but the first branch:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_snapshot.html">audit_snapshot</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">vaccine_arm_data</span>, <span class="st">"vaccine_arm"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">aud</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_snapshot.html">audit_snapshot</a></span><span class="op">(</span><span class="va">aud</span>, <span class="va">placebo_arm_data</span>, <span class="st">"placebo_arm"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit_flowchart.html">audit_flowchart</a></span><span class="op">(</span><span class="va">aud</span>, parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>placebo_arm <span class="op">=</span> <span class="st">"randomized"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>A branch never gets an automatic exclusion row (a split is not an
+exclusion), but its children’s counts are checked against the parent’s
+and a warning is issued if they do not sum to it – likewise if a single
+child’s count is somehow larger than its parent’s, since that is not a
+valid exclusion either.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="review-and-write-the-manifest">Review and Write the Manifest<a class="anchor" aria-label="anchor" href="#review-and-write-the-manifest"></a>
 </h2>
-<p>Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> for a short directory-style overview.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">aud</span><span class="op">)</span></span></code></pre></div>
+<p>Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> for a directory-style overview of every
+layer (record counts plus a one-line preview of each record’s content),
+or <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> for a lighter skeleton view (just the record
+counts).</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">aud</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">aud</span><span class="op">)</span></span></code></pre></div>
 <p>Write the manifest as JSON alongside the analysis outputs.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/audit_write.html">audit_write</a></span><span class="op">(</span><span class="va">aud</span>, <span class="st">"ukbflow-audit.json"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>The resulting JSON contains the audit metadata, extraction field
-records, snapshots, phenotype summaries, model result records, and
-session information.</p>
+<p>The resulting JSON mirrors the audit schema: a
+<code>schema_version</code>, a <code>meta</code> block, and the
+<code>fields</code>, <code>recipes</code>, <code>snapshots</code>,
+<code>phenotypes</code>, <code>models</code>, and <code>jobs</code>
+record layers. <code><a href="../reference/audit_write.html">audit_write()</a></code> validates the object before
+serialising, so the manifest is either complete and well-formed or not
+written at all.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="read-back-a-saved-manifest">Read Back a Saved Manifest<a class="anchor" aria-label="anchor" href="#read-back-a-saved-manifest"></a>
+</h2>
+<p><code><a href="../reference/audit_read.html">audit_read()</a></code> parses a manifest written by
+<code><a href="../reference/audit_write.html">audit_write()</a></code> back into a usable <code>ukbflow_audit</code>
+object – the same class <code><a href="../reference/audit_start.html">audit_start()</a></code> produces – so a past
+analysis’s audit trail can be inspected, or compared, without re-running
+the analysis.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aud_reloaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_read.html">audit_read</a></span><span class="op">(</span><span class="st">"ukbflow-audit.json"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit_cols.html">audit_cols</a></span><span class="op">(</span><span class="va">aud_reloaded</span>, <span class="st">"raw"</span><span class="op">)</span></span></code></pre></div>
+<p>Restoration is exact for the <code>fields</code>,
+<code>snapshots</code>, <code>models</code>, and <code>jobs</code>
+layers and the <code>meta</code> block. The <code>recipes</code> and
+<code>phenotypes</code> layers are passed through without this per-field
+restoration, since neither is currently read by
+<code><a href="../reference/audit_diff.html">audit_diff()</a></code> or <code><a href="../reference/audit_cols.html">audit_cols()</a></code>.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="compare-two-analyses">Compare Two Analyses<a class="anchor" aria-label="anchor" href="#compare-two-analyses"></a>
+</h2>
+<p>Passing a second audit object as <code>audit2</code> switches
+<code><a href="../reference/audit_diff.html">audit_diff()</a></code> into a different mode: instead of walking
+labels within one object, it summarises <code>meta</code> and all six
+record layers for both objects side by side. This does not attempt to
+match or diff individual records across the two objects – there is no
+reliable way to tell which record in one audit “corresponds to” which in
+the other – it only shows what each object contains, reusing the same
+per-record summaries <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints, so you can eyeball
+the difference.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aud_paper</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/audit_read.html">audit_read</a></span><span class="op">(</span><span class="st">"published_study_manifest.json"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/audit_diff.html">audit_diff</a></span><span class="op">(</span><span class="va">aud</span>, audit2 <span class="op">=</span> <span class="va">aud_paper</span><span class="op">)</span></span></code></pre></div>
+<p><code>audit2</code> must always be passed by name. Sides are labelled
+by each object’s <code>meta$name</code> when both are present and
+distinct, falling back to <code>"audit1"</code>/<code>"audit2"</code>
+otherwise. This is the natural way to check “what does my reproduction
+of a published phenotype/model actually differ on” against a manifest
+saved from an earlier analysis.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -396,6 +544,9 @@ extraction.</li>
 <code><a href="../reference/audit_snapshot.html">audit_snapshot()</a></code> and <code><a href="../reference/audit_pheno.html">audit_pheno()</a></code> after
 phenotype derivation.</li>
 <li>
+<code><a href="../reference/audit_recipe.html">audit_recipe()</a></code> for each recipe-based phenotype
+definition used.</li>
+<li>
 <code><a href="../reference/audit_snapshot.html">audit_snapshot()</a></code> after each major cohort
 exclusion.</li>
 <li>
@@ -407,6 +558,10 @@ exclusion.</li>
 is available.</li>
 <li>
 <code><a href="../reference/audit_write.html">audit_write()</a></code> at the end of the script.</li>
+<li>
+<code><a href="../reference/audit_read.html">audit_read()</a></code> and <code><a href="../reference/audit_diff.html">audit_diff()</a></code> when
+checking a saved manifest against the current analysis, or against a
+manifest from a previous run.</li>
 </ol>
 <p>Keep the audit close to the real workflow. Do not duplicate logic
 just for the manifest; record objects that already exist in the
@@ -419,7 +574,7 @@ analysis.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.
+  <p>Developed by <a href="https://github.com/evanbio" class="external-link"><img src="https://github.com/evanbio.png" height="32" style="border-radius: 50%;" alt="Yibin Zhou"> Yibin Zhou</a>. Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.
 </p>
 <div class="text-muted">
 <p><i class="fas fa-balance-scale me-1"></i> <a href="https://opensource.org/licenses/MIT" class="external-link text-muted">MIT License</a></p>

@@ -113,6 +113,13 @@ model combination, and columns:
 
   Formatted string, e.g. `"1.23 (1.05-1.44)"`.
 
+The returned table also carries a hidden attribute recording
+`outcome_col`, `covariates`, exposure levels, `test`, `ci_method`, and
+`conf_level`;
+[`audit_model`](https://evanbio.github.io/ukbflow/reference/audit_model.md)
+reads this automatically, so nothing needs to be re-typed when auditing
+a result.
+
 ## Details
 
 - **Unadjusted** - no covariates (crude).
